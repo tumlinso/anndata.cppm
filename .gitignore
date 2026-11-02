@@ -1,0 +1,7 @@
+/build/
+/out/
+/.todo-orchestrator/
+/.venv/
+/CMakeUserPresets.json
+__pycache__/
+*.pyc

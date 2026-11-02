@@ -1,0 +1,2733 @@
+{
+  "build_input_hashes": {
+    "CMakeLists.txt": "22dfbe353158cd5a67d07370ad504d3571a11c425e608a8d32637c01106c4a2a",
+    "CMakePresets.json": "a361244182456fd20ea5286ee06229e55efb6df68f9cafacc4626d02f5a3c620",
+    "bench-probes/core.cpp": "8d6ca8817755e75d5927f59c207a148754397f5ce5cdebd53bc2112ead963365",
+    "bench-probes/facade.cpp": "acf0c3e99a901a8cf68c4dc448e96c12564530f283a66b19ffc2d453f2e82904",
+    "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+    "cmake/anndataConfig.cmake.in": "c0547dfa2d0122b4b309c9bb684000ba6672cc7e02bc7ed899390d0f310fa9d1",
+    "cmake/test-installed-consumer.cmake": "578a8b9cdc91b5390dc7f9ad7ec2ad8c62d8c49d4b8398ed656a11991e502177",
+    "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+    "src/anndata.arrays.cppm": "52072beccb263e93324b4efd306095122d4d11aa5a0ea269a4f9f2d8a13c7c2a",
+    "src/anndata.core.cppm": "bbc6bc083560b9515219fc71258a3e6fbb170ce145a752fbd15e183d480fa99b",
+    "src/anndata.cppm": "f764df816606fb321c028e56435e923619c96bfcc5718e892b9315048e3dd880",
+    "src/anndata.data.cppm": "f0c30d84fcfe36153c204787175f2f5d87a849839860c78067aa6017a1b8c3d5",
+    "src/arrays.cpp": "1ce06f583d1460b81aeecc0f73f67aaedd36a55db1c16a887695cf6ebfa54bb9",
+    "src/data.cpp": "293be0a0ddc75bec83b1d28b6e93d48789f3b360fef7dc2e7ee78573c42cfd67",
+    "tests/consumer/CMakeLists.txt": "04c3fb8ef182e6a29deab825b4c3d8ca4ff33b34b690a7a59d4130c84afed18c",
+    "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+    "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+    "tests/test_arrays.cpp": "856365d126ad6ede095e0f90fdb0eb433a7e37c4aedde67782bb9f240fcce36c",
+    "tests/test_data.cpp": "e364b17766297fec2a6060f1a5f23103b5b7cf497c01fc7bfd88b02d37bb2941"
+  },
+  "dependency_checks": [
+    {
+      "consumer_edit_kept_bmis": true,
+      "consumer_edit_rebuilt_consumer": true,
+      "implementation_edit_kept_bmis": true,
+      "implementation_edit_kept_consumer": true,
+      "implementation_edit_rebuilt_implementation": true,
+      "interface_edit_changed_bmi": true,
+      "interface_edit_rebuilt_consumer": true,
+      "no_op_kept_bmi_metadata": true,
+      "no_op_kept_objects": true,
+      "run": 1
+    },
+    {
+      "consumer_edit_kept_bmis": true,
+      "consumer_edit_rebuilt_consumer": true,
+      "implementation_edit_kept_bmis": true,
+      "implementation_edit_kept_consumer": true,
+      "implementation_edit_rebuilt_implementation": true,
+      "interface_edit_changed_bmi": true,
+      "interface_edit_rebuilt_consumer": true,
+      "no_op_kept_bmi_metadata": true,
+      "no_op_kept_objects": true,
+      "run": 2
+    },
+    {
+      "consumer_edit_kept_bmis": true,
+      "consumer_edit_rebuilt_consumer": true,
+      "implementation_edit_kept_bmis": true,
+      "implementation_edit_kept_consumer": true,
+      "implementation_edit_rebuilt_implementation": true,
+      "interface_edit_changed_bmi": true,
+      "interface_edit_rebuilt_consumer": true,
+      "no_op_kept_bmi_metadata": true,
+      "no_op_kept_objects": true,
+      "run": 3
+    },
+    {
+      "consumer_edit_kept_bmis": true,
+      "consumer_edit_rebuilt_consumer": true,
+      "implementation_edit_kept_bmis": true,
+      "implementation_edit_kept_consumer": true,
+      "implementation_edit_rebuilt_implementation": true,
+      "interface_edit_changed_bmi": true,
+      "interface_edit_rebuilt_consumer": true,
+      "no_op_kept_bmi_metadata": true,
+      "no_op_kept_objects": true,
+      "run": 4
+    },
+    {
+      "consumer_edit_kept_bmis": true,
+      "consumer_edit_rebuilt_consumer": true,
+      "implementation_edit_kept_bmis": true,
+      "implementation_edit_kept_consumer": true,
+      "implementation_edit_rebuilt_implementation": true,
+      "interface_edit_changed_bmi": true,
+      "interface_edit_rebuilt_consumer": true,
+      "no_op_kept_bmi_metadata": true,
+      "no_op_kept_objects": true,
+      "run": 5
+    }
+  ],
+  "environment": {
+    "cache_policy": "fresh build trees; operating-system page cache was not cleared",
+    "cmake": "cmake version 3.28.3",
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "configuration": "Release",
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz",
+    "generator": "Ninja",
+    "gnu_time": "time (GNU Time) UNKNOWN",
+    "load_average_at_start": [
+      3.18212890625,
+      4.7001953125,
+      3.8125
+    ],
+    "logical_cpu_count": 80,
+    "machine": "x86_64",
+    "module_dependency_scanner": "/usr/bin/clang-scan-deps-18",
+    "ninja": "1.11.1",
+    "parallel_jobs": 2,
+    "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "python": "3.13.11",
+    "repetitions": 5
+  },
+  "module_layout": {
+    "core_import": "anndata.core",
+    "facade_import": "anndata",
+    "optional_format_modules": "none implemented in this snapshot"
+  },
+  "notes": [
+    "Cold means a fresh configure/build directory; the OS page cache was not cleared.",
+    "The initial public package has core and facade modules in one exported target.",
+    "Consumer import measurements reuse the built package module artifacts.",
+    "Interface edits add an inline public constant to the arrays partition in a disposable source snapshot.",
+    "Implementation edits append an unused private declaration to arrays.cpp in a disposable source snapshot.",
+    "No HDF5, Zarr, Arrow, or optional module is implemented, so those compilation costs are unmeasured.",
+    "Wall time includes the complete requested CMake/Ninja operation; build-command RSS is reported where GNU time is available."
+  ],
+  "provenance_correction": "Removed optional .venv files and generated local build-tree sources/metadata from the build-input maps and aggregate digests. The compile experiment configured interop tests OFF and used separate temporary build trees; the memory build also used an isolated /tmp build. None of the removed paths was referenced by a timed compiler command. Measurements, commands, BMI/object artifact hashes, and workload rows are unchanged.",
+  "runs": [
+    {
+      "artifacts": {
+        "bmi_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643643418583043,
+            "sha256": "5c6767be9a633c9a31ae4cf80c9a0fd97632dec53e45666184c4220d283967c9"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643644551581067,
+            "sha256": "0d2bbf6407bf94be8dc17dbdf2761bcf08b51233fb981d6c2bf2eab59a5a44be"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643644788580654,
+            "sha256": "f98ff9761b11f5b2fe3059aef7b13a10715f011afeea9a5dff851082ae19dcbf"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643646997576802,
+            "sha256": "f441a9ba975e67ecbb7add266b3ee12d043960dea8318f467ee74bb54f1143ad"
+          }
+        },
+        "bmi_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643643418583043,
+            "sha256": "5c6767be9a633c9a31ae4cf80c9a0fd97632dec53e45666184c4220d283967c9"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643644551581067,
+            "sha256": "0d2bbf6407bf94be8dc17dbdf2761bcf08b51233fb981d6c2bf2eab59a5a44be"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643644788580654,
+            "sha256": "f98ff9761b11f5b2fe3059aef7b13a10715f011afeea9a5dff851082ae19dcbf"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643646997576802,
+            "sha256": "f441a9ba975e67ecbb7add266b3ee12d043960dea8318f467ee74bb54f1143ad"
+          }
+        },
+        "bmi_after_interface_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6771120,
+            "mtime_ns": 1793643656211560734,
+            "sha256": "900d3ab49f8b2b996db44e0403fab861701ee6783919b4549d3d85bdf6464a44"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643657425558617,
+            "sha256": "641fdece8290a90d49ae9482e29107694d7051865ea92af72dc85822f8c558cc"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643657669558191,
+            "sha256": "f1723401aabffd5b4546c8df0b992dfe25121a54f765bf92de79d13ba2d81b9e"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643659710554632,
+            "sha256": "f265c078caee1ac1676728e9a19efb9b713eedf09bc929981fa7235d9b17d14e"
+          }
+        },
+        "bmi_after_noop": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643643418583043,
+            "sha256": "5c6767be9a633c9a31ae4cf80c9a0fd97632dec53e45666184c4220d283967c9"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643644551581067,
+            "sha256": "0d2bbf6407bf94be8dc17dbdf2761bcf08b51233fb981d6c2bf2eab59a5a44be"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643644788580654,
+            "sha256": "f98ff9761b11f5b2fe3059aef7b13a10715f011afeea9a5dff851082ae19dcbf"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643646997576802,
+            "sha256": "f441a9ba975e67ecbb7add266b3ee12d043960dea8318f467ee74bb54f1143ad"
+          }
+        },
+        "bmi_before": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643643418583043,
+            "sha256": "5c6767be9a633c9a31ae4cf80c9a0fd97632dec53e45666184c4220d283967c9"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643644551581067,
+            "sha256": "0d2bbf6407bf94be8dc17dbdf2761bcf08b51233fb981d6c2bf2eab59a5a44be"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643644788580654,
+            "sha256": "f98ff9761b11f5b2fe3059aef7b13a10715f011afeea9a5dff851082ae19dcbf"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643646997576802,
+            "sha256": "f441a9ba975e67ecbb7add266b3ee12d043960dea8318f467ee74bb54f1143ad"
+          }
+        },
+        "commands": {
+          "cold": [
+            "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+            "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+            "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+            "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+            "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[10/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.arrays.cppm",
+            "[11/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.data.cppm",
+            "[12/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.core.cppm",
+            "[13/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/arrays.cpp",
+            "[14/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.cppm",
+            "[15/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/examples/foundation.cpp",
+            "[16/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/data.cpp",
+            "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "consumer": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/examples/foundation.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "implementation": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/arrays.cpp"
+          ],
+          "import_core": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/bench-probes/core.cpp -c -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi -MD -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.d > CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp && mv CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.d @CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.modmap -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/bench-probes/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -o bench_core  libanndata.a && :"
+          ],
+          "import_facade": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/bench-probes/facade.cpp -c -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi -MD -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.d > CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp && mv CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.d @CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.modmap -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/bench-probes/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -o bench_facade  libanndata.a && :"
+          ],
+          "interface": [
+            "[1/6] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[4/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.arrays.cppm",
+            "[5/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.data.cppm",
+            "[6/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.core.cppm",
+            "[7/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/arrays.cpp",
+            "[8/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/anndata.cppm",
+            "[9/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/examples/foundation.cpp",
+            "[10/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-1/source/src/data.cpp",
+            "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "noop-consumer": [],
+          "noop-library": []
+        },
+        "objects_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643643463582964,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643644817580603,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643647028576748,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643644731580753,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643646936576908,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643652284567582,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643652807566670,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643643463582964,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643644817580603,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643647028576748,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643644731580753,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643655109562655,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643652284567582,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643652807566670,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_interface_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643656265560640,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643657699558139,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643659740554580,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643657609558296,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643659648554740,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643665295544892,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643659914554276,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_noop": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643643463582964,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643644817580603,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643647028576748,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643644731580753,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643646936576908,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643652284567582,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643647205576439,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_before": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643643463582964,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643644817580603,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643647028576748,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643644731580753,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643646936576908,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643652284567582,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643647205576439,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        }
+      },
+      "build_commands": {
+        "cold": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "consumer_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "implementation_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_core": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "bench_core",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_facade": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "bench_facade",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "interface_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_consumer": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_library": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ]
+      },
+      "cold": {
+        "max_rss_kib": 231040,
+        "returncode": 0,
+        "wall_seconds": 10.045672399999603
+      },
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/source",
+          "-B",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-1/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_BUILD_TESTS=OFF",
+          "-DANNDATA_BUILD_EXAMPLES=ON",
+          "-DANNDATA_BUILD_BENCHMARKS=OFF",
+          "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+        ],
+        "output_tail": "-- The CXX compiler identification is Clang 18.1.3\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/clang++-18 - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.4s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/anndata-module-benchmark-wrqhp4lb/run-1/build\n",
+        "returncode": 0,
+        "wall_seconds": 0.4097086590008985
+      },
+      "consumer_edit": {
+        "max_rss_kib": 119680,
+        "returncode": 0,
+        "wall_seconds": 0.32519359400248504
+      },
+      "implementation_edit": {
+        "max_rss_kib": 169244,
+        "returncode": 0,
+        "wall_seconds": 2.15965284000049
+      },
+      "import_core": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.24428217399690766
+      },
+      "import_facade": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.28269640099824755
+      },
+      "interface_edit": {
+        "max_rss_kib": 235520,
+        "returncode": 0,
+        "wall_seconds": 10.202184100999148
+      },
+      "no_op": {
+        "max_rss_kib": 17280,
+        "returncode": 0,
+        "wall_seconds": 0.018554739999672165
+      },
+      "no_op_library": {
+        "max_rss_kib": 17280,
+        "returncode": 0,
+        "wall_seconds": 0.019988981002825312
+      },
+      "run": 1,
+      "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c"
+    },
+    {
+      "artifacts": {
+        "bmi_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643669279537945,
+            "sha256": "eb6ca1d3d0a27535bb48a6c5d9410dab9d96112d0d835563d8aff19957160017"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643670474535861,
+            "sha256": "23be2fa152652001dcbf4ccaa52df741466572011768cf4ef0817e1ff0752a48"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643670735535406,
+            "sha256": "f7a2ad5836ef1aff9f27ac82c52b3e04dd46329d783bf5612fe3fb407e0ab0ed"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643672892531644,
+            "sha256": "df9aa435ae3fe11c8992c5ebf92a889369e17fd38d67601dcd6ec8cc26941ee9"
+          }
+        },
+        "bmi_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643669279537945,
+            "sha256": "eb6ca1d3d0a27535bb48a6c5d9410dab9d96112d0d835563d8aff19957160017"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643670474535861,
+            "sha256": "23be2fa152652001dcbf4ccaa52df741466572011768cf4ef0817e1ff0752a48"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643670735535406,
+            "sha256": "f7a2ad5836ef1aff9f27ac82c52b3e04dd46329d783bf5612fe3fb407e0ab0ed"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643672892531644,
+            "sha256": "df9aa435ae3fe11c8992c5ebf92a889369e17fd38d67601dcd6ec8cc26941ee9"
+          }
+        },
+        "bmi_after_interface_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6771116,
+            "mtime_ns": 1793643682134515527,
+            "sha256": "d898e32f07b214b59c1b484576f9af843f4bdca5fccd378755cb0988fdadb2ed"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643683256513571,
+            "sha256": "27dc2182c5b33de72ee12397f6bd125d158fc9a08fec6c9c4a427e45a6fe7b9e"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643683489513164,
+            "sha256": "1904a382f3e327d1d6a2f3b2ede1d8a88c25ffacd339110f155011a220111737"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643685612509462,
+            "sha256": "b372e7703dfd571b5cfc0e63b33ac8e1f0428c95422882a73f49142ed1a42068"
+          }
+        },
+        "bmi_after_noop": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643669279537945,
+            "sha256": "eb6ca1d3d0a27535bb48a6c5d9410dab9d96112d0d835563d8aff19957160017"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643670474535861,
+            "sha256": "23be2fa152652001dcbf4ccaa52df741466572011768cf4ef0817e1ff0752a48"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643670735535406,
+            "sha256": "f7a2ad5836ef1aff9f27ac82c52b3e04dd46329d783bf5612fe3fb407e0ab0ed"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643672892531644,
+            "sha256": "df9aa435ae3fe11c8992c5ebf92a889369e17fd38d67601dcd6ec8cc26941ee9"
+          }
+        },
+        "bmi_before": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643669279537945,
+            "sha256": "eb6ca1d3d0a27535bb48a6c5d9410dab9d96112d0d835563d8aff19957160017"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643670474535861,
+            "sha256": "23be2fa152652001dcbf4ccaa52df741466572011768cf4ef0817e1ff0752a48"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643670735535406,
+            "sha256": "f7a2ad5836ef1aff9f27ac82c52b3e04dd46329d783bf5612fe3fb407e0ab0ed"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643672892531644,
+            "sha256": "df9aa435ae3fe11c8992c5ebf92a889369e17fd38d67601dcd6ec8cc26941ee9"
+          }
+        },
+        "commands": {
+          "cold": [
+            "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+            "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+            "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+            "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+            "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[10/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.arrays.cppm",
+            "[11/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.data.cppm",
+            "[12/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.core.cppm",
+            "[13/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/arrays.cpp",
+            "[14/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.cppm",
+            "[15/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/examples/foundation.cpp",
+            "[16/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/data.cpp",
+            "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "consumer": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/examples/foundation.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "implementation": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/arrays.cpp"
+          ],
+          "import_core": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/bench-probes/core.cpp -c -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi -MD -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.d > CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp && mv CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.d @CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.modmap -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/bench-probes/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -o bench_core  libanndata.a && :"
+          ],
+          "import_facade": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/bench-probes/facade.cpp -c -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi -MD -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.d > CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp && mv CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.d @CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.modmap -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/bench-probes/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -o bench_facade  libanndata.a && :"
+          ],
+          "interface": [
+            "[1/6] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[4/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.arrays.cppm",
+            "[5/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.data.cppm",
+            "[6/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.core.cppm",
+            "[7/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/arrays.cpp",
+            "[8/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/anndata.cppm",
+            "[9/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/examples/foundation.cpp",
+            "[10/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-2/source/src/data.cpp",
+            "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "noop-consumer": [],
+          "noop-library": []
+        },
+        "objects_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643669328537859,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643670763535357,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643672917531601,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643670675535510,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643672832531749,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643678300522213,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643678818521310,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643669328537859,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643670763535357,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643672917531601,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643670675535510,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643681061517399,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643678300522213,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643678818521310,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_interface_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643682179515449,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643683514513121,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643685634509424,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643683436513257,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643685557509558,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643690613500741,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643685805509126,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_noop": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643669328537859,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643670763535357,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643672917531601,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643670675535510,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643672832531749,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643678300522213,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643673090531299,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_before": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643669328537859,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643670763535357,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643672917531601,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643670675535510,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643672832531749,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643678300522213,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643673090531299,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        }
+      },
+      "build_commands": {
+        "cold": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "consumer_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "implementation_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_core": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "bench_core",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_facade": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "bench_facade",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "interface_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_consumer": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_library": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ]
+      },
+      "cold": {
+        "max_rss_kib": 232320,
+        "returncode": 0,
+        "wall_seconds": 10.269494473999657
+      },
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/source",
+          "-B",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-2/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_BUILD_TESTS=OFF",
+          "-DANNDATA_BUILD_EXAMPLES=ON",
+          "-DANNDATA_BUILD_BENCHMARKS=OFF",
+          "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+        ],
+        "output_tail": "-- The CXX compiler identification is Clang 18.1.3\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/clang++-18 - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/anndata-module-benchmark-wrqhp4lb/run-2/build\n",
+        "returncode": 0,
+        "wall_seconds": 0.38298467799904756
+      },
+      "consumer_edit": {
+        "max_rss_kib": 119680,
+        "returncode": 0,
+        "wall_seconds": 0.3077147670010163
+      },
+      "implementation_edit": {
+        "max_rss_kib": 169248,
+        "returncode": 0,
+        "wall_seconds": 2.1121559130006062
+      },
+      "import_core": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.24132766000184347
+      },
+      "import_facade": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.24059309299991583
+      },
+      "interface_edit": {
+        "max_rss_kib": 235520,
+        "returncode": 0,
+        "wall_seconds": 9.564837025998713
+      },
+      "no_op": {
+        "max_rss_kib": 17280,
+        "returncode": 0,
+        "wall_seconds": 0.020066721001057886
+      },
+      "no_op_library": {
+        "max_rss_kib": 17920,
+        "returncode": 0,
+        "wall_seconds": 0.018160474999604048
+      },
+      "run": 2,
+      "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c"
+    },
+    {
+      "artifacts": {
+        "bmi_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643694509493947,
+            "sha256": "a4da3bc23f06231869ac82c8b168e80844b5d78af7509d7294587b975a233ca5"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643695667491928,
+            "sha256": "6cb4da8a5fb6eb1d4e99384fdb3ccd75cd9abfa87e5c389b625eb1d667523d22"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643695935491460,
+            "sha256": "1f0aef70c367f09a27a35cf0ecb0f1b09b73233f39a6f191f449cdf4ebdac5b4"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643698042487786,
+            "sha256": "f9c3d42c754637bb9d27d0543d345a4c4165c922e5a4a393c5d371faee8a8db3"
+          }
+        },
+        "bmi_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643694509493947,
+            "sha256": "a4da3bc23f06231869ac82c8b168e80844b5d78af7509d7294587b975a233ca5"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643695667491928,
+            "sha256": "6cb4da8a5fb6eb1d4e99384fdb3ccd75cd9abfa87e5c389b625eb1d667523d22"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643695935491460,
+            "sha256": "1f0aef70c367f09a27a35cf0ecb0f1b09b73233f39a6f191f449cdf4ebdac5b4"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643698042487786,
+            "sha256": "f9c3d42c754637bb9d27d0543d345a4c4165c922e5a4a393c5d371faee8a8db3"
+          }
+        },
+        "bmi_after_interface_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6771116,
+            "mtime_ns": 1793643707289471660,
+            "sha256": "6520e186b27d7d250f7e6551ff2b886f74c8b6e9c7833deb5a14ffe248303f25"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643708463469613,
+            "sha256": "529ce5081dc040d967e5a0b013d8dccfaaa6f40ae264aeee80dc8f28369983b2"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643708684469227,
+            "sha256": "506b066409fe4efc7182ebec0c78a9c11788ad7272d8c07d6598042ecff4bc7f"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643710885465389,
+            "sha256": "fbbfb1b80287ceeb3d10fe9cd543eaa99169d20d87f5b80b279b95f9a71d269f"
+          }
+        },
+        "bmi_after_noop": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643694509493947,
+            "sha256": "a4da3bc23f06231869ac82c8b168e80844b5d78af7509d7294587b975a233ca5"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643695667491928,
+            "sha256": "6cb4da8a5fb6eb1d4e99384fdb3ccd75cd9abfa87e5c389b625eb1d667523d22"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643695935491460,
+            "sha256": "1f0aef70c367f09a27a35cf0ecb0f1b09b73233f39a6f191f449cdf4ebdac5b4"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643698042487786,
+            "sha256": "f9c3d42c754637bb9d27d0543d345a4c4165c922e5a4a393c5d371faee8a8db3"
+          }
+        },
+        "bmi_before": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643694509493947,
+            "sha256": "a4da3bc23f06231869ac82c8b168e80844b5d78af7509d7294587b975a233ca5"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643695667491928,
+            "sha256": "6cb4da8a5fb6eb1d4e99384fdb3ccd75cd9abfa87e5c389b625eb1d667523d22"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643695935491460,
+            "sha256": "1f0aef70c367f09a27a35cf0ecb0f1b09b73233f39a6f191f449cdf4ebdac5b4"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643698042487786,
+            "sha256": "f9c3d42c754637bb9d27d0543d345a4c4165c922e5a4a393c5d371faee8a8db3"
+          }
+        },
+        "commands": {
+          "cold": [
+            "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+            "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+            "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+            "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+            "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[10/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.arrays.cppm",
+            "[11/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.data.cppm",
+            "[12/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.core.cppm",
+            "[13/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/arrays.cpp",
+            "[14/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.cppm",
+            "[15/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/examples/foundation.cpp",
+            "[16/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/data.cpp",
+            "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "consumer": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/examples/foundation.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "implementation": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/arrays.cpp"
+          ],
+          "import_core": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/bench-probes/core.cpp -c -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi -MD -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.d > CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp && mv CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.d @CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.modmap -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/bench-probes/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -o bench_core  libanndata.a && :"
+          ],
+          "import_facade": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/bench-probes/facade.cpp -c -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi -MD -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.d > CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp && mv CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.d @CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.modmap -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/bench-probes/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -o bench_facade  libanndata.a && :"
+          ],
+          "interface": [
+            "[1/6] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[4/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.arrays.cppm",
+            "[5/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.data.cppm",
+            "[6/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.core.cppm",
+            "[7/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/arrays.cpp",
+            "[8/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/anndata.cppm",
+            "[9/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/examples/foundation.cpp",
+            "[10/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-3/source/src/data.cpp",
+            "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "noop-consumer": [],
+          "noop-library": []
+        },
+        "objects_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643694557493863,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643695968491403,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643698070487737,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643695870491574,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643697987487882,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643703354478522,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643703870477623,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643694557493863,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643695968491403,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643698070487737,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643695870491574,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643706195473568,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643703354478522,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643703870477623,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_interface_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643707331471587,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643708709469184,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643710914465339,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643708634469315,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643710827465490,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643716077456335,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643711092465028,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_noop": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643694557493863,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643695968491403,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643698070487737,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643695870491574,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643697987487882,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643703354478522,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643698244487434,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_before": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643694557493863,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643695968491403,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643698070487737,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643695870491574,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643697987487882,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643703354478522,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643698244487434,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        }
+      },
+      "build_commands": {
+        "cold": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "consumer_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "implementation_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_core": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "bench_core",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_facade": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "bench_facade",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "interface_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_consumer": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_library": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ]
+      },
+      "cold": {
+        "max_rss_kib": 235520,
+        "returncode": 0,
+        "wall_seconds": 10.07305029499912
+      },
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/source",
+          "-B",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-3/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_BUILD_TESTS=OFF",
+          "-DANNDATA_BUILD_EXAMPLES=ON",
+          "-DANNDATA_BUILD_BENCHMARKS=OFF",
+          "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+        ],
+        "output_tail": "-- The CXX compiler identification is Clang 18.1.3\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/clang++-18 - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/anndata-module-benchmark-wrqhp4lb/run-3/build\n",
+        "returncode": 0,
+        "wall_seconds": 0.3823992560028273
+      },
+      "consumer_edit": {
+        "max_rss_kib": 119680,
+        "returncode": 0,
+        "wall_seconds": 0.3155608470005973
+      },
+      "implementation_edit": {
+        "max_rss_kib": 169248,
+        "returncode": 0,
+        "wall_seconds": 2.183705154002382
+      },
+      "import_core": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.2590967050018662
+      },
+      "import_facade": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.24780833600016194
+      },
+      "interface_edit": {
+        "max_rss_kib": 232960,
+        "returncode": 0,
+        "wall_seconds": 9.884888866999972
+      },
+      "no_op": {
+        "max_rss_kib": 17280,
+        "returncode": 0,
+        "wall_seconds": 0.019263720998424105
+      },
+      "no_op_library": {
+        "max_rss_kib": 17280,
+        "returncode": 0,
+        "wall_seconds": 0.01953765300277155
+      },
+      "run": 3,
+      "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c"
+    },
+    {
+      "artifacts": {
+        "bmi_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643720097449325,
+            "sha256": "30ced02dcfc79b3d415ce6d84a7e572874ece081b126ae4d2cac2ac89a42156b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643721240447331,
+            "sha256": "17f0d1130b8191e8723686e0c30b764140093353b373b5c62306b7cd52a9b61b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643721477446918,
+            "sha256": "26ba7139954e9869c5423510ed6a8262b9dbd54530c2e58dd0beaf5f9bb4eaef"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643723747442960,
+            "sha256": "fa31c4c7d883412a8439a0fc473fef474c7d62f11b1035409dca993727bf1555"
+          }
+        },
+        "bmi_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643720097449325,
+            "sha256": "30ced02dcfc79b3d415ce6d84a7e572874ece081b126ae4d2cac2ac89a42156b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643721240447331,
+            "sha256": "17f0d1130b8191e8723686e0c30b764140093353b373b5c62306b7cd52a9b61b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643721477446918,
+            "sha256": "26ba7139954e9869c5423510ed6a8262b9dbd54530c2e58dd0beaf5f9bb4eaef"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643723747442960,
+            "sha256": "fa31c4c7d883412a8439a0fc473fef474c7d62f11b1035409dca993727bf1555"
+          }
+        },
+        "bmi_after_interface_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6771120,
+            "mtime_ns": 1793643732900426998,
+            "sha256": "6d311bc1f58e7c06d2f1c8f6afab6dd1ecd109403d2a99043954005502f11161"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643734025425036,
+            "sha256": "01ba4aab6b7db39646838e589ed515eb2fa6e6bc45f4991a3b7d4563a6fcd5c3"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643734253424638,
+            "sha256": "c78b89c03f57ead1c143dcdfdc35bcdccaa9808f7c02bb21db05ad94ec68dfad"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643736439420826,
+            "sha256": "a5c16ffba26315eca12ab6f0bf3bb1d2d4e5aabfa0ab8d92ccf1e67632600ebc"
+          }
+        },
+        "bmi_after_noop": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643720097449325,
+            "sha256": "30ced02dcfc79b3d415ce6d84a7e572874ece081b126ae4d2cac2ac89a42156b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643721240447331,
+            "sha256": "17f0d1130b8191e8723686e0c30b764140093353b373b5c62306b7cd52a9b61b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643721477446918,
+            "sha256": "26ba7139954e9869c5423510ed6a8262b9dbd54530c2e58dd0beaf5f9bb4eaef"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643723747442960,
+            "sha256": "fa31c4c7d883412a8439a0fc473fef474c7d62f11b1035409dca993727bf1555"
+          }
+        },
+        "bmi_before": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643720097449325,
+            "sha256": "30ced02dcfc79b3d415ce6d84a7e572874ece081b126ae4d2cac2ac89a42156b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643721240447331,
+            "sha256": "17f0d1130b8191e8723686e0c30b764140093353b373b5c62306b7cd52a9b61b"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643721477446918,
+            "sha256": "26ba7139954e9869c5423510ed6a8262b9dbd54530c2e58dd0beaf5f9bb4eaef"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643723747442960,
+            "sha256": "fa31c4c7d883412a8439a0fc473fef474c7d62f11b1035409dca993727bf1555"
+          }
+        },
+        "commands": {
+          "cold": [
+            "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+            "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+            "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+            "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+            "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[10/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.arrays.cppm",
+            "[11/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.data.cppm",
+            "[12/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.core.cppm",
+            "[13/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/arrays.cpp",
+            "[14/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.cppm",
+            "[15/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/examples/foundation.cpp",
+            "[16/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/data.cpp",
+            "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "consumer": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/examples/foundation.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "implementation": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/arrays.cpp"
+          ],
+          "import_core": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/bench-probes/core.cpp -c -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi -MD -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.d > CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp && mv CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.d @CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.modmap -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/bench-probes/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -o bench_core  libanndata.a && :"
+          ],
+          "import_facade": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/bench-probes/facade.cpp -c -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi -MD -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.d > CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp && mv CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.d @CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.modmap -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/bench-probes/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -o bench_facade  libanndata.a && :"
+          ],
+          "interface": [
+            "[1/6] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[4/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.arrays.cppm",
+            "[5/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.data.cppm",
+            "[6/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.core.cppm",
+            "[7/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/arrays.cpp",
+            "[8/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/anndata.cppm",
+            "[9/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/examples/foundation.cpp",
+            "[10/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-4/source/src/data.cpp",
+            "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "noop-consumer": [],
+          "noop-library": []
+        },
+        "objects_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643720140449250,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643721510446861,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643723777442907,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643721420447017,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643723688443062,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643729085433651,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643729621432716,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643720140449250,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643721510446861,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643723777442907,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643721420447017,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643731829428865,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643729085433651,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643729621432716,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_interface_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643732946426917,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643734280424591,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643736468420775,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643734199424732,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643736379420931,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643741630411774,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643736649420460,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_noop": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643720140449250,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643721510446861,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643723777442907,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643721420447017,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643723688443062,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643729085433651,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643723964442581,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_before": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643720140449250,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643721510446861,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643723777442907,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643721420447017,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643723688443062,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643729085433651,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643723964442581,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        }
+      },
+      "build_commands": {
+        "cold": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "consumer_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "implementation_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_core": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "bench_core",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_facade": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "bench_facade",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "interface_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_consumer": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_library": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ]
+      },
+      "cold": {
+        "max_rss_kib": 231680,
+        "returncode": 0,
+        "wall_seconds": 10.191257155998755
+      },
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/source",
+          "-B",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-4/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_BUILD_TESTS=OFF",
+          "-DANNDATA_BUILD_EXAMPLES=ON",
+          "-DANNDATA_BUILD_BENCHMARKS=OFF",
+          "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+        ],
+        "output_tail": "-- The CXX compiler identification is Clang 18.1.3\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/clang++-18 - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.4s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/anndata-module-benchmark-wrqhp4lb/run-4/build\n",
+        "returncode": 0,
+        "wall_seconds": 0.38633123000181513
+      },
+      "consumer_edit": {
+        "max_rss_kib": 119680,
+        "returncode": 0,
+        "wall_seconds": 0.31530309899972053
+      },
+      "implementation_edit": {
+        "max_rss_kib": 169268,
+        "returncode": 0,
+        "wall_seconds": 2.0716216000000713
+      },
+      "import_core": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.23611357099798624
+      },
+      "import_facade": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.23799665499973344
+      },
+      "interface_edit": {
+        "max_rss_kib": 232960,
+        "returncode": 0,
+        "wall_seconds": 9.804725423000491
+      },
+      "no_op": {
+        "max_rss_kib": 17920,
+        "returncode": 0,
+        "wall_seconds": 0.019988199001090834
+      },
+      "no_op_library": {
+        "max_rss_kib": 17920,
+        "returncode": 0,
+        "wall_seconds": 0.017551961998833576
+      },
+      "run": 4,
+      "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c"
+    },
+    {
+      "artifacts": {
+        "bmi_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643745542404951,
+            "sha256": "d71bb69da8b0fb199a3c815c41628e0f0299b189fe2ece0c9113b128af191a57"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643746704402925,
+            "sha256": "a36d6ca52746fa82ee728075685b059a169efce4293a47defae5fa0f9e366871"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643746932402528,
+            "sha256": "60186cc7c5f291ab1e6b3107f8b2860e32a46f4b55cd2f3cadb1bc53597f357c"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643749155398651,
+            "sha256": "9f3c22a3347b465019f69db59c43d84465e248a26abd3800918d825ca4ae5393"
+          }
+        },
+        "bmi_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643745542404951,
+            "sha256": "d71bb69da8b0fb199a3c815c41628e0f0299b189fe2ece0c9113b128af191a57"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643746704402925,
+            "sha256": "a36d6ca52746fa82ee728075685b059a169efce4293a47defae5fa0f9e366871"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643746932402528,
+            "sha256": "60186cc7c5f291ab1e6b3107f8b2860e32a46f4b55cd2f3cadb1bc53597f357c"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643749155398651,
+            "sha256": "9f3c22a3347b465019f69db59c43d84465e248a26abd3800918d825ca4ae5393"
+          }
+        },
+        "bmi_after_interface_edit": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6771120,
+            "mtime_ns": 1793643758332382647,
+            "sha256": "b3b1c273a95994385ddfc539e81f9e2073711989be0267d0b35bfd5bc068e500"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643759473380657,
+            "sha256": "fdab233fc49216b2d422ad60759ff24340e085c1300fdb6c86554ceff12d52b4"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643759700380261,
+            "sha256": "6e68c45e9099045c080729a665fc757bebed513b8b7e4aecfb33d201620c9ff5"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643761871376475,
+            "sha256": "fdcd38b1c3b78d1f5b676e86e7d1de06318bd0024004362d5d8bd4a90737711d"
+          }
+        },
+        "bmi_after_noop": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643745542404951,
+            "sha256": "d71bb69da8b0fb199a3c815c41628e0f0299b189fe2ece0c9113b128af191a57"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643746704402925,
+            "sha256": "a36d6ca52746fa82ee728075685b059a169efce4293a47defae5fa0f9e366871"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643746932402528,
+            "sha256": "60186cc7c5f291ab1e6b3107f8b2860e32a46f4b55cd2f3cadb1bc53597f357c"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643749155398651,
+            "sha256": "9f3c22a3347b465019f69db59c43d84465e248a26abd3800918d825ca4ae5393"
+          }
+        },
+        "bmi_before": {
+          "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+            "bytes": 6770996,
+            "mtime_ns": 1793643745542404951,
+            "sha256": "d71bb69da8b0fb199a3c815c41628e0f0299b189fe2ece0c9113b128af191a57"
+          },
+          "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+            "bytes": 7049368,
+            "mtime_ns": 1793643746704402925,
+            "sha256": "a36d6ca52746fa82ee728075685b059a169efce4293a47defae5fa0f9e366871"
+          },
+          "CMakeFiles/anndata.dir/anndata.core.pcm": {
+            "bytes": 17360,
+            "mtime_ns": 1793643746932402528,
+            "sha256": "60186cc7c5f291ab1e6b3107f8b2860e32a46f4b55cd2f3cadb1bc53597f357c"
+          },
+          "CMakeFiles/anndata.dir/anndata.pcm": {
+            "bytes": 17300,
+            "mtime_ns": 1793643749155398651,
+            "sha256": "9f3c22a3347b465019f69db59c43d84465e248a26abd3800918d825ca4ae5393"
+          }
+        },
+        "commands": {
+          "cold": [
+            "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+            "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+            "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+            "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+            "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[10/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.arrays.cppm",
+            "[11/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.data.cppm",
+            "[12/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.core.cppm",
+            "[13/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/arrays.cpp",
+            "[14/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.cppm",
+            "[15/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/examples/foundation.cpp",
+            "[16/18] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/data.cpp",
+            "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "consumer": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/examples/foundation.cpp -c -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi -MD -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.d > CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp && mv CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi.tmp CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/examples/foundation.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "implementation": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/arrays.cpp"
+          ],
+          "import_core": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/bench-probes/core.cpp -c -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi -MD -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.d > CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp && mv CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi.tmp CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -MF CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.d @CMakeFiles/bench_core.dir/bench-probes/core.cpp.o.modmap -o CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/bench-probes/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_core.dir/bench-probes/core.cpp.o -o bench_core  libanndata.a && :"
+          ],
+          "import_facade": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/bench-probes/facade.cpp -c -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi -MD -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.d > CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp && mv CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi.tmp CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -MF CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.d @CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o.modmap -o CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/bench-probes/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/bench_facade.dir/bench-probes/facade.cpp.o -o bench_facade  libanndata.a && :"
+          ],
+          "interface": [
+            "[1/6] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+            "[4/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.arrays.cppm",
+            "[5/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.data.cppm",
+            "[6/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.core.cppm",
+            "[7/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/arrays.cpp",
+            "[8/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/anndata.cppm",
+            "[9/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -MF CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.d @CMakeFiles/anndata_example.dir/examples/foundation.cpp.o.modmap -o CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/examples/foundation.cpp",
+            "[10/12] /usr/bin/clang++-18   -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-module-benchmark-wrqhp4lb/run-5/source/src/data.cpp",
+            "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/anndata_example.dir/examples/foundation.cpp.o -o anndata_example  libanndata.a && :"
+          ],
+          "noop-consumer": [],
+          "noop-library": []
+        },
+        "objects_after_consumer_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643745590404868,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643746954402489,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643749182398604,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643746880402618,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643749095398755,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643754383389534,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643754932388576,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_implementation_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643745590404868,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643746954402489,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643749182398604,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643746880402618,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643757225384578,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643754383389534,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643754932388576,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_interface_edit": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643758380382563,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643759725380218,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643761897376430,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643759649380350,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643761813376577,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643767223367142,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643762068376132,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_after_noop": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643745590404868,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643746954402489,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643749182398604,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643746880402618,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643749095398755,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643754383389534,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643749355398302,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        },
+        "objects_before": {
+          "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+            "bytes": 1440,
+            "mtime_ns": 1793643745590404868,
+            "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+            "bytes": 896,
+            "mtime_ns": 1793643746954402489,
+            "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+            "bytes": 880,
+            "mtime_ns": 1793643749182398604,
+            "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+          },
+          "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+            "bytes": 9160,
+            "mtime_ns": 1793643746880402618,
+            "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+          },
+          "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+            "bytes": 88240,
+            "mtime_ns": 1793643749095398755,
+            "sha256": "79e0415be4af837b6508a6080656fcefc315d7ab66559089e457cb3db5f5379f"
+          },
+          "CMakeFiles/anndata.dir/src/data.cpp.o": {
+            "bytes": 545344,
+            "mtime_ns": 1793643754383389534,
+            "sha256": "a3542ce30dce2c3a576db9bc4b26f1ed61ab48ab19b247205fce73258ead126c"
+          },
+          "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o": {
+            "bytes": 12376,
+            "mtime_ns": 1793643749355398302,
+            "sha256": "3bdab536a641d98bab13ed6fc9ba7d4822922fb94bd3bce8940b1c3ebb1142dc"
+          }
+        }
+      },
+      "build_commands": {
+        "cold": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "consumer_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "implementation_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_core": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "bench_core",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "import_facade": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "bench_facade",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "interface_edit": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_consumer": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata_example",
+          "--parallel",
+          "2",
+          "--verbose"
+        ],
+        "no_op_library": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "--target",
+          "anndata",
+          "--parallel",
+          "2",
+          "--verbose"
+        ]
+      },
+      "cold": {
+        "max_rss_kib": 232320,
+        "returncode": 0,
+        "wall_seconds": 10.075550781999482
+      },
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/source",
+          "-B",
+          "/tmp/anndata-module-benchmark-wrqhp4lb/run-5/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_BUILD_TESTS=OFF",
+          "-DANNDATA_BUILD_EXAMPLES=ON",
+          "-DANNDATA_BUILD_BENCHMARKS=OFF",
+          "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+        ],
+        "output_tail": "-- The CXX compiler identification is Clang 18.1.3\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/clang++-18 - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.4s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/anndata-module-benchmark-wrqhp4lb/run-5/build\n",
+        "returncode": 0,
+        "wall_seconds": 0.3872583449992817
+      },
+      "consumer_edit": {
+        "max_rss_kib": 119680,
+        "returncode": 0,
+        "wall_seconds": 0.32770056699882844
+      },
+      "implementation_edit": {
+        "max_rss_kib": 169244,
+        "returncode": 0,
+        "wall_seconds": 2.1571979590007686
+      },
+      "import_core": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.24054063099902123
+      },
+      "import_facade": {
+        "max_rss_kib": 115840,
+        "returncode": 0,
+        "wall_seconds": 0.242670175000967
+      },
+      "interface_edit": {
+        "max_rss_kib": 232320,
+        "returncode": 0,
+        "wall_seconds": 10.013391238997428
+      },
+      "no_op": {
+        "max_rss_kib": 17920,
+        "returncode": 0,
+        "wall_seconds": 0.01862321500084363
+      },
+      "no_op_library": {
+        "max_rss_kib": 17920,
+        "returncode": 0,
+        "wall_seconds": 0.01821061699956772
+      },
+      "run": 5,
+      "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c"
+    }
+  ],
+  "schema": "anndata.module-compile-benchmark.v1",
+  "snapshot_root": "temporary generated sources and builds removed after successful run",
+  "source_manifest_sha256": "9db3f972b27781bb57db706658dc7964a65eaf62a05bdf65e548e37d8fd71d6c",
+  "source_root": "/home/tumlinson/anndata.cppm",
+  "summary_seconds": {
+    "cold_library_and_facade_example": {
+      "max_seconds": 10.269494473999657,
+      "median_seconds": 10.075550781999482,
+      "min_seconds": 10.045672399999603,
+      "p25_seconds": 10.07305029499912,
+      "p75_seconds": 10.191257155998755,
+      "samples_seconds": [
+        10.045672399999603,
+        10.269494473999657,
+        10.07305029499912,
+        10.191257155998755,
+        10.075550781999482
+      ]
+    },
+    "configure": {
+      "max_seconds": 0.4097086590008985,
+      "median_seconds": 0.38633123000181513,
+      "min_seconds": 0.3823992560028273,
+      "p25_seconds": 0.38298467799904756,
+      "p75_seconds": 0.3872583449992817,
+      "samples_seconds": [
+        0.4097086590008985,
+        0.38298467799904756,
+        0.3823992560028273,
+        0.38633123000181513,
+        0.3872583449992817
+      ]
+    },
+    "consumer_source_edit": {
+      "max_seconds": 0.32770056699882844,
+      "median_seconds": 0.3155608470005973,
+      "min_seconds": 0.3077147670010163,
+      "p25_seconds": 0.31530309899972053,
+      "p75_seconds": 0.32519359400248504,
+      "samples_seconds": [
+        0.32519359400248504,
+        0.3077147670010163,
+        0.3155608470005973,
+        0.31530309899972053,
+        0.32770056699882844
+      ]
+    },
+    "fresh_consumer_import_core": {
+      "max_seconds": 0.2590967050018662,
+      "median_seconds": 0.24132766000184347,
+      "min_seconds": 0.23611357099798624,
+      "p25_seconds": 0.24054063099902123,
+      "p75_seconds": 0.24428217399690766,
+      "samples_seconds": [
+        0.24428217399690766,
+        0.24132766000184347,
+        0.2590967050018662,
+        0.23611357099798624,
+        0.24054063099902123
+      ]
+    },
+    "fresh_consumer_import_facade": {
+      "max_seconds": 0.28269640099824755,
+      "median_seconds": 0.242670175000967,
+      "min_seconds": 0.23799665499973344,
+      "p25_seconds": 0.24059309299991583,
+      "p75_seconds": 0.24780833600016194,
+      "samples_seconds": [
+        0.28269640099824755,
+        0.24059309299991583,
+        0.24780833600016194,
+        0.23799665499973344,
+        0.242670175000967
+      ]
+    },
+    "implementation_source_edit": {
+      "max_seconds": 2.183705154002382,
+      "median_seconds": 2.1571979590007686,
+      "min_seconds": 2.0716216000000713,
+      "p25_seconds": 2.1121559130006062,
+      "p75_seconds": 2.15965284000049,
+      "samples_seconds": [
+        2.15965284000049,
+        2.1121559130006062,
+        2.183705154002382,
+        2.0716216000000713,
+        2.1571979590007686
+      ]
+    },
+    "no_op_consumer": {
+      "max_seconds": 0.020066721001057886,
+      "median_seconds": 0.019263720998424105,
+      "min_seconds": 0.018554739999672165,
+      "p25_seconds": 0.01862321500084363,
+      "p75_seconds": 0.019988199001090834,
+      "samples_seconds": [
+        0.018554739999672165,
+        0.020066721001057886,
+        0.019263720998424105,
+        0.019988199001090834,
+        0.01862321500084363
+      ]
+    },
+    "no_op_library": {
+      "max_seconds": 0.019988981002825312,
+      "median_seconds": 0.01821061699956772,
+      "min_seconds": 0.017551961998833576,
+      "p25_seconds": 0.018160474999604048,
+      "p75_seconds": 0.01953765300277155,
+      "samples_seconds": [
+        0.019988981002825312,
+        0.018160474999604048,
+        0.01953765300277155,
+        0.017551961998833576,
+        0.01821061699956772
+      ]
+    },
+    "public_interface_edit": {
+      "max_seconds": 10.202184100999148,
+      "median_seconds": 9.884888866999972,
+      "min_seconds": 9.564837025998713,
+      "p25_seconds": 9.804725423000491,
+      "p75_seconds": 10.013391238997428,
+      "samples_seconds": [
+        10.202184100999148,
+        9.564837025998713,
+        9.884888866999972,
+        9.804725423000491,
+        10.013391238997428
+      ]
+    }
+  },
+  "temporary_build_root": "removed after collecting command and artifact evidence"
+}

@@ -1,0 +1,103 @@
+{
+  "format": "anndata-cppm.setup-receipt",
+  "version": 1,
+  "observed_at": "2026-11-02T18:07:02.653914Z",
+  "repository": {
+    "root": "/home/tumlinson/anndata.cppm",
+    "origin": "git@github.com:tumlinso/anndata.cppm.git",
+    "project_control_project": "anndata-cppm",
+    "project_control_repository": "anndata-cppm",
+    "registered_as_authority_repository": true
+  },
+  "todo": {
+    "authority_initialized": true,
+    "project_id": "anndata-cppm",
+    "repository_id": "anndata-cppm",
+    "authority_id": "anndata-cppm-authority",
+    "authority_path": ".todo-orchestrator/authority.sqlite3",
+    "metadata_path": ".todo-orchestrator/project.json",
+    "owner_credentials": "private files outside the repository",
+    "integration_ref": "refs/heads/todo-orchestrator/integration/45d24d09c06f46b4fe2a",
+    "integration_base": "a6a16377e711ed6708e0f4e1bad8a9e908f32256",
+    "provider_runtime_directories_provisioned": true
+  },
+  "verification": {
+    "service_after_restart": {
+      "active_state": "active",
+      "sub_state": "running",
+      "refreshed_after_scoped_session_provisioning": true
+    },
+    "fresh_observer_source_retrieval": {
+      "status": "ok",
+      "client": "connected Project Control observer after service restart",
+      "observed_at": "2026-11-02T17:45:27Z",
+      "repository": "anndata-cppm",
+      "path": "README.md",
+      "exact_source": true,
+      "source_sha256_at_observation": "031abf83b8ee45558e19e799e20af98b8b6b080f3639f32d485a2a32b7c14053",
+      "content_truncated_by_budget": true
+    },
+    "connected_overview_before_provider_refresh": {
+      "status": "partial",
+      "workflow_available": false,
+      "reason": "todo_workflow_semantic_unavailable"
+    },
+    "fresh_observer_after_grant_provisioning": {
+      "workflow_available": true,
+      "authority": "todo_semantic_workflow",
+      "semantic_revision": 8,
+      "observed_at": "2026-11-02T17:55:50Z"
+    },
+    "native_observer_after_plan_commit": {
+      "semantic_revision": 9,
+      "accepted_plan_count": 1,
+      "work_item_count": 5,
+      "requirement_count": 2,
+      "observed_at": "2026-11-02T18:04:41Z"
+    },
+    "host_scoped_sessions": {
+      "observer": "verified",
+      "coder": "verified",
+      "mutator": "verified",
+      "investigator": "verified",
+      "skill_assembler": "verified",
+      "scope": "exact project, authority, host principal, and profile",
+      "expires_at": "2026-12-02T17:54:58.114379Z",
+      "other_project_and_attempt_credentials_preserved": true,
+      "recovery_evidence": "private grant-family credential and per-profile journals outside the repository"
+    },
+    "project_overview": {
+      "status": "partial",
+      "workflow_available": true,
+      "authority": "todo_semantic_workflow",
+      "semantic_revision": 9,
+      "provider_revision_skew": 0,
+      "optional_omission": "semantic_context_extension_unavailable"
+    }
+  },
+  "plan": {
+    "authored_package": "planning/foundation.json",
+    "compiler_valid": true,
+    "compiler_diagnostics": 0,
+    "work_items": 5,
+    "dependency_groups": 4,
+    "machine_enforced_checks": "the required foundation-native command runs the native CMake workflow; a separately runnable Python comparison is optional and requires a workspace-local reference environment",
+    "authoritative_preview": "succeeded; exact preview saved privately for review",
+    "expected_authority_revision": 8,
+    "package_digest": "1eeb911654adada57b103d6462a959d804bb220e5c04180d129cb48c521e200c",
+    "change_digest": "2ac1cd62af1d7c04d883f5e6f3d81d126f5ccd62e93eb589e26b1a45d5d349c2",
+    "preview_conflicts": 0,
+    "preview_warnings": 0,
+    "authoritative_commit": "committed through the Project Control mutator",
+    "accepted_plan_revision_id": "accepted-2ac1cd62af1d7c04d883f5e6f3d81d126f5ccd62e93eb589e26b1a45d5d349c2",
+    "semantic_revision_after_commit": 9,
+    "receipt_id": "receipt-5b8a9db53de84d11ae28b2ebf4e1efc4",
+    "completion_assertions_imported": false,
+    "next_step": "Refresh any observer process that cached the pre-credential provider, then verify the connected workflow view."
+  },
+  "limits": [
+    "Registration, authority initialization, source retrieval, and workflow readiness are distinct checks.",
+    "The owner bearer was not supplied to routine Project Control profiles.",
+    "An already-running Project Control process may cache an unavailable provider resolved before scoped sessions were provisioned; refresh that process before declaring connected workflow readiness."
+  ]
+}

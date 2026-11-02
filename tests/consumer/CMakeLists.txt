@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.28)
+project(anndata_consumer LANGUAGES CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(anndata 0.1 CONFIG REQUIRED)
+add_executable(consumer main.cpp)
+target_link_libraries(consumer PRIVATE anndata::anndata)

@@ -1,0 +1,39 @@
+name: foundation
+on: [push, pull_request]
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [debug, release, sanitizers]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install module toolchain
+        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }} -DANNDATA_ENABLE_INTEROP_TESTS=OFF
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }} --parallel 2
+      - name: Native and installed-package tests
+        run: ctest --preset ${{ matrix.preset }}
+
+  semantics:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install toolchain and development-only reference packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build
+          python -m pip install -r tests/requirements-interop.txt
+      - name: Configure
+        run: cmake --preset debug -DANNDATA_ENABLE_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
+      - name: Build
+        run: cmake --build --preset debug --parallel 2
+      - name: Compare Python-written H5AD fixture semantics
+        run: ctest --preset debug

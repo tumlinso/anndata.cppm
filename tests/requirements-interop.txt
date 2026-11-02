@@ -1,0 +1,6 @@
+# Development-only reference environment; the C++ library does not use Python.
+anndata==0.13.4
+h5py==3.16.0
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.17.1

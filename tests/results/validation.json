@@ -1,0 +1,91 @@
+{
+  "format": "anndata.foundation-validation",
+  "version": 1,
+  "observed_at": "2026-11-02T18:20:01.324644+00:00",
+  "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+  "toolchain": {
+    "clang": "18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "language": "C++20, extensions disabled"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "0ffc8a4310fc6e74eaf82a7b61e66f03fafd11f13ceac376ce5d8f7c91eb46b5",
+    "CMakePresets.json": "a361244182456fd20ea5286ee06229e55efb6df68f9cafacc4626d02f5a3c620",
+    "src/anndata.arrays.cppm": "52072beccb263e93324b4efd306095122d4d11aa5a0ea269a4f9f2d8a13c7c2a",
+    "src/anndata.core.cppm": "bbc6bc083560b9515219fc71258a3e6fbb170ce145a752fbd15e183d480fa99b",
+    "src/anndata.cppm": "f764df816606fb321c028e56435e923619c96bfcc5718e892b9315048e3dd880",
+    "src/anndata.data.cppm": "f0c30d84fcfe36153c204787175f2f5d87a849839860c78067aa6017a1b8c3d5",
+    "src/arrays.cpp": "1ce06f583d1460b81aeecc0f73f67aaedd36a55db1c16a887695cf6ebfa54bb9",
+    "src/data.cpp": "293be0a0ddc75bec83b1d28b6e93d48789f3b360fef7dc2e7ee78573c42cfd67",
+    "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+    "tests/test_arrays.cpp": "856365d126ad6ede095e0f90fdb0eb433a7e37c4aedde67782bb9f240fcce36c",
+    "tests/test_data.cpp": "e364b17766297fec2a6060f1a5f23103b5b7cf497c01fc7bfd88b02d37bb2941",
+    "tests/python_semantics.py": "d6170c59e9a3c288b8104b7bb5205fd529c819c50dcea3c344b3667e620f2d0e",
+    "tests/requirements-interop.txt": "83060e6ee62b1a0200cb7f9a5cc2d086a100ecf2c51f21544358511c32befff1",
+    "cmake/anndataConfig.cmake.in": "c0547dfa2d0122b4b309c9bb684000ba6672cc7e02bc7ed899390d0f310fa9d1",
+    "cmake/test-installed-consumer.cmake": "578a8b9cdc91b5390dc7f9ad7ec2ad8c62d8c49d4b8398ed656a11991e502177",
+    "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+    "tests/consumer/CMakeLists.txt": "04c3fb8ef182e6a29deab825b4c3d8ca4ff33b34b690a7a59d4130c84afed18c",
+    "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149"
+  },
+  "checks": [
+    {
+      "command": "cmake --workflow --preset native-check",
+      "status": "passed",
+      "ctest_tests": 4,
+      "python_required": false
+    },
+    {
+      "command": "cmake --workflow --preset interop-check",
+      "status": "passed",
+      "ctest_tests": 5,
+      "reference_anndata": "0.13.4",
+      "semantic_scenarios": 13,
+      "reference_python": "3.12.3"
+    },
+    {
+      "command": "cmake --preset release -DANNDATA_BUILD_BENCHMARKS=OFF; cmake --build --preset release --parallel 2; ctest --preset release",
+      "status": "passed",
+      "ctest_tests": 4
+    },
+    {
+      "command": "cmake --preset sanitizers; cmake --build --preset sanitizers --parallel 2; ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ctest --preset sanitizers",
+      "status": "passed",
+      "ctest_tests": 4,
+      "leak_detection": false,
+      "leak_detection_reason": "LeakSanitizer cannot run under this execution sandbox ptrace"
+    },
+    {
+      "command": "python3 tests/python_semantics.py build/interop/interop_driver",
+      "status": "passed",
+      "reference_anndata": "0.12.10",
+      "semantic_scenarios": 13
+    },
+    {
+      "command": "independent temporary find_package client importing anndata, built from examples/foundation.cpp against build/native/installed-test/prefix",
+      "status": "passed",
+      "generator": "Ninja",
+      "compiler": "clang++-18",
+      "configuration": "Release"
+    }
+  ],
+  "python_reference_packages": {
+    "anndata": [
+      "0.12.10",
+      "0.13.4"
+    ],
+    "h5py": "3.16.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1"
+  },
+  "independent_review": {
+    "arrays": "reproduced checked-validation defects fixed; targeted and randomized selection checks passed",
+    "data": "14 targeted sanitizer checks and upstream semantic oracle passed after confirmed fixes",
+    "validation_opt_out": "24 focused sanitizer checks passed"
+  },
+  "scope": "in-memory semantics; Python writes and reopens actual H5AD files, C++ does not read or write them",
+  "ci_status": "workflow authored; remote CI was not run in this local session",
+  "workflow_acceptance": "These are local validation observations, not Todo outcome acceptance receipts."
+}

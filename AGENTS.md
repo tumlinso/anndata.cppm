@@ -1,0 +1,22 @@
+# Working on anndata.cppm
+
+Prioritize correct, maintainable delivery and shorter completion time within the user's usage and resource limits. Account for handoff, coordination, and integration costs; use stronger ownership when it materially improves decisions or independent progress.
+
+Use the user's configured cooperative agent profiles (`scout`, `engineer`, `executor`, `optimizer`, `integrator`, `verifier`, `investigator`, `reviewer`, `principal`). Root retains intent, integration, workflow lifecycle, and final acceptance. Delegate substantial diagnosis/design/implementation to engineer; established bounded work to executor. Terra optimizer owns performance diagnosis and interpretation; Terra integrator owns combined behavior and validation. Root may allocate multiple principals to independent substantial objectives. Use Codex subagents, never Project Control local coding workers. Preserve concurrent edits and unknown state. Start separable work promptly and coordinate shared compute, especially measurements.
+
+## Build and architecture
+
+- C++20 named modules are mandatory. Public consumption is `import anndata;` or `import anndata.core;`, with `.cppm` interfaces. Do not introduce a public umbrella header or require `import std;`.
+- Initial toolchain: Clang 18 plus matching clang-scan-deps, CMake >=3.28, Ninja >=1.11. Use CMake CXX_MODULES file sets and scanning; do not hand-order BMI commands.
+- Run `cmake --preset debug`, `cmake --build --preset debug`, `ctest --preset debug`. Sanitizers use the `sanitizers` preset. See docs/development.md for optional Python semantic tests and release benchmarks.
+- Keep storage dependencies private and optional. The core has no dependency on Python, HDF5, Arrow, Torch, or Cellerator. Downstream integration never reverses that dependency direction.
+- Preserve move-only owners, explicit deep copies, retained read-only views, native pointers/strides and raw sparse buffers. Borrowing and unchecked access are deliberate capabilities with documented contracts.
+- Keep numerical element loops free of type-erased dispatch and library synchronization. Callers own parallel execution. Choose representations by evidence, not blanket preferences for or against the standard library.
+- Follow AnnData/Scanpy data conventions. Consult pinned upstream specifications/source and independently generated fixtures before adding formats. Do not claim file compatibility from an in-memory test.
+- Keep implementation-only changes out of public module interfaces. Measure rebuilds and direct-memory performance before making performance claims.
+
+## Workflow and preservation
+
+Project Control workspace/repository alias: `anndata-cppm`. Use its supported workflow routes and the installed Todo Orchestrator skill for native authority operations. `.todo-orchestrator/authority.sqlite3` is semantic authority; never hand-edit it or generated projections. Private credentials stay outside the repository. Registration, authority creation, and full host workflow readiness require separate checks.
+
+Do not reset, clean, force-push, delete authority state, overwrite others' work, or commit private runtime artifacts. Preserve exact source/measurement provenance. Record partial setup and unsupported behavior honestly.

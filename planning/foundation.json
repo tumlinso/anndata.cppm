@@ -1,0 +1,366 @@
+{
+  "format": "todo-orchestrator.plan",
+  "schema_version": 1,
+  "package_id": "anndata-cppm-foundation-v1",
+  "project": {
+    "project_id": "anndata-cppm",
+    "authority_id": "anndata-cppm-authority"
+  },
+  "work_items": [
+    {
+      "id": "foundation",
+      "title": "Deliver the in-memory AnnData foundation",
+      "objective": "Implement the C++20 named-module project, direct dense and compressed-sparse memory access, annotated data structures, semantic fixtures, and compilation and memory measurements.",
+      "outcome": "A standalone installed C++ consumer can construct and access an in-memory AnnData dataset with tested semantics and measured compilation behavior.",
+      "scope": {
+        "paths": [
+          {
+            "path": ".gitignore",
+            "access": "write"
+          },
+          {
+            "path": "AGENTS.md",
+            "access": "write"
+          },
+          {
+            "path": "CMakeLists.txt",
+            "access": "write"
+          },
+          {
+            "path": "CMakePresets.json",
+            "access": "write"
+          },
+          {
+            "path": "LICENSE",
+            "access": "write"
+          },
+          {
+            "path": "README.md",
+            "access": "write"
+          },
+          {
+            "path": "benchmarks",
+            "access": "write"
+          },
+          {
+            "path": "cmake",
+            "access": "write"
+          },
+          {
+            "path": "docs",
+            "access": "write"
+          },
+          {
+            "path": "examples",
+            "access": "write"
+          },
+          {
+            "path": "src",
+            "access": "write"
+          },
+          {
+            "path": "tests",
+            "access": "write"
+          },
+          {
+            "path": "tools",
+            "access": "write"
+          },
+          {
+            "path": ".github",
+            "access": "write"
+          },
+          {
+            "path": "planning",
+            "access": "write"
+          }
+        ],
+        "concepts": [
+          "C++20 modules",
+          "build and packaging",
+          "arrays and memory ownership",
+          "sparse data",
+          "tables and metadata",
+          "AnnData semantics",
+          "interoperability fixtures",
+          "compilation and memory measurements"
+        ],
+        "locks": []
+      },
+      "acceptance": {
+        "assertions": [
+          "The standalone native workflow configures and builds the project and passes the arrays, data, import-only example, and independent installed-consumer tests",
+          "Typed memory views, explicit ownership, slicing, alignment, categories, missing values, and raw semantics have supporting tests",
+          "Compilation and direct-memory measurements record toolchain, workload, and limitations",
+          "Optional Python interoperability comparisons are independently evidenced when their reference environment is available"
+        ],
+        "required_evidence": [
+          "foundation-native-result"
+        ],
+        "allowed_dispositions": [
+          "completed"
+        ]
+      },
+      "ownership": {
+        "mode": "any",
+        "actors": []
+      },
+      "requirement_groups": [
+        {
+          "kind": "check",
+          "mode": "all",
+          "members": [
+            "foundation-native"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h5ad-io",
+      "title": "Implement initial H5AD interoperability",
+      "objective": "Add version-aware AnnData HDF5 reading and writing behind a private backend with independent Python round trips.",
+      "outcome": "The supported H5AD encoding subset is interoperable in both directions with explicitly documented limits.",
+      "scope": {
+        "paths": [],
+        "concepts": [
+          "HDF5",
+          "H5AD codecs"
+        ],
+        "locks": []
+      },
+      "acceptance": {
+        "assertions": [
+          "Python-produced files and Python reads of C++ output pass for the declared encoding subset"
+        ],
+        "required_evidence": [],
+        "allowed_dispositions": [
+          "completed"
+        ]
+      },
+      "ownership": {
+        "mode": "any",
+        "actors": []
+      }
+    },
+    {
+      "id": "zarr-backed",
+      "title": "Add Zarr and backed access",
+      "objective": "Qualify a Zarr implementation and add lazy, backed access with version-aware interoperability.",
+      "outcome": "Declared Zarr versions and supported backed operations pass independent interoperability checks.",
+      "scope": {
+        "paths": [],
+        "concepts": [
+          "Zarr",
+          "backed access"
+        ],
+        "locks": []
+      },
+      "acceptance": {
+        "assertions": [
+          "Supported Zarr formats and backed selections have versioned test evidence"
+        ],
+        "required_evidence": [],
+        "allowed_dispositions": [
+          "completed"
+        ]
+      },
+      "ownership": {
+        "mode": "any",
+        "actors": []
+      }
+    },
+    {
+      "id": "composed-formats",
+      "title": "Add composed formats",
+      "objective": "Build MuData, TreeData, and linked AnnDataSet support on qualified shared storage primitives.",
+      "outcome": "Each declared composed format has versioned upstream fixture coverage.",
+      "scope": {
+        "paths": [],
+        "concepts": [
+          "modalities",
+          "trees",
+          "linked datasets"
+        ],
+        "locks": []
+      },
+      "acceptance": {
+        "assertions": [
+          "Declared formats and external relationship behavior have independent fixture coverage"
+        ],
+        "required_evidence": [],
+        "allowed_dispositions": [
+          "completed"
+        ]
+      },
+      "ownership": {
+        "mode": "any",
+        "actors": []
+      }
+    },
+    {
+      "id": "spatial-and-schemas",
+      "title": "Add spatial structures and biological schema adapters",
+      "objective": "Develop optional typed biological conventions and versioned SpatialData structures over the shared core.",
+      "outcome": "Declared schema adapters and spatial encodings have source-grounded interoperability tests.",
+      "scope": {
+        "paths": [],
+        "concepts": [
+          "biological schemas",
+          "SpatialData"
+        ],
+        "locks": []
+      },
+      "acceptance": {
+        "assertions": [
+          "Claimed adapters and storage versions have independent interoperability evidence"
+        ],
+        "required_evidence": [],
+        "allowed_dispositions": [
+          "completed"
+        ]
+      },
+      "ownership": {
+        "mode": "any",
+        "actors": []
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "source": {
+        "project_id": "anndata-cppm",
+        "kind": "work_item",
+        "entity_id": "h5ad-io"
+      },
+      "mode": "all",
+      "members": [
+        {
+          "relation": "completion",
+          "target": {
+            "project_id": "anndata-cppm",
+            "kind": "work_item",
+            "entity_id": "foundation"
+          }
+        }
+      ]
+    },
+    {
+      "source": {
+        "project_id": "anndata-cppm",
+        "kind": "work_item",
+        "entity_id": "zarr-backed"
+      },
+      "mode": "all",
+      "members": [
+        {
+          "relation": "completion",
+          "target": {
+            "project_id": "anndata-cppm",
+            "kind": "work_item",
+            "entity_id": "h5ad-io"
+          }
+        }
+      ]
+    },
+    {
+      "source": {
+        "project_id": "anndata-cppm",
+        "kind": "work_item",
+        "entity_id": "composed-formats"
+      },
+      "mode": "all",
+      "members": [
+        {
+          "relation": "completion",
+          "target": {
+            "project_id": "anndata-cppm",
+            "kind": "work_item",
+            "entity_id": "h5ad-io"
+          }
+        }
+      ]
+    },
+    {
+      "source": {
+        "project_id": "anndata-cppm",
+        "kind": "work_item",
+        "entity_id": "spatial-and-schemas"
+      },
+      "mode": "all",
+      "members": [
+        {
+          "relation": "completion",
+          "target": {
+            "project_id": "anndata-cppm",
+            "kind": "work_item",
+            "entity_id": "zarr-backed"
+          }
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "foundation-native",
+      "work_item_id": "foundation",
+      "kind": "check",
+      "description": "Required: configure, build, and run native, import-only, and installed-consumer tests in one isolated workspace.",
+      "check_key": "foundation-native",
+      "verification": {
+        "kind": "command",
+        "version": 1,
+        "config": {
+          "argv": [
+            "cmake",
+            "--workflow",
+            "--preset",
+            "native-check"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900,
+          "expected_exit_codes": [
+            0
+          ]
+        }
+      },
+      "required_evidence": [
+        {
+          "name": "foundation-native-result",
+          "kind": "command_result",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "id": "foundation-python-interop",
+      "work_item_id": "foundation",
+      "kind": "check",
+      "description": "Optional, not in the required group: provision the pinned Python reference environment under the managed workspace before configuring, building, and comparing Python-generated H5AD semantics.",
+      "check_key": "foundation-python-interop",
+      "verification": {
+        "kind": "command",
+        "version": 1,
+        "config": {
+          "argv": [
+            "cmake",
+            "--workflow",
+            "--preset",
+            "interop-check"
+          ],
+          "cwd": ".",
+          "timeout_seconds": 900,
+          "expected_exit_codes": [
+            0
+          ]
+        }
+      },
+      "required_evidence": [
+        {
+          "name": "foundation-python-result",
+          "kind": "command_result",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}
