@@ -1,0 +1,21 @@
+{
+  "format": "anndata.cppm.storage-workflow-observation",
+  "version": 1,
+  "observed_at": "2026-11-03T11:58:18.942550+00:00",
+  "project": "anndata-cppm",
+  "repository": "anndata-cppm",
+  "requested_task": "zarr-backed",
+  "next_task_result": {
+    "status": "attention_required",
+    "reason": "workflow_task_already_active",
+    "workflow_handle_returned": false,
+    "allowed_actions": []
+  },
+  "observer": {
+    "workflow_available": false,
+    "reason": "todo_workflow_semantic_unavailable",
+    "authority": "compatibility_fallback"
+  },
+  "actions": "Preserved authority, existing tasks, credentials and history; did not claim or release another active task.",
+  "acceptance": "Local source/test evidence is not a native Todo outcome acceptance receipt."
+}

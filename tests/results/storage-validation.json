@@ -1,0 +1,654 @@
+{
+  "observed_at": "2026-11-03T15:03:21.216692+00:00",
+  "source_stable": true,
+  "source_sha256": {
+    "CMakeLists.txt": "4eb90c9aa02b44a196239916368dec5c40d3f139c8c6cb4b4840f9e784d6b0f9",
+    "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+    "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+    "cmake/anndataConfig.cmake.in": "8b6592873e0926d82b1da42fc0dab457483d045d47f5c405b74192c73a29b288",
+    "cmake/test-installed-consumer.cmake": "09865c7e9cb0b4b9bb367a1e004a3f6c44aca1c20584a9c5f91695d63f6406df",
+    "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+    "src/anndata.backed.cppm": "0dcf7cb6fa83589d8d68de4b3caa8488773866425c8cbdf0b8072091a229ae54",
+    "src/anndata.backed.storage.cppm": "f3136205d4fae038643ff3e2bfe6fb3be88fa1e1e438e7e6547f377715c9ebf8",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "6f2b3bcee0df87fe15337ebea427347fc32346f80dd7b2a7fe5cb2d9f3eb9290",
+    "src/anndata.data.cppm": "09eb40a6f3497d23a7d738b5167ad369bda090943acb8be4cf919af100695346",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+    "src/backed.cpp": "67571cc74d379c271f038675e2705ed60d6f41bbd1c836f612a13eb1cf297cbf",
+    "src/backed_array.cpp": "b5d9bfe1a0732b82199c5a035e24dea8bda958ccc62b500739f021245825e8be",
+    "src/backed_category.cpp": "d9a0b267acdb094459f9fec1969ba95b7b35dd360298e3353bbc52bf45b14c59",
+    "src/backed_codec.cpp": "0e2fb5b352e754e3a2d391486154841e7623a15fb62d0da32d6a88cdc71bc5d2",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "523534a49617f77babb7ab37df3faf169a9afe315ac2079700e26182a8935fdd",
+    "src/backed_hdf5.cpp": "b9da38cec37638915e5209b2f8b069f8a1f61ff98f3e9b82a58fee26101f793c",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_structure.cpp": "e154845994d1a9eebf0df842575a18f6542f804fa242eb6ea07d5c369615e1f7",
+    "src/backed_writer.cpp": "0ef96ff5b5b4e754e73ab65f8ae913cf3edf5bdf01f7c3a263599b45afc7dc42",
+    "src/backed_zarr.cpp": "b85a279e0018dfcedb434b348829c4f70afcdb8a65ad9357e97ff644eead3916",
+    "src/data.cpp": "a2108db3b6a3474bc3e5720e110ef7756e72fb64b4566524d62f3aae165131f9",
+    "src/h5ad.cpp": "5c541f474e94e0e0bda1be7d070648a64da7dccc97e31c5d6a2457d25ee6fce3",
+    "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "f0de47f0163d1b30050b77bd9153ba734a5d8f4d6ee8befbb905352c6f811a95",
+    "src/zarr_engine.cpp": "44299d1fa7e4b4ee65e8a37104d57e93fe81cd1ee35cbed31d924969fc8e762e",
+    "src/zarr_engine.hpp": "0c15d38dcf6a69b56fb04ade92e86db61abab8dca9b38d6ae037c2f5f7096476",
+    "src/zarr_sharding.cpp": "85aec7bee6016fcec883a88370e3c806b807d281905a8b31cc876b3d9f7cf6cc",
+    "tests/consumer/CMakeLists.txt": "ab012ad21b831699399468517f5a192973140c0146a90c4b6a58d78818f40b66",
+    "tests/consumer/backed.cpp": "695906077c0f5e3081f2dea9b48a5e7441542e2c1c4c248667e76e83b3b7d8e5",
+    "tests/consumer/facade.cpp": "27e882f620639a3af1c7ed30be49daff745dae818fa9ddf93fed09815b6bcc14",
+    "tests/consumer/h5ad.cpp": "9486a2a261ae33535bc2c4f1336066438a5d641b5d43960ae6b2159d0f0611f2",
+    "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+    "tests/consumer/zarr.cpp": "1a01607d043facc438dbc5aaa73f8f55cd51be4a0401e420d294b81ce39bf286",
+    "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+    "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+    "tests/python_h5ad.py": "5cbff4f56c4d086f36bddccba4237a3f571fc2f5dc3bf8f3f01a84d77c0c46e2",
+    "tests/python_semantics.py": "d6170c59e9a3c288b8104b7bb5205fd529c819c50dcea3c344b3667e620f2d0e",
+    "tests/python_storage.py": "8e740ea5d0684749662fe44ee5fe8f1d3032e3206b7078288d62f7ebe5e6074b",
+    "tests/requirements-interop.txt": "1e3f58211bddcfdf07ec5fa460e484dd91552e3846685999a4d83cb454791726",
+    "tests/storage_interop_driver.cpp": "e5afaba8b251e7d5860a2f28c3566a270d85ec1644ca900fb258b63c3a529389",
+    "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+    "tests/test_backed.cpp": "e6a4f849b0557dcc979a543df89a1450e72a9fbfaf39ffeb13bd25370cd827ac",
+    "tests/test_backed_categories.cpp": "7628cf058c121a5a89ef7ffefa7101c6d6f6f9441f7052078b2881380f58166e",
+    "tests/test_backed_h5ad.cpp": "15fc3e1f770acbe8112b6f2a7c5420d360bc871fa1bcab63ccfa6b22d91757d0",
+    "tests/test_data.cpp": "1864636a3b6c9a8d45647da30258b24eb3ae5e58272d0521becd041a2962d909",
+    "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+    "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+  },
+  "checks": [
+    {
+      "profile": "core-only",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "core-only",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.044571239999640966,
+          "log": "build/storage-final-core-only-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "core-only",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 15.168657252997946,
+          "log": "build/storage-final-core-only-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "core-only",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/core-only/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 0.6399522079991584,
+          "log": "build/storage-final-core-only-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 7,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "hdf5-only",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "hdf5-only",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.05077272699782043,
+          "log": "build/storage-final-hdf5-only-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "hdf5-only",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 17.387750194000546,
+          "log": "build/storage-final-hdf5-only-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "hdf5-only",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/hdf5-only/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 1.9944957190018613,
+          "log": "build/storage-final-hdf5-only-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "zarr-only",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "zarr-only",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.060396967997803586,
+          "log": "build/storage-final-zarr-only-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "zarr-only",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 18.688071700002183,
+          "log": "build/storage-final-zarr-only-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "zarr-only",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/zarr-only/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 6.843012594999891,
+          "log": "build/storage-final-zarr-only-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 7,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "shared",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "shared",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.05457705899971188,
+          "log": "build/storage-final-shared-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "shared",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 20.99820547299896,
+          "log": "build/storage-final-shared-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "shared",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/shared/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 10.580190087002848,
+          "log": "build/storage-final-shared-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "release",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "release",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.06422911299887346,
+          "log": "build/storage-final-release-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "release",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 29.625086207001004,
+          "log": "build/storage-final-release-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "release",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/release/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 4.31621615900076,
+          "log": "build/storage-final-release-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "sanitizers",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "sanitizers",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.06249352400118369,
+          "log": "build/storage-final-sanitizers-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "sanitizers",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 28.360616874997504,
+          "log": "build/storage-final-sanitizers-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "sanitizers",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/sanitizers/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 33.049929372002225,
+          "log": "build/storage-final-sanitizers-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "debug",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "debug",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.0582490089982457,
+          "log": "build/storage-final-debug-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "debug",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 22.08813317699969,
+          "log": "build/storage-final-debug-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "debug",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/debug/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 8.529323414000828,
+          "log": "build/storage-final-debug-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "native-check",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "native-check",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+          ],
+          "returncode": 0,
+          "seconds": 0.05696531599824084,
+          "log": "build/storage-final-native-check-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "native-check",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 21.29862288699951,
+          "log": "build/storage-final-native-check-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "native-check",
+            "--output-junit",
+            "/home/tumlinson/anndata.cppm/build/native/storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 8.330962604999513,
+          "log": "build/storage-final-native-check-test.log"
+        }
+      ],
+      "result": "passed",
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "profile": "interop-check",
+      "commands": [
+        {
+          "argv": [
+            "cmake",
+            "--preset",
+            "interop-check",
+            "-DANNDATA_ENABLE_INTEROP_TESTS=ON"
+          ],
+          "returncode": 0,
+          "seconds": 0.22150988200155552,
+          "log": "build/storage-final-interop-check-configure.log"
+        },
+        {
+          "argv": [
+            "cmake",
+            "--build",
+            "--preset",
+            "interop-check",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 21.140250880001986,
+          "log": "build/storage-final-interop-check-build.log"
+        },
+        {
+          "argv": [
+            "ctest",
+            "--preset",
+            "interop-check",
+            "--output-junit",
+            "storage-final.xml"
+          ],
+          "returncode": 0,
+          "seconds": 94.0,
+          "log": "build/storage-final-interop-check-test.log",
+          "environment": {
+            "ANNDATA_INTEROP_ZARR_WAKEUP": "1"
+          }
+        }
+      ],
+      "result": "passed",
+      "tests": 12,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "format": "anndata.cppm.storage-validation",
+  "version": 1,
+  "baseline_commit": "2a01463d0e45be5ffca3fb5a41b6f8c23763c4e6",
+  "environment": {
+    "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "compiler": "Clang 18.1.3",
+    "scanner": "clang-scan-deps-18",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "hdf5_c": "1.10.10",
+    "zlib": "1.3",
+    "zstd": "1.5.5",
+    "blosc": "1.21.5",
+    "nlohmann_json": "3.11.3",
+    "language": "C++20, extensions OFF",
+    "reference_python": "3.12.3",
+    "anndata": "0.13.4",
+    "zarr": "3.4.2",
+    "numcodecs": "0.17.1"
+  },
+  "qualification": "functional checks overlapped independent configurations; their wall times are not compilation performance measurements",
+  "installed_consumers": {
+    "modules": [
+      "anndata.core",
+      "anndata.backed",
+      "anndata",
+      "anndata.h5ad when enabled",
+      "anndata.zarr when enabled"
+    ],
+    "multiple_executables": true,
+    "format_consumers": "perform real write/open/read operations",
+    "shared_private_prefix": "passed without manual LD_LIBRARY_PATH; imported shared Blosc dependency metadata retains its search path"
+  },
+  "independent_category_check": {
+    "native_checks": 66,
+    "failures": 0,
+    "python_h5ad_backed_eager_cases": 6,
+    "python_reopened_exports_and_reindexes": 12,
+    "backends": [
+      "h5ad",
+      "zarr2",
+      "zarr3"
+    ],
+    "manifest_sha256": "8355b341714527a481617b04ac170096ad03b5d3840863c4c20d53df90e59f1c",
+    "evidence": "/tmp/anndata-category-check-kjf8ekyw",
+    "scope": "small supported fixture; no universal large-memory claim"
+  },
+  "reference_data": {
+    "path": "/home/tumlinson/data/Cellerator/data/test/reference/GSE147520_all_cells_raw_counts.h5ad",
+    "bytes": 286354359,
+    "sha256": "c6e2b5a4056b559b844f5f0c286b590a7f81edde1e0c1c1a2296d02e82284d7a",
+    "shape": [
+      68008,
+      26587
+    ],
+    "nnz": 114455556,
+    "dtype": "float32",
+    "layout": "csr",
+    "original_unchanged": true,
+    "rows": [
+      0,
+      2,
+      0,
+      68007,
+      1
+    ],
+    "unique_vars": [
+      306,
+      34,
+      128,
+      49,
+      291
+    ],
+    "repeated_vars": [
+      306,
+      34,
+      128,
+      306,
+      49,
+      291
+    ],
+    "unique_vars_result": "exact C++ core/backed/Python CSR arrays, labels and tables match",
+    "repeated_vars_result": "C++ core/backed exact match; Python data, indptr, dense values, row coordinate/value multisets, labels and tables match; equal-valued duplicate-target CSR tie order differs",
+    "evidence": "/tmp/anndata-reference-check-5j8AvC",
+    "scratch_bytes": 67108864,
+    "decoded_cache_bytes": 0
+  },
+  "coverage": [
+    "lazy all-slot metadata and numerical descriptors",
+    "dense and sparse caller-buffer reads, dtype widths, strides and empty selections",
+    "selected ordering and duplicate labels/entries",
+    "retention, read-only views, close and structural staleness",
+    "explicit read-only mappings and unsafe typed interpretation",
+    "coordinated axis growth, final-structure preflight, reindex and raw alignment",
+    "nullable values, NA/NaN strings, categorical dictionaries/pruning/codes/colors",
+    "packed string-column ownership and validation",
+    "same-store opaque attributes and extension preservation; rejected unsupported export",
+    "Zarr v2/v3 Python-authored and Python-reopened stores, codecs, indexed shards and corrupt data",
+    "core-only, both single backends, static/shared, Release, ASan/UBSan and installed consumers"
+  ],
+  "limits": [
+    "declared supported element/codec subset; no universal AnnData/Zarr compatibility",
+    "no complex, half, compound, ragged/Awkward or legacy unversioned encodings",
+    "local regular HDF5 files and directory Zarr stores; no cloud access",
+    "direct structural updates have no whole-store crash transaction",
+    "mapped typed interpretation explicitly unsafe and qualified on Linux/Clang",
+    "HDF5 backend metadata/codec memory is separate from library scratch, with VLEN attribute payload accounted after read",
+    "exact SciPy internal tie ordering for repeated-column gathers differs as documented",
+    "LeakSanitizer disabled for ptrace sandbox; ASan/UBSan enabled",
+    "test-only periodic Zarr event-loop wakeup enabled on this restricted runner",
+    "GitHub CI authored but not executed remotely",
+    "Project Control supplied no workflow handle; local evidence is not a Todo outcome receipt",
+    "scratch is a payload/staging budget, not a bound on total process RSS or third-party internal allocations",
+    "very small scratch settings can reject metadata string chunks before numerical transfer",
+    "large CSR column selections still scan the compressed orientation; the dense fix does not optimize them"
+  ],
+  "workflow_observation": "planning/storage-workflow-observation.json",
+  "dependencies": "planning/storage-dependencies.json",
+  "final_fixture_corrections": {
+    "production_sources_unchanged_after_native_matrix": true,
+    "changes": [
+      "H5AD boundary fixture explicitly disables automatic string categorization",
+      "raw/X gets the same small explicit Zarr chunk/shard geometry as X"
+    ],
+    "verification": "boundary-only check and complete 12-group interoperability rerun passed with strict dtype/missingness/value checks"
+  },
+  "focused_optimization": {
+    "candidate": "B",
+    "scope": "private geometry-aware rectangular transfers, one reusable bounded staging buffer, direct forward caller-buffer transfers and codec workspace admission",
+    "public_api_changed": false,
+    "numerical_pointer_loops_changed": false,
+    "new_cache_or_threads": false,
+    "public_artifact_check": [
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.zarr.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.backed.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.core-strings.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.core-data.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.core-arrays.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.h5ad.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata.dir/anndata.core.pcm",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      },
+      {
+        "path": "build/debug/CMakeFiles/anndata_example.dir/examples/foundation.cpp.o",
+        "hash_unchanged": true,
+        "mtime_unchanged": true
+      }
+    ],
+    "summary": "benchmarks/results/storage-summary.json",
+    "summary_sha256": "5784907ce23948fb35fef7535c8087d7a62006d0d4c81fdec8f6655d03817fa2",
+    "raw_reports": "preserved locally and ignored",
+    "full_size_confirmation": "4 single-run 64MiB operations; exact values and axes, 30 seconds and intercepted 256MiB per-direction caps; preparation/validation/hash I/O outside caps"
+  }
+}

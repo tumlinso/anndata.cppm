@@ -2,6 +2,8 @@
 
 Packed UTF-8 `StringArray` uses the same move-only ownership and retained-view model as numerical arrays. Its view exposes `bytes()` and 64-bit `offsets()` for unselected packed storage. A lazy selection exposes its original allocation through explicitly named `storage_bytes()` and `storage_offsets()`; use `copy()` to pack the logical selection. Mutable bytes and `unsafe_offsets()` are available through `edit()`. Validation is explicit after unsafe structural edits.
 
+`Column::from_packed_strings()` and `from_nullable_packed_strings()` move caller-provided byte, native-size offset and validity vectors into metadata storage. They preserve empty nullable columns and the NA/NaN sentinel distinction. Full construction validates UTF-8 and offsets; trusted construction can omit that scan. Backed column materialization writes directly into these final packed buffers instead of staging a complete vector of strings.
+
 Numerical `ByteOrder` serialization hints describe preferred file representation, independently of the native byte order used by typed memory access. They do not add checks to numerical loops. The erased sparse-byte descriptor supports codecs and external adapters without generating a template specialization for every combination of value/index/offset types.
 
 ## Owners, retained access, and borrowing
@@ -78,6 +80,8 @@ Allocation creates writable buffers for construction; populate the compressed st
 
 Selecting sparse arrays stays lazy. Accessing selected compressed buffers requires an explicit copy that constructs the selected CSR/CSC representation; this traversal currently validates the source. An unselected sparse copy transfers directly into its final buffers without a contents scan or O(nnz) staging vectors. It preserves the structural bytes, including bytes deliberately changed through unsafe access; call `validate()` when a structural check is wanted.
 
+Gathering a repeated axis can expand one stored entry into several output positions. The C++ core and backed readers use the same deterministic expansion order. SciPy may place those equal-value copies in a different internal compressed-buffer order; logical coordinates, values, duplicates and requested axis order agree. File reads and unselected copies preserve the stored sparse ordering.
+
 ## Boundaries
 
-Standard-library adapters are conveniences rather than a numerical storage requirement. Internal metadata and retained ownership do use standard-library facilities; their acquisition/storage costs are measured separately from pointer loops. This foundation exposes host memory. Future backed or device storage must advertise its actual access capabilities; it cannot promise an ordinary host pointer to data requiring I/O or conversion.
+Standard-library adapters are conveniences rather than a numerical storage requirement. Internal metadata and retained ownership do use standard-library facilities; their acquisition/storage costs are measured separately from pointer loops. In-memory arrays expose host memory. [Backed descriptors](storage.md) require explicit reads into owned or caller-provided buffers; eligible read-only mappings are a separate capability. Future device storage likewise must advertise its actual access capabilities rather than promise a host pointer to data requiring I/O or conversion.

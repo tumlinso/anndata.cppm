@@ -83,6 +83,12 @@ public:
     Selection(std::string_view);
     Selection(const char*);
     bool is_all() const noexcept;
+    enum class Kind { all, indices, range, mask, labels, label };
+    Kind kind() const noexcept { return kind_; }
+    const std::vector<std::ptrdiff_t>& index_values() const noexcept { return indices_; }
+    const range& range_value() const noexcept { return range_; }
+    const std::vector<std::uint8_t>& mask_values() const noexcept { return mask_; }
+    const std::vector<std::string>& label_values() const noexcept { return labels_; }
     std::vector<std::size_t> resolve(const std::vector<std::string>& names,
                                      std::string_view path) const;
     std::vector<std::size_t> resolve(const TableView& index,
@@ -90,7 +96,6 @@ public:
 private:
     std::vector<std::size_t> resolve_impl(std::size_t length, std::string_view path,
         const std::vector<std::string>* names, const TableView* table) const;
-    enum class Kind { all, indices, range, mask, labels, label };
     Kind kind_{Kind::all};
     std::vector<std::ptrdiff_t> indices_;
     range range_;
@@ -151,6 +156,17 @@ public:
     static Column nullable_strings(std::initializer_list<std::string_view> values,
                                    std::vector<std::uint8_t> validity,
                                    StringMissingValue missing = StringMissingValue::NA);
+    // Adopt packed UTF-8 bytes and byte offsets (one more offset than rows).
+    // Validation::none trusts buffer contents; validate() checks them later.
+    static Column from_packed_strings(std::vector<char> bytes,
+                                      std::vector<std::size_t> offsets,
+                                      std::vector<std::uint8_t> validity = {},
+                                      Validation validation = Validation::full);
+    static Column from_nullable_packed_strings(std::vector<char> bytes,
+                                               std::vector<std::size_t> offsets,
+                                               std::vector<std::uint8_t> validity,
+                                               StringMissingValue missing = StringMissingValue::NA,
+                                               Validation validation = Validation::full);
     static Column categorical(Array codes, Column categories, bool ordered = false,
                               Validation validation = Validation::full);
     template<class T>

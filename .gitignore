@@ -5,3 +5,31 @@
 /CMakeUserPresets.json
 __pycache__/
 *.pyc
+
+# Raw measurement campaigns and generated profiler artifacts stay local.
+/benchmarks/artifacts/
+/benchmarks/results/storage.json
+/benchmarks/results/storage-baseline.json
+/benchmarks/results/storage-write-supplement.json
+/benchmarks/results/storage-probe-*/
+/benchmarks/results/*.checkpoint.json*
+perf.data*
+gmon.out
+callgrind.out.*
+*.o
+*.pcm
+*.so
+*.so.*
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Biological fixtures are generated or supplied outside version control.
+*.h5ad
+*.h5mu
+*.h5ads
+*.h5td
+*.zarr/
+*.zarr2/
+*.zarr3/

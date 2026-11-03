@@ -2,7 +2,7 @@ module;
 #include <string_view>
 
 export module anndata.h5ad;
-export import anndata.core;
+export import anndata.backed;
 
 export namespace anndata {
 
@@ -25,9 +25,14 @@ struct WriteOptions {
 // Eager loading closes the file before returning; all acquired numerical
 // descriptors have the ordinary in-memory ownership and synchronization rules.
 [[nodiscard]] AnnData read_h5ad(std::string_view path, ReadOptions options = {});
+// Opening retains a file session and reads metadata without numerical payloads.
+[[nodiscard]] BackedAnnData open_h5ad(std::string_view path, BackedOptions options = {});
+[[nodiscard]] bool hdf5_library_threadsafe();
 // Truncate writes directly to the destination. A failed write may leave a
 // partial file. Exclusive creation fails if the destination already exists.
 void write_h5ad(std::string_view path, const AnnData& data, WriteOptions options = {});
 void write_h5ad(std::string_view path, const AnnDataView& data, WriteOptions options = {});
+void write_h5ad(std::string_view path, const BackedAnnData& data, WriteOptions options = {});
+void write_h5ad(std::string_view path, const BackedAnnDataView& data, WriteOptions options = {});
 
 } // namespace anndata

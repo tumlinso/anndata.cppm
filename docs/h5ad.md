@@ -14,7 +14,7 @@ int main() {
 }
 ```
 
-Loading is eager: the file closes before `read_h5ad()` returns. Numerical descriptors retain the resulting native allocations and expose their ordinary pointers and strides. Files larger than available memory, backed access, append/update operations, Zarr, and external collection links are subsequent work.
+`read_h5ad()` is eager: the file closes before it returns. Numerical descriptors retain the resulting native allocations and expose their ordinary pointers and strides. Use `open_h5ad()` for [lazy backed access and updates](storage.md); `anndata.zarr` supplies Zarr v2/v3 operations. External collection links remain subsequent work.
 
 ## Encoding boundary
 
@@ -35,9 +35,11 @@ The supported scope preserves duplicate row labels, requested slice ordering, sp
 
 Explicit rank-zero C++ `Array` and `StringArray` owners use the established `array` and `string-array` encodings, retaining their kinds when reread by C++. An actual `Element` scalar uses its scalar encoding. Python AnnData 0.13.4 promotes its zero-dimensional arrays to scalars on write and can also expose these values as scalars on read; Python round trips promise the supported value/dtype semantics, not retention of C++ owner classification.
 
+A plain string `Column` and a one-dimensional `StringArray` use the same established wire encoding. Outside a dataframe's column context, reopening may expose a `StringArray`; values and shape agree. The writer does not invent a format attribute to preserve a distinction the encoding does not carry.
+
 Raw data without X can retain an independent raw variable table in C++ and on disk. AnnData 0.13.4's eager Raw constructor substitutes the parent variable metadata when raw X is None. Independent raw metadata in that case therefore has no Python-semantic round-trip guarantee; the library preserves the stored metadata rather than inventing numerical values or discarding the axis.
 
-Unknown encodings or versions, legacy unversioned data, compound/record arrays, complex and half-precision arrays, ragged/Awkward data, and nullable floating-point columns produce contextual errors. Such data is not silently removed or converted into a different encoding. In particular, some Scanpy results use compound arrays and remain outside this first subset. Arbitrary extra HDF5 attributes on otherwise supported elements are not retained, matching ordinary AnnData loading behavior; opaque extension-attribute preservation is future work. This is a logical-data round trip for the declared encodings, not a byte-identical HDF5 rewrite.
+Unknown encodings or versions, legacy unversioned data, compound/record arrays, complex and half-precision arrays, ragged/Awkward data, and nullable floating-point columns produce contextual errors. Such data is not silently removed or converted into a different encoding. In particular, some Scanpy results use compound arrays and remain outside this subset. Eager loading into the in-memory model does not retain arbitrary extra HDF5 attributes, matching ordinary AnnData loading behavior. [Backed updates](storage.md) can preserve untouched extension data and same-store opaque attributes; export rejects unsupported preservation. This is a logical-data round trip for the declared encodings, not a byte-identical HDF5 rewrite.
 
 ## Memory and validation
 

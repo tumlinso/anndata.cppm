@@ -1,0 +1,30 @@
+{
+  "recorded_at_utc": "2026-11-03T13:24:46.908536+00:00",
+  "reason": "User-directed stop of remaining long repetitions; preserve completed results for focused profiling.",
+  "parent_pid": 341554,
+  "parent_exit_code": 1,
+  "stopped_workloads": [
+    {
+      "trial": 2,
+      "pid": 409283,
+      "time_wrapper_pid": 409282,
+      "signal": "SIGTERM",
+      "action": "sparse-column",
+      "format": "h5ad"
+    },
+    {
+      "trial": 3,
+      "pid": 415346,
+      "time_wrapper_pid": 415345,
+      "signal": "SIGTERM",
+      "action": "sparse-column",
+      "format": "h5ad"
+    }
+  ],
+  "verification": "For each PID, exact executable, action, format and parent wrapper were checked via /proc immediately before SIGTERM. Parent and exact workload no longer present in host process listing.",
+  "report": "/home/tumlinson/anndata.cppm/benchmarks/results/storage.json",
+  "report_sha256": "e402278c5267684586f173ebbe3614b0382b86e8bbbd6befa6b2634ef47491ba",
+  "log": "/tmp/anndata-storage-campaign-20261103.log",
+  "log_sha256": "82767418aa3895544edc8611e368a301337cdc8f23a2c1007d9863558f7a8137",
+  "interpretation": "Trial 2 and 3 are user-authorized cancellations; they are not numerical failures or timeouts."
+}

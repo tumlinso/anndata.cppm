@@ -61,7 +61,8 @@
       "inherits": "native-check",
       "binaryDir": "${sourceDir}/build/core-only",
       "cacheVariables": {
-        "ANNDATA_ENABLE_HDF5": "OFF"
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_ZARR": "OFF"
       }
     },
     {
@@ -71,6 +72,24 @@
       "binaryDir": "${sourceDir}/build/shared",
       "cacheVariables": {
         "BUILD_SHARED_LIBS": "ON"
+      }
+    },
+    {
+      "name": "hdf5-only",
+      "inherits": "native-check",
+      "binaryDir": "${sourceDir}/build/hdf5-only",
+      "cacheVariables": {
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_ZARR": "OFF"
+      }
+    },
+    {
+      "name": "zarr-only",
+      "inherits": "native-check",
+      "binaryDir": "${sourceDir}/build/zarr-only",
+      "cacheVariables": {
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON"
       }
     }
   ],
@@ -105,6 +124,16 @@
     {
       "name": "shared",
       "configurePreset": "shared",
+      "jobs": 2
+    },
+    {
+      "name": "hdf5-only",
+      "configurePreset": "hdf5-only",
+      "jobs": 2
+    },
+    {
+      "name": "zarr-only",
+      "configurePreset": "zarr-only",
       "jobs": 2
     }
   ],
@@ -172,6 +201,26 @@
     {
       "name": "shared",
       "configurePreset": "shared",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "hdf5-only",
+      "configurePreset": "hdf5-only",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "zarr-only",
+      "configurePreset": "zarr-only",
       "output": {
         "outputOnFailure": true
       },
@@ -248,6 +297,40 @@
         {
           "type": "test",
           "name": "shared"
+        }
+      ]
+    },
+    {
+      "name": "hdf5-only",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "hdf5-only"
+        },
+        {
+          "type": "build",
+          "name": "hdf5-only"
+        },
+        {
+          "type": "test",
+          "name": "hdf5-only"
+        }
+      ]
+    },
+    {
+      "name": "zarr-only",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "zarr-only"
+        },
+        {
+          "type": "build",
+          "name": "zarr-only"
+        },
+        {
+          "type": "test",
+          "name": "zarr-only"
         }
       ]
     }

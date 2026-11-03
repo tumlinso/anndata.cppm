@@ -1165,6 +1165,29 @@ AnnData read_h5ad(std::string_view path, ReadOptions options) {
     catch (const Error& error) { contextualize(c, error); }
 }
 
+BackedAnnData open_h5ad(std::string_view path, BackedOptions options) {
+    return detail::open_h5ad_backed(path, options);
+}
+
+bool hdf5_library_threadsafe() {
+    hbool_t result = false;
+    if (H5is_library_threadsafe(&result) < 0) throw Error(ErrorCode::io_error, "HDF5", "cannot inspect HDF5 thread-safety capability");
+    return result != 0;
+}
+
+void write_h5ad(std::string_view path, const BackedAnnData& data, WriteOptions options) {
+    write_h5ad(path, data.view(), options);
+}
+
+void write_h5ad(std::string_view path, const BackedAnnDataView& data, WriteOptions options) {
+    std::optional<ByteOrder> order;
+    if (options.byte_order == FileByteOrder::native) order = ByteOrder::native;
+    else if (options.byte_order == FileByteOrder::little) order = ByteOrder::little;
+    else if (options.byte_order == FileByteOrder::big) order = ByteOrder::big;
+    detail::write_h5ad_backed(path, data, options.mode == WriteMode::exclusive,
+                             options.compression == Compression::gzip, options.gzip_level, order, options.validation);
+}
+
 void write_h5ad(std::string_view path, const AnnData& data, WriteOptions options) {
     write_h5ad(path, data.view(), options);
 }

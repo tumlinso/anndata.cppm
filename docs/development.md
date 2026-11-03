@@ -4,7 +4,7 @@
 
 The first qualified pairing is Clang 18.1.3, matching clang-scan-deps-18, CMake 3.28.3, and Ninja 1.11.1 on Linux. Configure rejects unqualified compiler families and generators with an actionable message. A compatible newer Clang can be selected explicitly; that does not establish a portability claim until its tests pass.
 
-H5AD support defaults to `ANNDATA_ENABLE_HDF5=ON` and discovers the HDF5 C library (>=1.10) through pkg-config. Neither HDF5 headers nor numerical framework headers enter public module interfaces. Configure with `-DANNDATA_ENABLE_HDF5=OFF`, or run the `core-only` workflow, to omit the storage dependency. `shared` qualifies the shared-library package and installed consumer; the normal build produces a static library.
+Storage defaults to `ANNDATA_ENABLE_HDF5=ON` and `ANNDATA_ENABLE_ZARR=ON`. HDF5 C (>=1.10), zlib and Zstandard are discovered through pkg-config; C-Blosc and nlohmann JSON are private Zarr build dependencies. See [storage-dependencies.md](storage-dependencies.md) for installation commands and the optional private prefix. Backend headers do not enter public module interfaces. The `core-only` workflow disables both backends. `hdf5-only`, `zarr-only` and `shared` qualify the corresponding package configurations; the normal build produces a static library.
 
 ```sh
 cmake --preset debug
@@ -31,6 +31,8 @@ cmake --build /tmp/anndata-consumer
 /tmp/anndata-consumer/consumer
 ```
 
+If dependencies were extracted to the private prefix, add that prefix to the consumer's `CMAKE_PREFIX_PATH` alongside the installed library. The installed-consumer CTest does this automatically.
+
 The package target is `anndata::anndata`. An in-tree consumer can link the same target after `add_subdirectory()`. Set `CMAKE_CXX_EXTENSIONS OFF` in the consuming project, as in tests/consumer/CMakeLists.txt, so compiler module flags agree. The external-consumer CTest exercises installation, find_package, BMI compilation, linking, and execution.
 
 `import anndata;` supports the import-only example. Consumers that name `std::vector`, `std::span`, or other standard types should include their corresponding standard headers themselves. The library does not re-export the standard library as a user namespace facility.
@@ -46,13 +48,15 @@ cmake --build --preset debug
 ctest --preset debug
 ```
 
-`python_semantics` compares slicing/metadata outcomes with independently generated Python AnnData objects. When HDF5 is enabled, `python_h5ad` additionally exercises Python-written files through the C++ reader/writer and independently reads C++ output with AnnData and h5py. These are separate checks: in-memory behavior alone does not establish file compatibility. The declared encoding subset and failure contracts are documented in [h5ad.md](h5ad.md).
+`python_semantics` compares slicing/metadata outcomes with independently generated Python AnnData objects. When HDF5 is enabled, `python_h5ad` additionally exercises Python-written files through the C++ reader/writer and independently reads C++ output with AnnData and h5py. With both backends enabled, `python_storage` adds backed selection, caller buffers, structural updates, cross-backend exports and independently reopened Zarr v2/v3 output. These are separate checks: in-memory behavior alone does not establish file compatibility. The declared encoding subsets and failure contracts are documented in [h5ad.md](h5ad.md) and [storage.md](storage.md).
 
 For a one-command reference check, prepare a workspace-local `.venv` containing the pinned development packages, then run `cmake --workflow --preset interop-check`. When using Project Control's command sandbox, the virtual environment's interpreter and dependencies must also be accessible inside its trusted mounts (for example, create it from `/usr/bin/python3`). Provisioning that optional environment is separate from the standalone native gate; the gate does not download packages.
 
+On this restricted runner, Zarr's background event loop cannot wake itself through a socketpair. `ANNDATA_INTEROP_ZARR_WAKEUP=1` enables a test-only periodic wakeup in `python_storage`; it changes neither library behavior nor the normal Python/CI policy. Local sanitizer qualification uses `ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1` because LeakSanitizer cannot operate under the runner's ptrace restrictions; ASan and UBSan remain active.
+
 ## Benchmarks
 
-The release preset builds `memory_benchmark` and, when enabled, `h5ad_benchmark`. See [performance.md](performance.md) for the historical core baseline and [h5ad-performance.md](h5ad-performance.md) for H5AD measurements. The compilation benchmark tools use disposable source copies so rebuild experiments do not edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.
+The release preset builds `memory_benchmark`, `h5ad_benchmark` when HDF5 is enabled, and `storage_benchmark` when both backends are enabled. See [performance.md](performance.md) for the historical core baseline, [h5ad-performance.md](h5ad-performance.md) for eager H5AD measurements and [storage-performance.md](storage-performance.md) for backed storage and the four-configuration compile campaign. The compilation benchmark tools use disposable source copies so rebuild experiments do not edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.
 
 ## Workflow state
 

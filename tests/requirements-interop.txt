@@ -4,3 +4,5 @@ h5py==3.16.0
 numpy==2.2.6
 pandas==2.3.3
 scipy==1.17.1
+zarr==3.4.2
+numcodecs==0.17.1

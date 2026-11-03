@@ -1,5 +1,33 @@
 # Validation
 
+## Backed storage and Zarr milestone
+
+The [storage validation record](../tests/results/storage-validation.json) identifies the final source, actual commands, independent fixtures and limits. Qualification uses Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1 and HDF5 C 1.10.10 on Linux. The supported storage/codec subset is explicit in [storage.md](storage.md); the [dependency report](storage-dependencies.md) contains the installation commands.
+
+| Final configuration | CTest result |
+|---|---|
+| Debug | 9/9 passed |
+| Native workflow, Python disabled | 9/9 passed |
+| Core-only | 7/7 passed; backend cases skip storage operations |
+| HDF5-only | 9/9 passed |
+| Zarr-only | 7/7 passed |
+| Shared library | 9/9 passed |
+| Release | 9/9 passed |
+| ASan + UBSan | 9/9 passed |
+| Pinned Python interoperability | 12/12 passed |
+
+All native configurations were rebuilt and tested on the final implementation, including the focused dense-transfer fix. The complete interoperability suite was rerun after correcting its Python fixture's automatic categorization and raw chunk geometry; strict dtype, missingness and value assertions remain. Installed tests compile consumers of `anndata.core`, `anndata.backed`, the facade and enabled format modules, then exercise actual file I/O. Shared installation includes a non-system Blosc dependency without requiring a manual library-path environment setting. A private writer workaround avoids a Clang 18 module-view move-constructor linker defect; it does not change public ownership or numerical loops.
+
+The focused fix preserved all eight public BMI hashes and timestamps plus the import-only example object. Profiled small cases confirmed repeated codec and allocation work before changes. A same-instrumentation sharded-export pair improved from 1.89 to 0.054 seconds; this is one observation per candidate. Four subsequent 64 MiB export/reindex operations passed in 0.406–0.535 seconds under explicit time/I/O caps, with complete independent value/axis comparisons. Full workload conditions and instrumentation differences are in the [compact performance record](../benchmarks/results/storage-summary.json).
+
+The AnnData 0.13.4/Zarr 3.4.2 suite independently creates and reopens H5AD and Zarr v2/v3 fixtures. Native and Python checks cover caller buffers and strides, sparse widths/duplicates, lazy metadata, structural growth/preflight/reindexing, stale and retained descriptors, mappings, same-store extension preservation, cross-store rejection, codecs, sharding and corruption diagnostics. An independent category matrix passed 66 checks plus Python reopening of 12 exports/reindexes, including pruning, recoding, color alignment, nullable masks, NA/NaN distinctions and raw alignment. Permanent tests also cover packed string ownership/validation and nullable category dictionaries.
+
+A read-only check used the supplied modern `GSE147520_all_cells_raw_counts.h5ad`: 68,008 by 26,587 CSR with 114,455,556 float32 entries. Python independently reopened C++ selected output. Unique-variable gathers match exact CSR arrays; repeated-variable gathers match values, labels, tables, duplicate multiplicities and row pointers, with the documented [internal tie-order difference](memory.md) from SciPy. Core and backed C++ representations match each other exactly. The original fixture hash was unchanged.
+
+The [storage performance report](storage-performance.md) separates selected reads, full materialization, caller buffers, mappings, parallel sessions and compilation measurements. Its memory observations apply to the recorded workloads, not every schema or codec. Direct structural updates are not whole-store crash transactions. Mapped typed access is explicitly unsafe and qualified only on Linux/Clang. Compound/ragged/complex/half/legacy encodings and cloud stores remain unsupported. ASan and UBSan were active; LeakSanitizer was disabled for the local ptrace restriction. GitHub CI is authored, not remotely executed here.
+
+Project Control returned `workflow_task_already_active` without a handle; its observer reported unavailable semantic workflow state. [The observation](../planning/storage-workflow-observation.json) records this separately. Existing authority and active tasks were preserved; these local results are not a native Todo outcome acceptance receipt.
+
 ## H5AD milestone
 
 The [H5AD validation record](../tests/results/h5ad-validation.json) identifies final source hashes, commands and coverage. Local qualification uses Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1 and HDF5 C 1.10.10. The [H5AD encoding matrix](h5ad.md) states the supported subset and upstream limitations.

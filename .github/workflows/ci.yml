@@ -1,4 +1,4 @@
-name: native-and-h5ad
+name: native-and-storage
 on: [push, pull_request]
 
 jobs:
@@ -7,11 +7,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [debug, release, sanitizers, core-only, shared]
+        preset: [debug, release, sanitizers, core-only, hdf5-only, zarr-only, shared]
     steps:
       - uses: actions/checkout@v4
       - name: Install module toolchain
-        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev
+        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
       - name: Configure
         run: cmake --preset ${{ matrix.preset }} -DANNDATA_ENABLE_INTEROP_TESTS=OFF
       - name: Build
@@ -29,7 +29,7 @@ jobs:
       - name: Install toolchain and development-only reference packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev
+          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
           python -m pip install -r tests/requirements-interop.txt
       - name: Configure
         run: cmake --preset debug -DANNDATA_ENABLE_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"

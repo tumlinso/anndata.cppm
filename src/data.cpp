@@ -229,6 +229,37 @@ void check_rows(std::size_t expected, const std::vector<std::size_t>& rows, std:
     for (auto row : rows) if (row >= expected) fail(ErrorCode::out_of_bounds, path, "selected row is out of bounds");
 }
 
+bool valid_utf8_string(std::string_view value) noexcept {
+    const auto* bytes=reinterpret_cast<const unsigned char*>(value.data());
+    std::size_t i=0;
+    while(i<value.size()) {
+        const auto first=bytes[i++];
+        if(first<0x80)continue;
+        unsigned remaining=0;std::uint32_t code=0,minimum=0;
+        if(first>=0xc2 && first<=0xdf){remaining=1;code=first&0x1f;minimum=0x80;}
+        else if(first>=0xe0 && first<=0xef){remaining=2;code=first&0x0f;minimum=0x800;}
+        else if(first>=0xf0 && first<=0xf4){remaining=3;code=first&0x07;minimum=0x10000;}
+        else return false;
+        if(remaining>value.size()-i)return false;
+        while(remaining--){const auto next=bytes[i++];if((next&0xc0)!=0x80)return false;code=(code<<6)|(next&0x3f);}
+        if(code<minimum||code>0x10ffff||(code>=0xd800&&code<=0xdfff))return false;
+    }
+    return true;
+}
+void validate_packed_strings(const std::vector<char>& bytes,const std::vector<std::size_t>& offsets) {
+    if(offsets.empty()||offsets.front()!=0)
+        fail(ErrorCode::invalid_argument,"column/strings","packed offsets must start at zero");
+    if(bytes.size()>static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()))
+        fail(ErrorCode::invalid_argument,"column/strings","packed bytes exceed addressable range");
+    for(std::size_t i=1;i<offsets.size();++i) {
+        const auto first=offsets[i-1],last=offsets[i];
+        if(last<first||last>bytes.size())fail(ErrorCode::invalid_argument,"column/strings","packed offsets are nonmonotonic or exceed byte size");
+        if(last!=first && !valid_utf8_string(std::string_view(bytes.data()+first,last-first)))
+            fail(ErrorCode::invalid_argument,"column/strings","string is not valid UTF-8");
+    }
+    if(offsets.back()!=bytes.size())fail(ErrorCode::invalid_argument,"column/strings","final packed offset differs from byte size");
+}
+
 void check_validity(std::size_t n, const std::vector<std::uint8_t>& validity) {
     if (!validity.empty() && validity.size() != n)
         fail(ErrorCode::shape_mismatch, "column/validity", "validity length differs from column length");
@@ -468,6 +499,32 @@ Column Column::nullable_strings(std::initializer_list<std::string_view> values,
     return nullable_strings(std::move(copied), std::move(validity), missing);
 }
 
+Column Column::from_packed_strings(std::vector<char> bytes, std::vector<std::size_t> offsets,
+                                   std::vector<std::uint8_t> validity, Validation validation) {
+    if(offsets.empty())fail(ErrorCode::invalid_argument,"column/strings","packed offsets must include an initial zero");
+    if(validation==Validation::full) {
+        validate_packed_strings(bytes,offsets);
+        check_validity(offsets.size()-1,validity);
+    }
+    auto p=std::make_shared<detail::ColumnImpl>();
+    p->kind=ColumnKind::string;
+    p->bytes=std::move(bytes);
+    p->offsets=std::move(offsets);
+    p->validity=std::move(validity);
+    p->nullable=!p->validity.empty();
+    return Column(std::move(p));
+}
+Column Column::from_nullable_packed_strings(std::vector<char> bytes, std::vector<std::size_t> offsets,
+                                            std::vector<std::uint8_t> validity,
+                                            StringMissingValue missing, Validation validation) {
+    if(offsets.empty() || validity.size()!=offsets.size()-1)
+        fail(ErrorCode::shape_mismatch,"column/validity","nullable validity length differs from packed row count");
+    auto result=from_packed_strings(std::move(bytes),std::move(offsets),std::move(validity),validation);
+    result.impl_->nullable=true;
+    result.impl_->string_missing_value=missing;
+    return result;
+}
+
 Column Column::categorical(Array codes, Column categories, bool ordered, Validation validation) {
     if (codes.rank() != 1 || codes.layout() != Layout::dense)
         fail(ErrorCode::shape_mismatch, "categorical/codes", "categorical codes require a one-dimensional dense array");
@@ -647,6 +704,7 @@ void Column::set_valid(std::size_t row, bool valid) {
     impl_->validity[row] = valid;
 }
 void Column::validate() const {
+    if (kind()==ColumnKind::string) validate_packed_strings(impl_->bytes,impl_->offsets);
     if (impl_->nullable && impl_->validity.size() != size())
         fail(ErrorCode::shape_mismatch, "column/validity", "nullable validity length differs from column length");
     check_validity(size(), impl_->validity);

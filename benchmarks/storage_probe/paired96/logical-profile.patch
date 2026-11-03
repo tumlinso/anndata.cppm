@@ -1,0 +1,94 @@
+--- a/src/backed_zarr.cpp
++++ b/src/backed_zarr.cpp
+@@ -1,7 +1,10 @@
+ module;
+ #include "zarr_engine.hpp"
++#include <atomic>
+ #include <bit>
+ #include <cerrno>
++#include <cstdint>
++#include <cstdio>
+ #include <cstring>
+ #include <fcntl.h>
+ #include <functional>
+@@ -22,5 +25,34 @@
+ namespace anndata {
+ namespace {
++struct XBackendProfile {
++    std::atomic<std::uint64_t> read_attempts{0}, read_completed{0}, read_elements{0};
++    std::atomic<std::uint64_t> write_attempts{0}, write_completed{0}, write_elements{0};
++};
++XBackendProfile x_backend_profile;
++std::atomic<bool> x_backend_profile_active{false};
++
++bool is_x_path(std::string_view path) noexcept { return path == "/X" || path == "X"; }
++std::uint64_t logical_elements(const std::vector<std::size_t>& shape) noexcept {
++    std::uint64_t result = 1;
++    for (const auto extent : shape) {
++        if (extent == 0) return 0;
++        if (result > UINT64_MAX / extent) return UINT64_MAX;
++        result *= extent;
++    }
++    return result;
++}
++__attribute__((destructor)) void report_x_backend_profile() {
++    const auto read_elements = x_backend_profile.read_elements.load(std::memory_order_relaxed);
++    const auto write_elements = x_backend_profile.write_elements.load(std::memory_order_relaxed);
++    std::fprintf(stderr,
++        "LOGICAL_X_BACKEND read_attempts=%llu read_completed=%llu read_elements=%llu read_bytes_f32=%llu write_attempts=%llu write_completed=%llu write_elements=%llu write_bytes_f32=%llu\n",
++        static_cast<unsigned long long>(x_backend_profile.read_attempts.load(std::memory_order_relaxed)),
++        static_cast<unsigned long long>(x_backend_profile.read_completed.load(std::memory_order_relaxed)),
++        static_cast<unsigned long long>(read_elements), static_cast<unsigned long long>(read_elements * 4),
++        static_cast<unsigned long long>(x_backend_profile.write_attempts.load(std::memory_order_relaxed)),
++        static_cast<unsigned long long>(x_backend_profile.write_completed.load(std::memory_order_relaxed)),
++        static_cast<unsigned long long>(write_elements), static_cast<unsigned long long>(write_elements * 4));
++}
+ namespace ze = ::anndata_zarr;
+ [[noreturn]] void translate(const ze::Error& e) {
+     auto code=ErrorCode::io_error;
+@@ -111,8 +143,24 @@
+         return info;
+     }); }
+     std::vector<std::string> children(std::string_view path) override { return zarr_call([&] { return store().children(std::string(path)); }); }
+-    void read_numeric(std::string_view path,const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,void* output) override { zarr_call([&] { store().read_numeric(std::string(path),start,count,output); }); }
+-    void write_numeric(std::string_view path,const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,const void* input) override { zarr_call([&] { store().write_numeric(std::string(path),start,count,input); }); }
++    void read_numeric(std::string_view path,const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,void* output) override {
++        const bool profile_x = x_backend_profile_active.load(std::memory_order_relaxed) && is_x_path(path);
++        if (profile_x) {
++            x_backend_profile.read_attempts.fetch_add(1, std::memory_order_relaxed);
++            x_backend_profile.read_elements.fetch_add(logical_elements(count), std::memory_order_relaxed);
++        }
++        zarr_call([&] { store().read_numeric(std::string(path),start,count,output); });
++        if (profile_x) x_backend_profile.read_completed.fetch_add(1, std::memory_order_relaxed);
++    }
++    void write_numeric(std::string_view path,const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,const void* input) override {
++        const bool profile_x = x_backend_profile_active.load(std::memory_order_relaxed) && is_x_path(path);
++        if (profile_x) {
++            x_backend_profile.write_attempts.fetch_add(1, std::memory_order_relaxed);
++            x_backend_profile.write_elements.fetch_add(logical_elements(count), std::memory_order_relaxed);
++        }
++        zarr_call([&] { store().write_numeric(std::string(path),start,count,input); });
++        if (profile_x) x_backend_profile.write_completed.fetch_add(1, std::memory_order_relaxed);
++    }
+     std::vector<std::string> read_strings(std::string_view path,const std::vector<std::size_t>& start,const std::vector<std::size_t>& count) override { return zarr_call([&] { return store().read_strings(std::string(path),start,count); }); }
+     std::vector<std::string> read_strings_bounded(std::string_view path,const std::vector<std::size_t>& start,
+         const std::vector<std::size_t>& count,std::size_t byte_budget) override {
+@@ -190,6 +238,18 @@
+     ze::CreateOptions options; options.format=format; options.compression=compression; options.compression_level=level; return options;
+ }
+ } // namespace
++extern "C" void bulk_logical_probe_begin() {
++    ::anndata::x_backend_profile.read_attempts.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile.read_completed.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile.read_elements.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile.write_attempts.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile.write_completed.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile.write_elements.store(0, std::memory_order_relaxed);
++    ::anndata::x_backend_profile_active.store(true, std::memory_order_relaxed);
++}
++extern "C" void bulk_logical_probe_end() {
++    ::anndata::x_backend_profile_active.store(false, std::memory_order_relaxed);
++}
+ namespace detail {
+ BackedAnnData open_zarr_backed(std::string_view path,BackedOptions options) {
+     return zarr_call([&] {

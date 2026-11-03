@@ -172,6 +172,102 @@ void owners_columns_and_tables() {
            "column views retain their storage after the owner is destroyed");
 }
 
+void packed_string_columns() {
+    std::vector<char> bytes{'c', 'a', 'f', static_cast<char>(0xc3), static_cast<char>(0xa9),
+                            static_cast<char>(0xce), static_cast<char>(0xb2), '-', 'c', 'e', 'l', 'l'};
+    std::vector<std::size_t> offsets{0, 5, 5, 12};
+    auto packed = anndata::Column::from_packed_strings(
+        std::move(bytes), std::move(offsets), {1, 0, 1});
+    anndata::ColumnView retained;
+    {
+        auto owner = std::move(packed);
+        retained = owner.view();
+    }
+    expect(retained.kind() == anndata::ColumnKind::string && retained.size() == 3 &&
+           retained.nullable(),
+           "packed UTF-8 strings retain string kind, row count, and nullable storage after owner moves");
+    expect(retained.string(0) == "café" && retained.string(1).empty() &&
+           retained.string(2) == "β-cell" && retained.valid(0) &&
+           !retained.valid(1) && retained.valid(2),
+           "packed strings preserve multibyte UTF-8, empty rows, and independent validity");
+
+    auto nullable_na = anndata::Column::from_nullable_packed_strings(
+        {'a', 'b'}, {0, 1, 2}, {1, 0}, anndata::StringMissingValue::NA);
+    auto nullable_nan = anndata::Column::from_nullable_packed_strings(
+        {'x'}, {0, 1}, {1}, anndata::StringMissingValue::NaN);
+    expect(nullable_na.view().nullable() &&
+           nullable_na.view().string_missing_value() == anndata::StringMissingValue::NA &&
+           nullable_na.view().valid(0) && !nullable_na.view().valid(1) &&
+           nullable_na.view().string(0) == "a",
+           "packed nullable strings preserve NA sentinel and validity");
+    expect(nullable_nan.view().nullable() &&
+           nullable_nan.view().string_missing_value() == anndata::StringMissingValue::NaN &&
+           nullable_nan.view().valid(0) && nullable_nan.view().string(0) == "x",
+           "packed nullable strings preserve NaN sentinel for all-valid rows");
+
+    auto empty_na = anndata::Column::from_nullable_packed_strings(
+        {}, {0}, {}, anndata::StringMissingValue::NA);
+    auto empty_nan = anndata::Column::from_nullable_packed_strings(
+        {}, {0}, {}, anndata::StringMissingValue::NaN);
+    expect(empty_na.size() == 0 && empty_na.view().nullable() &&
+           empty_na.view().string_missing_value() == anndata::StringMissingValue::NA &&
+           empty_nan.size() == 0 && empty_nan.view().nullable() &&
+           empty_nan.view().string_missing_value() == anndata::StringMissingValue::NaN,
+           "zero-row packed nullable strings retain NA and NaN sentinels");
+
+    expect_error(anndata::ErrorCode::invalid_argument, "column/strings", [&] {
+        (void)anndata::Column::from_packed_strings({'a'}, {1, 1});
+    }, "packed string offsets must begin at zero");
+    expect_error(anndata::ErrorCode::invalid_argument, "column/strings", [&] {
+        (void)anndata::Column::from_packed_strings({'a'}, {0, 0});
+    }, "final packed string offset must equal byte count");
+    expect_error(anndata::ErrorCode::invalid_argument, "column/strings", [&] {
+        (void)anndata::Column::from_packed_strings({'a', 'b'}, {0, 2, 1});
+    }, "packed string offsets must be monotonic");
+
+    const std::vector<char> invalid_utf8{static_cast<char>(0xc3), 'x'};
+    expect_error(anndata::ErrorCode::invalid_argument, "column/strings", [&] {
+        (void)anndata::Column::from_packed_strings(invalid_utf8, {0, 2});
+    }, "full packed string validation rejects invalid UTF-8");
+    auto deferred = anndata::Column::from_packed_strings(
+        invalid_utf8, {0, 2}, {}, anndata::Validation::none);
+    expect_error(anndata::ErrorCode::invalid_argument, "column/strings", [&] {
+        deferred.validate();
+    }, "explicit validation rejects invalid UTF-8 deferred at construction");
+}
+
+void nullable_category_dictionaries_require_validity() {
+    expect_error(anndata::ErrorCode::invalid_argument, "categorical/categories", [&] {
+        (void)anndata::Column::categorical(
+            array_of<std::int8_t>({0}, {1}),
+            anndata::Column::nullable_numeric(
+                array_of<std::int16_t>({7, 9}, {2}), {1, 0}));
+    }, "full categorical construction rejects null numeric dictionary entries");
+
+    auto unchecked_numeric = anndata::Column::categorical(
+        array_of<std::int8_t>({0}, {1}),
+        anndata::Column::nullable_numeric(
+            array_of<std::int16_t>({7, 9}, {2}), {1, 0}), false,
+        anndata::Validation::none);
+    expect_error(anndata::ErrorCode::invalid_argument, "categorical/categories", [&] {
+        unchecked_numeric.validate();
+    }, "explicit categorical validation rejects null numeric dictionary entries");
+
+    expect_error(anndata::ErrorCode::invalid_argument, "categorical/categories", [&] {
+        (void)anndata::Column::categorical(
+            array_of<std::int8_t>({0}, {1}),
+            anndata::Column::nullable_strings({"present", "missing"}, {1, 0}));
+    }, "full categorical construction rejects null string dictionary entries");
+
+    auto unchecked_strings = anndata::Column::categorical(
+        array_of<std::int8_t>({0}, {1}),
+        anndata::Column::nullable_strings({"present", "missing"}, {1, 0}), false,
+        anndata::Validation::none);
+    expect_error(anndata::ErrorCode::invalid_argument, "categorical/categories", [&] {
+        unchecked_strings.validate();
+    }, "explicit categorical validation rejects null string dictionary entries");
+}
+
 void elements_and_deep_copy() {
     const auto i8 = anndata::Element::scalar<std::int8_t>(-7).view();
     const auto u8 = anndata::Element::scalar<std::uint8_t>(250).view();
@@ -749,6 +845,8 @@ void unsigned_categorical_codes() {
 
 int main() {
     owners_columns_and_tables();
+    packed_string_columns();
+    nullable_category_dictionaries_require_validity();
     elements_and_deep_copy();
     anndata_slots_alignment_and_aliasing();
     slicing_and_category_colors();

@@ -10,11 +10,13 @@ Use the user's configured cooperative agent profiles (`scout`, `engineer`, `exec
 - Initial toolchain: Clang 18 plus matching clang-scan-deps, CMake >=3.28, Ninja >=1.11. Use CMake CXX_MODULES file sets and scanning; do not hand-order BMI commands.
 - Run `cmake --preset debug`, `cmake --build --preset debug`, `ctest --preset debug`. Sanitizers use the `sanitizers` preset. See docs/development.md for optional Python semantic tests and release benchmarks.
 - Keep storage dependencies private and optional. The core has no dependency on Python, HDF5, Arrow, Torch, or Cellerator. Downstream integration never reverses that dependency direction.
-- H5AD is enabled by default through the private HDF5 C backend. `cmake --workflow --preset core-only` verifies the dependency-free configuration; `shared` verifies shared-library installation. Python interoperability tests independently reopen C++ output and inspect physical encodings.
+- H5AD and Zarr v2/v3 are enabled by default through private storage adapters. `cmake --workflow --preset core-only` verifies the dependency-free configuration; `hdf5-only`, `zarr-only` and `shared` verify single-backend and shared-library installations. See docs/storage-dependencies.md for installation commands. Python interoperability tests independently reopen C++ output and inspect physical encodings.
 - Preserve move-only owners, explicit deep copies, retained read-only views, native pointers/strides and raw sparse buffers. Borrowing and unchecked access are deliberate capabilities with documented contracts.
 - Keep numerical element loops free of type-erased dispatch and library synchronization. Callers own parallel execution. Choose representations by evidence, not blanket preferences for or against the standard library.
 - Follow AnnData/Scanpy data conventions. Consult pinned upstream specifications/source and independently generated fixtures before adding formats. Do not claim file compatibility from an in-memory test.
 - Keep implementation-only changes out of public module interfaces. Measure rebuilds and direct-memory performance before making performance claims.
+- Checkpoint performance evidence before stopping a campaign. Start with geometry-faithful probes capped at 30 seconds; count calls, allocations and bytes, profile the mechanism, and stop repeating established slow cases. Larger confirmations need explicit time and I/O budgets. Preserve the baseline and compare identical workloads and settings.
+- Keep generated biological stores, binaries, raw campaign reports and profiler outputs ignored. Commit reproducible measurement sources and compact summaries with artifact hashes; preserve raw evidence locally.
 
 ## Workflow and preservation
 
