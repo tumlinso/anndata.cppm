@@ -471,6 +471,32 @@ void unsafe_text_edits_and_layout_validation() {
                  "validation rejects noncanonical boolean object bytes");
 }
 
+void uns_slices_keep_records() {
+    RecordArrayView retained;
+    {
+        auto data = AnnData::empty(3, 2);
+        auto scores = Array::empty<float>({2});
+        auto values = scores.edit().dense<float>();
+        values.data()[0] = 1; values.data()[1] = 2;
+        auto record = RecordArray::with_shape({2});
+        record.set("group", std::move(scores));
+        auto rank = Element::mapping();
+        rank.set("scores", Element(std::move(record)));
+        data.set_uns("rank_genes_groups", std::move(rank));
+
+        auto slice = data.slice(indices{2, 0}, all).slice(indices{1}, indices{1});
+        auto copy = slice.copy();
+        retained = slice.uns().at("rank_genes_groups").at("scores").record_array();
+        values.data()[0] = 9;
+        expect(retained.size() == 2 && retained.member<float>("group")[0] == 9,
+               "dataset slicing preserves uns record dimensions and aliased values");
+        expect(copy.uns().at("rank_genes_groups").at("scores").record_array().member<float>("group")[0] == 1,
+               "copy of a dataset slice owns independent uns record buffers");
+    }
+    expect(retained.member<float>("group")[1] == 2,
+           "record acquired from sliced uns retains storage after dataset destruction");
+}
+
 } // namespace
 
 int main() {
@@ -480,6 +506,7 @@ int main() {
     fixed_utf8_and_owned_utf8_refs();
     byte_order_copy_and_conversion();
     unsafe_text_edits_and_layout_validation();
+    uns_slices_keep_records();
     if (failures) {
         std::cerr << failures << " record assertion(s) failed\n";
         return EXIT_FAILURE;

@@ -117,14 +117,14 @@ void owners_columns_and_tables() {
            group_view.categories().string(2) == "high",
            "string category dictionary preserves its declared order");
 
-    auto selected_groups = group_view.select({0, 2, 4});
+    auto selected_groups = group_view.select(anndata::Axis::gather({0, 2, 4}));
     expect(selected_groups.categories().size() == 2 &&
            selected_groups.categories().string(0) == "mid" &&
            selected_groups.categories().string(1) == "high" &&
            selected_groups.code(0) == 1 && selected_groups.code(1) == -1 &&
            selected_groups.code(2) == 0,
            "pruned category dictionaries preserve order and recode selected rows");
-    auto retained_full_dictionary = group_view.select({0, 2, 4}, false);
+    auto retained_full_dictionary = group_view.select(anndata::Axis::gather({0, 2, 4}), false);
     expect(retained_full_dictionary.categories().size() == 3 &&
            retained_full_dictionary.code(0) == 2,
            "categorical selection can retain the complete dictionary");
@@ -647,7 +647,7 @@ void structural_snapshot_and_scalar_edges() {
         (void)empty.layer("absent");
     }, "empty dataset views diagnose absent map keys");
     anndata::ColumnView empty_column;
-    expect(empty_column.select({}).size() == 0, "empty column views permit an empty selection");
+    expect(empty_column.select(anndata::Axis::gather({})).size() == 0, "empty column views permit an empty selection");
 }
 
 void raw_tables_and_empty_nullable_columns() {
@@ -727,7 +727,7 @@ void reviewed_category_and_validation_regressions() {
     auto all = group.view().select_all();
     expect(all.codes().dense<std::int8_t>().data() == alias.data(),
            "unchanged category dictionaries preserve direct code-buffer access");
-    auto pruned = group.view().select({0});
+    auto pruned = group.view().select(anndata::Axis::gather({0}));
     expect(pruned.codes().dense<std::int8_t>().data() == alias.data(),
            "prefix-only category pruning needs no code-buffer copy");
     alias.data()[0] = 1;
@@ -740,7 +740,7 @@ void reviewed_category_and_validation_regressions() {
                  "stale category buffer acquisition rejects invalidated remaps");
     expect_error(anndata::ErrorCode::invalid_argument, "categorical/codes", [&] { (void)pruned.copy(); },
                  "stale category copies do not silently lose data");
-    expect(group.view().select({0}).categories().string(0) == "B",
+    expect(group.view().select(anndata::Axis::gather({0})).categories().string(0) == "B",
            "fresh category views reflect deliberate source-code mutation");
 
     auto dictionary = array_of<std::int32_t>({1, 2}, {2});
@@ -781,7 +781,7 @@ void unsigned_categorical_codes() {
            unsigned_copy.view().code(1) == 255 && unsigned_copy.view().valid(1),
            "categorical copy preserves unsigned byte codes without inventing a missing sentinel");
 
-    auto pruned = byte_view.select({1, 2});
+    auto pruned = byte_view.select(anndata::Axis::gather({1, 2}));
     expect(pruned.categories().size() == 2 && pruned.codes().dtype() == anndata::DType::uint8 &&
            pruned.code(0) == 1 && pruned.code(1) == 0 &&
            pruned.categories().string(0) == "1" && pruned.categories().string(1) == "255",
@@ -790,7 +790,7 @@ void unsigned_categorical_codes() {
     auto uint16_codes = array_of<std::uint16_t>({1, 2}, {2});
     auto uint16_group = anndata::Column::categorical(
         std::move(uint16_codes), anndata::Column::strings({"a", "b", "c"}));
-    auto uint16_subset = uint16_group.view().select({1}, false);
+    auto uint16_subset = uint16_group.view().select(anndata::Axis::gather({1}), false);
     expect(uint16_subset.codes().dtype() == anndata::DType::uint16 &&
            uint16_subset.code(0) == 2,
            "unsigned 16-bit category codes survive selection without dictionary pruning");
@@ -799,7 +799,7 @@ void unsigned_categorical_codes() {
         array_of<std::uint32_t>({0, 2, 1}, {3}),
         anndata::Column::strings({"a", "b", "c"}));
     auto uint32_view = uint32_group.view();
-    auto uint32_pruned = uint32_view.select({2, 0});
+    auto uint32_pruned = uint32_view.select(anndata::Axis::gather({2, 0}));
     auto uint32_copy = uint32_view.copy();
     expect(uint32_view.code(1) == 2 && uint32_pruned.code(0) == 1 &&
            uint32_pruned.code(1) == 0 && uint32_pruned.codes().dtype() == anndata::DType::uint32 &&
@@ -811,7 +811,7 @@ void unsigned_categorical_codes() {
         array_of<std::uint64_t>({0, 2, 1}, {3}),
         anndata::Column::strings({"a", "b", "c"}));
     auto uint64_view = uint64_group.view();
-    auto uint64_pruned = uint64_view.select({2, 0});
+    auto uint64_pruned = uint64_view.select(anndata::Axis::gather({2, 0}));
     auto uint64_copy = uint64_view.copy();
     expect(uint64_view.code(1) == 2 && uint64_pruned.code(0) == 1 &&
            uint64_pruned.code(1) == 0 && uint64_pruned.codes().dtype() == anndata::DType::uint64 &&
@@ -841,6 +841,147 @@ void unsigned_categorical_codes() {
            "signed categorical codes retain -1 as the missing-value sentinel");
 }
 
+void compact_metadata_axes() {
+    using namespace anndata;
+    auto values = Column::from_values<std::int32_t>({0, 1, 2, 3, 4, 5});
+    auto reversed = values.view().select(Axis::stride(5, 3, 2, true));
+    auto v = reversed.values().dense<std::int32_t>();
+    expect(v.data() == values.edit_values().dense<std::int32_t>().data() + 5 &&
+           v.stride(0) == -2 && v.data()[2 * v.stride(0)] == 1,
+           "metadata ranges retain direct negative-stride numeric access");
+    std::size_t rows[]{2, 0, 2};
+    auto selected = reversed.select(Axis::gather(rows, 3));
+    rows[0] = 0;
+    values.edit_values().dense<std::int32_t>().data()[1] = 11;
+    expect(flattened<std::int32_t>(selected.values()) == std::vector<std::int32_t>({11, 5, 11}),
+           "nested column gathers own their maps and retain mutable numeric aliases");
+
+    TableView retained;
+    {
+        auto t = Table::with_index({"a", "b", "a", "d", "e"}, "row");
+        t.set("text", Column::nullable_strings({"a", "b", "c", "d", "e"},
+                                               {1, 1, 0, 1, 1}, StringMissingValue::NaN));
+        retained = t.view().select(Axis::stride(4, 3, 2, true)).select(Axis::gather({1, 0, 1}));
+    }
+    expect(retained.names() == std::vector<std::string>({"a", "e", "a"}) &&
+           retained.index_name() == "row" && !retained.column("text").valid(0) &&
+           retained.column("text").string(1) == "e" &&
+           retained.column("text").string_missing_value() == StringMissingValue::NaN,
+           "nested table axes retain names, null sentinels, duplicates and storage lifetime");
+    const auto r = Selection(range{std::nullopt, std::nullopt, -2}).resolve(retained, "rows");
+    expect(!r.is_gather() && r.reverse() && r.extent(retained.size()) == 2 &&
+           r.index(0) == 2 && r.index(1) == 0,
+           "Python reverse ranges resolve to affine axes");
+}
+
+void direct_metadata_columns() {
+    using namespace anndata;
+    ColumnView old, selected, gene;
+    TableView snapshot;
+    {
+        auto data = AnnData::empty(3, 2);
+        data.set_obs_column("n", Column::from_values<std::int32_t>({1, 2, 3}));
+        data.set_var_column("symbol", Column::strings({"A", "B"}));
+        old = data.obs_column("n");
+        gene = data.var_column("symbol");
+        snapshot = data.obs();
+        auto view = data.slice(indices{2, 0}, indices{1});
+        selected = view.obs_column("n");
+        expect(view.var_column("symbol").string(0) == "B" &&
+               selected.values().dtype() == DType::int32,
+               "AnnDataView direct lookup applies selected metadata axes");
+        data.edit_obs_values("n").dense<std::int32_t>().data()[2] = 30;
+        expect(flattened<std::int32_t>(selected.values()) == std::vector<std::int32_t>({30, 1}),
+               "direct selected columns observe source numeric mutations");
+        auto moved = std::move(data);
+        moved.set_obs_column("n", Column::from_values<std::int32_t>({4, 5, 6}));
+        moved.set_var_column("symbol", Column::strings({"X", "Y"}));
+        expect(moved.obs_column("n").values().dense<std::int32_t>().data()[0] == 4 &&
+               old.values().dense<std::int32_t>().data()[0] == 1 &&
+               snapshot.column("n").values().dense<std::int32_t>().data()[2] == 30,
+               "direct retained columns and table snapshots survive owner moves and replacement");
+        expect_error(ErrorCode::out_of_bounds, "table/missing",
+                     [&] { (void)moved.obs_column("missing"); }, "direct lookup preserves missing-column diagnostics");
+    }
+    expect(old.values().dense<std::int32_t>().data()[2] == 30 &&
+           selected.values().extent(0) == 2 && gene.string(1) == "B",
+           "direct metadata columns retain storage after dataset destruction");
+}
+
+void scalar_copy_metadata() {
+    using namespace anndata;
+    const auto check = [&]<class T>(T x) {
+        auto e = Element::scalar<T>(x);
+        e.set_serialization_byte_order(ByteOrder::big);
+        auto m = Element::mapping();
+        m.set("x", std::move(e));
+        auto copy = m.copy();
+        auto v = copy.at("x");
+        expect(v.dtype() == dtype_of<T>() && v.scalar<T>() == x &&
+               v.serialization_byte_order() == ByteOrder::big,
+               "nested scalar copies preserve value, dtype and serialization byte order");
+    };
+    check(true);
+    check(std::int8_t(-7)); check(std::uint8_t(250));
+    check(std::int16_t(-300)); check(std::uint16_t(60000));
+    check(std::int32_t(-123456)); check(std::uint32_t(4000000000U));
+    check(std::int64_t(-9000000000000LL)); check(std::uint64_t(18000000000000000000ULL));
+    check(1.25F); check(-2.5);
+}
+
+void nested_dataset_gathers() {
+    using namespace anndata;
+    AnnDataView retained;
+    {
+        auto data = AnnData::empty(5, 3);
+        data.set_obs(Table::with_index({"r0", "r1", "r2", "r3", "r4"}));
+        data.set_var(Table::with_index({"v0", "v1", "v2"}));
+        data.set_x(array_of<std::int32_t>({0,1,2, 10,11,12, 20,21,22, 30,31,32, 40,41,42}, {5,3}));
+        data.set_layer("same", data.x().copy());
+        data.set_obsm("n", array_of<std::int32_t>({0,1,2,3,4}, {5,1}));
+        data.set_obsm("s", StringArray::from_strings({5}, {"r0","r1","r2","r3","r4"}));
+        auto t = Table::with_index({"r0", "r1", "r2", "r3", "r4"}, "different-index-name");
+        t.set("label", Column::strings({"r0","r1","r2","r3","r4"}));
+        data.set_obsm("t", std::move(t));
+        data.set_varm("n", array_of<std::int16_t>({0,1,2}, {3}));
+        data.set_obs_column("group", Column::categorical(array_of<std::int8_t>({-1,2,0,2,1}, {5}),
+                                                         Column::strings({"A","B","C"})));
+        data.set_uns("group_colors", Element(StringArray::from_strings({3}, {"a","b","c"})));
+        data.set_obsp("p", array_of<std::int32_t>({0,1,2,3,4, 10,11,12,13,14, 20,21,22,23,24,
+                                                 30,31,32,33,34, 40,41,42,43,44}, {5,5}));
+        data.set_varp("p", array_of<std::int32_t>({0,1,2, 10,11,12, 20,21,22}, {3,3}));
+        data.set_raw(array_of<std::int32_t>({0,1,2,3, 10,11,12,13, 20,21,22,23,
+                                           30,31,32,33, 40,41,42,43}, {5,4}),
+                     Table::with_index({"a","b","c","d"}));
+        data.set_raw_varm("s", StringArray::from_strings({4}, {"a","b","c","d"}));
+        auto parent = data.slice(indices{3,1,3,4}, indices{2,0,2});
+        retained = parent.slice(indices{3,1,3}, indices{2,1});
+        data.edit_x().dense<std::int32_t>().data()[5] = 112;
+    }
+    expect(flattened<std::int32_t>(retained.x()) == std::vector<std::int32_t>({42,40,112,10,42,40}) &&
+           flattened<std::int32_t>(retained.layer("same")) == std::vector<std::int32_t>({42,40,12,10,42,40}),
+           "nested dataset gathers preserve bindings, duplicates and numeric aliases after owner destruction");
+    expect(retained.obs().names() == std::vector<std::string>({"r4","r1","r4"}) &&
+           retained.obsm("s").string_array().string(1) == "r1" &&
+           retained.obsm("t").table().column("label").string(2) == "r4" &&
+           flattened<std::int32_t>(retained.obsm("n").array()) == std::vector<std::int32_t>({4,1,4}) &&
+           flattened<std::int16_t>(retained.varm("n").array()) == std::vector<std::int16_t>({2,0}),
+           "nested dataset gathers align numeric, string and table slots");
+    expect(flattened<std::int32_t>(retained.obsp("p")) == std::vector<std::int32_t>({44,41,44,14,11,14,44,41,44}) &&
+           flattened<std::int32_t>(retained.varp("p")) == std::vector<std::int32_t>({22,20,2,0}),
+           "nested pairwise gathers select both aligned axes");
+    auto group = retained.obs_column("group");
+    auto colors = retained.uns().at("group_colors").string_array();
+    expect(group.categories().size() == 2 && group.categories().string(0) == "B" &&
+           group.code(0) == 0 && group.code(1) == 1 && group.code(2) == 0 &&
+           colors.size() == 2 && colors.string(0) == "b" && colors.string(1) == "c",
+           "nested category pruning and colors use the current selected dictionary");
+    expect(retained.raw_x().extent(1) == 4 &&
+           flattened<std::int32_t>(retained.raw_x()) == std::vector<std::int32_t>({40,41,42,43,10,11,12,13,40,41,42,43}) &&
+           retained.raw_var().size() == 4 && retained.raw_varm("s").string_array().string(3) == "d",
+           "nested raw follows observations and retains its independent variable axis");
+}
+
 } // namespace
 
 int main() {
@@ -855,6 +996,10 @@ int main() {
     raw_tables_and_empty_nullable_columns();
     reviewed_category_and_validation_regressions();
     unsigned_categorical_codes();
+    compact_metadata_axes();
+    direct_metadata_columns();
+    scalar_copy_metadata();
+    nested_dataset_gathers();
     if (failures != 0) {
         std::cerr << failures << " data test(s) failed\n";
         return 1;

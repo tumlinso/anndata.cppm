@@ -1,0 +1,1268 @@
+{
+  "date": "2026-11-03",
+  "scope": "straightforward private representation and source cleanups; no format expansion",
+  "git_head": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "baseline_note": "Exact pre-step working tree including earlier uncommitted selection work, not Git HEAD",
+  "baseline_source_sha256": {
+    "CMakeLists.txt": "654de244bb56bdb942bb51658c923cabf4f8ac89a6a16dad1946f8b9d971e772",
+    "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+    "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+    "cmake/anndataConfig.cmake.in": "8b6592873e0926d82b1da42fc0dab457483d045d47f5c405b74192c73a29b288",
+    "cmake/test-installed-consumer.cmake": "09865c7e9cb0b4b9bb367a1e004a3f6c44aca1c20584a9c5f91695d63f6406df",
+    "src/anndata.arrays.cppm": "ef06a38c2fe93176ed684e8636b058c3a13f2ae4d7b48bd555bedd621dd1bd1c",
+    "src/anndata.backed.cppm": "0dcf7cb6fa83589d8d68de4b3caa8488773866425c8cbdf0b8072091a229ae54",
+    "src/anndata.backed.storage.cppm": "f3136205d4fae038643ff3e2bfe6fb3be88fa1e1e438e7e6547f377715c9ebf8",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "6f2b3bcee0df87fe15337ebea427347fc32346f80dd7b2a7fe5cb2d9f3eb9290",
+    "src/anndata.data.cppm": "6cf516cf2bb895e28c9038cb5591cd07c06706225db5f2995e32e7553701f559",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.strings.cppm": "1dfefcb0741a8cf1cfa994963aafa5e39c253d67ca0e5091622a81895dd82db8",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "078fb177efae1b238015b06d508d2aa9a8c42cc40c821050f98e0858a1c72ee6",
+    "src/backed.cpp": "73dfa4a8ae33d31ea628edf4667dcc289217655409821c6c93fb495e974af17c",
+    "src/backed_array.cpp": "b5d9bfe1a0732b82199c5a035e24dea8bda958ccc62b500739f021245825e8be",
+    "src/backed_category.cpp": "d9a0b267acdb094459f9fec1969ba95b7b35dd360298e3353bbc52bf45b14c59",
+    "src/backed_codec.cpp": "0e2fb5b352e754e3a2d391486154841e7623a15fb62d0da32d6a88cdc71bc5d2",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "523534a49617f77babb7ab37df3faf169a9afe315ac2079700e26182a8935fdd",
+    "src/backed_hdf5.cpp": "b9da38cec37638915e5209b2f8b069f8a1f61ff98f3e9b82a58fee26101f793c",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_structure.cpp": "e154845994d1a9eebf0df842575a18f6542f804fa242eb6ea07d5c369615e1f7",
+    "src/backed_writer.cpp": "66c583fab6dcc2a671459b5be7da6af1f0dcf00a294fd51b7509233c8064afc2",
+    "src/backed_zarr.cpp": "b85a279e0018dfcedb434b348829c4f70afcdb8a65ad9357e97ff644eead3916",
+    "src/data.cpp": "20b30fd6d58219fb8ea77341593d49046f2e64d950d26a181fe45b6fcb440c8c",
+    "src/h5ad.cpp": "cd00f748de9dda70f5af69f3f783b6041b3409bcebc13acae5f72a5a3d332f0e",
+    "src/strings.cpp": "34e542ffc8a2f830c63e3c0b6e114039d406d995913c0e94464b58b4a2fe8570",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "f0de47f0163d1b30050b77bd9153ba734a5d8f4d6ee8befbb905352c6f811a95",
+    "src/zarr_engine.cpp": "44299d1fa7e4b4ee65e8a37104d57e93fe81cd1ee35cbed31d924969fc8e762e",
+    "src/zarr_engine.hpp": "0c15d38dcf6a69b56fb04ade92e86db61abab8dca9b38d6ae037c2f5f7096476",
+    "src/zarr_sharding.cpp": "85aec7bee6016fcec883a88370e3c806b807d281905a8b31cc876b3d9f7cf6cc"
+  },
+  "final_source_sha256": {
+    "CMakeLists.txt": "654de244bb56bdb942bb51658c923cabf4f8ac89a6a16dad1946f8b9d971e772",
+    "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+    "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+    "cmake/anndataConfig.cmake.in": "8b6592873e0926d82b1da42fc0dab457483d045d47f5c405b74192c73a29b288",
+    "cmake/test-installed-consumer.cmake": "09865c7e9cb0b4b9bb367a1e004a3f6c44aca1c20584a9c5f91695d63f6406df",
+    "src/anndata.arrays.cppm": "ef06a38c2fe93176ed684e8636b058c3a13f2ae4d7b48bd555bedd621dd1bd1c",
+    "src/anndata.backed.cppm": "0dcf7cb6fa83589d8d68de4b3caa8488773866425c8cbdf0b8072091a229ae54",
+    "src/anndata.backed.storage.cppm": "f3136205d4fae038643ff3e2bfe6fb3be88fa1e1e438e7e6547f377715c9ebf8",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "6f2b3bcee0df87fe15337ebea427347fc32346f80dd7b2a7fe5cb2d9f3eb9290",
+    "src/anndata.data.cppm": "6cf516cf2bb895e28c9038cb5591cd07c06706225db5f2995e32e7553701f559",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.strings.cppm": "1dfefcb0741a8cf1cfa994963aafa5e39c253d67ca0e5091622a81895dd82db8",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "078fb177efae1b238015b06d508d2aa9a8c42cc40c821050f98e0858a1c72ee6",
+    "src/backed.cpp": "73dfa4a8ae33d31ea628edf4667dcc289217655409821c6c93fb495e974af17c",
+    "src/backed_array.cpp": "b5d9bfe1a0732b82199c5a035e24dea8bda958ccc62b500739f021245825e8be",
+    "src/backed_category.cpp": "dac5f71d7f9a041d1f567e946184c290b0b16b6558bb3866407476dd66a37d15",
+    "src/backed_codec.cpp": "0e2fb5b352e754e3a2d391486154841e7623a15fb62d0da32d6a88cdc71bc5d2",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "29a933e8ba6f4ae2dae39690da9a49064cebe1ddc8f816676f080bc45cbb5e67",
+    "src/backed_hdf5.cpp": "b9da38cec37638915e5209b2f8b069f8a1f61ff98f3e9b82a58fee26101f793c",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_structure.cpp": "29d84942b772cbf1dc16f87ef3259458a2cc4b6c4ad31bcb7d30469cad5a61bb",
+    "src/backed_writer.cpp": "7c69d4964ca4ac5e4b7ca5b7040a16645f5033524ea8cc8aa3a40afa112c3a41",
+    "src/backed_zarr.cpp": "b85a279e0018dfcedb434b348829c4f70afcdb8a65ad9357e97ff644eead3916",
+    "src/data.cpp": "f5c7965e32586d1c0defc6e960dc5daaf6ca7fd0d83f09559dcc96f324a5d2f0",
+    "src/h5ad.cpp": "cd00f748de9dda70f5af69f3f783b6041b3409bcebc13acae5f72a5a3d332f0e",
+    "src/strings.cpp": "2e113cd18f11c3ca56f2c0f1bddce8c49f44f86d275b3003f0f92e1da6527aeb",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "9d4235339dfb1464659aa6d9971b50d72e8a7eb94c35dac5ace698c440672bf5",
+    "src/zarr_engine.cpp": "2931eb7f223ce8912a02d7f6896a518095f69c197d6359b0f5e5501eebfd6961",
+    "src/zarr_engine.hpp": "1edaf97099c44284c30a21c5952e41aec5392c63c3ab632f4330edb740c6d1a9",
+    "src/zarr_sharding.cpp": "1cc4e90b57d69ac458f8ec140037526d9cbf68474729bc72e3024adba1597265"
+  },
+  "additional_inputs_sha256": {
+    "tests/test_strings.cpp": "b8b49e2b4e2a545986692c14e927b342876d3dd03bf9cc9999c787ab8cdd207d",
+    "tests/test_data.cpp": "f0ee76be1f32edd1e59cb68946fb22d4c60cd431a6ffd62298043fb036091412",
+    "tests/test_backed.cpp": "547072893cd3e2a6ceb5bff8634dfb0fbc88e1613611514989e8ec9fc2f3660b",
+    "tests/test_backed_categories.cpp": "441ddd82ad2658b313a68dedd518ea4dfb2ee425c89fb2d1b0bb48830a457094",
+    "tests/python_storage.py": "6d3ca102934433a0a02ca6ceee65394bc3374c4a07e227f1d896894509cd5f67",
+    "benchmarks/packed_strings.cpp": "45752e5739d69e2d50465b7033707c0a61b67b1090c5e987e40d7d7d01ece73e",
+    "benchmarks/h5ad.cpp": "8391fe19c63bbf8670cc4a3b4d92408521ccc54f4ff43fac488bee3fbe96f5c1",
+    "examples/foundation.cpp": "a46c3dd40ae6ca1e03a2e2bda5c2d64f2681ef9653088af9f6a8b922349c3fa3",
+    "STYLE.md": "5621cfaa26519de118cfcbe69df444b5e9163a1422119f482bf25c9deb74fc35"
+  },
+  "guide": {
+    "path": "/home/tumlinson/Cellerator/coding_style.md",
+    "sha256": "aeb25062001f95665ae872cdae07d7a09fd14627a2a2dc50f284f11d95cc2a51"
+  },
+  "changes": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S6",
+    "S7"
+  ],
+  "deferred": [
+    "R6",
+    "R7",
+    "category-state tagging",
+    "S5"
+  ],
+  "public_module_sources_unchanged": [
+    "src/anndata.arrays.cppm",
+    "src/anndata.backed.cppm",
+    "src/anndata.backed.storage.cppm",
+    "src/anndata.core.cppm",
+    "src/anndata.cppm",
+    "src/anndata.data.cppm",
+    "src/anndata.h5ad.cppm",
+    "src/anndata.strings.cppm",
+    "src/anndata.zarr.cppm"
+  ],
+  "runtime_conditions": {
+    "compiler": "Clang 18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "build": "Release -O3, core-only isolated fixture, 2 compilation jobs",
+    "cpu": 0,
+    "pairs": 5,
+    "order": "alternating baseline/final",
+    "source_byte_budget_per_sample": 67108864,
+    "max_iterations": 4096,
+    "strings": "8-byte ASCII",
+    "includes": "equal input vector copies, shape construction, acquisition/destruction, pointer/shape/edge-content checks",
+    "excludes": "fixture seed generation, output, allocation counters during timing",
+    "counter_scope": "ordinary throwing C++ new/new[] and delete/delete[]; excludes aligned allocations, malloc and process memory",
+    "limits": "Unicode-heavy runtime and whole-dataset/storage speed unmeasured; no general speedup or compiler portability claim"
+  },
+  "runtime_summary": [
+    {
+      "strings": 0,
+      "validation": "full",
+      "baseline": {
+        "median_ns_per_op": 328.68,
+        "min_ns_per_op": 226.71,
+        "max_ns_per_op": 373.4,
+        "allocations": 5,
+        "requested_bytes": 216,
+        "iterations": 4096
+      },
+      "word": {
+        "median_ns_per_op": 282.05,
+        "min_ns_per_op": 280.7,
+        "max_ns_per_op": 329.79,
+        "allocations": 4,
+        "requested_bytes": 168,
+        "iterations": 4096
+      },
+      "median_change_percent": -14.187051235244008
+    },
+    {
+      "strings": 0,
+      "validation": "none",
+      "baseline": {
+        "median_ns_per_op": 298.41,
+        "min_ns_per_op": 292.49,
+        "max_ns_per_op": 340.32,
+        "allocations": 5,
+        "requested_bytes": 216,
+        "iterations": 4096
+      },
+      "word": {
+        "median_ns_per_op": 265.6,
+        "min_ns_per_op": 261.36,
+        "max_ns_per_op": 328.37,
+        "allocations": 4,
+        "requested_bytes": 168,
+        "iterations": 4096
+      },
+      "median_change_percent": -10.99493984786033
+    },
+    {
+      "strings": 16,
+      "validation": "full",
+      "baseline": {
+        "median_ns_per_op": 627.06,
+        "min_ns_per_op": 614.01,
+        "max_ns_per_op": 740.7,
+        "allocations": 6,
+        "requested_bytes": 472,
+        "iterations": 4096
+      },
+      "word": {
+        "median_ns_per_op": 519.69,
+        "min_ns_per_op": 500.68,
+        "max_ns_per_op": 589.27,
+        "allocations": 5,
+        "requested_bytes": 424,
+        "iterations": 4096
+      },
+      "median_change_percent": -17.12276337192612
+    },
+    {
+      "strings": 16,
+      "validation": "none",
+      "baseline": {
+        "median_ns_per_op": 446.61,
+        "min_ns_per_op": 412.81,
+        "max_ns_per_op": 528.01,
+        "allocations": 6,
+        "requested_bytes": 472,
+        "iterations": 4096
+      },
+      "word": {
+        "median_ns_per_op": 415.44,
+        "min_ns_per_op": 408.17,
+        "max_ns_per_op": 466.37,
+        "allocations": 5,
+        "requested_bytes": 424,
+        "iterations": 4096
+      },
+      "median_change_percent": -6.979243635386578
+    },
+    {
+      "strings": 4096,
+      "validation": "full",
+      "baseline": {
+        "median_ns_per_op": 39932.8,
+        "min_ns_per_op": 38243.83,
+        "max_ns_per_op": 43223.87,
+        "allocations": 6,
+        "requested_bytes": 65752,
+        "iterations": 1023
+      },
+      "word": {
+        "median_ns_per_op": 17592.88,
+        "min_ns_per_op": 16672.8,
+        "max_ns_per_op": 20472.84,
+        "allocations": 5,
+        "requested_bytes": 65704,
+        "iterations": 1023
+      },
+      "median_change_percent": -55.94378555974037
+    },
+    {
+      "strings": 4096,
+      "validation": "none",
+      "baseline": {
+        "median_ns_per_op": 4405.08,
+        "min_ns_per_op": 3905.29,
+        "max_ns_per_op": 4778.6,
+        "allocations": 6,
+        "requested_bytes": 65752,
+        "iterations": 1023
+      },
+      "word": {
+        "median_ns_per_op": 4214.67,
+        "min_ns_per_op": 4088.58,
+        "max_ns_per_op": 4967.36,
+        "allocations": 5,
+        "requested_bytes": 65704,
+        "iterations": 1023
+      },
+      "median_change_percent": -4.322509466343405
+    },
+    {
+      "strings": 65536,
+      "validation": "full",
+      "baseline": {
+        "median_ns_per_op": 1324446.52,
+        "min_ns_per_op": 1185305.02,
+        "max_ns_per_op": 1388800.32,
+        "allocations": 6,
+        "requested_bytes": 1048792,
+        "iterations": 63
+      },
+      "word": {
+        "median_ns_per_op": 878090.08,
+        "min_ns_per_op": 837008.51,
+        "max_ns_per_op": 1020627.05,
+        "allocations": 5,
+        "requested_bytes": 1048744,
+        "iterations": 63
+      },
+      "median_change_percent": -33.701356246532335
+    },
+    {
+      "strings": 65536,
+      "validation": "none",
+      "baseline": {
+        "median_ns_per_op": 731168.48,
+        "min_ns_per_op": 652823.63,
+        "max_ns_per_op": 747113.48,
+        "allocations": 6,
+        "requested_bytes": 1048792,
+        "iterations": 63
+      },
+      "word": {
+        "median_ns_per_op": 700595.56,
+        "min_ns_per_op": 670958.78,
+        "max_ns_per_op": 824554.46,
+        "allocations": 5,
+        "requested_bytes": 1048744,
+        "iterations": 63
+      },
+      "median_change_percent": -4.181378278232117
+    }
+  ],
+  "build_guard": {
+    "baseline": {
+      "artifacts": {
+        "CMakeFiles/anndata_core.dir/anndata.core-arrays.pcm": {
+          "sha256": "ab6c6051ec643ebb529121b4a5bd32ee55b45082eb55e571ca8eeb6e34f5109a",
+          "mtime_ns": 1793732184581004696,
+          "bytes": 6673036
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core-data.pcm": {
+          "sha256": "acedc0287d6a1861f08ab4aefe6ee67a886e7b4d4651ae3d6be4134284e5da89",
+          "mtime_ns": 1793732187466998241,
+          "bytes": 7298304
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core-strings.pcm": {
+          "sha256": "00dce064164478cdd163de54aaff51ef90638374ffe90cf890d7e1e4b40f7509",
+          "mtime_ns": 1793732185923001694,
+          "bytes": 5873216
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core.pcm": {
+          "sha256": "55648c10b36fe5d4dcd646acba47456701fdb0670a8ad95e34fd51990b0c51d4",
+          "mtime_ns": 1793732187755997595,
+          "bytes": 17524
+        },
+        "CMakeFiles/gather_consumer.dir/consumer.cpp.o": {
+          "sha256": "33d2841f31e81a740a3d31b8119e375ed64089be9cad565ee1f9cc2ba0621530",
+          "mtime_ns": 1793732199300971767,
+          "bytes": 18952
+        }
+      },
+      "private_edit_preserved_bmis_and_consumer": true
+    },
+    "final": {
+      "artifacts": {
+        "CMakeFiles/anndata_core.dir/anndata.core-arrays.pcm": {
+          "sha256": "e60d3dfd62f10d0a214667d2e9d190d422845b60a1583a701bec277e48794f15",
+          "mtime_ns": 1793733166068785576,
+          "bytes": 6673060
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core-data.pcm": {
+          "sha256": "e792a3a8a751d5ad007b7477c32c3b8139f6348f3be0e2410064d924dc6e05a4",
+          "mtime_ns": 1793733168425780215,
+          "bytes": 7298328
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core-strings.pcm": {
+          "sha256": "cee3b4546b3cbffa74cc2bfb7ac74c5e7fab3af3eea767177d1d0869421c6b9b",
+          "mtime_ns": 1793733167097783235,
+          "bytes": 5873228
+        },
+        "CMakeFiles/anndata_core.dir/anndata.core.pcm": {
+          "sha256": "4e6d6e1f04bd0213c7d73d8f3bcf6349e6b0baeba86700212c6447fceffe94ec",
+          "mtime_ns": 1793733168687779619,
+          "bytes": 17548
+        },
+        "CMakeFiles/gather_consumer.dir/consumer.cpp.o": {
+          "sha256": "33d2841f31e81a740a3d31b8119e375ed64089be9cad565ee1f9cc2ba0621530",
+          "mtime_ns": 1793733179716754537,
+          "bytes": 18952
+        }
+      },
+      "private_edit_preserved_bmis_and_consumer": true
+    },
+    "baseline_commands": [
+      {
+        "label": "baseline-configure",
+        "command": [
+          "cmake",
+          "-S",
+          "/home/tumlinson/anndata.cppm/benchmarks/gather-fixture",
+          "-B",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_SOURCE=/home/tumlinson/anndata.cppm/build/compliance-fixes/baseline",
+          "-DANNDATA_PROBE=/home/tumlinson/anndata.cppm/benchmarks/packed_strings.cpp"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.4538481670024339,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-configure.log",
+        "log_sha256": "f19625176849baa3e1c7be1494e81246a5b25eb94a820fbc9a90580c33d588d8",
+        "max_rss_kib": 87040
+      },
+      {
+        "label": "baseline-cold",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 14.610824652001611,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-cold.log",
+        "log_sha256": "1a540a87b0f08ae360b6f03e7d5b7da32991d0b1f96964f6d21af73e8295fb61",
+        "max_rss_kib": 245760
+      },
+      {
+        "label": "baseline-consumer-run",
+        "command": [
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build/gather_consumer"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.005864835999091156,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-consumer-run.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "max_rss_kib": 3840
+      },
+      {
+        "label": "baseline-consumer-edit-0",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.7731891729999916,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-consumer-edit-0.log",
+        "log_sha256": "033d10a66e4f76dc068499d01c40825956fe4d1a963f4dca0d97cd8dbc1d9cdd",
+        "max_rss_kib": 152960
+      },
+      {
+        "label": "baseline-consumer-edit-1",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.788982231002592,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-consumer-edit-1.log",
+        "log_sha256": "033d10a66e4f76dc068499d01c40825956fe4d1a963f4dca0d97cd8dbc1d9cdd",
+        "max_rss_kib": 152960
+      },
+      {
+        "label": "baseline-private-edit",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 2.2496239769971,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-private-edit.log",
+        "log_sha256": "14a302b1ad0803e1f280417943b6110facec0c0bb385fc8ea7a1dc64c9117d43",
+        "max_rss_kib": 177828
+      },
+      {
+        "label": "baseline-probe-build",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-build",
+          "--target",
+          "gather_probe",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 1.9694217889991705,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired/baseline-probe-build.log",
+        "log_sha256": "e3b8a888fce4c0d2e367917ff2c44017b8dd4b5b64cc99cf4ac724f3775fb5d0",
+        "max_rss_kib": 206720
+      }
+    ],
+    "final_commands": [
+      {
+        "label": "candidate-configure",
+        "command": [
+          "cmake",
+          "-S",
+          "/home/tumlinson/anndata.cppm/benchmarks/gather-fixture",
+          "-B",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_CXX_COMPILER=clang++-18",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DANNDATA_SOURCE=/home/tumlinson/anndata.cppm/build/compliance-fixes/candidate-final",
+          "-DANNDATA_PROBE=/home/tumlinson/anndata.cppm/benchmarks/packed_strings.cpp"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.4128713919999427,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-configure.log",
+        "log_sha256": "138f0712b709ab78da87e1d4fcf1c461d423169e1840171b82ff0763f8bdf10c",
+        "max_rss_kib": 87040
+      },
+      {
+        "label": "candidate-cold",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 13.647396786000172,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-cold.log",
+        "log_sha256": "ce8647cd6f7cff254f471c2217fccaf25db206a338b21fb7aafda402b95afa3d",
+        "max_rss_kib": 245760
+      },
+      {
+        "label": "candidate-consumer-run",
+        "command": [
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build/gather_consumer"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.006263622002734337,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-consumer-run.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "max_rss_kib": 3840
+      },
+      {
+        "label": "candidate-consumer-edit-0",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.7037815650037373,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-consumer-edit-0.log",
+        "log_sha256": "033d10a66e4f76dc068499d01c40825956fe4d1a963f4dca0d97cd8dbc1d9cdd",
+        "max_rss_kib": 152960
+      },
+      {
+        "label": "candidate-consumer-edit-1",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 0.7062233640026534,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-consumer-edit-1.log",
+        "log_sha256": "033d10a66e4f76dc068499d01c40825956fe4d1a963f4dca0d97cd8dbc1d9cdd",
+        "max_rss_kib": 152960
+      },
+      {
+        "label": "candidate-private-edit",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "--target",
+          "gather_consumer",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 2.0738431950012455,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-private-edit.log",
+        "log_sha256": "90d599d5f278810e11551c1040d2b91d94f949b313038d582bd8104822db5249",
+        "max_rss_kib": 177212
+      },
+      {
+        "label": "candidate-probe-build",
+        "command": [
+          "cmake",
+          "--build",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-build",
+          "--target",
+          "gather_probe",
+          "--parallel",
+          "2"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 1.9786352189985337,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/paired-final/candidate-probe-build.log",
+        "log_sha256": "e3b8a888fce4c0d2e367917ff2c44017b8dd4b5b64cc99cf4ac724f3775fb5d0",
+        "max_rss_kib": 207360
+      }
+    ],
+    "limit": "one cold build and two consumer edits per version; caches not cleared; small timing differences are not speed claims"
+  },
+  "tests": {
+    "ctest": [
+      {
+        "preset": "debug",
+        "groups_passed": 9,
+        "log_sha256": "28455b636c55d24682e63da00fc1e43385d5b4120e46efc52df0f7bfe8eb607b"
+      },
+      {
+        "preset": "core-only",
+        "groups_passed": 7,
+        "log_sha256": "0893a1dd3ebe1112716d9f3ffe0235d5cba25f2637f43c06db6baa02ad45ff7a"
+      },
+      {
+        "preset": "shared",
+        "groups_passed": 9,
+        "log_sha256": "29badd8d692e8c99da30df25549595a4c05dbff8d6ea7189720101f3e5cfa165"
+      },
+      {
+        "preset": "sanitizers",
+        "groups_passed": 9,
+        "log_sha256": "72a454fa9d1c8d48300cd0ade38487ac5b8d66d5f988aa0c69677ba9dfb5e67d"
+      },
+      {
+        "preset": "interop-check",
+        "groups_passed": 2,
+        "log_sha256": "0307677c767eedf74b9d4e5dc58930b75cd91d6a271193993e08f956f08ae0bf"
+      }
+    ],
+    "targeted_python": [
+      {
+        "label": "python-storage-rich2",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "rich2",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 21.49392321400228,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich2.log",
+        "log_sha256": "837c23c9b78f6693ba39a4e067ddf9052622e671023b7db032bde630e74feabe"
+      },
+      {
+        "label": "python-storage-rich3",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "rich3",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 20.144885781002813,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich3.log",
+        "log_sha256": "2158bbf4fcbafb1e8a32d040c4ddace0da82505481f80bab149f801cbb9bfd98"
+      },
+      {
+        "label": "python-storage-cpp",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "cpp",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 7.836257114999171,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-cpp.log",
+        "log_sha256": "ab5a31dfeb6e3382e5fe7cdc45bf979b38f13d89a8b580bcd6940c47de596e2d"
+      },
+      {
+        "label": "python-storage-boundary-h5ad",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "boundary-h5ad",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 4.068299639002362,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-h5ad.log",
+        "log_sha256": "fa6e0b964fee5ad370239ece729097e9e50eb89b52abbdff5d04e1c52be60a33"
+      },
+      {
+        "label": "python-storage-boundary-zarr2",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "boundary-zarr2",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 15.563165127001412,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-zarr2.log",
+        "log_sha256": "15db31f1a1cf2755610daabf6785680a84a9068712f9dc638b8d7ae063f84abf"
+      },
+      {
+        "label": "python-storage-boundary-zarr3",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "boundary-zarr3",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 16.13933150599769,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-zarr3.log",
+        "log_sha256": "f772a56c669cda431a8af0a7573ca6d01d0b49d66a43f24bc0b45617926a1a48"
+      },
+      {
+        "label": "python-storage-malformed",
+        "command": [
+          "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+          "-u",
+          "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+          "malformed",
+          "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+        ],
+        "timeout_seconds": 30,
+        "exit_code": 0,
+        "wall_seconds": 16.24438820299838,
+        "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-malformed.log",
+        "log_sha256": "ac14f400cd074561357a43d15e443db56482138edcb68388045429fc75707b78"
+      }
+    ],
+    "smoke_checksums_equal": [
+      "dense",
+      "csr"
+    ],
+    "environment": {
+      "ASAN_OPTIONS": "detect_leaks=0",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "ANNDATA_INTEROP_ZARR_WAKEUP": "1"
+    },
+    "limits": "Full python_storage main and unrelated compiler/configuration campaigns not rerun"
+  },
+  "recorded_timeouts": [
+    {
+      "label": "python-storage-rich",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "rich",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 124,
+      "wall_seconds": 30.015713418004452,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "python-storage-boundaries",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "boundaries",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 124,
+      "wall_seconds": 30.015736583001853,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundaries.log",
+      "log_sha256": "d2d583c0e4cff6eaa7fa449a1bff1b4ad45f87b8e18e3c10946c811b21d3163c"
+    }
+  ],
+  "timeout_disposition": "Combined rich and boundary Python checks were each stopped once at 30 s; independent format/source cases then passed without reducing fixture sizes or geometry. No performance probe timed out.",
+  "checks_commands": [
+    {
+      "label": "debug-configure-final",
+      "command": [
+        "cmake",
+        "--preset",
+        "debug"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.09668415800115326,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/debug-configure-final.log",
+      "log_sha256": "5cd1d9088e646624eab3d927ac9c0ac55d95d6282993a27c7fe81c602f186c9f"
+    },
+    {
+      "label": "debug-build-final",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "debug",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 3.41795475800609,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/debug-build-final.log",
+      "log_sha256": "693e0bfbb41be8f181921229b1509bcfb206ca5fa84f4eb93f2c70a742c854c0"
+    },
+    {
+      "label": "debug-tests-final",
+      "command": [
+        "ctest",
+        "--preset",
+        "debug",
+        "--output-on-failure"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 8.146400437995908,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/debug-tests-final.log",
+      "log_sha256": "28455b636c55d24682e63da00fc1e43385d5b4120e46efc52df0f7bfe8eb607b"
+    },
+    {
+      "label": "core-only-configure-final",
+      "command": [
+        "cmake",
+        "--preset",
+        "core-only"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.04228267500002403,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/core-only-configure-final.log",
+      "log_sha256": "ef5a26fdcb4aea199664379c432f168008912a0bf45fd16700dfa49f44d8aed8"
+    },
+    {
+      "label": "core-only-build-final",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "core-only",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 28.02185993099556,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/core-only-build-final.log",
+      "log_sha256": "8de800e71013a2874efcfaf28fde3d40f911f3bda23ab3f72f00c003a6f955b7"
+    },
+    {
+      "label": "core-only-tests-final",
+      "command": [
+        "ctest",
+        "--preset",
+        "core-only",
+        "--output-on-failure"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 6.706112589999975,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/core-only-tests-final.log",
+      "log_sha256": "0893a1dd3ebe1112716d9f3ffe0235d5cba25f2637f43c06db6baa02ad45ff7a"
+    },
+    {
+      "label": "shared-configure-final",
+      "command": [
+        "cmake",
+        "--preset",
+        "shared"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.06262695200712187,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/shared-configure-final.log",
+      "log_sha256": "2dd6acaf2d9bc2b48954de9d352225b997fc4acf16511b895a1836f7de6f6f22"
+    },
+    {
+      "label": "shared-build-final",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "shared",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 48.7470368639988,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/shared-build-final.log",
+      "log_sha256": "43ed058a730aa40480ec96df4716825ab2daf061a65e7dfaaa6f5f47b5e346de"
+    },
+    {
+      "label": "shared-tests-final",
+      "command": [
+        "ctest",
+        "--preset",
+        "shared",
+        "--output-on-failure"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 18.57499661300244,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/shared-tests-final.log",
+      "log_sha256": "29badd8d692e8c99da30df25549595a4c05dbff8d6ea7189720101f3e5cfa165"
+    },
+    {
+      "label": "sanitizers-configure-final",
+      "command": [
+        "cmake",
+        "--preset",
+        "sanitizers"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.06721801599633181,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/sanitizers-configure-final.log",
+      "log_sha256": "72ff0cf93935b78c1a7d85e6394aaa9ffb94ebf9e8997c70be175a2ea921263a"
+    },
+    {
+      "label": "sanitizers-build-final",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "sanitizers",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 59.36917462699785,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/sanitizers-build-final.log",
+      "log_sha256": "464dfdf551bec22c4b711916ad1d758fad78f88600e61e8d102695927f740c46"
+    },
+    {
+      "label": "sanitizers-tests-final",
+      "command": [
+        "ctest",
+        "--preset",
+        "sanitizers",
+        "--output-on-failure"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 43.737989451998146,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/sanitizers-tests-final.log",
+      "log_sha256": "72a454fa9d1c8d48300cd0ade38487ac5b8d66d5f988aa0c69677ba9dfb5e67d"
+    },
+    {
+      "label": "interop-check-configure-final",
+      "command": [
+        "cmake",
+        "--preset",
+        "interop-check"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.22919884900329635,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/interop-check-configure-final.log",
+      "log_sha256": "63653c7fea826751883f891482b14acb58f264e06da7ad865b13128533dbc7a2"
+    },
+    {
+      "label": "interop-check-build-final",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "interop-check",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 50.457377822000126,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/interop-check-build-final.log",
+      "log_sha256": "ea2a9ec5bc75a01e7bf324ad42ca3dc557b5823acadc7eab1aead11cb267dbb1"
+    },
+    {
+      "label": "interop-check-tests-final",
+      "command": [
+        "ctest",
+        "--preset",
+        "interop-check",
+        "--output-on-failure",
+        "-R",
+        "^(python_semantics|python_h5ad)$"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 3.7042004549948615,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/interop-check-tests-final.log",
+      "log_sha256": "0307677c767eedf74b9d4e5dc58930b75cd91d6a271193993e08f956f08ae0bf"
+    },
+    {
+      "label": "python-storage-rich",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "rich",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 124,
+      "wall_seconds": 30.015713418004452,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "python-storage-rich2",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "rich2",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 21.49392321400228,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich2.log",
+      "log_sha256": "837c23c9b78f6693ba39a4e067ddf9052622e671023b7db032bde630e74feabe"
+    },
+    {
+      "label": "python-storage-rich3",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "rich3",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 20.144885781002813,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-rich3.log",
+      "log_sha256": "2158bbf4fcbafb1e8a32d040c4ddace0da82505481f80bab149f801cbb9bfd98"
+    },
+    {
+      "label": "python-storage-cpp",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "cpp",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 7.836257114999171,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-cpp.log",
+      "log_sha256": "ab5a31dfeb6e3382e5fe7cdc45bf979b38f13d89a8b580bcd6940c47de596e2d"
+    },
+    {
+      "label": "python-storage-boundaries",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "boundaries",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 124,
+      "wall_seconds": 30.015736583001853,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundaries.log",
+      "log_sha256": "d2d583c0e4cff6eaa7fa449a1bff1b4ad45f87b8e18e3c10946c811b21d3163c"
+    },
+    {
+      "label": "python-storage-boundary-h5ad",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "boundary-h5ad",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 4.068299639002362,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-h5ad.log",
+      "log_sha256": "fa6e0b964fee5ad370239ece729097e9e50eb89b52abbdff5d04e1c52be60a33"
+    },
+    {
+      "label": "python-storage-boundary-zarr2",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "boundary-zarr2",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 15.563165127001412,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-zarr2.log",
+      "log_sha256": "15db31f1a1cf2755610daabf6785680a84a9068712f9dc638b8d7ae063f84abf"
+    },
+    {
+      "label": "python-storage-boundary-zarr3",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "boundary-zarr3",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 16.13933150599769,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-boundary-zarr3.log",
+      "log_sha256": "f772a56c669cda431a8af0a7573ca6d01d0b49d66a43f24bc0b45617926a1a48"
+    },
+    {
+      "label": "python-storage-malformed",
+      "command": [
+        "/home/tumlinson/anndata.cppm/.venv/bin/python3",
+        "-u",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/storage-subset.py",
+        "malformed",
+        "/home/tumlinson/anndata.cppm/build/interop/storage_interop_driver"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 16.24438820299838,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/python-storage-malformed.log",
+      "log_sha256": "ac14f400cd074561357a43d15e443db56482138edcb68388045429fc75707b78"
+    },
+    {
+      "label": "h5ad-benchmark-configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "release"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 0.0746651320005185,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-configure.log",
+      "log_sha256": "cdc44abf3d1ac2cfdabc31ae449f765735f94440434924618b99cd63810f8e3b"
+    },
+    {
+      "label": "h5ad-benchmark-build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "release",
+        "--target",
+        "h5ad_benchmark",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "wall_seconds": 53.114600925997365,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-build.log",
+      "log_sha256": "48ab3cc021ad63ce6c7e4d045d9cb6fe464c1e9e987c9fe0e3e6d4e78e5017e0"
+    },
+    {
+      "label": "h5ad-benchmark-dense-write",
+      "command": [
+        "/home/tumlinson/anndata.cppm/build/release/h5ad_benchmark",
+        "write",
+        "dense",
+        "none",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/dense.h5ad",
+        "16",
+        "9",
+        "3"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 0.016775555006461218,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-dense-write.log",
+      "log_sha256": "c04a8cefb5d980539b7efe63fc489f613719e0ee4e4eafa863da198dc0b8261c"
+    },
+    {
+      "label": "h5ad-benchmark-dense-read",
+      "command": [
+        "/home/tumlinson/anndata.cppm/build/release/h5ad_benchmark",
+        "read",
+        "dense",
+        "none",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/dense.h5ad",
+        "16",
+        "9",
+        "3"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 0.013274625001940876,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-dense-read.log",
+      "log_sha256": "f55259f249233c79a8c0b079886f1e3db4e2ce9b8c5ca0c38468b9c5a7a79dd6"
+    },
+    {
+      "label": "h5ad-benchmark-csr-write",
+      "command": [
+        "/home/tumlinson/anndata.cppm/build/release/h5ad_benchmark",
+        "write",
+        "csr",
+        "none",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/csr.h5ad",
+        "16",
+        "9",
+        "3"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 0.012934319005580619,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-csr-write.log",
+      "log_sha256": "514f0495ccef47574c2936098d7c8e1c05023e7143f556bb86cdccc91189a974"
+    },
+    {
+      "label": "h5ad-benchmark-csr-read",
+      "command": [
+        "/home/tumlinson/anndata.cppm/build/release/h5ad_benchmark",
+        "read",
+        "csr",
+        "none",
+        "/home/tumlinson/anndata.cppm/build/compliance-fixes/csr.h5ad",
+        "16",
+        "9",
+        "3"
+      ],
+      "timeout_seconds": 30,
+      "exit_code": 0,
+      "wall_seconds": 0.010781810000480618,
+      "log": "/home/tumlinson/anndata.cppm/build/compliance-fixes/h5ad-benchmark-csr-read.log",
+      "log_sha256": "5de192586973e4c05bd8d64417f8c3488cd1fabd63af7198b80d3a55fe5a1eb7"
+    }
+  ],
+  "raw_artifacts": {
+    "build/compliance-fixes/baseline-source.json": "6431d89b7275a1af771ca153ac02a61d4c27fe4d635f75f2b320e7972d30f8bc",
+    "build/compliance-fixes/candidate-final-source.json": "64a363e6c12173983a815a44347c4408fb4a921565e8da0ab0960a22304816ff",
+    "build/compliance-fixes/paired/report.json": "1bf1e48ffd8854ba12c12c04e657400e141ab7b0938db3b98539ec999f709874",
+    "build/compliance-fixes/packed-confirm/samples.json": "a7af8e9cd1defcfe026796f08c64923d49646e4fde942b7e44f7aeed6c70f296",
+    "build/compliance-fixes/packed-confirm/fix-samples.json": "26deecff477e72bb0a3fb497bd9c259eee61f3ecef762a21129fc22ca97fa874",
+    "build/compliance-fixes/packed-confirm/word-samples.json": "b285bfdf0ed0f57e6c9b4c1109527d7ac7890c457fa3f9f066dd7218618aac3d",
+    "build/compliance-fixes/paired-final/report.json": "f527bcabbfb3d0dba900612755302577a5b69119c63372c0dce2b35998f80804",
+    "build/compliance-fixes/run-benchmark.py": "0aefca377b51bd6bfd146b7998d5d0ad9fa06631bf9ada4f9df1bf6543356578",
+    "build/compliance-fixes/run-final-build-check.py": "255fc22a2dc9d6eb24801d97299cedda1c6d4ac22877e5645f6136aedd694ce0",
+    "build/compliance-fixes/storage-subset.py": "2366650f856c6b17b80d0f6e56c2c6ab886fbf31d7e0e682577e13aac5f19fdd",
+    "build/compliance-fixes/checks.json": "af724f7e05913e5f4748c54d5353d75a57ae337b67130852f63e1bc97aad49c3",
+    "build/compliance-fixes/packed-confirm/baseline/gather_probe": "9ac79b582333c72f12530b84823392583c051ddefa54eb24e12da54d0f008398",
+    "build/compliance-fixes/packed-confirm/candidate/gather_probe": "796ccafa08f60ed53919009105264f93881b0fca5315e756e7b9036eb63cd074",
+    "build/compliance-fixes/packed-confirm/word/gather_probe": "05d35dd3978cf813c538233b797db08aa554244ea0876b91f706804cce59898e"
+  },
+  "dependencies_added": [],
+  "dependency_install_commands": [],
+  "workflow": {
+    "native_outcome_acceptance": false,
+    "observation": "Project Control returned attention_required/native_operation_rejected and inspect-only access; task sheet empty. Authority preserved; no native acceptance claimed."
+  },
+  "status": "accepted with bounded evidence"
+}

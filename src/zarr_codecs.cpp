@@ -165,7 +165,8 @@ Json config(const Json& codec) {
     }
     return codec;
 }
-Pipeline pipeline(const ArrayMetadata& m, const Shape& shape) {
+Pipeline pipeline(const PayloadMeta& meta, const Shape& shape) {
+    const auto& m = meta.array;
     Pipeline p; p.endian = m.endian;
     if (m.type != Type::string && m.item_size != type_size(m.type)) fail("invalid scalar width");
     Shape current = shape;
@@ -176,8 +177,8 @@ Pipeline pipeline(const ArrayMetadata& m, const Shape& shape) {
         p.transposes.push_back({current, perm});
         std::reverse(current.begin(), current.end());
     } else if (m.format == 2 && m.order != 'C') fail("invalid Zarr v2 array order");
-    if (!m.codecs.is_array()) fail("codec pipeline must be an array");
-    for (const auto& codec : m.codecs) {
+    if (!meta.codecs.is_array()) fail("codec pipeline must be an array");
+    for (const auto& codec : meta.codecs) {
         const auto n = name(codec);
         auto c = config(codec);
         if (n == "transpose") {
@@ -331,9 +332,10 @@ std::size_t type_size(Type type) {
     }
     fail("unknown scalar type");
 }
-Chunk decode_payload(const ArrayMetadata& m, const Shape& shape, std::span<const std::byte> encoded) {
-    auto p = pipeline(m, shape);
-    const auto limit = m.scratch_bytes / 4;
+Chunk decode_payload(const PayloadMeta& meta, const Shape& shape, std::span<const std::byte> encoded) {
+    const auto& m = meta.array;
+    auto p = pipeline(meta, shape);
+    const auto limit = meta.scratch_bytes / 4;
     if (limit < 4) fail("codec working-memory budget is too small");
     bounded(encoded.size(), limit);
     Bytes bytes(encoded.begin(), encoded.end());
@@ -352,9 +354,10 @@ Chunk decode_payload(const ArrayMetadata& m, const Shape& shape, std::span<const
     }
     return result;
 }
-Bytes encode_payload(const ArrayMetadata& m, const Shape& shape, const Chunk& chunk) {
-    auto p = pipeline(m, shape); auto n = checked_product(shape);
-    const auto limit = m.scratch_bytes / 4;
+Bytes encode_payload(const PayloadMeta& meta, const Shape& shape, const Chunk& chunk) {
+    const auto& m = meta.array;
+    auto p = pipeline(meta, shape); auto n = checked_product(shape);
+    const auto limit = meta.scratch_bytes / 4;
     if (limit < 4) fail("codec working-memory budget is too small");
     if ((p.strings && chunk.strings.size() != n) || (!p.strings && chunk.numeric.size() != multiply(n, m.item_size))) fail("chunk size does not match shape");
     if (p.strings) {

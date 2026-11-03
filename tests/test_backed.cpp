@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -513,6 +514,57 @@ void test_alignment_preflight(const std::filesystem::path& path) {
     store.flush();
 }
 
+void test_table_alignment_indexes(const std::filesystem::path& path) {
+    write_h5ad(path.string(), fixture());
+    auto store = open_h5ad(path.string(), BackedOptions{.mode = AccessMode::read_write, .scratch_bytes = 4096});
+    auto table = [](bool reordered = false) {
+        return Table::with_index(reordered ? std::vector<std::string>{"cell-a", "cell-γ", "cell-a"}
+                                           : std::vector<std::string>{"cell-a", "cell-a", "cell-γ"});
+    };
+    auto mismatch = [&](bool native_axis, bool native_aligned) {
+        auto edit = store.edit_structure();
+        if (native_axis) edit.set_obs(table());
+        if (native_aligned) edit.set("/obsm/table", Element(table(true)));
+        else edit.set_obs(table(true));
+        try { edit.apply(); }
+        catch (const Error& e) {
+            require(e.code() == ErrorCode::shape_mismatch && e.path() == "/obsm/table" &&
+                    std::string_view(e.what()).find("dataframe index differs from its aligned axis") != std::string_view::npos,
+                    "index mismatch lost its aligned path or error");
+            return;
+        }
+        throw std::runtime_error("reordered duplicate index unexpectedly aligned");
+    };
+    mismatch(true, true);   // native/native
+    mismatch(false, true);  // backed/native
+    mismatch(true, false);  // native/backed
+
+    {
+        auto edit = store.edit_structure();
+        edit.set_obs(table());
+        edit.set("/obsm/table", Element(table()));
+        edit.apply(); // native/native, with owners moved into the edit
+    }
+    {
+        auto edit = store.edit_structure();
+        edit.set("/obsm/table", Element(table()));
+        edit.apply(); // backed/native
+    }
+    {
+        auto edit = store.edit_structure();
+        edit.set_obs(table());
+        edit.apply(); // native/backed
+    }
+    {
+        auto edit = store.edit_structure();
+        edit.set("/uns/alignment_marker", Element(true));
+        edit.apply(); // backed/backed
+    }
+    require(store.obs().names() == std::vector<std::string>({"cell-a", "cell-a", "cell-γ"}) &&
+            store.obsm("table").table().names() == store.obs().names(),
+            "aligned duplicate indexes did not survive structural edits");
+}
+
 void test_same_store_swap(const std::filesystem::path& path) {
     auto data = AnnData::empty(2, 2);
     data.set_x(dense<float>({2, 2}, {0, 1, 2, 3}));
@@ -585,6 +637,49 @@ void test_direct_column_order(const std::filesystem::path& h5ad_path,
 #endif
 
 #if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+void test_zarr_writer_selection(const std::filesystem::path& root, ZarrFormat format) {
+    constexpr std::size_t columns = 300;
+    auto data = AnnData::empty(3, columns);
+    auto x = Array::empty<float>({3, columns});
+    auto values = x.edit().dense<float>();
+    for (std::size_t i = 0; i < 3 * columns; ++i) values.data()[i] = float(i);
+    data.set_x(std::move(x));
+    ZarrWriteOptions options;
+    options.format = format; options.compression = ZarrCompression::none; options.scratch_bytes = 64u * 1024u;
+    const auto prefix = format == ZarrFormat::v2 ? "writer-v2-" : "writer-v3-";
+    auto check = [&](const char* suffix, const AnnDataView& selected, std::array<std::size_t, 3> rows) {
+        auto path = root / (std::string(prefix) + suffix + ".zarr");
+        write_zarr(path.string(), selected, options);
+        auto stored = open_zarr(path.string()).x().read().view().dense<float>();
+        for (std::size_t i = 0; i < rows.size(); ++i)
+            for (std::size_t j = 0; j < columns; ++j)
+                require(stored.data()[i * columns + j] == float(rows[i] * columns + columns - 1 - j),
+                        "strided or gathered writer tile changed logical order");
+    };
+    check("reverse", data.slice(range{std::nullopt, std::nullopt, -1}, range{std::nullopt, std::nullopt, -1}), {2, 1, 0});
+    check("gather", data.slice(indices{2, 0, 2}, range{std::nullopt, std::nullopt, -1}), {2, 0, 2});
+
+    auto cube_data = AnnData::empty(3, 1);
+    constexpr std::size_t depth = 1200;
+    auto cube = Array::empty<float>({3, 2, depth});
+    auto cube_values = cube.edit().dense<float>();
+    for (std::size_t i = 0; i < 3 * 2 * depth; ++i) cube_values.data()[i] = float(i);
+    cube_data.set_obsm("cube", std::move(cube));
+    options.scratch_bytes = 4096;
+    auto check_cube = [&](const char* suffix, const AnnDataView& selected, std::array<std::size_t, 3> rows) {
+        auto path = root / (std::string(prefix) + suffix + ".zarr");
+        write_zarr(path.string(), selected, options);
+        auto stored = open_zarr(path.string()).obsm("cube").array().read().view().dense<float>();
+        for (std::size_t i = 0; i < rows.size(); ++i)
+            for (std::size_t j = 0; j < 2; ++j)
+                for (std::size_t k = 0; k < depth; ++k)
+                    require(stored.data()[(i * 2 + j) * depth + k] == float((rows[i] * 2 + j) * depth + k),
+                            "rank-three writer tile changed logical order");
+    };
+    check_cube("cube-reverse", cube_data.slice(range{std::nullopt, std::nullopt, -1}, all), {2, 1, 0});
+    check_cube("cube-gather", cube_data.slice(indices{2, 0, 2}, all), {2, 0, 2});
+}
+
 void test_zarr_native(const std::filesystem::path& root, ZarrFormat format) {
     const auto path = root / (format == ZarrFormat::v2 ? "native-v2.zarr" : "native-v3.zarr");
     ZarrWriteOptions options;
@@ -909,6 +1004,7 @@ int main(int argc, char** argv) {
 #endif
         update_and_reindex_h5ad(root / "source.h5ad", root / "update-reindex.h5ad");
         test_alignment_preflight(root / "alignment.h5ad");
+        test_table_alignment_indexes(root / "alignment-indexes.h5ad");
         test_same_store_swap(root / "same-store-swap.h5ad");
         test_direct_column_order(root / "column-order.h5ad", root / "column-order.zarr");
 #endif
@@ -916,6 +1012,8 @@ int main(int argc, char** argv) {
 #if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
         test_zarr_native(root, ZarrFormat::v2);
         test_zarr_native(root, ZarrFormat::v3);
+        test_zarr_writer_selection(root, ZarrFormat::v2);
+        test_zarr_writer_selection(root, ZarrFormat::v3);
         test_rectangular_zarr_batches(root, ZarrFormat::v2);
         test_rectangular_zarr_batches(root, ZarrFormat::v3);
         test_zarr_bool_canonicalization(root, ZarrFormat::v2);

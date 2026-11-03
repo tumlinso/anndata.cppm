@@ -3,7 +3,6 @@ module;
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -39,15 +38,17 @@ public:
     // accesses the original backing allocation even when selection is lazy.
     [[nodiscard]] const char* bytes() const;
     [[nodiscard]] const std::uint64_t* offsets() const;
-    [[nodiscard]] StringArrayView select(
-        std::vector<std::optional<std::vector<std::size_t>>> axes) const;
+    [[nodiscard]] StringArrayView select(const Axis* axes, std::size_t rank) const;
+    [[nodiscard]] StringArrayView select(std::initializer_list<Axis> axes) const {
+        return select(axes.begin(), axes.size());
+    }
     [[nodiscard]] StringArray copy() const;
     void validate() const;
 private:
     std::shared_ptr<detail::StringArrayImpl> impl_;
-    std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>> selection_;
+    std::shared_ptr<const std::vector<Axis>> selection_;
     StringArrayView(std::shared_ptr<detail::StringArrayImpl>,
-                    std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>>);
+                    std::shared_ptr<const std::vector<Axis>>);
     friend class StringArray;
 };
 

@@ -2,6 +2,12 @@
 
 Packed UTF-8 `StringArray` uses the same move-only ownership and retained-view model as numerical arrays. Its view exposes `bytes()` and 64-bit `offsets()` for unselected packed storage. A lazy selection exposes its original allocation through explicitly named `storage_bytes()` and `storage_offsets()`; use `copy()` to pack the logical selection. Mutable bytes and `unsafe_offsets()` are available through `edit()`. Validation is explicit after unsafe structural edits.
 
+Packed construction moves the byte and offset vectors into one retained private
+owner without moving their allocations. External sharing and adoption use that
+same lifetime field; borrowing retains only the descriptor. Buffer pointer
+constness selects mutable versus read-only access, independently of the lifetime
+token's pointee type. Empty owned byte storage exposes a null pointer.
+
 `Column::from_packed_strings()` and `from_nullable_packed_strings()` move caller-provided byte, native-size offset and validity vectors into metadata storage. They preserve empty nullable columns and the NA/NaN sentinel distinction. Full construction validates UTF-8 and offsets; trusted construction can omit that scan. Backed column materialization writes directly into these final packed buffers instead of staging a complete vector of strings.
 
 Numerical `ByteOrder` serialization hints describe preferred file representation, independently of the native byte order used by typed memory access. They do not add checks to numerical loops. The erased sparse-byte descriptor supports codecs and external adapters without generating a template specialization for every combination of value/index/offset types.
@@ -18,9 +24,10 @@ int main() {
     data.set_x(anndata::Array::empty<float>({1000, 2000}));
     auto x = data.edit_x().dense<float>();
     float* p = x.data();
+    auto sr = x.stride(0), sc = x.stride(1);
     for (int r = 0; r < 1000; ++r)
         for (int c = 0; c < 2000; ++c)
-            p[r * x.stride(0) + c * x.stride(1)] = 1.0f;
+            p[r * sr + c * sc] = 1.0f;
 }
 ```
 
@@ -54,7 +61,61 @@ Dense strides are signed and measured in **elements**. The data pointer denotes 
 
 `data()` exposes the actual strided base pointer. `contiguous_data()` requires row-major contiguous layout. A slice whose selected positions form an arithmetic progression can expose a strided dense view. An arbitrary gather has no single strided pointer representation; call `copy()` to materialize it. Empty dimensions and repeated selections retain their specified semantics.
 
+`Axis` describes one positional selection: `all()`, `stride(first, count,
+step, reverse)`, or `gather(positions, count)`. Coordinates and step magnitude
+are unsigned; reverse selects `first - i * step`. Gather construction copies
+the positions immediately, including the initializer-list form. Returned views
+retain their mapping and numerical storage independently of selector lifetimes.
+
+```cpp
+auto v = data.x().select({anndata::Axis::stride(8, 4, 2, true),
+                         anndata::Axis::all()});
+auto x = v.dense<float>();  // rows 8, 6, 4, 2; signed element strides
+
+const anndata::Axis a[] = {anndata::Axis::gather({2, 0, 2}),
+                           anndata::Axis::all()};
+auto gathered = data.x().select(a, 2);
+auto owned = gathered.copy();
+```
+
+All and affine mappings compose without expanding their positions. Arbitrary
+gather composition builds retained positions; checking whether such a gather
+can expose dense strides scans its coordinates. Bounds and arithmetic are
+checked when acquiring a selection. A zero low-level stride repeats a position;
+a zero step in Python-style `range` remains invalid. Empty and singleton axes
+do not evaluate unused progression arithmetic. `select(nullptr, 0)` applies to
+rank-zero arrays; positive rank requires a selector pointer and matching count.
+
+**Source change:** the old nested-vector `ArrayView`/`StringArrayView::select`
+interface is replaced by pointer/rank and initializer-list `Axis` arguments.
+`ColumnView::select` and `TableView::select` take one `Axis`, and
+`Selection::resolve` returns an `Axis`. Use `Axis::gather(...)` for former index
+lists and `Axis::all()` for former absent-axis selectors. Ordinary
+`AnnData::slice(all/range/indices/mask/labels)` calls keep their syntax and
+semantics. Backed selection continues to use its existing `Selection` interface.
+
 Native C++ type compatibility also matters: equal-width distinct types do not always permit aliasing. Use the stored element type for checked typed acquisition. Explicit unchecked access leaves its documented type/alignment preconditions to the caller.
+
+## Metadata acquisition
+
+`data.obs_column("quality")` and `data.var_column("symbol")` acquire one
+retained column directly. Both owners and dataset views provide these methods.
+They match `obs().column(...)` and `var().column(...)` without first constructing
+a complete table snapshot. Lookup still scans ordered column names; the direct
+route avoids allocating descriptors for unrelated columns.
+
+Existing `obs()`/`var()` table snapshots retain their captured column and index
+bindings. A direct column also survives owner moves, destruction, and column
+replacement. Numerical writes through an existing alias remain visible. Use
+`copy()` for independent data. Missing columns retain the table lookup error
+contract.
+
+Table/column selection shares the same `Axis` mapping as arrays. AnnData slices
+still prune and recode categories and project associated colors, including for
+an all-axes slice. These operations can traverse selected rows and allocate
+dictionaries or recoded buffers; compact range mappings do not make the whole
+dataset slice constant-time. Selected string `byte_size()` also traverses its
+logical strings, and selected string `copy()` materializes packed storage.
 
 ## Compressed sparse buffers
 

@@ -9,7 +9,6 @@ import anndata;
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -132,21 +131,18 @@ int main(int argc, char** argv) {
     };
 
     auto options = write_options(compression, byte_order);
-    std::unique_ptr<anndata::AnnData> output;
-    if (action == "seed" || action == "write") {
-        output = std::make_unique<anndata::AnnData>(make_data());
-    }
     double sum = 0.0;
     std::size_t payload = 0;
     if (action == "seed" || action == "write") {
-        sum = checksum(output->x());
-        payload = payload_bytes(output->x());
+        auto output = make_data();
+        sum = checksum(output.x());
+        payload = payload_bytes(output.x());
         if (action == "seed") {
-            anndata::write_h5ad(filename, *output, options);
+            anndata::write_h5ad(filename, output, options);
             return 0;
         }
         const auto start = Clock::now();
-        anndata::write_h5ad(filename, *output, options);
+        anndata::write_h5ad(filename, output, options);
         const auto seconds = std::chrono::duration<double>(Clock::now() - start).count();
         std::ifstream input(filename, std::ios::binary | std::ios::ate);
         if (!input) throw std::runtime_error("could not inspect benchmark output file");

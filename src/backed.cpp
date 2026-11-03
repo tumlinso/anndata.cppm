@@ -286,7 +286,7 @@ void check_dataset_children(const BackedAnnDataView& source) {
 BackedAnnDataView root_view(const std::shared_ptr<detail::BackedDataset>& data) { return BackedAnnData(data).view(); }
 } // namespace backed_detail
 
-using backed_detail::Axis;
+using BackedAxis = backed_detail::Axis;
 using backed_detail::node;
 using backed_detail::child;
 using backed_detail::encoding;
@@ -327,7 +327,7 @@ BackedElement BackedAnnDataView::uns() const {
 }
 bool BackedAnnDataView::has_raw() const { backed_detail::require_dataset(impl_); return backed_detail::present(*impl_->session,"/raw"); }
 bool BackedAnnDataView::has_raw_x() const { return has_raw() && backed_detail::present(*impl_->session,"/raw/X"); }
-BackedArray BackedAnnDataView::raw_x() const { if (!has_raw_x()) throw Error(ErrorCode::out_of_bounds,"/raw/X","dataset has no raw X"); auto shape=logical_shape(*impl_->session,"/raw/X"); if(shape.size()!=2) throw Error(ErrorCode::shape_mismatch,"/raw/X","raw X must have rank two"); return BackedArray(node(impl_->session,"/raw/X",{impl_->obs,Axis{shape[1]}})); }
+BackedArray BackedAnnDataView::raw_x() const { if (!has_raw_x()) throw Error(ErrorCode::out_of_bounds,"/raw/X","dataset has no raw X"); auto shape=logical_shape(*impl_->session,"/raw/X"); if(shape.size()!=2) throw Error(ErrorCode::shape_mismatch,"/raw/X","raw X must have rank two"); return BackedArray(node(impl_->session,"/raw/X",{impl_->obs,BackedAxis{shape[1]}})); }
 BackedTable BackedAnnDataView::raw_var() const { if (!has_raw()) throw Error(ErrorCode::out_of_bounds,"/raw","dataset has no raw"); return BackedTable(node(impl_->session,"/raw/var")); }
 BackedElement BackedAnnDataView::raw_varm(std::string_view key) const { if (!has_raw()) throw Error(ErrorCode::out_of_bounds,"/raw","dataset has no raw"); return BackedElement(node(impl_->session,child("/raw/varm",key))); }
 std::vector<std::string> BackedAnnDataView::raw_varm_names() const { if(!has_raw()) return {}; return backed_detail::mapping_names(impl_,"/raw/varm"); }

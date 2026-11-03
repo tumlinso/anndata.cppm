@@ -317,6 +317,37 @@ void exercise_backend(const std::filesystem::path& run_directory,
 }
 
 #if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+void exercise_small_budget(const std::filesystem::path& run_directory) {
+    constexpr std::size_t n = 32;
+    auto source = AnnData::empty(n, 1);
+    std::vector<std::string> names, categories;
+    auto codes = Array::empty<std::int8_t>({n});
+    auto values = codes.edit().dense<std::int8_t>();
+    for (std::size_t i = 0; i < n; ++i) {
+        names.push_back("c" + std::to_string(i));
+        categories.push_back("v" + std::to_string(i));
+        values.data()[i] = std::int8_t(i);
+    }
+    auto obs = Table::with_index(std::move(names));
+    obs.set("group", Column::categorical(std::move(codes), Column::strings(std::move(categories)), true));
+    source.set_obs(std::move(obs));
+    const auto path = run_directory / "small-budget.h5ad";
+    write_h5ad(path.string(), source);
+    auto store = open_h5ad(path.string(), BackedOptions{.scratch_bytes = 256});
+    auto selected = store.slice(range{std::nullopt, std::nullopt, -1}, all);
+    auto nested = selected.slice(indices{31, 0, 15, 31}, all);
+    auto expected = source.slice(range{std::nullopt, std::nullopt, -1}, all)
+                          .slice(indices{31, 0, 15, 31}, all).copy();
+    require_equal_categorical(nested.obs().column("group").read().view(),
+                              expected.obs().column("group"), "small-budget nested category plan differs");
+    try { (void)open_h5ad(path.string(), BackedOptions{.scratch_bytes = 63}); }
+    catch (const Error& error) {
+        require(error.code() == ErrorCode::invalid_argument, "small scratch budget reported wrong error");
+        return;
+    }
+    throw std::runtime_error("scratch budget below 64 bytes was accepted");
+}
+
 void exercise_h5ad(const std::filesystem::path& run_directory, const AnnData& source) {
     exercise_backend(run_directory, "h5ad", ".h5ad", source,
         [](const auto& path, const AnnData& data) { write_h5ad(path.string(), data); },
@@ -367,6 +398,7 @@ int main(int argc, char** argv) try {
     bool exercised = false;
 #if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
     exercise_h5ad(run_directory, source);
+    exercise_small_budget(run_directory);
     exercised = true;
 #endif
 #if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR

@@ -108,6 +108,13 @@ def main():
             "subset": a[[2, 0], [1]],
             "repeat": a[[1, 1, 0], :],
             "reverse": a[::-1, ::-1],
+            "range_nested": a[0:3:2, ::-1][::-1, 0:2],
+            # The pinned AnnData/SciPy pair cannot reshape the sparse result
+            # of this nested repeated-row/reversed-column view. Materialize
+            # only the reference intermediate; the C++ path remains nested.
+            "gather_range": a[[2, 0, 2], :].copy()[0:3:2, ::-1],
+            "range_gather": a[::-1, :][[2, 0, 2], [1, 0]],
+            "range_empty_nested": a[::-1, :][1:1, :],
             "empty": a[[], :],
             "empty_vars": a[:, []],
             "mask": a[np.array([True, False, True]), ["g2"]],

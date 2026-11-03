@@ -6,7 +6,6 @@ module;
 #include <limits>
 #include <memory>
 #include <new>
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,8 +41,8 @@ struct State {
     std::shared_ptr<void> offsets_owner;
 };
 struct Selection {
-    // Each list maps view coordinates directly to coordinates in State.
-    std::vector<std::optional<std::vector<std::size_t>>> axes;
+    // Each axis maps view coordinates directly to coordinates in State.
+    std::vector<Axis> axes;
 };
 }
 
@@ -51,6 +50,57 @@ Error::Error(ErrorCode code, std::string path, std::string message)
     : std::runtime_error(path.empty() ? std::move(message) : path + ": " + message), code_(code), path_(std::move(path)) {}
 ErrorCode Error::code() const noexcept { return code_; }
 const std::string& Error::path() const noexcept { return path_; }
+
+Axis Axis::all() noexcept { return {}; }
+Axis Axis::stride(std::size_t first, std::size_t count, std::size_t step, bool reverse) {
+    Axis a;
+    a.all_ = false; a.first_ = first; a.count_ = count; a.step_ = step; a.reverse_ = reverse;
+    return a;
+}
+Axis Axis::gather(const std::size_t* positions, std::size_t count) {
+    if (count && !positions) throw Error(ErrorCode::invalid_argument, "selection", "null gather positions");
+    std::vector<std::size_t> copy;
+    if (count) copy.assign(positions, positions + count);
+    return detail::gather_axis(std::move(copy));
+}
+Axis Axis::gather(std::initializer_list<std::size_t> positions) {
+    return gather(positions.begin(), positions.size());
+}
+Axis detail::gather_axis(std::vector<std::size_t>&& positions) {
+    Axis a;
+    a.all_ = false;
+    a.count_ = positions.size();
+    a.positions_ = std::make_shared<const std::vector<std::size_t>>(std::move(positions));
+    return a;
+}
+Axis detail::compose_axis(const Axis& parent, const Axis& child, std::size_t source_extent) {
+    const auto n = parent.extent(source_extent);
+    if (child.is_all()) return parent;
+    const auto count = child.extent(n);
+    if (child.is_gather()) {
+        for (std::size_t i = 0; i < count; ++i)
+            if (child.index(i) >= n) throw Error(ErrorCode::out_of_bounds, "selection", "selection index out of bounds");
+    } else if (count) {
+        const auto first = child.first();
+        if (first >= n) throw Error(ErrorCode::out_of_bounds, "selection", "selection index out of bounds");
+        const auto available = child.reverse() ? first : n - 1 - first;
+        if (count > 1 && child.step() && count - 1 > available / child.step())
+            throw Error(ErrorCode::out_of_bounds, "selection", "selection exceeds axis bounds");
+    }
+    if (parent.is_all()) return child;
+    if (!count) return Axis::stride(0, 0);
+    if (!parent.is_gather() && !child.is_gather()) {
+        const auto first = parent.index(child.first());
+        std::size_t step = 1;
+        if (count > 1 && __builtin_mul_overflow(parent.step(), child.step(), &step))
+            throw Error(ErrorCode::out_of_bounds, "selection", "selection step overflows");
+        return Axis::stride(first, count, step, parent.reverse() != child.reverse());
+    }
+    std::vector<std::size_t> positions;
+    positions.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) positions.push_back(parent.index(child.index(i)));
+    return gather_axis(std::move(positions));
+}
 
 std::size_t dtype_size(DType type) noexcept {
     switch (type) {
@@ -197,14 +247,14 @@ void validate_state(const State& s) {
 }
 std::size_t view_extent(const State& s, const std::shared_ptr<const ArraySelection>& sel, std::size_t axis) {
     if (axis >= s.shape.size()) fail(ErrorCode::out_of_bounds, "axis out of bounds");
-    return sel && sel->axes[axis] ? sel->axes[axis]->size() : s.shape[axis];
+    return sel ? sel->axes[axis].extent(s.shape[axis]) : s.shape[axis];
 }
 std::size_t original_index(const std::shared_ptr<const ArraySelection>& sel, std::size_t axis, std::size_t i) {
-    return sel && sel->axes[axis] ? (*sel->axes[axis])[i] : i;
+    return sel ? sel->axes[axis].index(i) : i;
 }
 bool has_selection(const std::shared_ptr<const ArraySelection>& sel) {
     if (!sel) return false;
-    for (const auto& a : sel->axes) if (a) return true;
+    for (const auto& a : sel->axes) if (!a.is_all()) return true;
     return false;
 }
 bool is_contiguous(const detail::DenseDimensions& dimensions) {
@@ -414,20 +464,15 @@ NativeType ArrayView::index_native_type() const { require_state(state_); if (sta
 NativeType ArrayView::offset_native_type() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse offsets"); return state_->native_offset; }
 void ArrayView::validate() const { require_state(state_); validate_state(*state_); }
 
-ArrayView ArrayView::select(std::vector<std::optional<std::vector<std::size_t>>> axes) const {
+ArrayView ArrayView::select(const Axis* axes, std::size_t count) const {
     require_state(state_);
-    if (axes.size() != rank()) fail(ErrorCode::shape_mismatch, "number of selectors differs from array rank");
+    if (count != rank()) fail(ErrorCode::shape_mismatch, "number of selectors differs from array rank");
+    if (count && !axes) fail(ErrorCode::invalid_argument, "null axis selectors");
     auto result = std::make_shared<ArraySelection>();
     result->axes.resize(rank());
     for (std::size_t a = 0; a < rank(); ++a) {
-        if (!axes[a]) { if (selection_) result->axes[a] = selection_->axes[a]; continue; }
-        auto& out = result->axes[a].emplace();
-        out.reserve(axes[a]->size());
-        const auto current = extent(a);
-        for (auto i : *axes[a]) {
-            if (i >= current) fail(ErrorCode::out_of_bounds, "selection index out of bounds");
-            out.push_back(original_index(selection_, a, i));
-        }
+        const auto parent = selection_ ? selection_->axes[a] : Axis::all();
+        result->axes[a] = detail::compose_axis(parent, axes[a], state_->shape[a]);
     }
     return ArrayView(state_, std::move(result));
 }
@@ -452,18 +497,24 @@ detail::DenseDescriptor ArrayView::dense_descriptor(DType type, detail::NativeTy
         if (d.dimensions.large) d.dimensions.large->shape[a] = e;
         else { d.dimensions.shape[a] = e; d.dimensions.strides[a] = state_->strides[a]; }
         if (empty) continue; // No coordinate in this view can be dereferenced.
-        if (!selection_ || !selection_->axes[a]) continue;
-        const auto& v = *selection_->axes[a];
-        if (v.empty()) continue;
+        if (!selection_ || selection_->axes[a].is_all()) continue;
+        const auto& v = selection_->axes[a];
         // All indices along a broadcast axis address the same element, even
         // when those indices cannot themselves be represented in ptrdiff_t.
         if (state_->strides[a] == 0) continue;
-        auto start = signed_index(v.front());
+        auto start = signed_index(v.index(0));
         std::ptrdiff_t step = 1;
-        if (v.size() > 1) step = signed_index(v[1]) - start;
-        for (std::size_t i = 1; i < v.size(); ++i) {
-            auto expected = checked_signed_add(start, checked_signed_mul(signed_index(i), step));
-            if (signed_index(v[i]) != expected) fail(ErrorCode::non_contiguous, "gathered selection has no direct strided view; copy it first");
+        if (e > 1) {
+            if (v.is_gather()) {
+                step = signed_index(v.index(1)) - start;
+                for (std::size_t i = 2; i < e; ++i) {
+                    auto expected = checked_signed_add(start, checked_signed_mul(signed_index(i), step));
+                    if (signed_index(v.index(i)) != expected) fail(ErrorCode::non_contiguous, "gathered selection has no direct strided view; copy it first");
+                }
+            } else {
+                step = signed_index(v.step());
+                if (v.reverse()) step = -step;
+            }
         }
         origin = checked_signed_add(origin, checked_signed_mul(start, state_->strides[a]));
         auto stride = checked_signed_mul(state_->strides[a], step);
@@ -549,10 +600,16 @@ Array ArrayView::copy(Validation validation) const {
                     checked_mul(state_->shape[major_axis] + 1, dtype_size(state_->offset_type)));
         return result;
     }
-    if (validation == Validation::full) validate_state(*state_);
     const auto out_major = extent(major_axis), out_minor = extent(minor_axis);
+    if (out_major == std::numeric_limits<std::size_t>::max())
+        fail(ErrorCode::invalid_argument, "sparse major dimension overflow");
+    // Check both the stored offsets and the size_t staging vector before
+    // building a minor-index map or traversing the selected major axis.
+    checked_byte_span(out_major + 1, dtype_size(state_->offset_type));
+    checked_byte_span(out_major + 1, sizeof(std::size_t));
+    if (validation == Validation::full) validate_state(*state_);
     std::unordered_map<std::size_t, std::vector<std::size_t>> selected_minor;
-    const bool filtered_minor = selection_ && selection_->axes[minor_axis].has_value();
+    const bool filtered_minor = selection_ && !selection_->axes[minor_axis].is_all();
     if (filtered_minor) for (std::size_t i = 0; i < out_minor; ++i) selected_minor[original_index(selection_, minor_axis, i)].push_back(i);
     std::vector<std::size_t> source_positions, output_indices, output_offsets;
     output_offsets.reserve(out_major + 1);

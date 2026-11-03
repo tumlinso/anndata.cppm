@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 import anndata;
@@ -74,8 +75,8 @@ void lazy_selections() {
         {2, 3}, {"a", "b", "c", "d", "e", "f"});
     auto original = values.view();
     auto selected = original.select({
-        std::vector<std::size_t>{1, 0, 1},
-        std::vector<std::size_t>{2, 0}});
+        Axis::gather({1, 0, 1}),
+        Axis::gather({2, 0})});
     expect(selected.shape() == std::vector<std::size_t>{3, 2} &&
            selected.string(0) == "f" && selected.string(1) == "d" &&
            selected.string(2) == "c" && selected.string(3) == "a" &&
@@ -98,15 +99,46 @@ void lazy_selections() {
            materialized.view().storage_bytes() != original.storage_bytes(),
            "copy materializes selected strings into independent packed storage");
 
-    auto empty = original.select({std::vector<std::size_t>{}, std::nullopt});
+    auto empty = original.select({Axis::gather({}), Axis::all()});
     expect(empty.shape() == std::vector<std::size_t>{0, 3} && empty.size() == 0 &&
            empty.copy().view().shape() == std::vector<std::size_t>{0, 3},
            "empty selections retain their dimensionality");
     expect_error(ErrorCode::out_of_bounds,
         [&] { (void)original.string(6); }, "flat string access checks bounds");
     expect_error(ErrorCode::out_of_bounds,
-        [&] { (void)original.select({std::vector<std::size_t>{2}, std::nullopt}); },
+        [&] { (void)original.select({Axis::gather({2}), Axis::all()}); },
         "selection checks axis bounds");
+}
+
+void compact_string_axes() {
+    using namespace anndata;
+    StringArrayView retained;
+    {
+        auto a = StringArray::from_strings({2,3}, {"a","b","c","d","e","f"});
+        const Axis axes[]{Axis::stride(1,2,1,true), Axis::stride(2,2,2,true)};
+        auto v = a.view().select(axes, 2);
+        expect(v.string(0) == "f" && v.string(1) == "d" &&
+               v.string(2) == "c" && v.string(3) == "a",
+               "string axes retain reverse affine mappings on every dimension");
+        std::size_t rows[]{1,0,1};
+        retained = v.select({Axis::gather(rows, 3), Axis::gather({1,0})});
+        rows[0] = 0;
+        a.edit().bytes()[0] = 'A';
+        auto identity = a.view().select({Axis::gather({0,1}), Axis::stride(0,3)});
+        expect(identity.bytes() == a.edit().bytes() && identity.offsets() == a.edit().offsets(),
+               "identity string selection retains logical packed access");
+        auto restored = a.view().select({Axis::stride(1,2,1,true), Axis::all()})
+                                .select({Axis::stride(1,2,1,true), Axis::all()});
+        expect(restored.bytes() == a.edit().bytes(),
+               "nested inverse string ranges restore packed identity access");
+        expect_error(ErrorCode::non_contiguous, [&] { (void)retained.bytes(); },
+                     "nonidentity string mappings still require explicit compact copies");
+    }
+    expect(retained.shape() == std::vector<std::size_t>({3,2}) &&
+           retained.string(0) == "A" && retained.string(1) == "c" &&
+           retained.string(2) == "d" && retained.string(3) == "f" &&
+           retained.string(4) == "A",
+           "nested string gathers copy caller maps and retain bytes after owner destruction");
 }
 
 void external_buffers() {
@@ -124,7 +156,8 @@ void external_buffers() {
         auto lifetime = std::make_shared<Holder>(Holder{owner, offset_owner});
         std::shared_ptr<const void> token = lifetime;
         auto data = StringArray::share_packed(
-            owner->data(), owner->size(), offset_owner->data(), {2}, token);
+            static_cast<const char*>(owner->data()), owner->size(),
+            static_cast<const std::uint64_t*>(offset_owner->data()), {2}, token);
         retained_view = data.view();
         owner.reset();
         offset_owner.reset();
@@ -132,6 +165,8 @@ void external_buffers() {
         token.reset();
         expect(retained_view.string(0) == "ok" && retained_view.string(1) == "xy",
                "retained view keeps external byte and offset buffers alive");
+        expect_error(ErrorCode::invalid_argument, [&] { (void)data.edit(); },
+                     "const shared packed buffers reject mutable acquisition");
     }
     expect(retained_view.string(0) == "ok",
            "retained view remains valid after the StringArray owner is destroyed");
@@ -167,8 +202,138 @@ void external_buffers() {
     expect(counter.calls == 1, "custom packed-buffer deleter runs once");
 }
 
+void packed_storage_lifetimes() {
+    using namespace anndata;
+    StringArrayView retained;
+    StringArrayEdit edit;
+    StringArray independent;
+    {
+        std::vector<char> b{'a', 'b', char(0xce), char(0xb2)};
+        std::vector<std::uint64_t> o{0, 2, 2, 4};
+        const auto* bp = b.data();
+        const auto* op = o.data();
+        auto a = StringArray::from_packed({3}, std::move(b), std::move(o));
+        retained = a.view(); edit = a.edit();
+        expect(retained.bytes() == bp && retained.offsets() == op &&
+               edit.bytes() == bp && edit.offsets() == op,
+               "packed construction moves both buffers without changing their addresses");
+        auto moved = std::move(a);
+        independent = moved.copy();
+        expect(independent.view().bytes() != bp && independent.view().offsets() != op,
+               "packed deep copy independently owns both buffers");
+    }
+    edit.bytes()[0] = 'A';
+    expect(retained.string(0) == "Ab" && retained.string(1).empty() &&
+           retained.string(2) == "β" && independent.view().string(0) == "ab" &&
+           independent.view().string(2) == "β",
+           "packed views retain moved storage and independent copies after owner destruction");
+
+    std::vector<char> b;
+    b.reserve(8); // Empty owned bytes must remain a null public pointer.
+    std::vector<std::uint64_t> o{0, 0, 0};
+    const auto* op = o.data();
+    auto empty = StringArray::from_packed({2}, std::move(b), std::move(o));
+    expect(empty.view().bytes() == nullptr && empty.edit().bytes() == nullptr &&
+           empty.view().offsets() == op && empty.view().string(1).empty() &&
+           empty.view().select({Axis::gather({1, 0, 1})}).copy().view().byte_size() == 0,
+           "empty owned UTF-8 retains offsets and exposes null bytes through selection and copy");
+    auto scalar = StringArray::from_packed({}, {}, {0, 0});
+    expect(scalar.rank() == 0 && scalar.view().string(0).empty(),
+           "rank-zero empty UTF-8 remains readable without byte-pointer arithmetic");
+    auto zero = StringArray::from_packed({2, 0}, {}, {0});
+    expect_error(ErrorCode::out_of_bounds, [&] { (void)zero.view().string(0); },
+                 "zero extents reject string access before mixed-radix division");
+
+    const std::uint64_t ro[]{0, 0, 0};
+    auto borrowed = StringArray::borrow_packed(static_cast<const char*>(nullptr), 0, ro, {2});
+    expect(borrowed.view().string(0).empty(), "const null byte buffers represent empty borrowed UTF-8");
+    expect_error(ErrorCode::invalid_argument, [&] { (void)borrowed.edit(); },
+                 "const empty borrows retain read-only storage semantics");
+    std::uint64_t rw[]{0, 0};
+    auto writable = StringArray::borrow_packed(static_cast<char*>(nullptr), 0, rw, {1});
+    expect(writable.edit().bytes() == nullptr && writable.edit().unsafe_offsets() == rw,
+           "mutable empty borrows expose the caller's offset buffer");
+}
+
+void mutable_shared_storage() {
+    using namespace anndata;
+    struct Buffers { char b[2]{'o', 'k'}; std::uint64_t o[2]{0, 2}; };
+    StringArrayView view;
+    StringArrayEdit edit;
+    std::weak_ptr<Buffers> lifetime;
+    {
+        auto p = std::make_shared<Buffers>();
+        lifetime = p;
+        auto a = StringArray::share_packed(p->b, 2, p->o, {1}, p);
+        view = a.view(); edit = a.edit();
+        expect(view.bytes() == p->b && view.offsets() == p->o,
+               "mutable shared storage preserves both external pointers");
+    }
+    edit.bytes()[0] = 'O';
+    expect(!lifetime.expired() && view.string(0) == "Ok",
+           "retained mutable shared descriptors keep the external owner alive");
+    edit = StringArrayEdit{}; view = StringArrayView{};
+    expect(lifetime.expired(), "external shared storage is released with its last descriptor");
+}
+
+void adopted_storage_lifetimes() {
+    using namespace anndata;
+    int calls = 0;
+    const auto release = [](char* b, std::uint64_t* o, void* context) {
+        ++*static_cast<int*>(context); delete[] b; delete[] o;
+    };
+    StringArrayView retained;
+    StringArrayEdit edit;
+    {
+        auto* b = new char[2]{'a', '\0'};
+        auto* o = new std::uint64_t[2]{0, 2};
+        auto a = StringArray::adopt_packed(b, 2, o, {1}, release, &calls);
+        retained = a.view(); edit = a.edit();
+        auto moved = std::move(a);
+        expect(retained.bytes() == b && retained.offsets() == o &&
+               retained.string(0) == std::string_view("a\0", 2),
+               "adopted UTF-8 retains buffer identity and embedded null bytes");
+    }
+    expect(calls == 0, "retained read and edit views delay adopted-buffer deletion");
+    edit.bytes()[0] = 'A';
+    expect(retained.string(0) == std::string_view("A\0", 2),
+           "retained adopted edits stay visible after owner destruction");
+    retained = StringArrayView{};
+    expect(calls == 0, "an edit descriptor alone retains adopted buffers");
+    edit = StringArrayEdit{};
+    expect(calls == 1, "the last retained descriptor deletes adopted buffers once");
+
+    expect_error(ErrorCode::invalid_argument, [&] {
+        (void)StringArray::adopt_packed(new char[2]{char(0xc0), char(0xaf)}, 2,
+            new std::uint64_t[2]{0, 2}, {1}, release, &calls);
+    }, "failed UTF-8 validation releases adopted buffers");
+    expect(calls == 2, "adopted validation failure invokes the deleter once");
+    expect_error(ErrorCode::invalid_argument, [&] {
+        (void)StringArray::adopt_packed(new char[1]{'a'}, 1, nullptr,
+                                      {1}, release, &calls);
+    }, "failed packed-buffer acquisition releases adopted buffers");
+    expect(calls == 3, "adopted acquisition failure invokes the deleter once");
+}
+
 void validation_and_unsafe_editing() {
     using namespace anndata;
+    for (const std::size_t n : {0, 7, 8, 9, 15, 16}) {
+        const std::string prefix(n, 'a');
+        const std::vector<std::string> valid{
+            prefix, prefix + "\xce\xb2", prefix + "\xe2\x82\xac",
+            prefix + "\xf4\x8f\xbf\xbf", prefix + std::string("\0x", 2)};
+        auto packed = StringArray::from_strings({valid.size()}, valid);
+        packed.validate();
+        for (std::size_t i = 0; i < valid.size(); ++i)
+            expect(packed.view().string(i) == valid[i], "ASCII chunks preserve valid UTF-8 and embedded nulls");
+        for (const auto suffix : {"\xc2", "\xe2\x82", "\xf0\x90\x80", "\xed\xa0\x80", "\xf4\x90\x80\x80"})
+            expect_error(ErrorCode::invalid_argument,
+                [&] { (void)StringArray::from_strings({1}, {prefix + suffix}); },
+                "UTF-8 validation rejects truncated or invalid sequences at chunk boundaries");
+    }
+    expect_error(ErrorCode::invalid_argument, [] {
+        (void)StringArray::from_packed({2}, {'a','a','a','a','a','a','a',char(0xc2),char(0xa2)}, {0,8,9});
+    }, "UTF-8 sequences cannot cross packed string boundaries");
     auto invalid_utf8 = StringArray::from_packed(
         {1}, {static_cast<char>(0xc0), static_cast<char>(0xaf)}, {0, 2},
         Validation::none);
@@ -200,7 +365,6 @@ void alignment_and_metadata() {
     auto metadata = Element::mapping();
     metadata.set("names", Element(StringArray::from_strings({2}, {"μ", "β"})));
     metadata.set("signed", Element::scalar<std::int16_t>(-12));
-    metadata.at("signed");
     auto signed_scalar = metadata.at("signed");
     expect(signed_scalar.scalar<std::int16_t>() == -12,
            "string arrays coexist with typed scalar nested metadata");
@@ -252,7 +416,7 @@ void serialization_byte_order_hints() {
     auto dense = Array::empty<float>({2, 2});
     dense.set_serialization_byte_order(ByteOrder::big);
     dense.edit().dense<float>().data()[0] = 2.5F;
-    auto dense_copy = dense.view().select({std::vector<std::size_t>{1, 0}, std::nullopt}).copy();
+    auto dense_copy = dense.view().select({Axis::gather({1, 0}), Axis::all()}).copy();
     expect(dense_copy.serialization_byte_order() == ByteOrder::big,
            "dense selection copies preserve source file byte order");
 
@@ -275,7 +439,7 @@ void serialization_byte_order_hints() {
            same.offset_serialization_byte_order() == ByteOrder::big,
            "sparse copies preserve each buffer byte order independently");
     auto selected = sparse.view().select({
-        std::vector<std::size_t>{2, 0}, std::vector<std::size_t>{1, 2}}).copy();
+        Axis::gather({2, 0}), Axis::gather({1, 2})}).copy();
     expect(selected.layout() == Layout::csr && selected.extent(0) == 2 &&
            selected.extent(1) == 2 &&
            selected.serialization_byte_order() == ByteOrder::big &&
@@ -382,7 +546,11 @@ void categorical_string_array_colors() {
 int main() {
     packed_layout_and_copy();
     lazy_selections();
+    compact_string_axes();
     external_buffers();
+    packed_storage_lifetimes();
+    mutable_shared_storage();
+    adopted_storage_lifetimes();
     validation_and_unsafe_editing();
     alignment_and_metadata();
     serialization_byte_order_hints();

@@ -130,10 +130,6 @@ IndexLayout layout(const ShardSpec& spec, const Shape& local, const std::filesys
     result.metadata.format = 3;
     result.metadata.type = Type::uint64;
     result.metadata.item_size = 8;
-    result.metadata.shape = result.shape;
-    result.metadata.chunks = result.shape;
-    result.metadata.codecs = spec.index_codecs;
-    result.metadata.scratch_bytes = spec.scratch_bytes;
     return result;
 }
 
@@ -153,7 +149,7 @@ Chunk read_index(int fd, std::uint64_t size, const IndexLayout& layout, const Sh
     auto position = spec.index_location == "start" ? 0 : size - layout.encoded_size;
     read_at(fd, position, encoded, path);
     Chunk index;
-    try { index = decode_payload(layout.metadata, layout.shape, encoded); }
+    try { index = decode_payload({layout.metadata, spec.index_codecs, spec.scratch_bytes}, layout.shape, encoded); }
     catch (const Error& e) { throw Error(e.failure, path.string(), e.what()); }
     if (index.numeric.size() != layout.count * 16) fail(Failure::encoding, path, "incorrect shard index length");
     const auto data_start = spec.index_location == "start" ? layout.encoded_size : 0;
@@ -247,7 +243,7 @@ void write_shard_chunk(const std::filesystem::path& path, const ShardSpec& spec,
     buffer.clear();
     buffer.shrink_to_fit();
     Bytes encoded;
-    try { encoded = encode_payload(index_layout.metadata, index_layout.shape, index); }
+    try { encoded = encode_payload({index_layout.metadata, spec.index_codecs, spec.scratch_bytes}, index_layout.shape, index); }
     catch (const Error& e) { throw Error(e.failure, path.string(), e.what()); }
     if (encoded.size() != index_layout.encoded_size) fail(Failure::encoding, path, "incorrect encoded shard index length");
     write_at(temp.file.fd, spec.index_location == "start" ? 0 : output_offset, encoded, temp.path);

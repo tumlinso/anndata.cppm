@@ -1,6 +1,5 @@
 module;
 #include <algorithm>
-#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -272,16 +271,14 @@ bool physical_present(Backend& backend, std::string_view path) {
     return info.exists && backed_detail::encoding(info, path) != "null";
 }
 struct Index {
-    std::size_t size = 0;
-    std::function<std::string(std::size_t)> name;
-    std::optional<BackedTable> backed;
-    std::optional<TableView> native;
+    std::size_t size;
+    std::variant<BackedTable, TableView> table;
 };
 Index index_of(BackedTable t) {
-    return {t.size(), [t](std::size_t row) { return t.name(row); }, t, std::nullopt};
+    return {t.size(), std::move(t)};
 }
 Index index_of(TableView t) {
-    return {t.size(), [t](std::size_t row) { return std::string(t.name(row)); }, std::nullopt, t};
+    return {t.size(), std::move(t)};
 }
 Index index_of_source(const StructureSource& source, std::string_view path) {
     return std::visit([&](const auto& value) -> Index {
@@ -308,23 +305,23 @@ Index axis_index(const StructureEditImpl& edit, const BackedAnnDataView& view, s
 void compare_indexes(const Index& left, const Index& right, std::string_view path) {
     if (left.size != right.size) fail(ErrorCode::shape_mismatch, path, "dataframe index length differs from its aligned axis");
     try {
-        if (left.backed && right.backed) {
-            backed_detail::compare_table_indexes(*right.backed, *left.backed);
+        if (auto* l = std::get_if<BackedTable>(&left.table)) {
+            if (auto* r = std::get_if<BackedTable>(&right.table))
+                backed_detail::compare_table_indexes(*r, *l);
+            else backed_detail::compare_table_indexes(*l, std::get<TableView>(right.table));
             return;
         }
-        if (left.backed && right.native) {
-            backed_detail::compare_table_indexes(*left.backed, *right.native);
-            return;
-        }
-        if (right.backed && left.native) {
-            backed_detail::compare_table_indexes(*right.backed, *left.native);
+        if (auto* r = std::get_if<BackedTable>(&right.table)) {
+            backed_detail::compare_table_indexes(*r, std::get<TableView>(left.table));
             return;
         }
     } catch (const Error& error) {
         throw Error(error.code(), std::string(path), error.what());
     }
+    const auto& l = std::get<TableView>(left.table);
+    const auto& r = std::get<TableView>(right.table);
     for (std::size_t i = 0; i < left.size; ++i)
-        if (left.name(i) != right.name(i)) fail(ErrorCode::shape_mismatch, path, "dataframe index differs from its aligned axis");
+        if (l.name(i) != r.name(i)) fail(ErrorCode::shape_mismatch, path, "dataframe index differs from its aligned axis");
 }
 void check_aligned_table(const StructureEditImpl& edit, const BackedAnnDataView& selected,
                          std::string_view path, const Index& index) {

@@ -45,6 +45,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndata:
 - [Development, installation, and validation](docs/development.md)
 - [Memory access and ownership](docs/memory.md)
 - [Native records and compound H5AD elements](docs/records.md)
+- [Compact selection and direct metadata validation](docs/selection-validation.md)
 - [H5AD encodings and file access](docs/h5ad.md)
 - [Backed storage, structural edits and mappings](docs/storage.md)
 - [Storage dependency installation commands](docs/storage-dependencies.md)

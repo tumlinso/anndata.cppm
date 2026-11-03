@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-03",
+  "project": "anndata-cppm",
+  "scope": "compact selections and direct metadata access",
+  "source_base": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "next_task": {
+    "status": "attention_required",
+    "reason": "native_operation_rejected",
+    "allowed_actions": ["inspect_task"]
+  },
+  "inspect_task": {
+    "kind": "task",
+    "status": "ok",
+    "result": {}
+  },
+  "qualification": "User-authorized local implementation and validation; no usable native task sheet or completion action was supplied. Native workflow acceptance is not claimed.",
+  "preservation": "Existing authority and task state were preserved; no direct authority edits or recovery operations. Opaque handles are excluded from this receipt."
+}

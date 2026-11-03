@@ -6,7 +6,6 @@ module;
 #include <cstring>
 #include <limits>
 #include <memory>
-#include <numeric>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -38,14 +37,14 @@ struct ColumnImpl {
 
 struct ColumnViewImpl {
     std::shared_ptr<ColumnImpl> source;
-    std::shared_ptr<const std::vector<std::size_t>> rows;
+    Axis rows;
     std::vector<std::size_t> category_rows;
     std::vector<std::int64_t> recode;
     bool pruned{false};
-    std::size_t size() const { return rows ? rows->size() : source->size(); }
+    std::size_t size() const { return rows.extent(source->size()); }
     std::size_t row(std::size_t i) const {
         if (i >= size()) throw Error(ErrorCode::out_of_bounds, "column", "row is out of bounds");
-        return rows ? (*rows)[i] : i;
+        return rows.index(i);
     }
 };
 
@@ -58,7 +57,7 @@ struct TableImpl {
 struct TableViewImpl {
     std::shared_ptr<const std::vector<std::string>> names;
     std::string index_name;
-    std::shared_ptr<const std::vector<std::size_t>> rows;
+    Axis rows;
     std::vector<std::pair<std::string, ColumnView>> columns;
 };
 
@@ -100,6 +99,9 @@ struct AnnDataImpl {
 };
 
 struct AnnDataViewImpl {
+    // All aligned slots share these absolute maps into the original snapshot.
+    std::shared_ptr<AnnDataViewImpl> source;
+    Axis obs_axis, var_axis;
     std::size_t n_obs{}, n_vars{};
     std::optional<ArrayView> x;
     TableView obs, var;
@@ -157,10 +159,10 @@ std::vector<std::string> keys(const V& values) {
     return out;
 }
 
-std::vector<std::size_t> identity(std::size_t n) {
-    std::vector<std::size_t> out(n);
-    std::iota(out.begin(), out.end(), std::size_t{0});
-    return out;
+bool same_index(const std::vector<std::string>& a, const std::vector<std::string>& b) {
+    if (a.size() != b.size()) return false;
+    for (std::size_t i = 0; i < a.size(); ++i) if (a[i] != b[i]) return false;
+    return true;
 }
 
 template<class F>
@@ -226,8 +228,9 @@ Array make_codes(const ArrayView& selected, const std::vector<std::int64_t>& val
     return out;
 }
 
-void check_rows(std::size_t expected, const std::vector<std::size_t>& rows, std::string_view path) {
-    for (auto row : rows) if (row >= expected) fail(ErrorCode::out_of_bounds, path, "selected row is out of bounds");
+Axis compose_rows(const Axis& parent, const Axis& child, std::size_t n, std::string_view path) {
+    try { return detail::compose_axis(parent, child, n); }
+    catch (const Error& e) { fail(e.code(), path, "selected row is out of bounds"); }
 }
 
 bool valid_utf8_string(std::string_view value) noexcept {
@@ -317,30 +320,26 @@ void check_pairwise(const ArrayView& a, std::size_t n, std::string_view path) {
         fail(ErrorCode::shape_mismatch, path, "first two dimensions must match the aligned axis");
 }
 
-ArrayView select_first(const ArrayView& a, const std::vector<std::size_t>& rows, bool all = false) {
-    if (all) return a;
-    std::vector<std::optional<std::vector<std::size_t>>> axes(a.rank());
+ArrayView select_first(const ArrayView& a, const Axis& rows) {
+    if (rows.is_all()) return a;
+    std::vector<Axis> axes(a.rank());
     axes[0] = rows;
-    return a.select(std::move(axes));
+    return a.select(axes.data(), axes.size());
 }
 
-StringArrayView select_first(const StringArrayView& a,
-                             const std::vector<std::size_t>& rows,
-                             bool all = false) {
-    if (all) return a;
-    std::vector<std::optional<std::vector<std::size_t>>> axes(a.rank());
+StringArrayView select_first(const StringArrayView& a, const Axis& rows) {
+    if (rows.is_all()) return a;
     if (a.rank() == 0) fail(ErrorCode::shape_mismatch, "string-array", "aligned string array must have at least one dimension");
+    std::vector<Axis> axes(a.rank());
     axes[0] = rows;
-    return a.select(std::move(axes));
+    return a.select(axes.data(), axes.size());
 }
 
-ArrayView select_both(const ArrayView& a, const std::vector<std::size_t>& rows,
-                      const std::vector<std::size_t>& cols, bool all_rows = false, bool all_cols = false) {
-    if (all_rows && all_cols) return a;
-    std::vector<std::optional<std::vector<std::size_t>>> axes(a.rank());
-    if (!all_rows) axes[0] = rows;
-    if (!all_cols) axes[1] = cols;
-    return a.select(std::move(axes));
+ArrayView select_both(const ArrayView& a, const Axis& rows, const Axis& cols) {
+    if (rows.is_all() && cols.is_all()) return a;
+    std::vector<Axis> axes(a.rank());
+    axes[0] = rows; axes[1] = cols;
+    return a.select(axes.data(), axes.size());
 }
 
 } // namespace
@@ -355,14 +354,14 @@ Selection::Selection(std::string_view v) : kind_(Kind::label), labels_{std::stri
 Selection::Selection(const char* v) : Selection(std::string_view(v)) {}
 bool Selection::is_all() const noexcept { return kind_ == Kind::all; }
 
-std::vector<std::size_t> Selection::resolve(const std::vector<std::string>& names,
+Axis Selection::resolve(const std::vector<std::string>& names,
                                            std::string_view path) const {
     return resolve_impl(names.size(), path, &names, nullptr);
 }
-std::vector<std::size_t> Selection::resolve(const TableView& index, std::string_view path) const {
+Axis Selection::resolve(const TableView& index, std::string_view path) const {
     return resolve_impl(index.size(), path, nullptr, &index);
 }
-std::vector<std::size_t> Selection::resolve_impl(std::size_t n, std::string_view path,
+Axis Selection::resolve_impl(std::size_t n, std::string_view path,
     const std::vector<std::string>* names, const TableView* table) const {
     auto name_at = [&](std::size_t i) -> std::string_view { return table ? table->name(i) : (*names)[i]; };
     if (n > static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()))
@@ -370,7 +369,7 @@ std::vector<std::size_t> Selection::resolve_impl(std::size_t n, std::string_view
     const auto length = static_cast<std::ptrdiff_t>(n);
     std::vector<std::size_t> out;
     switch (kind_) {
-    case Kind::all: return identity(n);
+    case Kind::all: return Axis::all();
     case Kind::indices:
         out.reserve(indices_.size());
         for (auto i : indices_) {
@@ -378,14 +377,14 @@ std::vector<std::size_t> Selection::resolve_impl(std::size_t n, std::string_view
             if (i < 0 || i >= length) fail(ErrorCode::out_of_bounds, path, "position is out of bounds");
             out.push_back(static_cast<std::size_t>(i));
         }
-        return out;
+        return detail::gather_axis(std::move(out));
     case Kind::mask:
         if (mask_.size() != n) fail(ErrorCode::shape_mismatch, path, "boolean selector length differs from axis length");
         for (std::size_t i = 0; i < n; ++i) {
             if (mask_[i] > 1) fail(ErrorCode::invalid_argument, path, "boolean selector entries must be zero or one");
             if (mask_[i]) out.push_back(i);
         }
-        return out;
+        return detail::gather_axis(std::move(out));
     case Kind::range: {
         const auto step = range_.step;
         if (step == 0) fail(ErrorCode::invalid_argument, path, "slice step cannot be zero");
@@ -398,26 +397,18 @@ std::vector<std::size_t> Selection::resolve_impl(std::size_t n, std::string_view
             return step > 0 ? std::clamp(x, std::ptrdiff_t{0}, length)
                             : std::clamp(x, std::ptrdiff_t{-1}, length - 1);
         };
-        auto start = norm(range_.start, true), stop = norm(range_.stop, false);
-        if (step > 0) {
-            for (auto i = start; i < stop;) {
-                out.push_back(static_cast<std::size_t>(i));
-                if (step > stop - i) break;
-                i += step;
-            }
-        } else {
-            for (auto i = start; i > stop;) {
-                out.push_back(static_cast<std::size_t>(i));
-                if (-step > i - stop) break;
-                i += step;
-            }
-        }
-        return out;
+        const auto first = norm(range_.start, true), stop = norm(range_.stop, false);
+        const auto span = step > 0 ? stop - first : first - stop;
+        const auto magnitude = step > 0 ? step : -step;
+        const auto count = span <= 0 ? std::size_t{0} :
+            static_cast<std::size_t>((span - 1) / magnitude + 1);
+        return Axis::stride(count ? static_cast<std::size_t>(first) : 0, count,
+                            static_cast<std::size_t>(magnitude), step < 0);
     }
     case Kind::label:
         for (std::size_t i = 0; i < n; ++i) if (name_at(i) == labels_[0]) out.push_back(i);
         if (out.empty()) fail(ErrorCode::out_of_bounds, path, "label does not exist");
-        return out;
+        return detail::gather_axis(std::move(out));
     case Kind::labels: {
         std::unordered_map<std::string_view, std::size_t> index;
         index.reserve(n);
@@ -430,10 +421,10 @@ std::vector<std::size_t> Selection::resolve_impl(std::size_t n, std::string_view
             if (it == index.end()) fail(ErrorCode::out_of_bounds, path, "label does not exist: " + label);
             out.push_back(it->second);
         }
-        return out;
+        return detail::gather_axis(std::move(out));
     }
     }
-    return out;
+    return detail::gather_axis(std::move(out));
 }
 
 Column::Column() : impl_(std::make_shared<detail::ColumnImpl>()) {
@@ -581,8 +572,7 @@ ArrayView ColumnView::values() const {
     if (!impl_) fail(ErrorCode::invalid_argument, "column", "column has no storage");
     if (kind() != ColumnKind::numeric) fail(ErrorCode::invalid_argument, "column", "column is not numeric");
     auto v = impl_->source->values->view();
-    if (!impl_->rows) return v;
-    return v.select({*impl_->rows});
+    return impl_->rows.is_all() ? v : v.select({impl_->rows});
 }
 std::string_view ColumnView::string(std::size_t row) const {
     if (kind() != ColumnKind::string) fail(ErrorCode::invalid_argument, "column", "column is not a string column");
@@ -603,7 +593,7 @@ ColumnView ColumnView::categories() const {
     if (kind() != ColumnKind::categorical) fail(ErrorCode::invalid_argument, "column", "column is not categorical");
     auto p = std::make_shared<detail::ColumnViewImpl>();
     p->source = impl_->source->categories;
-    if (impl_->pruned) p->rows = std::make_shared<std::vector<std::size_t>>(impl_->category_rows);
+    if (impl_->pruned) p->rows = Axis::gather(impl_->category_rows.data(), impl_->category_rows.size());
     return ColumnView(std::move(p));
 }
 std::int64_t ColumnView::code(std::size_t row) const {
@@ -628,26 +618,21 @@ ArrayView ColumnView::codes() const {
         if (impl_->pruned && impl_->category_rows.size() != impl_->source->categories->size())
             for (std::size_t i = 0; i < size(); ++i) (void)code(i);
         auto a = impl_->source->values->view();
-        return impl_->rows ? a.select({*impl_->rows}) : a;
+        return impl_->rows.is_all() ? a : a.select({impl_->rows});
     }
     std::vector<std::int64_t> values(size());
     for (std::size_t i = 0; i < size(); ++i) values[i] = code(i);
     auto selected = impl_->source->values->view();
-    if (impl_->rows) selected = selected.select({*impl_->rows});
+    if (!impl_->rows.is_all()) selected = selected.select({impl_->rows});
     return make_codes(selected, values).view();
 }
-ColumnView ColumnView::select(const std::vector<std::size_t>& rows, bool prune_categories) const {
-    check_rows(size(), rows, "column");
+ColumnView ColumnView::select(const Axis& rows, bool prune_categories) const {
+    auto x = compose_rows(impl_ ? impl_->rows : Axis::all(), rows,
+                          impl_ ? impl_->source->size() : 0, "column");
     if (!impl_) return ColumnView{};
-    auto p = std::make_shared<detail::ColumnViewImpl>();
-    p->source = impl_->source;
-    auto positions = std::make_shared<std::vector<std::size_t>>();
-    positions->reserve(rows.size());
-    for (auto i : rows) positions->push_back(impl_->row(i));
-    p->rows = std::move(positions);
-    p->pruned = impl_->pruned;
-    p->recode = impl_->recode;
-    p->category_rows = impl_->category_rows;
+    if (rows.is_all()) return select_all(prune_categories);
+    auto p = std::make_shared<detail::ColumnViewImpl>(*impl_);
+    p->rows = std::move(x);
     return ColumnView(std::move(p)).select_all(prune_categories);
 }
 ColumnView ColumnView::select_all(bool prune_categories) const {
@@ -779,12 +764,12 @@ void Table::validate() const {
         validate_at(c, name);
     }
 }
-std::size_t TableView::size() const { return !impl_ ? 0 : (impl_->rows ? impl_->rows->size() : impl_->names->size()); }
+std::size_t TableView::size() const { return impl_ ? impl_->rows.extent(impl_->names->size()) : 0; }
 std::size_t TableView::n_columns() const { return impl_ ? impl_->columns.size() : 0; }
 std::string_view TableView::index_name() const { return impl_ ? impl_->index_name : std::string_view{}; }
 std::string_view TableView::name(std::size_t row) const {
     if (row >= size()) fail(ErrorCode::out_of_bounds, "table/index", "row is out of bounds");
-    return (*impl_->names)[impl_->rows ? (*impl_->rows)[row] : row];
+    return (*impl_->names)[impl_->rows.index(row)];
 }
 std::vector<std::string> TableView::names() const {
     std::vector<std::string> out;
@@ -798,20 +783,22 @@ ColumnView TableView::column(std::string_view column) const {
     if (!impl_) fail(ErrorCode::out_of_bounds, "table", "column does not exist");
     return require_key(impl_->columns, column, "table");
 }
-TableView TableView::select(const std::vector<std::size_t>& rows, bool prune_categories) const {
-    check_rows(size(), rows, "table");
+TableView TableView::select(const Axis& rows, bool prune_categories) const {
+    auto x = compose_rows(impl_ ? impl_->rows : Axis::all(), rows,
+                          impl_ ? impl_->names->size() : 0, "table");
+    if (!impl_) return TableView{};
+    if (rows.is_all()) return select_all(prune_categories);
+    return with_rows(x, prune_categories);
+}
+TableView TableView::with_rows(const Axis& rows, bool prune_categories) const {
     if (!impl_) return TableView{};
     auto p = std::make_shared<detail::TableViewImpl>();
-    p->names = impl_->names;
-    p->index_name = impl_->index_name;
-    auto positions = std::make_shared<std::vector<std::size_t>>();
-    positions->reserve(rows.size());
-    for (auto i : rows) positions->push_back(impl_->rows ? (*impl_->rows)[i] : i);
-    p->rows = std::move(positions);
+    p->names = impl_->names; p->index_name = impl_->index_name;
+    p->rows = rows;
     for (const auto& [name, col] : impl_->columns) {
-        auto column = std::make_shared<detail::ColumnViewImpl>(*col.impl_);
-        column->rows = p->rows;
-        p->columns.emplace_back(name, ColumnView(std::move(column)).select_all(prune_categories));
+        auto c = std::make_shared<detail::ColumnViewImpl>(*col.impl_);
+        c->rows = p->rows;
+        p->columns.emplace_back(name, ColumnView(std::move(c)).select_all(prune_categories));
     }
     return TableView(std::move(p));
 }
@@ -952,8 +939,12 @@ ElementView ElementView::at(std::string_view key) const {
     return require_key(impl_->mapping, key, "element").view();
 }
 Element ElementView::copy() const {
-    if (kind() == ElementKind::boolean || kind() == ElementKind::signed_integer ||
-        kind() == ElementKind::unsigned_integer || kind() == ElementKind::floating) {
+    switch (kind()) {
+    case ElementKind::null: return Element{};
+    case ElementKind::boolean:
+    case ElementKind::signed_integer:
+    case ElementKind::unsigned_integer:
+    case ElementKind::floating: {
         Element e;
         e.impl_->kind = kind(); e.impl_->scalar_dtype = impl_->scalar_dtype;
         e.impl_->scalar_byte_order = impl_->scalar_byte_order;
@@ -961,12 +952,6 @@ Element ElementView::copy() const {
         e.impl_->unsigned_integer = impl_->unsigned_integer; e.impl_->floating = impl_->floating;
         return e;
     }
-    switch (kind()) {
-    case ElementKind::null: return Element{};
-    case ElementKind::boolean: return Element(boolean());
-    case ElementKind::signed_integer: return Element(signed_integer());
-    case ElementKind::unsigned_integer: return Element(unsigned_integer());
-    case ElementKind::floating: return Element(floating());
     case ElementKind::string: return Element(std::string(string()));
     case ElementKind::array: return Element(array().copy());
     case ElementKind::string_array: return Element(string_array().copy());
@@ -1007,6 +992,8 @@ void AnnData::set_x(Array x) { check_matrix(x.view(), n_obs(), n_vars(), "X"); i
 void AnnData::clear_x() { impl_->x.reset(); }
 TableView AnnData::obs() const { return impl_->obs.view(); }
 TableView AnnData::var() const { return impl_->var.view(); }
+ColumnView AnnData::obs_column(std::string_view name) const { return impl_->obs.column(name); }
+ColumnView AnnData::var_column(std::string_view name) const { return impl_->var.column(name); }
 void AnnData::set_obs(Table t) {
     if (t.size() != n_obs()) fail(ErrorCode::shape_mismatch, "obs", "table length differs from observation axis");
     for (auto& [name, e] : impl_->obsm) if (e.impl_->kind == ElementKind::table)
@@ -1039,7 +1026,7 @@ void AnnData::set_obsm(std::string name, StringArray a) {
     check_first(a.view(), n_obs(), "obsm/" + name); put(impl_->obsm, std::move(name), Element(std::move(a)));
 }
 void AnnData::set_obsm(std::string name, Table t) {
-    if (t.size() != n_obs() || t.view().names() != obs().names())
+    if (!same_index(*t.impl_->names, *impl_->obs.impl_->names))
         fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
     put(impl_->obsm, std::move(name), Element(std::move(t)));
 }
@@ -1050,7 +1037,7 @@ void AnnData::set_varm(std::string name, StringArray a) {
     check_first(a.view(), n_vars(), "varm/" + name); put(impl_->varm, std::move(name), Element(std::move(a)));
 }
 void AnnData::set_varm(std::string name, Table t) {
-    if (t.size() != n_vars() || t.view().names() != var().names())
+    if (!same_index(*t.impl_->names, *impl_->var.impl_->names))
         fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
     put(impl_->varm, std::move(name), Element(std::move(t)));
 }
@@ -1111,7 +1098,7 @@ void AnnData::set_raw_varm(std::string name, StringArray a) {
 }
 void AnnData::set_raw_varm(std::string name, Table t) {
     if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
-    if (t.size() != raw_var().size() || t.view().names() != raw_var().names())
+    if (!same_index(*t.impl_->names, *impl_->raw->var.impl_->names))
         fail(ErrorCode::shape_mismatch, "raw/varm/" + name, "table index differs from raw variable index");
     put(impl_->raw->varm, std::move(name), Element(std::move(t)));
 }
@@ -1181,6 +1168,8 @@ ArrayView AnnDataView::x() const {
 }
 TableView AnnDataView::obs() const { return impl_ ? impl_->obs : TableView{}; }
 TableView AnnDataView::var() const { return impl_ ? impl_->var : TableView{}; }
+ColumnView AnnDataView::obs_column(std::string_view name) const { return obs().column(name); }
+ColumnView AnnDataView::var_column(std::string_view name) const { return var().column(name); }
 ArrayView AnnDataView::layer(std::string_view name) const {
     if (!impl_) fail(ErrorCode::out_of_bounds, "layers/" + std::string(name), "key does not exist");
     return require_key(impl_->layers, name, "layers");
@@ -1227,41 +1216,34 @@ std::vector<std::string> AnnDataView::raw_varm_names() const {
 }
 
 AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection) const {
-    const auto all_rows = obs_selection.is_all(), all_cols = var_selection.is_all();
-    auto rows = all_rows ? std::vector<std::size_t>{} : obs_selection.resolve(obs(), "obs/index");
-    auto cols = all_cols ? std::vector<std::size_t>{} : var_selection.resolve(var(), "var/index");
+    const auto rows = obs_selection.resolve(obs(), "obs/index");
+    const auto cols = var_selection.resolve(var(), "var/index");
+    const auto base = impl_ && impl_->source ? impl_->source : impl_;
+    const auto r = detail::compose_axis(impl_ ? impl_->obs_axis : Axis::all(), rows, base ? base->n_obs : 0);
+    const auto c = detail::compose_axis(impl_ ? impl_->var_axis : Axis::all(), cols, base ? base->n_vars : 0);
     auto p = std::make_shared<detail::AnnDataViewImpl>();
-    p->n_obs = all_rows ? n_obs() : rows.size(); p->n_vars = all_cols ? n_vars() : cols.size();
-    p->obs = all_rows ? obs().select_all() : obs().select(rows);
-    p->var = all_cols ? var().select_all() : var().select(cols);
-    if (has_x()) p->x = select_both(x(), rows, cols, all_rows, all_cols);
+    p->source = base; p->obs_axis = r; p->var_axis = c;
+    p->n_obs = rows.extent(n_obs()); p->n_vars = cols.extent(n_vars());
+    p->obs = obs().with_rows(r, true);
+    p->var = var().with_rows(c, true);
+    if (has_x()) p->x = select_both(*base->x, r, c);
     if (impl_) {
-        for (const auto& [name, a] : impl_->layers) p->layers.emplace_back(name, select_both(a, rows, cols, all_rows, all_cols));
-        for (const auto& [name, a] : impl_->obsp) p->obsp.emplace_back(name, select_both(a, rows, rows, all_rows, all_rows));
-        for (const auto& [name, a] : impl_->varp) p->varp.emplace_back(name, select_both(a, cols, cols, all_cols, all_cols));
-        auto aligned = [&](const auto& source, auto& dest, const auto& selected, bool all_selected) {
-            for (const auto& [name, e] : source) {
-                if (e.kind() == ElementKind::array) {
-                    // Retain the selected ArrayView without materializing it.
-                    auto ep = std::make_shared<detail::ElementImpl>();
-                    ep->view_array = select_first(e.array(), selected, all_selected);
-                    ep->kind = ElementKind::array;
-                    dest.emplace_back(name, ElementView(std::move(ep)));
-                } else if (e.kind() == ElementKind::string_array) {
-                    auto ep = std::make_shared<detail::ElementImpl>();
-                    ep->kind = ElementKind::string_array;
-                    ep->view_string_array = select_first(e.string_array(), selected, all_selected);
-                    dest.emplace_back(name, ElementView(std::move(ep)));
-                } else {
-                    auto ep = std::make_shared<detail::ElementImpl>();
-                    ep->kind = ElementKind::table;
-                    ep->view_table = all_selected ? e.table().select_all() : e.table().select(selected);
-                    dest.emplace_back(name, ElementView(std::move(ep)));
-                }
+        for (const auto& [name, a] : base->layers) p->layers.emplace_back(name, select_both(a, r, c));
+        for (const auto& [name, a] : base->obsp) p->obsp.emplace_back(name, select_both(a, r, r));
+        for (const auto& [name, a] : base->varp) p->varp.emplace_back(name, select_both(a, c, c));
+        auto aligned = [&](const auto& source, const auto& current, auto& dest, const Axis& selected) {
+            for (std::size_t i = 0; i < source.size(); ++i) {
+                const auto& [name, e] = source[i];
+                auto ep = std::make_shared<detail::ElementImpl>();
+                ep->kind = e.kind();
+                if (ep->kind == ElementKind::array) ep->view_array = select_first(e.array(), selected);
+                else if (ep->kind == ElementKind::string_array) ep->view_string_array = select_first(e.string_array(), selected);
+                else ep->view_table = current[i].second.table().with_rows(selected, true);
+                dest.emplace_back(name, ElementView(std::move(ep)));
             }
         };
-        aligned(impl_->obsm, p->obsm, rows, all_rows);
-        aligned(impl_->varm, p->varm, cols, all_cols);
+        aligned(base->obsm, impl_->obsm, p->obsm, r);
+        aligned(base->varm, impl_->varm, p->varm, c);
         // Preserve unknown uns content by sharing its bindings. Only the mapping
         // and categorical color arrays need adjusted bindings for this slice.
         auto uns_impl = std::make_shared<detail::ElementImpl>();
@@ -1270,7 +1252,7 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
             auto e = impl_->uns.at(key);
             uns_impl->mapping.emplace_back(key, Element(e.impl_));
         }
-        auto fix_colors = [&](const TableView& before, const std::vector<std::size_t>& selected, bool all_selected) {
+        auto fix_colors = [&](const TableView& before, const Axis& selected) {
             for (const auto& name : before.column_names()) {
                 auto column = before.column(name);
                 if (column.kind() != ColumnKind::categorical) continue;
@@ -1320,33 +1302,33 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                 }
                 // Derive positions in the current category dictionary using codes.
                 std::vector<bool> used(column.categories().size(), false);
-                if (all_selected) {
-                    for (std::size_t r = 0; r < before.size(); ++r) { auto c = column.code(r); if (c >= 0) used[static_cast<std::size_t>(c)] = true; }
-                } else {
-                    for (auto r : selected) { auto c = column.code(r); if (c >= 0) used[static_cast<std::size_t>(c)] = true; }
+                for (std::size_t i = 0, n = selected.extent(before.size()); i < n; ++i) {
+                    auto c = column.code(selected.index(i));
+                    if (c >= 0) used[static_cast<std::size_t>(c)] = true;
                 }
                 std::vector<std::size_t> category_positions;
                 for (std::size_t i = 0; i < used.size(); ++i) if (used[i]) category_positions.push_back(i);
+                const auto categories = detail::gather_axis(std::move(category_positions));
                 auto ep = std::make_shared<detail::ElementImpl>();
                 if (array_colors) {
                     ep->kind = ElementKind::array;
-                    ep->view_array = select_first(color.array(), category_positions);
+                    ep->view_array = select_first(color.array(), categories);
                 } else if (string_array_colors) {
                     ep->kind = ElementKind::string_array;
-                    ep->view_string_array = select_first(color.string_array(), category_positions);
+                    ep->view_string_array = select_first(color.string_array(), categories);
                 } else {
                     ep->kind = ElementKind::column;
-                    ep->view_column = color.column().select(category_positions, false);
+                    ep->view_column = color.column().select(categories, false);
                 }
                 it->second = Element(std::move(ep));
             }
         };
-        fix_colors(obs(), rows, all_rows);
-        fix_colors(var(), cols, all_cols);
+        fix_colors(obs(), rows);
+        fix_colors(var(), cols);
         p->uns = ElementView(std::move(uns_impl));
         if (has_raw()) {
             p->raw_present = true;
-            if (has_raw_x()) p->raw_x = select_first(raw_x(), rows, all_rows);
+            if (has_raw_x()) p->raw_x = select_first(*base->raw_x, r);
             p->raw_var = raw_var(); p->raw_varm = impl_->raw_varm;
         }
     }
@@ -1397,13 +1379,13 @@ void AnnData::validate() const {
         validate_at(e, "obsm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_obs(), "obsm/" + name);
         else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_obs(), "obsm/" + name);
-        else if (e.view().table().names() != obs().names()) fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
+        else if (!same_index(*e.impl_->table->impl_->names, *impl_->obs.impl_->names)) fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
     }
     for (const auto& [name, e] : impl_->varm) {
         validate_at(e, "varm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_vars(), "varm/" + name);
         else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_vars(), "varm/" + name);
-        else if (e.view().table().names() != var().names()) fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
+        else if (!same_index(*e.impl_->table->impl_->names, *impl_->var.impl_->names)) fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
     }
     if (has_raw()) {
         validate_at(impl_->raw->var, "raw/var");
@@ -1415,7 +1397,7 @@ void AnnData::validate() const {
             validate_at(e, "raw/varm/" + name);
             if (e.view().kind() == ElementKind::array) check_first(e.view().array(), raw_var().size(), "raw/varm/" + name);
             else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), raw_var().size(), "raw/varm/" + name);
-            else if (e.view().table().names() != raw_var().names())
+            else if (!same_index(*e.impl_->table->impl_->names, *impl_->raw->var.impl_->names))
                 fail(ErrorCode::shape_mismatch, "raw/varm/" + name, "table index differs from raw variable index");
         }
     }
