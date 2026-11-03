@@ -1,0 +1,103 @@
+{
+  "schema": "anndata.records.integration.v1",
+  "source": {
+    "merge_commit": "421e4f8928f1b8f236338524a1b5a282d7862a4a",
+    "parents": [
+      "64769ddec4ec4d276a1edb5d1d51293d1ba3095b",
+      "70d8698658d162f060e4d7c592b05a97cc3fe590"
+    ],
+    "tracked_source_matches_commit": true,
+    "sha256": {
+      "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "src/anndata.data.cppm": "0a67211ab96517562af525cf29b605ee11bb25b10fd1714456ae653a7f381ba3",
+      "src/data.cpp": "235339e3b46073190500eebd49842bff7475f6ce21adf31dd86eb6e55559f1e6",
+      "src/anndata.arrays.cppm": "ef06a38c2fe93176ed684e8636b058c3a13f2ae4d7b48bd555bedd621dd1bd1c",
+      "src/arrays.cpp": "078fb177efae1b238015b06d508d2aa9a8c42cc40c821050f98e0858a1c72ee6",
+      "src/backed_records.cpp": "6da86a5ecbf38e25c42a9186758b64fc3dcc644668ed33edac8f88692e38613f",
+      "src/backed_hdf5.cpp": "2852a8de830e9f831b2d3c2811f4787d5ce786255b94bb175209c297808c7912",
+      "src/h5ad.cpp": "b27c8d92165cef3eeb61c6c5d63de544b18ac4e83d7f9c72c4197310f6798a67",
+      "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+      "tests/test_records.cpp": "0f4b309ed5c9220f1904077cd1e3c01edeb4ff0da67df5cc3bcad35e9a63e863"
+    }
+  },
+  "environment": {
+    "compiler": "Clang 18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "native_hdf5": "1.10.10",
+    "python": "3.12.3",
+    "anndata": "0.13.4",
+    "scanpy": "1.11.5",
+    "h5py": "3.16.0",
+    "zarr": "3.4.2",
+    "build_jobs": 2
+  },
+  "gates": {
+    "debug": {
+      "passed": 13,
+      "failed": 0,
+      "command": "ctest --preset debug",
+      "log": "build/records-integration-debug-ctest.log",
+      "log_sha256": "d8832ab673cd020627a868b15ec130b1db6e729acbe71315c367008696c286ba"
+    },
+    "sanitizers": {
+      "passed": 13,
+      "failed": 0,
+      "command": "ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ctest --preset sanitizers",
+      "log": "build/records-integration-sanitizers-ctest.log",
+      "log_sha256": "64c996b6609c74c8c5f4f3a1b8ea82156fd3c18f9e6946d7f1067ec24b20f31b",
+      "limitations": "LeakSanitizer disabled under ptrace restriction; ASan and UBSan remained active."
+    },
+    "core_only": {
+      "passed": 8,
+      "failed": 0,
+      "details": "tests/results/records-integration-matrix.json"
+    },
+    "zarr_only": {
+      "passed": 9,
+      "failed": 0,
+      "details": "tests/results/records-integration-matrix.json"
+    },
+    "shared": {
+      "passed": 13,
+      "failed": 0,
+      "details": "tests/results/records-integration-matrix.json"
+    },
+    "hdf5_only": {
+      "passed": 12,
+      "failed": 0,
+      "configure": "cmake -S . -B build/record-integration/hdf5-only -G Ninja -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_BUILD_TYPE=Debug -DANNDATA_ENABLE_HDF5=ON -DANNDATA_ENABLE_ZARR=OFF -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+      "build": "cmake --build build/record-integration/hdf5-only --parallel 2",
+      "test": "ctest --test-dir build/record-integration/hdf5-only --output-on-failure",
+      "log_sha256": {
+        "build/record-integration/hdf5-only-configure.log": "b50e05fa3319306b4f01739ce4dda2271a89b57bf52b91dcc4c6a4d0036f4ad1",
+        "build/record-integration/hdf5-only-build.log": "c882decab17758b21562b6df90366b1b91c36aca594014df83915db73c15ee7b",
+        "build/record-integration/hdf5-only-ctest.log": "e0728ab40db86d08cf16bae2342a42728786ad0d1008ff6ce738e2f11c1bbe70"
+      }
+    },
+    "python_interoperability": {
+      "passed": 4,
+      "failed": 0,
+      "details": "tests/results/records-integration-python.json"
+    }
+  },
+  "private_edit_isolation": {
+    "command": "python3 tools/check_private_rebuild.py --source . --build build/debug --output build/record-integration/private-edit-final",
+    "source_sha256": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+    "public_bmis_unchanged": 9,
+    "consumer_objects_unchanged": 2,
+    "only_records_object_compiled": true,
+    "restored_binary_hashes_match": true,
+    "result_path": "build/record-integration/private-edit-final/result.json",
+    "result_sha256": "f63fec391916bf76b9e00610a4ed70b4901eaa4d363ab1ff4692bad6f9731c23",
+    "edit_log_sha256": "bd765bb0aa5228d5ebf03b473b46fcf42000a2f21f9a107ae1a6eaf09ad59991",
+    "restore_log_sha256": "48cb21aed5e81ccc465814f4fd52c46cd3340e5c7abf718fcf9073b023773f12"
+  },
+  "related_evidence_sha256": {
+    "tests/results/records-integration-matrix.json": "b40f04b898e89f483a6c709a074f2565aa5b63502a2f1df3aa8e8c680ac061a2",
+    "tests/results/records-integration-python.json": "05b468a0a137d96bbaa3f08dde2717e74ae0682b32a384c8e744395bd6ce6a07"
+  },
+  "performance": "benchmarks/results/records-summary.json contains bounded pre-merge source and binary identities; it does not claim a post-merge timing.",
+  "workflow": "Project Control returned workflow_task_already_active without a handle; local tests are not native Todo outcome acceptance."
+}

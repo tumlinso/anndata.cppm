@@ -1,0 +1,76 @@
+{
+  "schema": "anndata.records.integration-python.v1",
+  "source": {
+    "merge_commit": "421e4f8928f1b8f236338524a1b5a282d7862a4a",
+    "parents": ["64769ddec4ec4d276a1edb5d1d51293d1ba3095b", "70d8698658d162f060e4d7c592b05a97cc3fe590"],
+    "source_and_test_code_files_changed_during_test": false,
+    "cmake_files_changed_during_test": false,
+    "sha256": {
+      "CMakeLists.txt": "50607514839f28d62e928d795b4f2d51ef58977f3a6655448a0ab9048f9ea0ec",
+      "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+      "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "src/h5ad.cpp": "b27c8d92165cef3eeb61c6c5d63de544b18ac4e83d7f9c72c4197310f6798a67",
+      "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+      "tests/python_semantics.py": "34f8ada21792347dba31da54366d9004b533a34ec014bbc697cf3cc8d75cd0d7",
+      "tests/python_records.py": "6343e808e95bc4f962f30d446975aa1421741be8937f38149b3a32048baedd95",
+      "tests/records_interop_driver.cpp": "5ff53407e159c68037acd6e1bc920b3cbcdeb0b9ef05e0906dcad761003eb055",
+      "tests/python_h5ad.py": "5cbff4f56c4d086f36bddccba4237a3f571fc2f5dc3bf8f3f01a84d77c0c46e2",
+      "tests/python_storage.py": "6d3ca102934433a0a02ca6ceee65394bc3374c4a07e227f1d896894509cd5f67"
+    }
+  },
+  "environment": {
+    "compiler": "Clang 18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "hdf5_c": "1.10.10",
+    "python": "3.12.3",
+    "anndata": "0.13.4",
+    "scanpy": "1.11.5",
+    "h5py": "3.16.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1",
+    "zarr": "3.4.2",
+    "numcodecs": "0.17.1",
+    "zarr_wakeup": "ANNDATA_INTEROP_ZARR_WAKEUP=1 for restricted runner"
+  },
+  "run": {
+    "configure": "cmake -S . -B build/integration-python -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS=clang-scan-deps-18 -DANNDATA_ENABLE_INTEROP_TESTS=ON -DANNDATA_ENABLE_RECORD_INTEROP_TESTS=ON -DPython3_EXECUTABLE=/tmp/anndata-record-reference/bin/python -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "build": "cmake --build build/integration-python --target interop_driver h5ad_interop_driver storage_interop_driver records_interop_driver -j2",
+    "test": "env MPLCONFIGDIR=/tmp/anndata-record-matplotlib PYTHONPYCACHEPREFIX=/tmp/anndata-record-python-cache ANNDATA_INTEROP_ZARR_WAKEUP=1 ANNDATA_RECORD_FIXTURE_DIR=/tmp/anndata-cppm-records/build/integration-python/fixtures-01 ctest --test-dir build/integration-python -R '^python_(semantics|records|h5ad|storage)$' --output-on-failure --output-junit integration-python.xml",
+    "exit_code": 0,
+    "passed": 4,
+    "failed": 0,
+    "seconds": {"python_semantics": 1.45, "python_records": 4.35, "python_h5ad": 2.03, "python_storage": 83.73, "total": 91.56},
+    "log": "build/integration-python/integration-python-ctest.log",
+    "log_sha256": "c0ae7359353ee3cdd1c105ed54b22ddd2583628157ff50b3b5d88f7185f34284",
+    "junit": "build/integration-python/integration-python.xml",
+    "junit_sha256": "7521eb0a064f16bee002baf1ca97e1e7411203ff416d871c0b1b84fd38bfcd91",
+    "driver_sha256": {
+      "records_interop_driver": "ce3b8ff3815ac77abdd7182668649728c6a671a360d5d6947ab3a8c08e2fad47",
+      "h5ad_interop_driver": "84364e103053ba30415ba694074d9c6f5a64aff3f129366b9cdc6840808267e3",
+      "storage_interop_driver": "06451fae05948c20a9400ce0b4f461476d0c9f2d2ddc2c5ec573f39bae4b820f",
+      "interop_driver": "92ebb47df1788589105fbe7ae7cb782a63fd378896313e5610322a640202dee3"
+    },
+    "archive_sha256": "9cba37c561f2ac6a64af47027d9fcb6a64de64e9f1b47f111842b54c6ff7a931"
+  },
+  "fixtures": {
+    "path": "build/integration-python/fixtures-01",
+    "ignored": true,
+    "sha256": {
+      "input.h5ad": "30c89ca194f954271d3f887673bc5c0ed405339fe6401169d3be990a91c3e53a",
+      "eager.h5ad": "b2bcaab432910a13e07ea699c2f14bf5c3ecaacbaa68ba485ae0a475584de0c2",
+      "backed.h5ad": "2bbe6ff631956126fe3e0ef3b99410f59dc70bddd230aa76b7cf69fb1ecd147d",
+      "export.h5ad": "763b48bcd0a301504ec5976a654895c2b73cc79a0aa33733a8b6f930eea963a7",
+      "fixed-utf8.h5ad": "5ed453ef6f4f17cfb1213dc6c1f2b886727783a8f5cc987de4537e1127ff561c",
+      "fixed-eager.h5ad": "8b3d7250c59d6de9715e91fc45f5cad017467fa7cf3b12916d26c69417c4bd75",
+      "fixed-backed.h5ad": "008f4f1b003f69c8235dc41a53ad36a437f038db92bb523266de75555dba24f9"
+    }
+  },
+  "preintegration_receipt": "tests/results/records-interop.json",
+  "limitations": [
+    "The pinned AnnData reader raises UnicodeDecodeError on non-ASCII fixed-width UTF-8 compound input; native normalization to variable-length UTF-8 produces files it can read.",
+    "The pinned AnnData reader returns numpy.void for a rank-zero rec-array, which its ordinary writer does not accept directly."
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "schema": "anndata.records.integration-matrix.v1",
+  "source": {
+    "commit": "421e4f8928f1b8f236338524a1b5a282d7862a4a",
+    "branch": "codex/record-arrays",
+    "working_tree_clean": false,
+    "sha256": {
+      "CMakeLists.txt": "50607514839f28d62e928d795b4f2d51ef58977f3a6655448a0ab9048f9ea0ec",
+      "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+      "cmake/test-installed-consumer.cmake": "f4b92dac224c1201ef281018671083f73b0475a64c4309203bc48f3ce1095136",
+      "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "src/anndata.core.cppm": "84d83471d19cb26bc4b32c38ac2e2f4f1b08e16113ec367a92114edab23bd000",
+      "src/anndata.data.cppm": "0a67211ab96517562af525cf29b605ee11bb25b10fd1714456ae653a7f381ba3",
+      "src/anndata.backed.cppm": "46b01af69ebae64969755f7985c6b72f6f2888a1a8a6264e0c034d6a347fd78f",
+      "src/anndata.backed.storage.cppm": "bebd04085c6873dc96f8a5296ac8b99d7208f511355307d5e7a30c099b31abe0",
+      "src/backed_records.cpp": "6da86a5ecbf38e25c42a9186758b64fc3dcc644668ed33edac8f88692e38613f",
+      "src/backed_hdf5.cpp": "2852a8de830e9f831b2d3c2811f4787d5ce786255b94bb175209c297808c7912",
+      "src/backed_zarr.cpp": "395a01701cd1618104b6d8ca6eb3cc0b66701c974ca363d8adf6026da4d9182a",
+      "src/h5ad.cpp": "b27c8d92165cef3eeb61c6c5d63de544b18ac4e83d7f9c72c4197310f6798a67",
+      "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+      "tests/test_records.cpp": "0f4b309ed5c9220f1904077cd1e3c01edeb4ff0da67df5cc3bcad35e9a63e863",
+      "tests/test_backed_records.cpp": "c23c0798359e284c66223edfd01445cc90229951a0f513c8d265cccd25bd75ca",
+      "tests/test_records_h5ad.cpp": "a352fdbac107ce068907c1842189b2feb7e55f63be79d874b40f9e877e97726d",
+      "tests/test_record_zarr_rejection.cpp": "1fb8eab7ad3ed5af5962c32e487068d9f34ee84073620256e8e6fd3b97ccfa73",
+      "tests/consumer/CMakeLists.txt": "1782002fa98ec4b7e9444bf61c193eb279dfb8609a358af7651987a9456209c2",
+      "tests/consumer/records.cpp": "db8a025a4c97d8fff37444ea4f6ef5a2c48a8a63724478721eb036886ebec9ed"
+    },
+    "tracked_source_matches_commit": true,
+    "concurrent_untracked_files_observed": [
+      "tests/results/records-integration-python.json",
+      "tools/check_private_rebuild.py"
+    ]
+  },
+  "environment": {
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "compiler": "Clang 18.1.3",
+    "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "build_jobs": 2,
+    "build_type": "Debug",
+    "interop_tests": false,
+    "runtime_performance_probes": false
+  },
+  "configurations": {
+    "core-only": {
+      "build_dir": "build/record-integration/core-only",
+      "options": {
+        "ANNDATA_ENABLE_HDF5": false,
+        "ANNDATA_ENABLE_ZARR": false
+      },
+      "commands": {
+        "configure": "cmake --preset core-only -B build/record-integration/core-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "build": "cmake --build build/record-integration/core-only --parallel 2",
+        "merge_test_rebuild": "cmake --build build/record-integration/core-only --target test_records --parallel 2",
+        "ctest": "ctest --test-dir build/record-integration/core-only --output-on-failure"
+      },
+      "results": {
+        "configure_exit_code": 0,
+        "build_exit_code": 0,
+        "ctest_exit_code": 0,
+        "passed": 8,
+        "failed": 0,
+        "tests": [
+          "arrays",
+          "data",
+          "strings",
+          "records",
+          "backed",
+          "backed_categories",
+          "import_only_example",
+          "installed_consumer"
+        ]
+      },
+      "logs": [
+        "build/record-integration/core-only-configure.log",
+        "build/record-integration/core-only-build.log",
+        "build/record-integration/core-only-record-target-build.log",
+        "build/record-integration/core-only-ctest.log"
+      ]
+    },
+    "zarr-only": {
+      "build_dir": "build/record-integration/zarr-only",
+      "options": {
+        "ANNDATA_ENABLE_HDF5": false,
+        "ANNDATA_ENABLE_ZARR": true
+      },
+      "commands": {
+        "configure": "cmake --preset zarr-only -B build/record-integration/zarr-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "build": "cmake --build build/record-integration/zarr-only --parallel 2",
+        "ctest": "ctest --test-dir build/record-integration/zarr-only --output-on-failure"
+      },
+      "results": {
+        "configure_exit_code": 0,
+        "build_exit_code": 0,
+        "ctest_exit_code": 0,
+        "passed": 9,
+        "failed": 0,
+        "tests": [
+          "arrays",
+          "data",
+          "strings",
+          "records",
+          "backed",
+          "backed_categories",
+          "record_zarr_rejection",
+          "import_only_example",
+          "installed_consumer"
+        ]
+      },
+      "logs": [
+        "build/record-integration/zarr-only-configure.log",
+        "build/record-integration/zarr-only-build.log",
+        "build/record-integration/zarr-only-ctest.log"
+      ]
+    },
+    "shared": {
+      "build_dir": "build/record-integration/shared",
+      "options": {
+        "BUILD_SHARED_LIBS": true,
+        "ANNDATA_ENABLE_HDF5": true,
+        "ANNDATA_ENABLE_ZARR": true
+      },
+      "commands": {
+        "configure": "cmake --preset shared -B build/record-integration/shared -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "build": "cmake --build build/record-integration/shared --parallel 2",
+        "ctest": "ctest --test-dir build/record-integration/shared --output-on-failure"
+      },
+      "results": {
+        "configure_exit_code": 0,
+        "build_exit_code": 0,
+        "ctest_exit_code": 0,
+        "passed": 13,
+        "failed": 0,
+        "tests": [
+          "arrays",
+          "data",
+          "strings",
+          "records",
+          "backed",
+          "backed_categories",
+          "record_zarr_rejection",
+          "records_h5ad",
+          "backed_records",
+          "h5ad",
+          "backed_h5ad",
+          "import_only_example",
+          "installed_consumer"
+        ]
+      },
+      "logs": [
+        "build/record-integration/shared-configure.log",
+        "build/record-integration/shared-build.log",
+        "build/record-integration/shared-ctest.log"
+      ]
+    },
+    "hdf5-only": {
+      "status": "delegated",
+      "reason": "Separate executor assigned this configuration; this receipt does not claim a result."
+    }
+  },
+  "log_sha256": {
+    "core-only-configure": "c9cbd424dadc5a58255f8a7d8518fc09249f6d397c90d524afa32dd7f3a1029b",
+    "core-only-build": "c330b5d7b1362aabc45074098b662914b67bf55368dff1fa2495ff3b4e99dbd4",
+    "core-only-record-target-build": "20e2faa261cfbe9abf1b9b5c8425e2dd0c5fea9f970510828ed607e46097728a",
+    "core-only-ctest": "d2fbfb50d2765e884e76793cf54d6a62409b04725d3ee29b659d80907fa643b8",
+    "zarr-only-configure": "ab5803d675be3712373fc8ad6ba90781987f17e3a855a5450f3e4e640c3cc1a1",
+    "zarr-only-build": "d3f5621993f6e348e466593e155a79b34eb5197efe79716a4904abeb66ec861b",
+    "zarr-only-ctest": "b5e0f1e6c541de0748303abe224bab93cbd63b966cd80f3a5a5665fa1b427580",
+    "shared-configure": "f7b25b547841e333397d66a63275aa3faa1c9109e08df1a1a22949abd55308aa",
+    "shared-build": "03ba20cd57b9406ca2e7a80be087317cbd8e676ee392c742224235e049bf1f21",
+    "shared-ctest": "4d720df1a5a06c37cfb10aa99f51268222cd0bf43965e4d17d23f087f00a017f"
+  },
+  "premerge_receipt": "tests/results/records-matrix.json"
+}

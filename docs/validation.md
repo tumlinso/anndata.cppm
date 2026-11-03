@@ -1,5 +1,44 @@
 # Validation
 
+## Native records and refactor integration
+
+The record implementation and compact-selection refactor were combined in
+merge commit `421e4f8928f1b8f236338524a1b5a282d7862a4a`. The [integration
+receipt](../tests/results/records-integration.json) identifies source hashes,
+commands, log hashes and the independently recorded configuration and Python
+results. Qualification used Linux, Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1,
+HDF5 C 1.10.10, AnnData 0.13.4 and Scanpy 1.11.5.
+
+| Check | Result |
+|---|---|
+| Debug | 13/13 CTest groups passed |
+| ASan + UBSan | 13/13 passed, including installed consumer |
+| Core-only | 8/8 passed |
+| Zarr-only | 9/9 passed |
+| HDF5-only | 12/12 passed |
+| Shared library | 13/13 passed |
+| Independent Python interoperability gates | 4/4 passed: semantics, records, H5AD and storage |
+
+The installed consumer imports `anndata.core` and exercises borrowed
+interleaved records. Native tests additionally cover record ownership, byte
+strides, external storage, pointer-backed text, bounded HDF5 string transfers,
+and records retained through nested dataset slices. Python generates real Scanpy
+ranking results, independently reads C++ output, and verifies physical encodings,
+sparse matrices, metadata and raw data. H5AD supports the declared primitive
+numerical/text record subset; Zarr record codecs and nested/subarray fields are
+not yet supported. The [record contract](records.md) states further limits.
+
+A single post-merge private `records.cpp` edit rebuilt that implementation and
+relinked its consumers. All nine public BMI hashes and timestamps and both
+measured consumer-object hashes and timestamps remained unchanged. Restoring
+the exact source and rebuilding reproduced the original implementation-object,
+static-library and executable hashes. The [probe](../tools/check_private_rebuild.py)
+retains raw logs and the original source under an ignored build directory. This
+is dependency evidence, not a new timing campaign. The [record performance
+report](records-performance.md) identifies the separate pre-merge timing inputs.
+LeakSanitizer was disabled due to the runner's ptrace restriction; ASan and
+UBSan remained active.
+
 ## Backed storage and Zarr milestone
 
 The [storage validation record](../tests/results/storage-validation.json) identifies the final source, actual commands, independent fixtures and limits. Qualification uses Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1 and HDF5 C 1.10.10 on Linux. The supported storage/codec subset is explicit in [storage.md](storage.md); the [dependency report](storage-dependencies.md) contains the installation commands.
@@ -24,7 +63,7 @@ The AnnData 0.13.4/Zarr 3.4.2 suite independently creates and reopens H5AD and Z
 
 A read-only check used the supplied modern `GSE147520_all_cells_raw_counts.h5ad`: 68,008 by 26,587 CSR with 114,455,556 float32 entries. Python independently reopened C++ selected output. Unique-variable gathers match exact CSR arrays; repeated-variable gathers match values, labels, tables, duplicate multiplicities and row pointers, with the documented [internal tie-order difference](memory.md) from SciPy. Core and backed C++ representations match each other exactly. The original fixture hash was unchanged.
 
-The [storage performance report](storage-performance.md) separates selected reads, full materialization, caller buffers, mappings, parallel sessions and compilation measurements. Its memory observations apply to the recorded workloads, not every schema or codec. Direct structural updates are not whole-store crash transactions. Mapped typed access is explicitly unsafe and qualified only on Linux/Clang. Compound/ragged/complex/half/legacy encodings and cloud stores remain unsupported. ASan and UBSan were active; LeakSanitizer was disabled for the local ptrace restriction. GitHub CI is authored, not remotely executed here.
+The [storage performance report](storage-performance.md) separates selected reads, full materialization, caller buffers, mappings, parallel sessions and compilation measurements. Its memory observations apply to the recorded workloads, not every schema or codec. Direct structural updates are not whole-store crash transactions. Mapped typed access is explicitly unsafe and qualified only on Linux/Clang. At this storage milestone, compound/ragged/complex/half/legacy encodings and cloud stores were unsupported; the later record milestone above adds a compound subset. ASan and UBSan were active; LeakSanitizer was disabled for the local ptrace restriction. GitHub CI is authored, not remotely executed here.
 
 Project Control returned `workflow_task_already_active` without a handle; its observer reported unavailable semantic workflow state. [The observation](../planning/storage-workflow-observation.json) records this separately. Existing authority and active tasks were preserved; these local results are not a native Todo outcome acceptance receipt.
 
