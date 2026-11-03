@@ -6,6 +6,8 @@ Use the user's configured cooperative agent profiles (`scout`, `engineer`, `exec
 
 ## Build and architecture
 
+- Follow [STYLE.md](STYLE.md): compact numerical/HPC code with visible memory operations, concise local notation, minimal machinery, and small compiled interfaces.
+- Also follow the written [Cellerator coding style](/home/tumlinson/Cellerator/coding_style.md), rather than Cellerator's current implementation as an example. For `anndata.cppm`, fast module imports and consumer recompilation times remain **very high priorities**; preserve small public interfaces and implementation isolation when applying its hot-path guidance. Measure and report runtime/build tradeoffs explicitly. Keep the referenced guide unchanged.
 - C++20 named modules are mandatory. Public consumption is `import anndata;` or `import anndata.core;`, with `.cppm` interfaces. Do not introduce a public umbrella header or require `import std;`.
 - Initial toolchain: Clang 18 plus matching clang-scan-deps, CMake >=3.28, Ninja >=1.11. Use CMake CXX_MODULES file sets and scanning; do not hand-order BMI commands.
 - Run `cmake --preset debug`, `cmake --build --preset debug`, `ctest --preset debug`. Sanitizers use the `sanitizers` preset. See docs/development.md for optional Python semantic tests and release benchmarks.

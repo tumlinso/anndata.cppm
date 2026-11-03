@@ -185,12 +185,12 @@ template<class F> void scan_codes(const CodeSource& source,std::size_t budget,F&
 }
 
 struct CategoryPlan {
-    std::size_t source_count = 0, selected_count = 0, budget = 0;
+    std::size_t source_count = 0, selected_count = 0;
     std::string path;
     std::vector<std::size_t> positions;
     std::unique_ptr<TempFile> positions_file;
     mutable std::vector<std::size_t> page;
-    mutable std::size_t page_begin=std::numeric_limits<std::size_t>::max(),page_count=0;
+    mutable std::size_t page_begin=std::numeric_limits<std::size_t>::max();
     std::shared_ptr<CategoryPlan> outer, before, after;
 };
 
@@ -236,9 +236,9 @@ std::size_t category_position(const std::shared_ptr<CategoryPlan>& plan,std::siz
     if(!plan->positions_file)return plan->positions[i];
     auto capacity=plan->page.size(),begin=(i/capacity)*capacity;
     if(begin!=plan->page_begin){
-        plan->page_begin=begin;plan->page_count=std::min(capacity,plan->selected_count-begin);
+        plan->page_begin=begin;auto page_count=std::min(capacity,plan->selected_count-begin);
         if(begin>std::numeric_limits<std::size_t>::max()/sizeof(std::size_t))fail(ErrorCode::invalid_argument,plan->path,"category mapping offset overflow");
-        read_exact(plan->positions_file->descriptor,plan->page.data(),plan->page_count*sizeof(std::size_t),begin*sizeof(std::size_t),plan->path);
+        read_exact(plan->positions_file->descriptor,plan->page.data(),page_count*sizeof(std::size_t),begin*sizeof(std::size_t),plan->path);
     }
     return plan->page[i-begin];
 }
@@ -276,7 +276,7 @@ void recode_codes_buffer(const std::shared_ptr<CategoryPlan>& plan,DType dtype,v
 std::shared_ptr<CategoryPlan> make_category_plan(const Node& category,std::size_t scratch_bytes) {
     auto source=code_source(category);auto budget=std::min(scratch_bytes,category->session->options.scratch_bytes);
     if(budget<64)fail(ErrorCode::invalid_argument,category->path,"scratch budget must be at least 64 bytes");
-    auto plan=std::make_shared<CategoryPlan>();plan->source_count=source.categories;plan->budget=budget;plan->path=category->path;
+    auto plan=std::make_shared<CategoryPlan>();plan->source_count=source.categories;plan->path=category->path;
     if(source.rows.size <= budget/(8*sizeof(std::size_t))) {
         std::vector<std::size_t> positions; positions.reserve(source.rows.size);
         scan_codes(source,budget,[&](std::int64_t code){

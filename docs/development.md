@@ -58,6 +58,35 @@ On this restricted runner, Zarr's background event loop cannot wake itself throu
 
 The release preset builds `memory_benchmark`, `h5ad_benchmark` when HDF5 is enabled, and `storage_benchmark` when both backends are enabled. See [performance.md](performance.md) for the historical core baseline, [h5ad-performance.md](h5ad-performance.md) for eager H5AD measurements and [storage-performance.md](storage-performance.md) for backed storage and the four-configuration compile campaign. The compilation benchmark tools use disposable source copies so rebuild experiments do not edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.
 
+`anndata_selection_probe` is a separate bounded allocation check, enabled by
+`ANNDATA_BUILD_BENCHMARKS`. It counts C++ allocation calls and requested bytes
+around descriptor acquisition and release; fixture setup and reporting are
+excluded. It checks affine selections at fixed rank across logical lengths and
+direct metadata access across table widths. It makes no runtime-speed or
+process-memory claim. Run it with `timeout 30s build/release/anndata_selection_probe`.
+See [selection-validation.md](selection-validation.md) for the recorded results.
+
+The [retained-gather experiment](gather-buffer.md) is a separate short paired
+runtime/allocation/module-build check. It retains the existing production
+representation and preserves its tested alternative as an opt-in patch.
+
+The [representation cleanup checks](compliance-fixes.md) use
+`benchmarks/packed_strings.cpp` with the same isolated module fixture. To build
+and run this small probe against a checkout or frozen source snapshot:
+
+```sh
+cmake -S benchmarks/gather-fixture -B build/packed-strings -G Ninja \
+  -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_BUILD_TYPE=Release \
+  -DANNDATA_SOURCE="$PWD" -DANNDATA_PROBE="$PWD/benchmarks/packed_strings.cpp"
+cmake --build build/packed-strings --target gather_probe --parallel 2
+timeout 30s build/packed-strings/gather_probe 1
+```
+
+The executable reports JSON lines. Fixture generation is excluded; vector input
+copies, construction, retained-view checks and destruction are included equally
+in paired runs. Allocation counting and timing are separate. It counts ordinary
+throwing C++ allocations, not aligned allocations, `malloc` or process memory.
+
 ## Workflow state
 
 The Project Control workspace/repository alias is `anndata-cppm`. Todo SQLite is authoritative and private, with metadata under `.todo-orchestrator/`. Authored planning files are inputs, not a replacement authority. Keep credentials outside the checkout and use the installed paired runtime for bootstrap. The sanitized setup receipt distinguishes registration, authority initialization, integration provisioning, source access, and host workflow readiness.

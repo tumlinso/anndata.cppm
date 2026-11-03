@@ -1,0 +1,54 @@
+--- a/src/anndata.arrays.cppm
++++ b/src/anndata.arrays.cppm
+@@ -55 +55 @@
+-    [[nodiscard]] bool is_gather() const noexcept { return bool(positions_); }
++    [[nodiscard]] bool is_gather() const noexcept { return gather_; }
+@@ -60 +60 @@
+-        return all_ ? i : positions_ ? (*positions_)[i]
++        return all_ ? i : gather_ ? positions_[i]
+@@ -68,0 +69 @@
++    bool gather_ = false;
+@@ -70 +71,2 @@
+-    std::shared_ptr<const std::vector<std::size_t>> positions_;
++    std::shared_ptr<const std::size_t[]> positions_;
++    static Axis gather_buffer(std::size_t count, std::size_t*& buffer);
+--- a/src/arrays.cpp
++++ b/src/arrays.cpp
+@@ -59,0 +60,10 @@
++Axis Axis::gather_buffer(std::size_t count, std::size_t*& buffer) {
++    Axis a;
++    a.all_ = false;
++    a.gather_ = true;
++    a.count_ = count;
++    auto owner = count ? std::make_shared_for_overwrite<std::size_t[]>(count) : nullptr;
++    buffer = owner.get();
++    a.positions_ = std::move(owner);
++    return a;
++}
+@@ -62,3 +72,4 @@
+-    std::vector<std::size_t> copy;
+-    if (count) copy.assign(positions, positions + count);
+-    return detail::gather_axis(std::move(copy));
++    std::size_t* buffer;
++    auto a = gather_buffer(count, buffer);
++    if (count) std::copy_n(positions, count, buffer);
++    return a;
+@@ -71,0 +83 @@
++    a.gather_ = true;
+@@ -73 +85,6 @@
+-    a.positions_ = std::make_shared<const std::vector<std::size_t>>(std::move(positions));
++    if (a.count_) {
++        auto owner = std::make_shared<const std::vector<std::size_t>>(std::move(positions));
++        auto* data = owner->data();
++        // Keep the moved vector as owner while indexing its allocation directly.
++        a.positions_ = std::shared_ptr<const std::size_t[]>(std::move(owner), data);
++    }
+@@ -99,4 +116,4 @@
+-    std::vector<std::size_t> positions;
+-    positions.reserve(count);
+-    for (std::size_t i = 0; i < count; ++i) positions.push_back(parent.index(child.index(i)));
+-    return gather_axis(std::move(positions));
++    std::size_t* buffer;
++    auto result = Axis::gather_buffer(count, buffer);
++    for (std::size_t i = 0; i < count; ++i) buffer[i] = parent.index(child.index(i));
++    return result;

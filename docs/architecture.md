@@ -8,6 +8,12 @@ The library implements reusable biological data structures and storage conventio
 
 Large owners are move-only. Explicit `copy()` allocates independent data. Dataset slices capture read-only bindings and selectors while retaining the referenced storage. Writes through an existing numerical alias may be visible; replacing an owning slot does not retarget an acquired descriptor. Arbitrary selections can be represented lazily even when no contiguous pointer can describe the result.
 
+Arrays, strings, and metadata rows share `Axis`: inline all/affine mappings and
+retained immutable gathers. Regular ranges remain compact through composition;
+irregular mappings preserve requested order and repetitions. Direct
+`obs_column()`/`var_column()` acquisition avoids building unrelated table view
+descriptors, while full table snapshots keep their existing binding semantics.
+
 AnnData keeps observation and variable axes, optional X, layers, obsm/varm, obsp/varp, obs/var, uns, and raw. X and layers are two-dimensional. Multidimensional annotations align their first dimension; pairwise arrays align their first two dimensions. Raw retains a separate variable axis and follows observation slicing. Generic arrays and tables remain useful without AnnData.
 
 References: [AnnData encoding specification](https://anndata.readthedocs.io/en/stable/fileformat-prose.html), [AnnData 0.13.4 behavior](https://github.com/scverse/anndata/blob/0.13.4/src/anndata/_core/anndata.py), [raw semantics](https://anndata.readthedocs.io/en/stable/generated/anndata.AnnData.raw.html).

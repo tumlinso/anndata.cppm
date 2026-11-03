@@ -5,7 +5,6 @@ module;
 #include <cstring>
 #include <limits>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -22,9 +21,7 @@ struct StringArrayImpl {
     std::size_t byte_size{};
     const std::uint64_t* offsets{};
     bool writable{};
-    std::shared_ptr<std::vector<char>> owned_bytes;
-    std::shared_ptr<std::vector<std::uint64_t>> owned_offsets;
-    std::shared_ptr<void> external_owner;
+    std::shared_ptr<void> owner;
 };
 }
 
@@ -50,6 +47,12 @@ std::size_t element_count(const std::vector<std::size_t>& shape) {
 bool valid_utf8(const char* text, std::size_t size) noexcept {
     auto continuation = [](unsigned char c) { return c >= 0x80 && c <= 0xbf; };
     std::size_t i = 0;
+    while (size - i >= sizeof(std::uint64_t)) {
+        std::uint64_t word;
+        std::memcpy(&word, text + i, sizeof(word));
+        if (word & 0x8080808080808080ULL) break;
+        i += sizeof(word);
+    }
     while (i < size) {
         const auto c = static_cast<unsigned char>(text[i]);
         if (c <= 0x7f) { ++i; continue; }
@@ -86,15 +89,14 @@ bool valid_utf8(const char* text, std::size_t size) noexcept {
 }
 
 std::size_t selected_extent(const detail::StringArrayImpl& impl,
-                            const std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>>& selection,
+                            const std::shared_ptr<const std::vector<Axis>>& selection,
                             std::size_t axis) {
     if (axis >= impl.shape.size()) string_fail(ErrorCode::out_of_bounds, "axis is out of bounds");
-    if (selection && (*selection)[axis]) return (*selection)[axis]->size();
-    return impl.shape[axis];
+    return selection ? (*selection)[axis].extent(impl.shape[axis]) : impl.shape[axis];
 }
 
 std::size_t view_size(const detail::StringArrayImpl& impl,
-                      const std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>>& selection) {
+                      const std::shared_ptr<const std::vector<Axis>>& selection) {
     if (!selection) return element_count(impl.shape);
     for (std::size_t a = 0; a < impl.shape.size(); ++a)
         if (selected_extent(impl, selection, a) == 0) return 0;
@@ -109,7 +111,7 @@ std::size_t view_size(const detail::StringArrayImpl& impl,
 }
 
 std::size_t source_index(const std::shared_ptr<detail::StringArrayImpl>& impl,
-                         const std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>>& selection,
+                         const std::shared_ptr<const std::vector<Axis>>& selection,
                          std::size_t flat_index) {
     const auto count = view_size(*impl, selection);
     if (flat_index >= count) string_fail(ErrorCode::out_of_bounds, "string index is out of bounds");
@@ -117,12 +119,10 @@ std::size_t source_index(const std::shared_ptr<detail::StringArrayImpl>& impl,
     std::size_t result = 0, stride = 1;
     for (std::size_t a = impl->shape.size(); a > 0; --a) {
         const auto axis = a - 1;
-        const auto extent = selected_extent(*impl, selection, axis);
-        const auto coordinate = extent ? flat_index % extent : 0;
-        flat_index = extent ? flat_index / extent : 0;
-        const auto original = selection && (*selection)[axis]
-            ? (*(*selection)[axis])[coordinate] : coordinate;
-        result += original * stride;
+        const auto n = selected_extent(*impl, selection, axis);
+        const auto coordinate = flat_index % n;
+        flat_index /= n;
+        result += (*selection)[axis].index(coordinate) * stride;
         stride *= impl->shape[axis];
     }
     return result;
@@ -150,6 +150,11 @@ void validate_impl(const detail::StringArrayImpl& impl) {
     if (previous != impl.byte_size) string_fail(ErrorCode::invalid_argument, "final offset differs from byte buffer size");
 }
 
+struct PackedBuffers {
+    std::vector<char> bytes;
+    std::vector<std::uint64_t> offsets;
+};
+
 struct AdoptedBuffers {
     char* bytes{};
     std::uint64_t* offsets{};
@@ -162,7 +167,7 @@ struct AdoptedBuffers {
 
 StringArrayView::StringArrayView() = default;
 StringArrayView::StringArrayView(std::shared_ptr<detail::StringArrayImpl> impl,
-    std::shared_ptr<const std::vector<std::optional<std::vector<std::size_t>>>> selection)
+    std::shared_ptr<const std::vector<Axis>> selection)
     : impl_(std::move(impl)), selection_(std::move(selection)) {}
 std::size_t StringArrayView::rank() const noexcept { return impl_ ? impl_->shape.size() : 0; }
 std::size_t StringArrayView::size() const { return impl_ ? view_size(*impl_, selection_) : 0; }
@@ -216,37 +221,27 @@ const std::uint64_t* StringArrayView::offsets() const {
     if (selection_) string_fail(ErrorCode::non_contiguous, "selected string array requires copy() for compact packed access");
     return storage_offsets();
 }
-StringArrayView StringArrayView::select(
-    std::vector<std::optional<std::vector<std::size_t>>> axes) const {
+StringArrayView StringArrayView::select(const Axis* axes, std::size_t n) const {
     if (!impl_) string_fail(ErrorCode::invalid_argument, "view is empty or moved from");
-    if (axes.size() != rank()) string_fail(ErrorCode::shape_mismatch, "selector count differs from rank");
-    auto result = std::make_shared<std::vector<std::optional<std::vector<std::size_t>>>>(rank());
-    for (std::size_t axis = 0; axis < rank(); ++axis) {
-        if (!axes[axis]) {
-            if (selection_) (*result)[axis] = (*selection_)[axis];
-            continue;
-        }
-        auto& output = (*result)[axis].emplace();
-        output.reserve(axes[axis]->size());
-        const auto current_extent = extent(axis);
-        for (const auto selected : *axes[axis]) {
-            if (selected >= current_extent)
-                string_fail(ErrorCode::out_of_bounds, "selection index is out of bounds");
-            output.push_back(selection_ && (*selection_)[axis]
-                ? (*(*selection_)[axis])[selected] : selected);
-        }
-    }
+    if (n != rank()) string_fail(ErrorCode::shape_mismatch, "selector count differs from rank");
+    if (n && !axes) string_fail(ErrorCode::invalid_argument, "selector pointer is null");
     bool any = false;
-    for (std::size_t axis = 0; axis < rank(); ++axis) {
-        auto& selected = (*result)[axis];
-        if (selected) {
-            bool identity = selected->size() == impl_->shape[axis];
-            for (std::size_t i = 0; identity && i < selected->size(); ++i) identity = (*selected)[i] == i;
-            if (identity) selected.reset();
+    auto out = std::make_shared<std::vector<Axis>>(n);
+    for (std::size_t a = 0; a < n; ++a) {
+        auto x = detail::compose_axis(selection_ ? (*selection_)[a] : Axis::all(), axes[a], impl_->shape[a]);
+        // Packed access remains valid for an identity selection, including a
+        // gathered identity. Affine identity checks do not traverse the axis.
+        bool same = x.extent(impl_->shape[a]) == impl_->shape[a];
+        if (same && x.is_gather()) {
+            for (std::size_t i = 0; same && i < impl_->shape[a]; ++i) same = x.index(i) == i;
+        } else if (same && !x.is_all()) {
+            same = impl_->shape[a] == 0 || (x.first() == 0 &&
+                (impl_->shape[a] == 1 || (!x.reverse() && x.step() == 1)));
         }
-        any = any || selected.has_value();
+        (*out)[a] = same ? Axis::all() : std::move(x);
+        any = any || !(*out)[a].is_all();
     }
-    return {impl_, any ? std::move(result) : nullptr};
+    return {impl_, any ? std::move(out) : nullptr};
 }
 StringArray StringArrayView::copy() const {
     if (!impl_) string_fail(ErrorCode::invalid_argument, "view is empty or moved from");
@@ -336,11 +331,11 @@ StringArray StringArray::from_packed(std::vector<std::size_t> shape,
         string_fail(ErrorCode::shape_mismatch, "offset count differs from shape product plus one");
     auto impl = std::make_shared<detail::StringArrayImpl>();
     impl->shape = std::move(shape);
-    impl->owned_bytes = std::make_shared<std::vector<char>>(std::move(bytes));
-    impl->owned_offsets = std::make_shared<std::vector<std::uint64_t>>(std::move(offsets));
-    impl->bytes = impl->owned_bytes->empty() ? nullptr : impl->owned_bytes->data();
-    impl->byte_size = impl->owned_bytes->size();
-    impl->offsets = impl->owned_offsets->data();
+    auto p = std::make_shared<PackedBuffers>(PackedBuffers{std::move(bytes), std::move(offsets)});
+    impl->bytes = p->bytes.empty() ? nullptr : p->bytes.data();
+    impl->byte_size = p->bytes.size();
+    impl->offsets = p->offsets.data();
+    impl->owner = std::move(p);
     impl->writable = true;
     if (validation == Validation::full) validate_impl(*impl);
     return StringArray(std::move(impl));
@@ -379,7 +374,7 @@ StringArray StringArray::share_packed(const char* bytes, std::size_t byte_size,
     if (owner.use_count() == 0) string_fail(ErrorCode::invalid_argument, "retained owner is empty");
     auto result = borrow_packed(bytes, byte_size, offsets, std::move(shape), validation);
     auto* token = const_cast<void*>(owner.get());
-    result.impl_->external_owner = std::shared_ptr<void>(std::move(owner), token);
+    result.impl_->owner = std::shared_ptr<void>(std::move(owner), token);
     return result;
 }
 StringArray StringArray::adopt_packed(char* bytes, std::size_t byte_size,
@@ -394,7 +389,7 @@ StringArray StringArray::adopt_packed(char* bytes, std::size_t byte_size,
     allocation->deleter = deleter;
     allocation->context = context;
     auto result = borrow_packed(bytes, byte_size, offsets, std::move(shape), validation);
-    result.impl_->external_owner = std::move(allocation);
+    result.impl_->owner = std::move(allocation);
     result.impl_->writable = true;
     return result;
 }

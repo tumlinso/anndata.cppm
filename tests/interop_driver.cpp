@@ -89,14 +89,14 @@ void emit(const AnnDataView& a) {
     list(a.n_obs(), [&](auto i) { json_string(a.obs().name(i)); });
     std::cout << ",\"var_names\":";
     list(a.n_vars(), [&](auto i) { json_string(a.var().name(i)); });
-    auto cat = a.obs().column("cell_type");
+    auto cat = a.obs_column("cell_type");
     std::cout << ",\"categories\":";
     list(cat.categories().size(), [&](auto i) { json_string(cat.categories().string(i)); });
     std::cout << ",\"codes\":";
     list(cat.size(), [&](auto i) { std::cout << cat.code(i); });
     std::cout << ",\"ordered\":" << (cat.ordered() ? "true" : "false");
     std::cout << ",\"count\":";
-    auto count = a.obs().column("count");
+    auto count = a.obs_column("count");
     auto count_copy = count.copy();
     auto counts = count_copy.view().values().dense<std::int32_t>();
     list(count.size(), [&](auto i) { if (count.valid(i)) std::cout << counts.data()[i]; else std::cout << "null"; });
@@ -153,6 +153,14 @@ int main(int argc, char** argv) {
         else if (s == "subset") emit(a.slice(indices{2, 0}, indices{1}));
         else if (s == "repeat") emit(a.slice(indices{1, 1, 0}, all));
         else if (s == "reverse") emit(a.slice(range{.step = -1}, range{.step = -1}));
+        else if (s == "range_nested") emit(a.slice(range{0, 3, 2}, range{.step = -1})
+            .slice(range{.step = -1}, range{0, 2, 1}));
+        else if (s == "gather_range") emit(a.slice(indices{2, 0, 2}, all)
+            .slice(range{0, 3, 2}, range{.step = -1}));
+        else if (s == "range_gather") emit(a.slice(range{.step = -1}, all)
+            .slice(indices{2, 0, 2}, indices{1, 0}));
+        else if (s == "range_empty_nested") emit(a.slice(range{.step = -1}, all)
+            .slice(range{1, 1, 1}, all));
         else if (s == "empty") emit(a.slice(indices{}, all));
         else if (s == "empty_vars") emit(a.slice(all, indices{}));
         else if (s == "mask") emit(a.slice(mask{1, 0, 1}, labels{"g2"}));

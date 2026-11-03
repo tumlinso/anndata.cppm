@@ -543,7 +543,7 @@ def assert_cpp_output(driver: str, root: Path) -> None:
     assert_rich_object(ad.read_h5ad(from_v3), x=EXPECTED_X)
 
 
-def check_rectangular_boundary_transfers(driver: str, root: Path) -> None:
+def check_rectangular_boundary_transfers(driver: str, root: Path, only: Optional[str] = None) -> None:
     sources = (
         ("h5ad", "h5ad", "boundary-source.h5ad", None),
         ("zarr", "zarr2", "boundary-source-v2.zarr", 2),
@@ -552,6 +552,8 @@ def check_rectangular_boundary_transfers(driver: str, root: Path) -> None:
     targets = (("h5ad", "h5ad"), ("zarr2", "zarr"), ("zarr3", "zarr"))
 
     for source_backend, source_format, filename, zarr_format in sources:
+        if only is not None and source_format != only:
+            continue
         source_path = root / filename
         original = write_boundary_fixture(source_path, source_format, zarr_format)
         expected = original[1:-1, 2:-2].copy()

@@ -3,7 +3,6 @@ module;
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -34,6 +33,43 @@ public:
 private:
     ErrorCode code_;
     std::string path_;
+};
+
+class Axis;
+namespace detail {
+Axis compose_axis(const Axis& parent, const Axis& child, std::size_t source_extent);
+Axis gather_axis(std::vector<std::size_t>&& positions);
+}
+
+// An axis selector owns its gather positions. index() is unchecked; use it
+// only after selection has validated the mapping against its source extent.
+class Axis {
+public:
+    Axis() = default;
+    static Axis all() noexcept;
+    static Axis stride(std::size_t first, std::size_t count,
+                       std::size_t step = 1, bool reverse = false);
+    static Axis gather(const std::size_t* positions, std::size_t count);
+    static Axis gather(std::initializer_list<std::size_t> positions);
+    [[nodiscard]] bool is_all() const noexcept { return all_; }
+    [[nodiscard]] bool is_gather() const noexcept { return bool(positions_); }
+    [[nodiscard]] std::size_t extent(std::size_t source_extent) const noexcept {
+        return all_ ? source_extent : count_;
+    }
+    [[nodiscard]] std::size_t index(std::size_t i) const noexcept {
+        return all_ ? i : positions_ ? (*positions_)[i]
+            : reverse_ ? first_ - i * step_ : first_ + i * step_;
+    }
+    [[nodiscard]] std::size_t first() const noexcept { return first_; }
+    [[nodiscard]] std::size_t step() const noexcept { return step_; }
+    [[nodiscard]] bool reverse() const noexcept { return reverse_; }
+private:
+    bool all_ = true;
+    bool reverse_ = false;
+    std::size_t first_ = 0, count_ = 0, step_ = 1;
+    std::shared_ptr<const std::vector<std::size_t>> positions_;
+    friend Axis detail::compose_axis(const Axis&, const Axis&, std::size_t);
+    friend Axis detail::gather_axis(std::vector<std::size_t>&&);
 };
 
 namespace detail {
@@ -298,7 +334,10 @@ public:
     [[nodiscard]] ByteOrder offset_serialization_byte_order() const;
     [[nodiscard]] NativeType index_native_type() const;
     [[nodiscard]] NativeType offset_native_type() const;
-    [[nodiscard]] ArrayView select(std::vector<std::optional<std::vector<std::size_t>>> axes) const;
+    [[nodiscard]] ArrayView select(const Axis* axes, std::size_t rank) const;
+    [[nodiscard]] ArrayView select(std::initializer_list<Axis> axes) const {
+        return select(axes.begin(), axes.size());
+    }
     [[nodiscard]] Array copy(Validation validation = Validation::full) const;
     [[nodiscard]] DenseBytesView<const std::byte> bytes() const;
     [[nodiscard]] SparseBytesView<const std::byte> sparse_bytes() const;

@@ -105,7 +105,7 @@ char serializer_endian(const Json& codecs) {
 ArrayMetadata parse_array(const Json& j,const std::string& path) {
     try {
         ArrayMetadata m; m.original=j; m.format=j.at("zarr_format").get<int>();
-        m.shape=read_shape(j.at("shape"),path); m.attributes=j.value("attributes",Json::object());
+        m.shape=read_shape(j.at("shape"),path);
         if(m.format==2) {
             if(!j.at("dtype").is_string()) throw Error(Failure::dtype,path,"structured Zarr dtypes are unsupported");
             m.type=parse_type(j.at("dtype").get<std::string>(),2,m.endian,path);
@@ -252,7 +252,7 @@ Node Store::inspect(const std::string& path) const {
             if(all.contains(key)) result.attributes=all.at(key);
         }
     }
-    if(!result.group) { result.array=parse_array(metadata,path); result.array.attributes=result.attributes; }
+    if(!result.group) result.array=parse_array(metadata,path);
     return result;
     } catch(const Json::exception& e) { throw Error(Failure::encoding,path,std::string("malformed Zarr node metadata: ")+e.what()); }
 }
@@ -278,24 +278,28 @@ Chunk Store::chunk(const std::string& path,const ArrayMetadata& m,const Shape& c
     const auto shape=inner_shape(m,scratch_bytes_); const auto count=checked_product(shape);
     const auto working_width=m.type==Type::string?sizeof(std::string):m.item_size;
     if(count>scratch_bytes_/(4*working_width)) throw Error(Failure::argument,path,"decoded chunk exceeds bounded scratch_bytes; increase budget or rechunk the source");
-    auto payload_meta=m; payload_meta.scratch_bytes=scratch_bytes_; Bytes payload; std::filesystem::path file;
+    Bytes payload; std::filesystem::path file;
+    const auto decode=[&](const Json& codecs) {
+        if(payload.empty()) return filled(m,shape,scratch_bytes_);
+        try { return decode_payload({m,codecs,scratch_bytes_},shape,payload); }
+        catch(const Error& e) { throw Error(e.failure,path+"/"+file.filename().string(),e.what()); }
+    };
     if(sharding(m)) {
         auto spec=shard_spec(m,scratch_bytes_/2); Shape shard(coord.size()),local(coord.size());
         for(std::size_t i=0;i<coord.size();++i) { auto factor=m.chunks[i]/shape[i]; shard[i]=coord[i]/factor; local[i]=coord[i]%factor; }
         file=node_path(path)/chunk_key(m,shard); if(!std::filesystem::exists(file)) return filled(m,shape,scratch_bytes_);
-        payload=read_shard_chunk(file,spec,local); payload_meta.codecs=spec.codecs;
+        payload=read_shard_chunk(file,spec,local);
+        return decode(spec.codecs);
     } else { file=node_path(path)/chunk_key(m,coord); if(!std::filesystem::exists(file)) return filled(m,shape,scratch_bytes_); payload=load_bytes(file,scratch_bytes_/2); if(payload.empty()) throw Error(Failure::encoding,file.string(),"empty encoded Zarr chunk"); }
-    if(payload.empty()) return filled(m,shape,scratch_bytes_);
-    try { return decode_payload(payload_meta,shape,payload); }
-    catch(const Error& e) { throw Error(e.failure,path+"/"+file.filename().string(),e.what()); }
+    return decode(m.codecs);
 }
 void Store::chunk(const std::string& path,const ArrayMetadata& m,const Shape& coord,const Chunk& value) {
-    auto payload_meta=m; payload_meta.scratch_bytes=scratch_bytes_; auto shape=inner_shape(m,scratch_bytes_);
+    auto shape=inner_shape(m,scratch_bytes_);
     if(sharding(m)) {
-        auto spec=shard_spec(m,scratch_bytes_/2); payload_meta.codecs=spec.codecs; Shape shard(coord.size()),local(coord.size());
+        auto spec=shard_spec(m,scratch_bytes_/2); Shape shard(coord.size()),local(coord.size());
         for(std::size_t i=0;i<coord.size();++i) { auto factor=m.chunks[i]/shape[i]; shard[i]=coord[i]/factor; local[i]=coord[i]%factor; }
-        const auto payload=encode_payload(payload_meta,shape,value); write_shard_chunk(node_path(path)/chunk_key(m,shard),spec,local,payload);
-    } else { const auto payload=encode_payload(payload_meta,shape,value); save_bytes(node_path(path)/chunk_key(m,coord),payload); }
+        const auto payload=encode_payload({m,spec.codecs,scratch_bytes_},shape,value); write_shard_chunk(node_path(path)/chunk_key(m,shard),spec,local,payload);
+    } else { const auto payload=encode_payload({m,m.codecs,scratch_bytes_},shape,value); save_bytes(node_path(path)/chunk_key(m,coord),payload); }
 }
 void Store::transfer(const std::string& path,const Shape& start,const Shape& count,void* numeric,std::vector<std::string>* strings,bool writing) const {
     const auto node=inspect(path); if(!node.exists || node.group) throw Error(Failure::argument,path,"expected a Zarr array");
@@ -421,12 +425,26 @@ void Store::resize(const std::string& path,const Shape& shape) {
     // Delete chunks outside the new grid. Boundary chunks retain padding; a
     // later growth must never expose old out-of-shape values.
     auto previous=node.array.shape; auto m=node.array;
-    Shape overlap=shape; for(std::size_t i=0;i<shape.size();++i) overlap[i]=std::min(shape[i],previous[i]);
     // Shrinking is uncommon structural work; clear removed cells in intersected
     // chunks before publishing the new shape, without materializing the array.
     auto inner=inner_shape(m,scratch_bytes_); Shape first(shape.size(),0),stop(shape.size());
     for(std::size_t i=0;i<shape.size();++i) stop[i]=(previous[i]+inner[i]-1)/inner[i];
-    coordinates(first,stop,[&](const Shape& coord) { bool touches=false; for(std::size_t i=0;i<shape.size();++i) touches=touches || coord[i]*inner[i]+inner[i]>shape[i]; if(!touches) return; auto value=chunk(path,m,coord); auto empty=filled(m,inner,scratch_bytes_); Shape zero(shape.size(),0); coordinates(zero,inner,[&](const Shape& local) { bool removed=false; for(std::size_t i=0;i<shape.size();++i) removed=removed || coord[i]*inner[i]+local[i]>=shape[i]; if(removed) { auto index=flat(local,inner); if(m.type==Type::string) value.strings[index]=empty.strings[index]; else std::memcpy(value.numeric.data()+index*m.item_size,empty.numeric.data()+index*m.item_size,m.item_size); } }); chunk(path,m,coord,value); });
+    coordinates(first,stop,[&](const Shape& coord) {
+        bool touches=false;
+        for(std::size_t i=0;i<shape.size();++i) touches=touches || coord[i]*inner[i]+inner[i]>shape[i];
+        if(!touches) return;
+        auto value=chunk(path,m,coord); auto empty=filled(m,inner,scratch_bytes_);
+        Shape zero(shape.size(),0);
+        coordinates(zero,inner,[&](const Shape& local) {
+            bool removed=false;
+            for(std::size_t i=0;i<shape.size();++i) removed=removed || coord[i]*inner[i]+local[i]>=shape[i];
+            if(!removed) return;
+            auto index=flat(local,inner);
+            if(m.type==Type::string) value.strings[index]=empty.strings[index];
+            else std::memcpy(value.numeric.data()+index*m.item_size,empty.numeric.data()+index*m.item_size,m.item_size);
+        });
+        chunk(path,m,coord,value);
+    });
     auto j=m.original; j["shape"]=shape; save_json(node_path(path)/(m.format==2?".zarray":"zarr.json"),j);
 }
 void Store::erase(const std::string& path) { mutation(); if(relative_node(path).empty()) throw Error(Failure::argument,path,"cannot erase the Zarr store root"); std::filesystem::remove_all(node_path(path)); }

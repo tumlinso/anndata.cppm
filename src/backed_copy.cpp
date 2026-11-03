@@ -301,13 +301,25 @@ void copy_node_impl(Backend& destination,std::string_view path,const Node& sourc
         destination.create_group(path,info.attrs);copy_node(destination,child(path,"codes"),codes,budget,string_scratch_bytes);copy_node(destination,child(path,"categories"),categories,budget,string_scratch_bytes);return;
     }
     if(code=="nullable-integer"||code=="nullable-boolean"||code=="nullable-string-array"){
-        require_children(source,{"values","mask"});auto values=subnode(source,"values",source->axes);auto mask=subnode(source,"mask",source->axes);
+        require_children(source,{"values","mask"});
+        auto values=subnode(source,"values",source->axes);auto mask=subnode(source,"mask",source->axes);
         auto mask_info=session.backend->inspect(mask->path);auto values_info=session.backend->inspect(values->path);
-        if(encoding(mask_info,mask->path)!="array"||mask_info.dtype!=DType::boolean||mask_info.shape.size()!=1||mask_info.shape!=values_info.shape)fail(ErrorCode::shape_mismatch,source->path,"nullable mask must be a matching boolean vector");
+        if(encoding(mask_info,mask->path)!="array"||mask_info.dtype!=DType::boolean||mask_info.shape.size()!=1||mask_info.shape!=values_info.shape)
+            fail(ErrorCode::shape_mismatch,source->path,"nullable mask must be a matching boolean vector");
         auto values_code=encoding(values_info,values->path);
-        if(code=="nullable-string-array"){if(values_code!="string-array")fail(ErrorCode::unsupported_encoding,values->path,"nullable string values require string-array");auto it=info.attrs.find("na-value");if(it!=info.attrs.end()){auto value=string_attr(info,"na-value",source->path);if(value!="NA"&&value!="NaN")fail(ErrorCode::unsupported_encoding,source->path,"unsupported nullable string sentinel");}}
-        else if(values_code!="array"||values_info.strings||(code=="nullable-boolean"?values_info.dtype!=DType::boolean:values_info.dtype==DType::boolean||values_info.dtype==DType::float32||values_info.dtype==DType::float64))fail(ErrorCode::unsupported_dtype,values->path,"nullable values have an incompatible dtype");
-        destination.create_group(path,info.attrs);copy_node(destination,child(path,"values"),values,budget,string_scratch_bytes);copy_node(destination,child(path,"mask"),mask,budget,string_scratch_bytes);return;
+        if(code=="nullable-string-array") {
+            if(values_code!="string-array")fail(ErrorCode::unsupported_encoding,values->path,"nullable string values require string-array");
+            auto it=info.attrs.find("na-value");
+            if(it!=info.attrs.end()) {
+                auto value=string_attr(info,"na-value",source->path);
+                if(value!="NA"&&value!="NaN")fail(ErrorCode::unsupported_encoding,source->path,"unsupported nullable string sentinel");
+            }
+        } else if(values_code!="array"||values_info.strings||(code=="nullable-boolean"?values_info.dtype!=DType::boolean:values_info.dtype==DType::boolean||values_info.dtype==DType::float32||values_info.dtype==DType::float64))
+            fail(ErrorCode::unsupported_dtype,values->path,"nullable values have an incompatible dtype");
+        destination.create_group(path,info.attrs);
+        copy_node(destination,child(path,"values"),values,budget,string_scratch_bytes);
+        copy_node(destination,child(path,"mask"),mask,budget,string_scratch_bytes);
+        return;
     }
     if(code=="dict"||code=="raw"||code=="anndata"){
         destination.create_group(path,info.attrs);

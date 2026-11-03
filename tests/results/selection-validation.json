@@ -1,0 +1,312 @@
+{
+  "date": "2026-11-03",
+  "source_base": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "scope": "compact selections and direct metadata access",
+  "build_input_sha256": "3fe9927d40828523df08a44b289230b0650ba76680e1d07d74083bdbd44b5257",
+  "build_inputs": {
+    "CMakeLists.txt": "654de244bb56bdb942bb51658c923cabf4f8ac89a6a16dad1946f8b9d971e772",
+    "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+    "benchmarks/selection.cpp": "818599af30a6194b04d4b680248d4613a60020a0780406826d987c7cb706cfe6",
+    "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+    "cmake/anndataConfig.cmake.in": "8b6592873e0926d82b1da42fc0dab457483d045d47f5c405b74192c73a29b288",
+    "cmake/test-installed-consumer.cmake": "09865c7e9cb0b4b9bb367a1e004a3f6c44aca1c20584a9c5f91695d63f6406df",
+    "src/anndata.arrays.cppm": "ef06a38c2fe93176ed684e8636b058c3a13f2ae4d7b48bd555bedd621dd1bd1c",
+    "src/anndata.backed.cppm": "0dcf7cb6fa83589d8d68de4b3caa8488773866425c8cbdf0b8072091a229ae54",
+    "src/anndata.backed.storage.cppm": "f3136205d4fae038643ff3e2bfe6fb3be88fa1e1e438e7e6547f377715c9ebf8",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "6f2b3bcee0df87fe15337ebea427347fc32346f80dd7b2a7fe5cb2d9f3eb9290",
+    "src/anndata.data.cppm": "6cf516cf2bb895e28c9038cb5591cd07c06706225db5f2995e32e7553701f559",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.strings.cppm": "1dfefcb0741a8cf1cfa994963aafa5e39c253d67ca0e5091622a81895dd82db8",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "078fb177efae1b238015b06d508d2aa9a8c42cc40c821050f98e0858a1c72ee6",
+    "src/backed.cpp": "73dfa4a8ae33d31ea628edf4667dcc289217655409821c6c93fb495e974af17c",
+    "src/backed_array.cpp": "b5d9bfe1a0732b82199c5a035e24dea8bda958ccc62b500739f021245825e8be",
+    "src/backed_category.cpp": "d9a0b267acdb094459f9fec1969ba95b7b35dd360298e3353bbc52bf45b14c59",
+    "src/backed_codec.cpp": "0e2fb5b352e754e3a2d391486154841e7623a15fb62d0da32d6a88cdc71bc5d2",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "523534a49617f77babb7ab37df3faf169a9afe315ac2079700e26182a8935fdd",
+    "src/backed_hdf5.cpp": "b9da38cec37638915e5209b2f8b069f8a1f61ff98f3e9b82a58fee26101f793c",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_structure.cpp": "e154845994d1a9eebf0df842575a18f6542f804fa242eb6ea07d5c369615e1f7",
+    "src/backed_writer.cpp": "66c583fab6dcc2a671459b5be7da6af1f0dcf00a294fd51b7509233c8064afc2",
+    "src/backed_zarr.cpp": "b85a279e0018dfcedb434b348829c4f70afcdb8a65ad9357e97ff644eead3916",
+    "src/data.cpp": "20b30fd6d58219fb8ea77341593d49046f2e64d950d26a181fe45b6fcb440c8c",
+    "src/h5ad.cpp": "cd00f748de9dda70f5af69f3f783b6041b3409bcebc13acae5f72a5a3d332f0e",
+    "src/strings.cpp": "34e542ffc8a2f830c63e3c0b6e114039d406d995913c0e94464b58b4a2fe8570",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "f0de47f0163d1b30050b77bd9153ba734a5d8f4d6ee8befbb905352c6f811a95",
+    "src/zarr_engine.cpp": "44299d1fa7e4b4ee65e8a37104d57e93fe81cd1ee35cbed31d924969fc8e762e",
+    "src/zarr_engine.hpp": "0c15d38dcf6a69b56fb04ade92e86db61abab8dca9b38d6ae037c2f5f7096476",
+    "src/zarr_sharding.cpp": "85aec7bee6016fcec883a88370e3c806b807d281905a8b31cc876b3d9f7cf6cc",
+    "tests/consumer/CMakeLists.txt": "ab012ad21b831699399468517f5a192973140c0146a90c4b6a58d78818f40b66",
+    "tests/consumer/backed.cpp": "695906077c0f5e3081f2dea9b48a5e7441542e2c1c4c248667e76e83b3b7d8e5",
+    "tests/consumer/facade.cpp": "27e882f620639a3af1c7ed30be49daff745dae818fa9ddf93fed09815b6bcc14",
+    "tests/consumer/h5ad.cpp": "9486a2a261ae33535bc2c4f1336066438a5d641b5d43960ae6b2159d0f0611f2",
+    "tests/consumer/main.cpp": "6650b8538a32711f9c61cfaccc81c1a29eeb5c7d49c9c1e955de620179a4f216",
+    "tests/consumer/zarr.cpp": "1a01607d043facc438dbc5aaa73f8f55cd51be4a0401e420d294b81ce39bf286",
+    "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+    "tests/interop_driver.cpp": "1a3eddb175f7f937a259d076d753669020c4849a3356d56e1960795ee6b3a621",
+    "tests/python_h5ad.py": "5cbff4f56c4d086f36bddccba4237a3f571fc2f5dc3bf8f3f01a84d77c0c46e2",
+    "tests/python_semantics.py": "34f8ada21792347dba31da54366d9004b533a34ec014bbc697cf3cc8d75cd0d7",
+    "tests/python_storage.py": "8e740ea5d0684749662fe44ee5fe8f1d3032e3206b7078288d62f7ebe5e6074b",
+    "tests/requirements-interop.txt": "1e3f58211bddcfdf07ec5fa460e484dd91552e3846685999a4d83cb454791726",
+    "tests/storage_interop_driver.cpp": "e5afaba8b251e7d5860a2f28c3566a270d85ec1644ca900fb258b63c3a529389",
+    "tests/test_arrays.cpp": "e011ddf85a53efc1466bbd7a902fec21cb95f976f56a2cb25bbcba1b448c7d84",
+    "tests/test_backed.cpp": "e6a4f849b0557dcc979a543df89a1450e72a9fbfaf39ffeb13bd25370cd827ac",
+    "tests/test_backed_categories.cpp": "7628cf058c121a5a89ef7ffefa7101c6d6f6f9441f7052078b2881380f58166e",
+    "tests/test_backed_h5ad.cpp": "15fc3e1f770acbe8112b6f2a7c5420d360bc871fa1bcab63ccfa6b22d91757d0",
+    "tests/test_data.cpp": "3156999fd9aebae92c6ece1beed5f01fd01e6fd0f106982f5fb897e145606fd4",
+    "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+    "tests/test_strings.cpp": "87ba2922bf3389a70ac28ea488674df35e2e3f7c736e75d2c2af6750dc12a933"
+  },
+  "toolchain": {
+    "compiler": "Ubuntu Clang 18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "configuration": "Debug",
+    "platform": "Linux x86-64"
+  },
+  "matrix": [
+    {
+      "preset": "debug",
+      "groups": 9,
+      "passed": 9,
+      "result": "passed",
+      "initial_failed_groups": 0,
+      "log": "build/selection-debug-tests.log",
+      "log_sha256": "52fda83ccf381555f671f9804550d559f7f18db601fc0daf8dfcc560093ac701"
+    },
+    {
+      "preset": "core-only",
+      "groups": 7,
+      "passed": 7,
+      "result": "passed",
+      "initial_failed_groups": 0,
+      "log": "build/selection-core-only-test.log",
+      "log_sha256": "ae87c8f669f92c124fd4f4ff6e95db3e4ef5bdbe43f9ff5a7c861af71f6e9090"
+    },
+    {
+      "preset": "shared",
+      "groups": 9,
+      "passed": 9,
+      "result": "passed",
+      "initial_failed_groups": 0,
+      "log": "build/selection-shared-test.log",
+      "log_sha256": "cb369af982ff483c8b5fcd0a7842cc0fb6d2ce3ce44d6367ba2cbea429c8d2b3"
+    },
+    {
+      "preset": "sanitizers",
+      "groups": 9,
+      "passed": 9,
+      "result": "passed",
+      "initial_failed_groups": 0,
+      "log": "build/selection-sanitizers-test.log",
+      "log_sha256": "b33d2f919f6590066acbeb118ba2f89d9e904efb2b49edd6f9535a96773d0741"
+    },
+    {
+      "preset": "interop-check",
+      "groups": 12,
+      "passed": 12,
+      "result": "passed",
+      "initial_failed_groups": 1,
+      "log": "build/selection-interop-check-test.log",
+      "log_sha256": "bcd5466de1d5be404da0aa64229c26355430680832f37711f713183c863025fd",
+      "qualification": "Initial complete run passed 11/12 groups. python_semantics hit a pinned upstream sparse-view reshape exception. Materialized only the Python reference intermediate and reran that affected group; all 17 cases passed. H5AD/storage groups are unchanged and were not repeated.",
+      "recheck": {
+        "command": [
+          "ctest",
+          "--preset",
+          "interop-check",
+          "-R",
+          "^python_semantics$"
+        ],
+        "exit_code": 0,
+        "log": "build/selection-python-semantics-recheck.log",
+        "log_sha256": "61986856de98367cabb91cd7445fd6adf1c582b5552179379726dd7e0dff8efa"
+      }
+    }
+  ],
+  "total_configuration_groups": 46,
+  "recorded_configure_build_test_stages": [
+    {
+      "preset": "core-only",
+      "stage": "configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "core-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.042,
+      "log": "build/selection-core-only-configure.log"
+    },
+    {
+      "preset": "sanitizers",
+      "stage": "configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "sanitizers"
+      ],
+      "exit_code": 0,
+      "seconds": 0.062,
+      "log": "build/selection-sanitizers-configure.log"
+    },
+    {
+      "preset": "core-only",
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "core-only",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 25.611,
+      "log": "build/selection-core-only-build.log"
+    },
+    {
+      "preset": "core-only",
+      "stage": "test",
+      "command": [
+        "ctest",
+        "--preset",
+        "core-only"
+      ],
+      "exit_code": 0,
+      "seconds": 6.971,
+      "log": "build/selection-core-only-test.log"
+    },
+    {
+      "preset": "shared",
+      "stage": "configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "shared"
+      ],
+      "exit_code": 0,
+      "seconds": 0.066,
+      "log": "build/selection-shared-configure.log"
+    },
+    {
+      "preset": "sanitizers",
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "sanitizers",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 47.9,
+      "log": "build/selection-sanitizers-build.log"
+    },
+    {
+      "preset": "shared",
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "shared",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 35.706,
+      "log": "build/selection-shared-build.log"
+    },
+    {
+      "preset": "shared",
+      "stage": "test",
+      "command": [
+        "ctest",
+        "--preset",
+        "shared"
+      ],
+      "exit_code": 0,
+      "seconds": 15.425,
+      "log": "build/selection-shared-test.log"
+    },
+    {
+      "preset": "interop-check",
+      "stage": "configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "interop-check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.22,
+      "log": "build/selection-interop-check-configure.log"
+    },
+    {
+      "preset": "sanitizers",
+      "stage": "test",
+      "command": [
+        "ctest",
+        "--preset",
+        "sanitizers"
+      ],
+      "exit_code": 0,
+      "seconds": 37.356,
+      "log": "build/selection-sanitizers-test.log"
+    },
+    {
+      "preset": "interop-check",
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "interop-check",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 37.447,
+      "log": "build/selection-interop-check-build.log"
+    },
+    {
+      "preset": "interop-check",
+      "stage": "test",
+      "command": [
+        "ctest",
+        "--preset",
+        "interop-check"
+      ],
+      "exit_code": 8,
+      "seconds": 99.097,
+      "log": "build/selection-interop-check-test.log"
+    }
+  ],
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=0",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "ANNDATA_INTEROP_ZARR_WAKEUP": "1"
+  },
+  "allocation_evidence": {
+    "path": "benchmarks/results/selection.json",
+    "sha256": "85f9efe8deec4aed095c45dff01aace3bf4857b26ce56d97077ba4562633ba86"
+  },
+  "review": [
+    "Independent arrays review identified an impossible sparse-major output preflight gap. Fixed before allocation/traversal with CSR/CSC regressions; isolated and integrated native tests pass.",
+    "Independent data/string source review found no confirmed defects; test acceptance remains the executed matrix, not review agreement."
+  ],
+  "dependencies": {
+    "installed": [],
+    "installation_commands": [],
+    "reference_packages": "tests/requirements-interop.txt"
+  },
+  "qualification": [
+    "Only the pinned Python reference construction changed after the complete interop run; the affected group was rerun. C++ source remained fixed during the recorded matrix.",
+    "Native workflow acceptance is not claimed; see planning/selection-workflow-observation.json.",
+    "No cold-build, runtime-speed, RSS, or broader compiler portability claim."
+  ]
+}

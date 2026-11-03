@@ -1,0 +1,253 @@
+{
+  "source_base": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "toolchain": {
+    "compiler": "Ubuntu Clang 18.1.3",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "configuration": "Debug",
+    "platform": "Linux x86-64"
+  },
+  "command": [
+    "timeout",
+    "30s",
+    "build/debug/anndata_selection_probe"
+  ],
+  "exit_code": 0,
+  "time_cap_seconds": 30,
+  "source_sha256": "818599af30a6194b04d4b680248d4613a60020a0780406826d987c7cb706cfe6",
+  "executable_sha256": "0188db1940ae91b2d7d53438ffa70d186107155b5c0d0c2d475c9bc451376452",
+  "library_sha256": "a12ed5844c9e9208664ca2325554063ba8d0ddbe40b164673c8cc3cfcd3c1cbc",
+  "raw_report": {
+    "path": "build/selection-allocation.jsonl",
+    "sha256": "15aa1905a369edceac9c97b996ad1d9a951b3d85f81201dc6998771bd4f56522"
+  },
+  "records": [
+    {
+      "kind": "probe",
+      "name": "anndata_selection_probe",
+      "counter": "global C++ new/delete; calls and requested bytes",
+      "measurement": "acquisition plus returned descriptor release; setup and JSON output excluded",
+      "retained_descriptor_zero_allocation_claim": false,
+      "lookup_time_may_remain_linear_in_column_count": true
+    },
+    {
+      "kind": "selection",
+      "operation": "all",
+      "logical_length": 16,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "forward",
+      "logical_length": 16,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "reverse",
+      "logical_length": 16,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "nested_affine",
+      "logical_length": 16,
+      "allocation_calls": 4,
+      "requested_bytes": 272,
+      "deallocation_calls": 4
+    },
+    {
+      "kind": "selection",
+      "operation": "all",
+      "logical_length": 1048576,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "forward",
+      "logical_length": 1048576,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "reverse",
+      "logical_length": 1048576,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "nested_affine",
+      "logical_length": 1048576,
+      "allocation_calls": 4,
+      "requested_bytes": 272,
+      "deallocation_calls": 4
+    },
+    {
+      "kind": "selection",
+      "operation": "all",
+      "logical_length": 4294967296,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "forward",
+      "logical_length": 4294967296,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "reverse",
+      "logical_length": 4294967296,
+      "allocation_calls": 2,
+      "requested_bytes": 136,
+      "deallocation_calls": 2
+    },
+    {
+      "kind": "selection",
+      "operation": "nested_affine",
+      "logical_length": 4294967296,
+      "allocation_calls": 4,
+      "requested_bytes": 272,
+      "deallocation_calls": 4
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_direct",
+      "columns_per_axis": 8,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_table_route",
+      "columns_per_axis": 8,
+      "allocation_calls": 13,
+      "requested_bytes": 1944,
+      "deallocation_calls": 13
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_direct",
+      "columns_per_axis": 8,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_table_route",
+      "columns_per_axis": 8,
+      "allocation_calls": 13,
+      "requested_bytes": 1944,
+      "deallocation_calls": 13
+    },
+    {
+      "kind": "metadata_semantics",
+      "columns_per_axis": 8,
+      "obs_pointer_matches": true,
+      "var_pointer_matches": true,
+      "contents_match": true
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_direct",
+      "columns_per_axis": 128,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_table_route",
+      "columns_per_axis": 128,
+      "allocation_calls": 137,
+      "requested_bytes": 29784,
+      "deallocation_calls": 137
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_direct",
+      "columns_per_axis": 128,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_table_route",
+      "columns_per_axis": 128,
+      "allocation_calls": 137,
+      "requested_bytes": 29784,
+      "deallocation_calls": 137
+    },
+    {
+      "kind": "metadata_semantics",
+      "columns_per_axis": 128,
+      "obs_pointer_matches": true,
+      "var_pointer_matches": true,
+      "contents_match": true
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_direct",
+      "columns_per_axis": 1024,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "obs_table_route",
+      "columns_per_axis": 1024,
+      "allocation_calls": 1036,
+      "requested_bytes": 237656,
+      "deallocation_calls": 1036
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_direct",
+      "columns_per_axis": 1024,
+      "allocation_calls": 1,
+      "requested_bytes": 136,
+      "deallocation_calls": 1
+    },
+    {
+      "kind": "metadata",
+      "operation": "var_table_route",
+      "columns_per_axis": 1024,
+      "allocation_calls": 1036,
+      "requested_bytes": 237656,
+      "deallocation_calls": 1036
+    },
+    {
+      "kind": "metadata_semantics",
+      "columns_per_axis": 1024,
+      "obs_pointer_matches": true,
+      "var_pointer_matches": true,
+      "contents_match": true
+    }
+  ],
+  "limits": [
+    "One run; allocation counts and requested bytes, no timing claims.",
+    "Only C++ new/delete calls in the measured scope are intercepted; fixture setup and JSON output are excluded.",
+    "Rank-two logical-length fixture borrows one float with zero strides; it is a descriptor-scaling check, not a large-payload workload.",
+    "Column lookup remains a linear scan; direct retained acquisition still allocates a descriptor."
+  ]
+}

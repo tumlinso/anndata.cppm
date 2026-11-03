@@ -350,36 +350,26 @@ void write_array(Backend& backend, std::string_view path, ArrayView array, std::
             start.back() = first;
             Shape tile_shape(shape.size(), 1);
             tile_shape.back() = length;
-            auto transfer_start = start;
             if (bytes) {
                 if (length > std::numeric_limits<std::size_t>::max() / width)
                     fail(ErrorCode::invalid_argument, path, "strided transfer buffer size overflows");
                 packed.resize(length * width);
                 std::ptrdiff_t offset = 0;
-                auto coordinate = outer;
-                for (std::size_t axis = shape.size() - 1; axis > 0; --axis) {
-                    const auto previous_extent = shape[axis - 1];
-                    const auto index = coordinate % previous_extent;
-                    coordinate /= previous_extent;
-                    offset += static_cast<std::ptrdiff_t>(index) * bytes->stride_bytes(axis - 1);
-                }
+                for (std::size_t axis = shape.size() - 1; axis > 0; --axis)
+                    offset += static_cast<std::ptrdiff_t>(start[axis - 1]) * bytes->stride_bytes(axis - 1);
                 const auto column_stride = bytes->stride_bytes(shape.size() - 1);
                 for (std::size_t i = 0; i < length; ++i)
                     std::memcpy(packed.data() + i * width,
                         bytes->data() + offset + static_cast<std::ptrdiff_t>(first + i) * column_stride, width);
-                backend.write_numeric(path, transfer_start, tile_shape, packed.data());
+                backend.write_numeric(path, start, tile_shape, packed.data());
             } else {
-                auto coord = coordinates(Shape(shape.begin(), shape.end() - 1), outer);
-                std::vector<std::optional<std::vector<std::size_t>>> selectors(shape.size());
+                std::vector<anndata::Axis> selectors(shape.size());
                 for (std::size_t axis = 0; axis + 1 < shape.size(); ++axis)
-                    selectors[axis] = std::vector<std::size_t>{coord[axis]};
-                auto& last = selectors.back().emplace();
-                last.clear();
-                last.reserve(length);
-                for (std::size_t i = 0; i < length; ++i) last.push_back(first + i);
-                auto tile = array.select(selectors).copy(Validation::none);
+                    selectors[axis] = anndata::Axis::stride(start[axis], 1);
+                selectors.back() = anndata::Axis::stride(first, length);
+                auto tile = array.select(selectors.data(), selectors.size()).copy(Validation::none);
                 auto tile_bytes = tile.view().bytes();
-                backend.write_numeric(path, transfer_start, tile_shape, tile_bytes.data());
+                backend.write_numeric(path, start, tile_shape, tile_bytes.data());
             }
             first += length;
         }

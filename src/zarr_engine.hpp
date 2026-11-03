@@ -27,12 +27,10 @@ struct ArrayMetadata {
     int format = 3;
     Type type = Type::float64;
     std::size_t item_size = 8;
-    std::size_t scratch_bytes = 64 * 1024 * 1024;
     char endian = '=';
     Shape shape, chunks;
     Json codecs = Json::array();
     Json fill = 0;
-    Json attributes = Json::object();
     Json original = Json::object();
     char order = 'C';
     std::string separator = "/";
@@ -47,13 +45,18 @@ struct Chunk {
     Bytes numeric;
     std::vector<std::string> strings;
 };
+struct PayloadMeta {
+    const ArrayMetadata& array;
+    const Json& codecs;
+    std::size_t scratch_bytes;
+};
 std::size_t checked_product(const Shape& shape);
 std::size_t type_size(Type type);
 // The payload codec excludes sharding; shape describes the complete logical
 // inner chunk, including padding beyond an array edge. Returned data are C
 // contiguous and native endian.
-Chunk decode_payload(const ArrayMetadata&, const Shape&, std::span<const std::byte>);
-Bytes encode_payload(const ArrayMetadata&, const Shape&, const Chunk&);
+Chunk decode_payload(const PayloadMeta&, const Shape&, std::span<const std::byte>);
+Bytes encode_payload(const PayloadMeta&, const Shape&, const Chunk&);
 
 struct ShardSpec {
     Shape shard_shape, chunk_shape;

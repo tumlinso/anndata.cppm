@@ -6,7 +6,6 @@
 #include <iostream>
 #include <limits>
 #include <memory>
-#include <optional>
 #include <type_traits>
 #include <vector>
 
@@ -379,8 +378,8 @@ void empty_and_broadcast_extreme_dimensions() {
     const auto large_index = static_cast<std::size_t>(stride_max) + 1;
     const auto broadcast_extent = large_index + 1;
     auto broadcast = anndata::Array::borrow_dense(&byte, {broadcast_extent}, {0});
-    using Axis = std::optional<std::vector<std::size_t>>;
-    auto selected = broadcast.view().select({Axis{std::vector<std::size_t>{large_index}}});
+    using anndata::Axis;
+    auto selected = broadcast.view().select({Axis::gather({large_index})});
     auto selected_view = selected.dense<std::uint8_t>();
     expect(selected_view.extent(0) == 1 && selected_view.stride(0) == 0 &&
            selected_view.data() == &byte && selected_view.data()[0] == 73,
@@ -590,10 +589,9 @@ void lazy_dense_selection() {
     auto edit = a.edit().dense<std::int32_t>();
     for (std::int32_t i = 0; i < 12; ++i) edit.data()[i] = i;
 
-    using Axis = std::optional<std::vector<std::size_t>>;
+    using anndata::Axis;
     auto selection = a.view().select({
-        Axis{std::vector<std::size_t>{2, 0}},
-        Axis{std::vector<std::size_t>{1, 1}}
+        Axis::gather({2, 0}), Axis::gather({1, 1})
     });
     expect(selection.extent(0) == 2 && selection.extent(1) == 2,
            "gather selection shape follows selector lengths");
@@ -602,8 +600,7 @@ void lazy_dense_selection() {
            affine.stride(1) == 0 && !affine.contiguous(),
            "affine negative and repeated selections expose their true strides");
     auto non_affine = a.view().select({
-        Axis{std::vector<std::size_t>{2, 0, 2}},
-        Axis{std::vector<std::size_t>{1, 1}}
+        Axis::gather({2, 0, 2}), Axis::gather({1, 1})
     });
     expect_error(anndata::ErrorCode::non_contiguous,
                  [&] { (void)non_affine.dense<std::int32_t>(); },
@@ -617,13 +614,12 @@ void lazy_dense_selection() {
            out.data()[2] == 1 && out.data()[3] == 1,
            "materialization respects order, repeats, and axis mapping");
 
-    auto all = a.view().select({Axis{}, Axis{}});
+    auto all = a.view().select({Axis::all(), Axis::all()});
     expect(all.dense<std::int32_t>().data() == a.view().dense<std::int32_t>().data(),
            "all-axis selection retains the same allocation");
 
     auto contiguous_row = a.view().select({
-        Axis{std::vector<std::size_t>{1}},
-        Axis{std::vector<std::size_t>{0, 1, 2, 3}}
+        Axis::gather({1}), Axis::gather({0, 1, 2, 3})
     });
     auto row_access = contiguous_row.dense<std::int32_t>();
     expect(row_access.contiguous() && row_access.data() == edit.data() + 4,
@@ -634,11 +630,63 @@ void lazy_dense_selection() {
            "contiguous selection copy preserves its buffer interval");
 
     auto empty = a.view().select({
-        Axis{std::vector<std::size_t>{}}, Axis{std::vector<std::size_t>{1, 2}}
+        Axis::gather({}), Axis::gather({1, 2})
     });
+    expect(Axis::gather(nullptr, 0).is_gather(), "empty gather retains its kind");
     auto materialized_empty = empty.copy();
     expect(materialized_empty.extent(0) == 0 && materialized_empty.extent(1) == 2,
            "empty gathers keep the nonempty axis and rank");
+
+    auto line = anndata::Array::empty<std::int32_t>({10});
+    for (int i = 0; i < 10; ++i) line.edit().dense<std::int32_t>().data()[i] = i;
+    auto reverse = line.view().select({Axis::stride(9, 5, 2, true)});
+    auto nested = reverse.select({Axis::stride(1, 2, 2)});
+    auto nested_dense = nested.dense<std::int32_t>();
+    expect(nested.extent(0) == 2 && nested_dense.data()[0] == 7 &&
+           nested_dense.stride(0) == -4 && nested_dense.data()[nested_dense.stride(0)] == 3,
+           "nested affine axes compose to the original allocation");
+    auto repeated = nested.select({Axis::gather({1, 0, 1})}).copy();
+    auto repeated_data = repeated.view().dense<std::int32_t>().data();
+    expect(repeated_data[0] == 3 && repeated_data[1] == 7 && repeated_data[2] == 3,
+           "gathers compose after reverse strides, preserving duplicates");
+    std::size_t input[] = {8, 2, 6};
+    auto retained = line.view().select({Axis::gather(input, 3)});
+    input[0] = 0;
+    auto retained_copy = retained.copy();
+    expect(retained_copy.view().dense<std::int32_t>().data()[0] == 8,
+           "gather copies caller positions before returning");
+    auto composed = [] {
+        auto source = anndata::Array::empty<std::int32_t>({10});
+        auto values = source.edit().dense<std::int32_t>();
+        for (int i = 0; i < 10; ++i) values.data()[i] = i;
+        auto parent = source.view().select({Axis::gather({8, 2, 6})});
+        return parent.select({Axis::gather({2, 0, 2})});
+    }();
+    auto composed_copy = composed.copy();
+    auto composed_values = composed_copy.view().dense<std::int32_t>().data();
+    expect(composed_values[0] == 6 && composed_values[1] == 8 && composed_values[2] == 6,
+           "composed gathers retain their positions and source after local owners expire");
+    auto normalized_axis = [] {
+        std::vector<std::size_t> normalized{3, 7};
+        return anndata::detail::gather_axis(std::move(normalized));
+    }();
+    expect(normalized_axis.index(0) == 3 && normalized_axis.index(1) == 7,
+           "normalized gather owns independent retained positions");
+    auto broadcast = line.view().select({Axis::stride(4, 3, 0)}).dense<std::int32_t>();
+    expect(broadcast.data()[0] == 4 && broadcast.stride(0) == 0,
+           "zero-step affine selector represents repeated coordinates");
+    const auto max = std::numeric_limits<std::size_t>::max();
+    auto zero = line.view().select({Axis::stride(max, 0, max, true)});
+    auto one = line.view().select({Axis::stride(9, 1, max, true)});
+    expect(zero.extent(0) == 0 && one.dense<std::int32_t>().data()[0] == 9,
+           "empty and singleton strides ignore unused arithmetic");
+    expect_error(anndata::ErrorCode::out_of_bounds,
+                 [&] { (void)line.view().select({Axis::stride(1, 2, max)}); },
+                 "overflowing stride endpoint is rejected");
+    expect_error(anndata::ErrorCode::invalid_argument,
+                 [&] { (void)Axis::gather(nullptr, 1); }, "null nonempty gather is rejected");
+    expect_error(anndata::ErrorCode::invalid_argument,
+                 [&] { (void)line.view().select(nullptr, 1); }, "null nonempty selectors are rejected");
 }
 
 void sparse_layout_and_validation() {
@@ -784,11 +832,15 @@ void compact_sparse_integer_widths() {
         sparse.values()[2] = 3;
     }
     signed_csr.validate();
+    expect_error(anndata::ErrorCode::non_contiguous,
+        [&] { (void)signed_csr.view().select({anndata::Axis::stride(0, 2), anndata::Axis::all()})
+            .csr<float, std::int8_t, std::int16_t>(); },
+        "explicit identity selection still requires sparse materialization");
     auto signed_csr_view = signed_csr.view().csr<float, std::int8_t, std::int16_t>();
     auto signed_csr_copy = signed_csr.copy();
     auto signed_csr_copy_view = signed_csr_copy.view().csr<float, std::int8_t, std::int16_t>();
     auto signed_csr_gather = signed_csr.view().select({
-        std::vector<std::size_t>{1, 0}, std::nullopt
+        anndata::Axis::gather({1, 0}), anndata::Axis::all()
     }).copy();
     auto signed_csr_gather_view = signed_csr_gather.view().csr<float, std::int8_t, std::int16_t>();
     expect(signed_csr_view.indices()[0] == 2 && signed_csr_view.offsets()[2] == 3 &&
@@ -833,7 +885,7 @@ void compact_sparse_integer_widths() {
     signed_csc.validate();
     auto signed_csc_view = signed_csc.view().csc<float, std::int8_t, std::int16_t>();
     auto signed_csc_gather = signed_csc.view().select({
-        std::nullopt, std::vector<std::size_t>{1, 0}
+        anndata::Axis::all(), anndata::Axis::gather({1, 0})
     }).copy();
     auto signed_csc_gather_view = signed_csc_gather.view().csc<float, std::int8_t, std::int16_t>();
     expect(signed_csc_view.indices()[0] == 2 && signed_csc_view.offsets()[2] == 3 &&
@@ -850,7 +902,7 @@ void compact_sparse_integer_widths() {
     }
     std::vector<std::size_t> repeated_column(257, 255);
     expect_error(anndata::ErrorCode::invalid_sparse_structure,
-        [&] { (void)index_overflow.view().select({std::nullopt, repeated_column}).copy(); },
+        [&] { (void)index_overflow.view().select({anndata::Axis::all(), anndata::Axis::gather(repeated_column.data(), repeated_column.size())}).copy(); },
         "gather rejects a remapped compact index that no longer fits uint8");
 
     auto offset_overflow = anndata::Array::csr<float, std::uint8_t, std::uint8_t>(1, 1, 1);
@@ -863,8 +915,28 @@ void compact_sparse_integer_widths() {
     }
     std::vector<std::size_t> repeated_row(257, 0);
     expect_error(anndata::ErrorCode::invalid_sparse_structure,
-        [&] { (void)offset_overflow.view().select({repeated_row, std::nullopt}).copy(); },
+        [&] { (void)offset_overflow.view().select({anndata::Axis::gather(repeated_row.data(), repeated_row.size()), anndata::Axis::all()}).copy(); },
         "gather rejects a compact offset that no longer fits uint8");
+}
+
+void sparse_copy_major_preflight() {
+    using anndata::Axis;
+    const auto max = std::numeric_limits<std::size_t>::max();
+    const auto addressable = static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max());
+    auto csr = anndata::Array::csr<float, std::uint8_t, std::uint64_t>(1, 1, 0);
+    auto csc = anndata::Array::csc<float, std::uint8_t, std::uint8_t>(1, 1, 0);
+    expect_error(anndata::ErrorCode::invalid_argument,
+        [&] { (void)csr.view().select({Axis::stride(0, max, 0), Axis::all()}).copy(); },
+        "CSR copy rejects major count plus one overflow before traversal");
+    expect_error(anndata::ErrorCode::invalid_argument,
+        [&] { (void)csc.view().select({Axis::all(), Axis::stride(0, max, 0)}).copy(); },
+        "CSC copy rejects major count plus one overflow before traversal");
+    expect_error(anndata::ErrorCode::invalid_argument,
+        [&] { (void)csr.view().select({Axis::stride(0, addressable / sizeof(std::uint64_t), 0), Axis::all()}).copy(); },
+        "CSR copy rejects an unaddressable stored offset span");
+    expect_error(anndata::ErrorCode::invalid_argument,
+        [&] { (void)csc.view().select({Axis::all(), Axis::stride(0, addressable / sizeof(std::size_t), 0)}).copy(); },
+        "CSC copy rejects an unaddressable staging offset span");
 }
 
 } // namespace
@@ -879,6 +951,7 @@ int main() {
     lazy_dense_selection();
     sparse_layout_and_validation();
     compact_sparse_integer_widths();
+    sparse_copy_major_preflight();
     if (failures != 0) {
         std::cerr << failures << " array assertion(s) failed\n";
         return EXIT_FAILURE;

@@ -859,14 +859,14 @@ void write_dense_data(Context& c, hid_t dataset, ArrayView array, hid_t memory_t
             } else {
                 // A gather cannot expose affine strides. Materialize only this
                 // bounded row fragment, not the array or its owning dataset.
-                std::vector<std::optional<std::vector<std::size_t>>> axes(shape.size());
+                std::vector<Axis> axes(shape.size());
                 coordinate = outer;
                 for (std::size_t axis = shape.size() - 1; axis > 0; --axis) {
-                    axes[axis - 1].emplace(1, coordinate % shape[axis - 1]); coordinate /= shape[axis - 1];
+                    axes[axis - 1] = Axis::stride(coordinate % shape[axis - 1], 1);
+                    coordinate /= shape[axis - 1];
                 }
-                axes.back().emplace(); axes.back()->reserve(length);
-                for (std::size_t j = 0; j < length; ++j) axes.back()->push_back(first + j);
-                auto tile = array.select(std::move(axes)).copy();
+                axes.back() = Axis::stride(first, length);
+                auto tile = array.select(axes.data(), axes.size()).copy();
                 write_tile(c, dataset, memory_type, shape, outer, first, length, tile.view().bytes().data(), path);
             }
             first += length;

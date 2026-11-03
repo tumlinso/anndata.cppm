@@ -89,12 +89,12 @@ public:
     const range& range_value() const noexcept { return range_; }
     const std::vector<std::uint8_t>& mask_values() const noexcept { return mask_; }
     const std::vector<std::string>& label_values() const noexcept { return labels_; }
-    std::vector<std::size_t> resolve(const std::vector<std::string>& names,
+    Axis resolve(const std::vector<std::string>& names,
                                      std::string_view path) const;
-    std::vector<std::size_t> resolve(const TableView& index,
+    Axis resolve(const TableView& index,
                                      std::string_view path) const;
 private:
-    std::vector<std::size_t> resolve_impl(std::size_t length, std::string_view path,
+    Axis resolve_impl(std::size_t length, std::string_view path,
         const std::vector<std::string>* names, const TableView* table) const;
     Kind kind_{Kind::all};
     std::vector<std::ptrdiff_t> indices_;
@@ -126,7 +126,7 @@ public:
     // Codes may be recoded for the selected category dictionary.
     ArrayView codes() const;
     Column copy() const;
-    ColumnView select(const std::vector<std::size_t>& rows,
+    ColumnView select(const Axis& rows,
                       bool prune_categories = true) const;
     ColumnView select_all(bool prune_categories = true) const;
 private:
@@ -203,14 +203,16 @@ public:
     std::vector<std::string> column_names() const;
     bool contains(std::string_view column) const;
     ColumnView column(std::string_view column) const;
-    TableView select(const std::vector<std::size_t>& rows,
+    TableView select(const Axis& rows,
                      bool prune_categories = true) const;
     TableView select_all(bool prune_categories = true) const;
     Table copy() const;
 private:
     std::shared_ptr<detail::TableViewImpl> impl_;
     explicit TableView(std::shared_ptr<detail::TableViewImpl>);
+    TableView with_rows(const Axis&, bool prune_categories) const;
     friend class Table;
+    friend class AnnDataView;
 };
 
 class Table {
@@ -343,6 +345,8 @@ public:
     void clear_x();
     TableView obs() const;
     TableView var() const;
+    ColumnView obs_column(std::string_view name) const;
+    ColumnView var_column(std::string_view name) const;
     void set_obs(Table);
     void set_var(Table);
     void set_obs_column(std::string, Column);
@@ -408,6 +412,8 @@ public:
     ArrayView x() const;
     TableView obs() const;
     TableView var() const;
+    ColumnView obs_column(std::string_view name) const;
+    ColumnView var_column(std::string_view name) const;
     ArrayView layer(std::string_view) const;
     ElementView obsm(std::string_view) const;
     ElementView varm(std::string_view) const;
