@@ -245,6 +245,9 @@ void validate_element(ElementView value, std::string_view path, Validation valid
         case ElementKind::floating: (void)value.dtype(); return;
         case ElementKind::string: validate_text(value.string(), path, validation); return;
         case ElementKind::array: validate_array(value.array(), path, validation); return;
+        case ElementKind::record_array:
+            if (validation == Validation::full) value.record_array().validate();
+            return;
         case ElementKind::string_array: {
             auto array = value.string_array();
             if (validation == Validation::full) array.validate();
@@ -593,6 +596,7 @@ void write_element_impl(Backend& backend, std::string_view path, ElementView val
     switch (value.kind()) {
         case ElementKind::null: write_null(backend, path); return;
         case ElementKind::array: write_array(backend, path, value.array(), scratch_bytes, validation); return;
+        case ElementKind::record_array: write_record(backend, path, value.record_array(), scratch_bytes); return;
         case ElementKind::string_array: write_string_array(backend, path, value.string_array(), scratch_bytes, validation); return;
         case ElementKind::column: write_column(backend, path, value.column(), scratch_bytes, validation); return;
         case ElementKind::table: write_table(backend, path, value.table(), scratch_bytes, validation); return;

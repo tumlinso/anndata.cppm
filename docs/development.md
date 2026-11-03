@@ -54,6 +54,26 @@ For a one-command reference check, prepare a workspace-local `.venv` containing 
 
 On this restricted runner, Zarr's background event loop cannot wake itself through a socketpair. `ANNDATA_INTEROP_ZARR_WAKEUP=1` enables a test-only periodic wakeup in `python_storage`; it changes neither library behavior nor the normal Python/CI policy. Local sanitizer qualification uses `ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1` because LeakSanitizer cannot operate under the runner's ptrace restrictions; ASan and UBSan remain active.
 
+## Record interoperability
+
+The record-array reference check additionally uses Scanpy 1.11.5. Keep its
+development dependencies separate from application environments:
+
+```sh
+python3 -m venv /tmp/anndata-record-reference
+/tmp/anndata-record-reference/bin/python -m pip install -r tests/requirements-records.txt
+cmake --preset interop-check -DANNDATA_ENABLE_RECORD_INTEROP_TESTS=ON \
+  -DPython3_EXECUTABLE=/tmp/anndata-record-reference/bin/python
+cmake --build --preset interop-check
+ctest --preset interop-check
+```
+
+`ANNDATA_ENABLE_RECORD_INTEROP_TESTS` defaults to `OFF`, so existing Python
+checks do not acquire a Scanpy dependency. Native records require no Python or
+additional native library. `records_benchmark` is built with the ordinary
+benchmark option; its acquired record-member loops are compared with the same
+work on raw native structs.
+
 ## Benchmarks
 
 The release preset builds `memory_benchmark`, `h5ad_benchmark` when HDF5 is enabled, and `storage_benchmark` when both backends are enabled. See [performance.md](performance.md) for the historical core baseline, [h5ad-performance.md](h5ad-performance.md) for eager H5AD measurements and [storage-performance.md](storage-performance.md) for backed storage and the four-configuration compile campaign. The compilation benchmark tools use disposable source copies so rebuild experiments do not edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.

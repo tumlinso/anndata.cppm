@@ -1,5 +1,6 @@
 module;
 #include <hdf5.h>
+#include "h5ad_record_scratch.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -193,7 +194,8 @@ struct Reclaim {
     hid_t space;
     void* buffer;
     bool active = true;
-    ~Reclaim() { if (active) H5Dvlen_reclaim(type, space, H5P_DEFAULT, buffer); }
+    hid_t transfer = H5P_DEFAULT;
+    ~Reclaim() { if (active) H5Dvlen_reclaim(type, space, transfer, buffer); }
 };
 
 bool valid_utf8(std::string_view text) {
@@ -286,7 +288,7 @@ std::string encoding(const Context& c, hid_t object, std::string_view path) {
         type == "csr_matrix" || type == "csc_matrix" || type == "nullable-integer" ||
         type == "nullable-boolean" || type == "nullable-string-array") expected = "0.1.0";
     else if (type == "array" || type == "numeric-scalar" || type == "string" ||
-             type == "string-array" || type == "dataframe" || type == "categorical") expected = "0.2.0";
+             type == "string-array" || type == "dataframe" || type == "categorical" || type == "rec-array") expected = "0.2.0";
     else c.fail(ErrorCode::unsupported_encoding, path, "unsupported encoding-type '" + type + "' (version '" + version + "')");
     if (version != expected)
         c.fail(ErrorCode::unsupported_version, path, "unsupported " + type + " encoding-version '" + version + "'; expected '" + std::string(expected) + "'");
@@ -440,6 +442,139 @@ StringArray read_string_array(Context& c, hid_t object, std::string_view path) t
     rethrow_at(c, error, path);
 }
 
+// A projected compound memory type transfers one named field directly into
+// its native allocation. File record offsets and padding never become native
+// field strides; conversion is explicit at this boundary.
+Handle record_projection(const Context& c, std::string_view name, hid_t member, std::string_view path) {
+    Handle type(c.id(H5Tcreate(H5T_COMPOUND, H5Tget_size(member)), path, "create record projection"), H5Tclose);
+    c.check(H5Tinsert(type, std::string(name).c_str(), 0, member), path, "define projected record member");
+    return type;
+}
+
+// Returns false only after all rejected VLEN allocations have been freed.
+// No std::string copies coexist with these raw strings: append directly to
+// final packed storage. Pointer metadata and allocation headers are admitted
+// before allocating; HDF5's own codec/cache workspace remains backend-owned.
+bool read_record_text_tile(Context& c, hid_t object, hid_t type, hid_t member,
+                           hid_t memory, hid_t file, std::size_t n, std::size_t budget,
+                           std::vector<char>& bytes, std::vector<std::uint64_t>& offsets,
+                           std::string_view path) {
+    using anndata_h5ad_detail::RecordVlenAllocator;
+    const auto append = [&](std::string_view value) {
+        if (c.validation == Validation::full && !valid_utf8(value)) c.fail(ErrorCode::unsupported_dtype, path, "record text is not valid UTF-8");
+        if (value.size() > std::size_t(PTRDIFF_MAX)-bytes.size()) c.fail(ErrorCode::invalid_argument, path, "record text exceeds addressable range");
+        bytes.insert(bytes.end(),value.begin(),value.end()); offsets.push_back(bytes.size());
+    };
+    if (H5Tis_variable_str(member) > 0) {
+        const auto limit = anndata_h5ad_detail::record_pointer_limit(n,budget);
+        if (!limit) return false;
+        auto pointers = std::make_unique<char*[]>(n);
+        RecordVlenAllocator allocator{limit};
+        Handle transfer(c.id(H5Pcreate(H5P_DATASET_XFER),path,"create bounded record transfer"),H5Pclose);
+        c.check(H5Pset_vlen_mem_manager(transfer,RecordVlenAllocator::allocate,&allocator,
+            RecordVlenAllocator::release,&allocator),path,"set bounded record string allocator");
+        Reclaim reclaim{type,memory,pointers.get(),false,transfer};
+        herr_t status;
+        H5E_BEGIN_TRY { status = H5Dread(object,type,memory,file,transfer,pointers.get()); } H5E_END_TRY;
+        if (status < 0 && allocator.exceeded) return false;
+        c.check(status,path,"read bounded record strings"); reclaim.active = true;
+        for (std::size_t i = 0; i < n; ++i) {
+            const auto* p = pointers[i];
+            const auto size = p ? RecordVlenAllocator::size(p) : 0;
+            const auto len = p ? strnlen(p,size) : 0;
+            if (p && len == size) c.fail(ErrorCode::unsupported_dtype,path,"record string has no terminating NUL");
+            append(p ? std::string_view(p,len) : std::string_view{});
+        }
+    } else {
+        const auto width = H5Tget_size(member);
+        if (!width || budget < sizeof(std::unique_ptr<char[]>) || n > (budget-sizeof(std::unique_ptr<char[]>))/width) return false;
+        auto raw = std::unique_ptr<char[]>(new char[n*width]);
+        c.check(H5Dread(object,type,memory,file,H5P_DEFAULT,raw.get()),path,"read fixed record strings");
+        const auto pad = H5Tget_strpad(member);
+        for (std::size_t i = 0; i < n; ++i) {
+            std::string_view value(raw.get()+i*width,width);
+            if (pad == H5T_STR_NULLTERM) value = value.substr(0,value.find('\0'));
+            else if (pad == H5T_STR_NULLPAD) { while (!value.empty() && value.back() == '\0') value.remove_suffix(1); }
+            else if (pad == H5T_STR_SPACEPAD) { while (!value.empty() && value.back() == ' ') value.remove_suffix(1); }
+            append(value);
+        }
+    }
+    return true;
+}
+
+StringArray read_record_strings(Context& c, hid_t object, hid_t member, std::string_view name,
+                               const std::vector<std::size_t>& shape, std::string_view path) {
+    using namespace anndata_h5ad_detail;
+    auto type = record_projection(c,name,member,path);
+    const auto n = count_of(c,shape,path), cols = shape.empty() ? 1 : shape.back();
+    std::vector<char> bytes;
+    std::vector<std::uint64_t> offsets{0}; offsets.reserve(n+1);
+    const auto width = H5Tis_variable_str(member) > 0 ? sizeof(char*) : H5Tget_size(member);
+    auto tile = std::max<std::size_t>(1,std::min<std::size_t>(4096,record_target/std::max<std::size_t>(1,width)));
+    auto staging_budget = record_target;
+    for (std::size_t row = 0; n && row < n/cols; ++row) {
+        for (std::size_t first = 0; first < cols;) {
+            auto len = std::min(tile,cols-first), budget = staging_budget;
+            for (;;) {
+                auto memory = space_for(c,{len},path);
+                Handle file(c.id(H5Dget_space(object),path,"inspect record dataspace"),H5Sclose);
+                if (!shape.empty()) {
+                    std::vector<hsize_t> start(shape.size()), count(shape.size(),1);
+                    start.back() = first; count.back() = len;
+                    auto k = row;
+                    for (std::size_t d = shape.size()-1; d > 0; --d) { start[d-1] = k%shape[d-1]; k /= shape[d-1]; }
+                    c.check(H5Sselect_hyperslab(file,H5S_SELECT_SET,start.data(),nullptr,count.data(),nullptr),path,"select record strings");
+                }
+                if (read_record_text_tile(c,object,type,member,memory,file,len,budget,bytes,offsets,path)) break;
+                if (len > 1) len = (len+1)/2;
+                else if (budget < record_cap) budget = record_cap;
+                else c.fail(ErrorCode::invalid_argument,path,"one record string exceeds the 64 MiB eager staging cap; use backed access with a larger scratch budget");
+            }
+            tile = len; staging_budget = budget; first += len;
+        }
+    }
+    return StringArray::from_packed(shape,std::move(bytes),std::move(offsets),Validation::none);
+}
+
+RecordArray read_record(Context& c, hid_t object, std::string_view path) {
+    require_kind(c, object, H5I_DATASET, path);
+    Handle type(c.id(H5Dget_type(object), path, "inspect record datatype"), H5Tclose);
+    Handle space(c.id(H5Dget_space(object), path, "inspect record dataspace"), H5Sclose);
+    if (H5Tget_class(type) != H5T_COMPOUND) c.fail(ErrorCode::unsupported_dtype, path, "rec-array requires a compound datatype");
+    if (H5Sget_simple_extent_type(space) == H5S_NULL) c.fail(ErrorCode::unsupported_encoding, path, "record array cannot use a null dataspace");
+    auto shape = shape_of(c, space, path);
+    const auto n = count_of(c, shape, path);
+    const int fields = H5Tget_nmembers(type);
+    if (fields <= 0) c.fail(ErrorCode::unsupported_dtype, path, "record array requires named members");
+    check_filters(c, object, path);
+    auto result = RecordArray::with_shape(shape);
+    // Transfers enforce configured content validation; set() checks shape only.
+    for (int j = 0; j < fields; ++j) {
+        char* raw = H5Tget_member_name(type, unsigned(j));
+        if (!raw) c.fail(ErrorCode::io_error, path, "read record member name failed");
+        std::string name(raw); H5free_memory(raw);
+        const auto field_path = std::string(path) + "[" + name + "]";
+        Handle member(c.id(H5Tget_member_type(type, unsigned(j)), field_path, "inspect record member"), H5Tclose);
+        if (H5Tget_class(member) == H5T_STRING) {
+            result.set(name, read_record_strings(c, object, member, name, shape, field_path), Validation::none);
+            continue;
+        }
+        const auto dt = dtype(c, member, field_path);
+        multiply(c, n, dtype_size(dt), field_path);
+        auto a = visit_dtype(dt, [&]<class T> { return Array::empty<T>(shape); });
+        a.set_serialization_byte_order(byte_order(member));
+        if (n) {
+            auto memory = record_projection(c, name, dt == DType::boolean ? hid_t(member) : native_type(dt), field_path);
+            auto* p = a.edit().bytes().data();
+            c.check(H5Dread(object, memory, H5S_ALL, H5S_ALL, H5P_DEFAULT, p), field_path, "read record numeric member");
+            if (dt == DType::boolean && c.validation == Validation::full)
+                for (std::size_t i = 0; i < n; ++i) p[i] = p[i] == std::byte{0} ? std::byte{0} : std::byte{1};
+        }
+        result.set(name, std::move(a), Validation::none);
+    }
+    return result;
+}
+
 std::vector<std::size_t> sparse_shape(const Context& c, hid_t object, std::string_view path) {
     Handle attr(c.id(H5Aopen(object, "shape", H5P_DEFAULT), path, "open sparse shape"), H5Aclose);
     Handle space(c.id(H5Aget_space(attr), path, "inspect sparse shape"), H5Sclose);
@@ -578,6 +713,7 @@ Element read_element(Context& c, hid_t object, std::string_view path, std::strin
     }
     if (code == "array" || code == "csr_matrix" || code == "csc_matrix") return Element(read_array(c, object, path, code));
     if (code == "string-array") return Element(read_string_array(c, object, path));
+    if (code == "rec-array") return Element(read_record(c, object, path));
     if (code == "string") {
         auto values = read_string_values(c, object, path);
         if (!values.shape.empty()) c.fail(ErrorCode::shape_mismatch, path, "string scalar requires rank zero");
@@ -960,6 +1096,101 @@ void write_string_array(Context& c, hid_t parent, std::string_view key, StringAr
     write_strings(c, parent, key, shape, [&](std::size_t i) { return array.string(i); }, path);
 }
 
+void write_record(Context& c, hid_t parent, std::string_view key, RecordArrayView records, std::string_view path) try {
+    if (c.validation == Validation::full) records.validate();
+    struct Field {
+        RecordField field;
+        RecordMemberView<const std::byte> bytes;
+        RecordTextView text;
+        std::size_t offset;
+        std::string path;
+    };
+    std::vector<Field> fields;
+    std::size_t width = 0;
+    for (const auto& name : records.field_names()) {
+        auto f = records.field(name);
+        const auto size = f.kind == RecordFieldKind::numeric ? dtype_size(f.dtype) : sizeof(char*);
+        if (size > std::size_t(PTRDIFF_MAX) - width) c.fail(ErrorCode::invalid_argument, path, "record width exceeds addressable range");
+        fields.push_back({f, {}, {}, width, std::string(path) + "[" + f.name + "]"}); width += size;
+        auto& transfer = fields.back();
+        if (f.kind == RecordFieldKind::numeric) transfer.bytes = records.numeric_bytes(name);
+        else transfer.text = records.text(name);
+    }
+    using namespace anndata_h5ad_detail;
+    if (!width || width > record_cap) c.fail(ErrorCode::unsupported_dtype, path, "record must have members fitting the transfer workspace");
+    Handle file_type(c.id(H5Tcreate(H5T_COMPOUND, width), path, "create compound datatype"), H5Tclose);
+    Handle memory_type(c.id(H5Tcreate(H5T_COMPOUND, width), path, "create compound memory datatype"), H5Tclose);
+    for (const auto& f : fields) {
+        const auto member_path = std::string(path) + "[" + f.field.name + "]";
+        if (f.field.kind == RecordFieldKind::numeric) {
+            auto file_bool = f.field.dtype == DType::boolean ? boolean_type(c, false, member_path) : Handle{};
+            auto memory_bool = f.field.dtype == DType::boolean ? boolean_type(c, true, member_path) : Handle{};
+            const hid_t ft = f.field.dtype == DType::boolean ? hid_t(file_bool) : file_numeric_type(f.field.dtype, output_order(c, f.field.byte_order));
+            const hid_t mt = f.field.dtype == DType::boolean ? hid_t(memory_bool) : native_type(f.field.dtype);
+            c.check(H5Tinsert(file_type, f.field.name.c_str(), f.offset, ft), member_path, "define file record member");
+            c.check(H5Tinsert(memory_type, f.field.name.c_str(), f.offset, mt), member_path, "define native record member");
+        } else {
+            auto type = string_type(c, member_path);
+            c.check(H5Tinsert(file_type, f.field.name.c_str(), f.offset, type), member_path, "define text record member");
+            c.check(H5Tinsert(memory_type, f.field.name.c_str(), f.offset, type), member_path, "define native text member");
+        }
+    }
+    const auto shape = records.shape();
+    auto dataset = create_dataset(c, parent, key, file_type, shape, width, path);
+    write_encoding(c, dataset, "rec-array", "0.2.0", path);
+    const auto n = records.size(), cols = shape.empty() ? 1 : shape.back();
+    if (!n) return;
+    std::size_t capacity = std::max(record_target,width);
+    auto buffer = std::unique_ptr<std::byte[]>(new std::byte[capacity]);
+    for (std::size_t row = 0; row < n / cols; ++row) {
+        for (std::size_t first = 0; first < cols;) {
+            const auto limit = std::min(cols-first,std::max<std::size_t>(1,record_target/width));
+            std::size_t len = 0, used = 0;
+            while (len < limit) {
+                std::size_t bytes = width;
+                for (const auto& f : fields) if (f.field.kind != RecordFieldKind::numeric) {
+                    const auto value = f.text.string(row * cols + first + len);
+                    if (value.size() >= record_cap || value.size()+1 > record_cap-bytes) { bytes = record_cap+1; break; }
+                    bytes += value.size() + 1;
+                }
+                if (bytes > record_cap-used) break;
+                if (len && bytes > record_target-std::min(used,record_target)) break;
+                used += bytes; ++len;
+            }
+            if (!len) c.fail(ErrorCode::invalid_argument,path,"one record exceeds the 64 MiB eager staging cap; use backed access with a larger scratch budget");
+            if (used > capacity) { buffer.reset(); buffer = std::unique_ptr<std::byte[]>(new std::byte[used]); capacity = used; }
+            auto* text = reinterpret_cast<char*>(buffer.get()+len*width);
+            for (const auto& f : fields) {
+                if (f.field.kind == RecordFieldKind::numeric) {
+                    std::ptrdiff_t k = 0;
+                    auto coordinate = row;
+                    for (std::size_t d = shape.size(); d > 1; --d) {
+                        k += std::ptrdiff_t(coordinate % shape[d-2]) * f.bytes.stride_bytes(d-2); coordinate /= shape[d-2];
+                    }
+                    const auto stride = shape.empty() ? 0 : f.bytes.stride_bytes(shape.size()-1);
+                    const auto* p = f.bytes.data() + k + std::ptrdiff_t(first) * stride;
+                    const auto size = dtype_size(f.field.dtype);
+                    for (std::size_t j = 0; j < len; ++j)
+                        std::memcpy(buffer.get() + j * width + f.offset, p + std::ptrdiff_t(j) * stride, size);
+                } else {
+                    for (std::size_t j = 0; j < len; ++j) {
+                        const auto value = f.text.string(row * cols + first + j);
+                        check_text(c, value, f.path);
+                        if (!value.empty()) std::memcpy(text, value.data(), value.size());
+                        text[value.size()] = '\0';
+                        const char* p = text;
+                        std::memcpy(buffer.get() + j * width + f.offset, &p, sizeof(p));
+                        text += value.size() + 1;
+                    }
+                }
+            }
+            if (shape.empty()) c.check(H5Dwrite(dataset, memory_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer.get()), path, "write scalar record");
+            else write_tile(c, dataset, memory_type, shape, row, first, len, buffer.get(), path);
+            first += len;
+        }
+    }
+} catch (const Error& error) { rethrow_at(c, error, path); }
+
 void write_column(Context&, hid_t, std::string_view, ColumnView, std::string_view);
 void write_table(Context&, hid_t, std::string_view, TableView, std::string_view);
 void write_element(Context&, hid_t, std::string_view, ElementView, std::string_view);
@@ -1075,6 +1306,7 @@ void write_element(Context& c, hid_t parent, std::string_view key, ElementView e
         case ElementKind::null: write_null(c, parent, key, path); return;
         case ElementKind::array: write_array(c, parent, key, element.array(), path); return;
         case ElementKind::string_array: write_string_array(c, parent, key, element.string_array(), path); return;
+        case ElementKind::record_array: write_record(c, parent, key, element.record_array(), path); return;
         case ElementKind::column: write_column(c, parent, key, element.column(), path); return;
         case ElementKind::table: write_table(c, parent, key, element.table(), path); return;
         case ElementKind::string:

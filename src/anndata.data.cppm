@@ -14,6 +14,7 @@ module;
 export module anndata.core:data;
 export import :arrays;
 export import :strings;
+export import :records;
 
 export namespace anndata {
 
@@ -241,7 +242,7 @@ private:
 };
 
 enum class ElementKind { null, boolean, signed_integer, unsigned_integer,
-                         floating, string, array, string_array, column, table, mapping };
+                         floating, string, array, string_array, column, table, mapping, record_array };
 class ElementView;
 
 class Element {
@@ -266,6 +267,7 @@ public:
     explicit Element(const char*);
     explicit Element(Array);
     explicit Element(StringArray);
+    explicit Element(RecordArray);
     explicit Element(Column);
     explicit Element(Table);
     static Element mapping();
@@ -309,6 +311,7 @@ public:
     [[nodiscard]] ByteOrder serialization_byte_order() const;
     ArrayView array() const;
     StringArrayView string_array() const;
+    RecordArrayView record_array() const;
     ColumnView column() const;
     TableView table() const;
     std::vector<std::string> keys() const;

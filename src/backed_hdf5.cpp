@@ -430,6 +430,83 @@ void account_vlen(const H5Context& c, hid_t type, const std::byte* bytes,
     }
 }
 
+std::string record_field_path(std::string_view path, std::string_view field) {
+    return std::string(path) + "[" + std::string(field) + "]";
+}
+
+std::vector<RecordFieldInfo> record_fields(const H5Context& c, hid_t type, std::string_view path) {
+    const auto count = H5Tget_nmembers(type);
+    if (count < 0) c.fail(ErrorCode::io_error, path, "inspect record fields failed");
+    if (!count) c.fail(ErrorCode::unsupported_layout, path, "record datatype has no fields");
+    std::vector<RecordFieldInfo> fields;
+    fields.reserve(static_cast<std::size_t>(count));
+    for (int i = 0; i < count; ++i) {
+        std::unique_ptr<char, decltype(&H5free_memory)> name(
+            H5Tget_member_name(type, static_cast<unsigned>(i)), H5free_memory);
+        if (!name) c.fail(ErrorCode::io_error, path, "inspect record field name failed");
+        const std::string field_name(name.get());
+        const auto field_path = record_field_path(path, field_name);
+        if (field_name.empty()) c.fail(ErrorCode::unsupported_layout, field_path, "record field name is empty");
+        for (const auto& previous : fields)
+            if (previous.name == field_name) c.fail(ErrorCode::unsupported_layout, field_path, "duplicate record field name");
+        H5Handle member(c.id(H5Tget_member_type(type, static_cast<unsigned>(i)), field_path, "inspect record field datatype"), H5Tclose);
+        const auto kind = H5Tget_class(member);
+        RecordFieldInfo result;
+        result.name = field_name;
+        if (kind == H5T_STRING) {
+            if (!H5Tget_size(member)) c.fail(ErrorCode::unsupported_dtype, field_path, "record string field has zero width");
+            result.strings = true;
+        } else {
+            if (kind == H5T_COMPOUND || kind == H5T_ARRAY || kind == H5T_VLEN)
+                c.fail(ErrorCode::unsupported_dtype, field_path, "nested, subarray, and variable-sequence record fields are unsupported");
+            result.dtype = dtype_of_h5(c, member, field_path);
+            result.byte_order = byte_order(member);
+        }
+        fields.push_back(std::move(result));
+    }
+    return fields;
+}
+
+H5Handle record_member(const H5Context& c, hid_t type, std::string_view field,
+                       std::string_view path) {
+    const auto field_path = record_field_path(path, field);
+    if (H5Tget_class(type) != H5T_COMPOUND) c.fail(ErrorCode::unsupported_encoding, field_path, "record field access requires a compound dataset");
+    if (field.empty() || field.find('\0') != std::string_view::npos)
+        c.fail(ErrorCode::invalid_argument, field_path, "record field name must be nonempty and NUL-free");
+    const std::string name(field);
+    const auto index = H5Tget_member_index(type, name.c_str());
+    if (index < 0) c.fail(ErrorCode::unsupported_encoding, field_path, "record field does not exist");
+    H5Handle member(c.id(H5Tget_member_type(type, static_cast<unsigned>(index)), field_path, "inspect record field datatype"), H5Tclose);
+    const auto kind = H5Tget_class(member);
+    if (kind == H5T_COMPOUND || kind == H5T_ARRAY || kind == H5T_VLEN)
+        c.fail(ErrorCode::unsupported_dtype, field_path, "nested, subarray, and variable-sequence record fields are unsupported");
+    return member;
+}
+
+H5Handle compound_field_type(const H5Context& c, std::string_view field,
+                             hid_t member, std::string_view path) {
+    const auto width = H5Tget_size(member);
+    if (!width) c.fail(ErrorCode::unsupported_dtype, record_field_path(path, field), "record field datatype has zero width");
+    H5Handle type(c.id(H5Tcreate(H5T_COMPOUND, width), record_field_path(path, field), "create partial record datatype"), H5Tclose);
+    const std::string name(field);
+    c.check(H5Tinsert(type, name.c_str(), 0, member), record_field_path(path, field), "insert partial record field");
+    return type;
+}
+
+H5Handle numeric_record_type(const H5Context& c, std::string_view field, hid_t member,
+                             DType& dtype, std::string_view path) {
+    const auto field_path = record_field_path(path, field);
+    if (H5Tget_class(member) == H5T_STRING) c.fail(ErrorCode::unsupported_dtype, field_path, "numeric record access requires a numeric field");
+    dtype = dtype_of_h5(c, member, field_path);
+    H5Handle boolean;
+    hid_t scalar = native_type(dtype);
+    if (dtype == DType::boolean) {
+        boolean = H5Handle(c.id(H5Tcopy(member), field_path, "copy boolean record datatype"), H5Tclose);
+        scalar = boolean;
+    }
+    return compound_field_type(c, field, scalar, path);
+}
+
 // Open each hard-link component explicitly, rejecting links that could escape
 // the file or introduce recursive metadata traversal.
 H5Handle open_object(const H5Context& c, hid_t file, std::string_view path, bool allow_missing = false) {
@@ -566,8 +643,9 @@ std::optional<StringPlan> string_plan(hid_t type, const Rectangle& r, std::size_
     return StringPlan{false, n * width, width};
 }
 
-std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset, hid_t type,
-        const Rectangle& r, const StringPlan& plan, std::string_view path) {
+std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
+        hid_t memory_type, hid_t string_type, const Rectangle& r, const StringPlan& plan,
+        std::string_view path, bool validate_utf8_values = true) {
     std::vector<std::string> result;
     result.reserve(r.elements);
     if (!r.elements) return result;
@@ -582,9 +660,9 @@ std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
             void* buffer;
             bool active = false;
             ~DatasetReclaim() { if (active) H5Dvlen_reclaim(type, space, transfer, buffer); }
-        } reclaim{type, r.memory_space, transfer, pointers.data()};
+        } reclaim{memory_type, r.memory_space, transfer, pointers.data()};
         herr_t status;
-        H5E_BEGIN_TRY { status = H5Dread(dataset, type, r.memory_space, r.file_space, transfer, pointers.data()); } H5E_END_TRY;
+        H5E_BEGIN_TRY { status = H5Dread(dataset, memory_type, r.memory_space, r.file_space, transfer, pointers.data()); } H5E_END_TRY;
         if (status < 0 && allocator.exceeded) throw StringBudgetExceeded{};
         c.check(status, path, "read bounded variable strings");
         reclaim.active = true;
@@ -597,8 +675,8 @@ std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
         }
     } else {
         std::vector<char> bytes(plan.raw_capacity);
-        c.check(H5Dread(dataset, type, r.memory_space, r.file_space, H5P_DEFAULT, bytes.data()), path, "read bounded fixed strings");
-        const auto pad = H5Tget_strpad(type);
+        c.check(H5Dread(dataset, memory_type, r.memory_space, r.file_space, H5P_DEFAULT, bytes.data()), path, "read bounded fixed strings");
+        const auto pad = H5Tget_strpad(string_type);
         for (std::size_t i = 0; i < r.elements; ++i) {
             std::string_view value(bytes.data() + i * plan.fixed_width, plan.fixed_width);
             if (pad == H5T_STR_SPACEPAD) { while (!value.empty() && value.back() == ' ') value.remove_suffix(1); }
@@ -606,7 +684,7 @@ std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
             result.emplace_back(value);
         }
     }
-    if (c.validation == Validation::full)
+    if (validate_utf8_values && c.validation == Validation::full)
         for (const auto& value : result) if (!valid_utf8(value)) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
     return result;
 }
@@ -675,8 +753,11 @@ public:
             if (!null_encoding && H5Sget_simple_extent_type(space) == H5S_NULL) c_.fail(ErrorCode::unsupported_encoding, path, "non-null encoding cannot use an HDF5 null dataspace");
             if (H5Sget_simple_extent_type(space) != H5S_NULL) {
                 H5Handle type(c_.id(H5Dget_type(object), path, "inspect datatype"), H5Tclose);
-                result.strings = H5Tget_class(type) == H5T_STRING;
-                if (!result.strings) { result.dtype = dtype_of_h5(c_, type, path); result.byte_order = byte_order(type); }
+                const auto kind = H5Tget_class(type);
+                result.strings = kind == H5T_STRING;
+                result.record = kind == H5T_COMPOUND;
+                if (result.record) result.fields = record_fields(c_, type, path);
+                else if (!result.strings) { result.dtype = dtype_of_h5(c_, type, path); result.byte_order = byte_order(type); }
             }
         }
         return result;
@@ -731,6 +812,42 @@ public:
         c_.check(H5Dwrite(dataset, memory_type, r.memory_space, r.file_space, H5P_DEFAULT, source), path, "write numerical rectangle");
     }
 
+    void read_record_numeric(std::string_view path, std::string_view field,
+            const std::vector<std::size_t>& start, const std::vector<std::size_t>& count,
+            void* destination) override {
+        ensure_open();
+        const auto field_path = record_field_path(path, field);
+        auto dataset = numeric_dataset(path);
+        H5Handle type(c_.id(H5Dget_type(dataset), field_path, "inspect record datatype"), H5Tclose);
+        auto member = record_member(c_, type, field, path);
+        DType dtype;
+        auto memory = numeric_record_type(c_, field, member, dtype, path);
+        auto r = rectangle(c_, dataset, start, count, field_path);
+        if (!r.elements) return;
+        if (!destination) c_.fail(ErrorCode::invalid_argument, field_path, "null numeric record destination");
+        check_filters(c_, dataset, field_path);
+        c_.check(H5Dread(dataset, memory, r.memory_space, r.file_space, H5P_DEFAULT, destination), field_path, "read numeric record field");
+    }
+
+    void write_record_numeric(std::string_view path, std::string_view field,
+            const std::vector<std::size_t>& start, const std::vector<std::size_t>& count,
+            const void* source) override {
+        ensure_writable();
+        const auto field_path = record_field_path(path, field);
+        auto dataset = numeric_dataset(path);
+        H5Handle type(c_.id(H5Dget_type(dataset), field_path, "inspect record datatype"), H5Tclose);
+        auto member = record_member(c_, type, field, path);
+        DType dtype;
+        auto memory = numeric_record_type(c_, field, member, dtype, path);
+        auto r = rectangle(c_, dataset, start, count, field_path);
+        if (!r.elements) return;
+        if (!source) c_.fail(ErrorCode::invalid_argument, field_path, "null numeric record source");
+        check_filters(c_, dataset, field_path, true);
+        H5Handle transfer(c_.id(H5Pcreate(H5P_DATASET_XFER), field_path, "create record transfer properties"), H5Pclose);
+        c_.check(H5Pset_preserve(transfer, 1), field_path, "preserve other record fields");
+        c_.check(H5Dwrite(dataset, memory, r.memory_space, r.file_space, transfer, source), field_path, "write numeric record field");
+    }
+
     std::vector<std::string> read_strings(std::string_view path, const std::vector<std::size_t>& start,
                                           const std::vector<std::size_t>& count) override {
         ensure_open();
@@ -741,7 +858,7 @@ public:
         if (!r.elements) return {};
         const auto plan = string_plan(type, r, metadata_budget_);
         if (!plan) c_.fail(ErrorCode::invalid_argument, path, "string rectangle exceeds the decoded staging budget");
-        try { return read_planned_strings(c_, dataset, type, r, *plan, path); }
+        try { return read_planned_strings(c_, dataset, type, type, r, *plan, path); }
         catch (const StringBudgetExceeded&) { c_.fail(ErrorCode::invalid_argument, path, "string rectangle exceeds the decoded staging budget"); }
     }
 
@@ -761,11 +878,43 @@ public:
         while (true) {
             auto r = rectangle(c_, dataset, start, limited, path);
             if (const auto plan = string_plan(type, r, budget)) {
-                try { return read_planned_strings(c_, dataset, type, r, *plan, path); }
+                try { return read_planned_strings(c_, dataset, type, type, r, *plan, path); }
                 catch (const StringBudgetExceeded&) { /* retry after all staging was reclaimed */ }
             }
             if (limited.empty() || limited.back() == 1)
                 c_.fail(ErrorCode::invalid_argument, path, "one string exceeds the decoded staging budget");
+            limited.back() = (limited.back() + 1) / 2;
+        }
+    }
+
+    std::vector<std::string> read_record_strings_bounded(std::string_view path,
+            std::string_view field, const std::vector<std::size_t>& start,
+            const std::vector<std::size_t>& count, std::size_t byte_budget) override {
+        ensure_open();
+        const auto field_path = record_field_path(path, field);
+        auto dataset = numeric_dataset(path);
+        H5Handle type(c_.id(H5Dget_type(dataset), field_path, "inspect record datatype"), H5Tclose);
+        auto member = record_member(c_, type, field, path);
+        if (H5Tget_class(member) != H5T_STRING)
+            c_.fail(ErrorCode::unsupported_dtype, field_path, "string record access requires a string field");
+        const auto variable = H5Tis_variable_str(member);
+        if (variable < 0) c_.fail(ErrorCode::io_error, field_path, "inspect record string width failed");
+        auto memory = compound_field_type(c_, field, member, path);
+        auto requested = rectangle(c_, dataset, start, count, field_path);
+        if (!requested.elements) return {};
+        for (std::size_t i = 0; i + 1 < count.size(); ++i)
+            if (count[i] != 1) c_.fail(ErrorCode::shape_mismatch, field_path, "bounded string reads require a consecutive last-axis run");
+        check_filters(c_, dataset, field_path);
+        const auto budget = std::min(byte_budget, metadata_budget_);
+        auto limited = count;
+        while (true) {
+            auto r = rectangle(c_, dataset, start, limited, field_path);
+            if (const auto plan = string_plan(member, r, budget)) {
+                try { return read_planned_strings(c_, dataset, memory, member, r, *plan, field_path, false); }
+                catch (const StringBudgetExceeded&) { /* partial reads are reclaimed before retry */ }
+            }
+            if (limited.empty() || limited.back() == 1)
+                c_.fail(ErrorCode::invalid_argument, field_path, "one string exceeds the decoded staging budget");
             limited.back() = (limited.back() + 1) / 2;
         }
     }
@@ -794,6 +943,47 @@ public:
                 std::memcpy(bytes.data() + i * width, values[i].data(), values[i].size());
             }
             c_.check(H5Dwrite(dataset, type, r.memory_space, r.file_space, H5P_DEFAULT, bytes.data()), path, "write fixed strings");
+        }
+    }
+
+    void write_record_strings(std::string_view path, std::string_view field,
+            const std::vector<std::size_t>& start, const std::vector<std::size_t>& count,
+            const std::vector<std::string>& values) override {
+        ensure_writable();
+        const auto field_path = record_field_path(path, field);
+        auto dataset = numeric_dataset(path);
+        H5Handle type(c_.id(H5Dget_type(dataset), field_path, "inspect record datatype"), H5Tclose);
+        auto member = record_member(c_, type, field, path);
+        if (H5Tget_class(member) != H5T_STRING)
+            c_.fail(ErrorCode::unsupported_dtype, field_path, "string record access requires a string field");
+        auto r = rectangle(c_, dataset, start, count, field_path);
+        if (r.elements != values.size()) c_.fail(ErrorCode::shape_mismatch, field_path, "string value count differs from record rectangle");
+        if (!r.elements) return;
+        check_filters(c_, dataset, field_path, true);
+        const auto is_variable = H5Tis_variable_str(member);
+        if (is_variable < 0) c_.fail(ErrorCode::io_error, field_path, "inspect record string width failed");
+        const bool variable = is_variable > 0;
+        const auto width = H5Tget_size(member);
+        const auto pad = H5Tget_strpad(member);
+        std::vector<const char*> pointers;
+        if (variable) pointers.reserve(values.size());
+        for (const auto& value : values) {
+            if (value.find('\0') != std::string::npos) c_.fail(ErrorCode::invalid_argument, field_path, "embedded NUL in string data");
+            if (!variable && (value.size() > width || (pad == H5T_STR_NULLTERM && value.size() == width)))
+                c_.fail(ErrorCode::shape_mismatch, field_path, "string exceeds existing fixed-width datatype");
+            if (variable) pointers.push_back(value.c_str());
+        }
+        auto memory = compound_field_type(c_, field, member, path);
+        H5Handle transfer(c_.id(H5Pcreate(H5P_DATASET_XFER), field_path, "create record transfer properties"), H5Pclose);
+        c_.check(H5Pset_preserve(transfer, 1), field_path, "preserve other record fields");
+        if (variable) c_.check(H5Dwrite(dataset, memory, r.memory_space, r.file_space, transfer, pointers.data()), field_path, "write variable string record field");
+        else {
+            if (width && values.size() > static_cast<std::size_t>(PTRDIFF_MAX) / width)
+                c_.fail(ErrorCode::invalid_argument, field_path, "fixed string buffer exceeds addressable range");
+            std::vector<char> bytes(values.size() * width, pad == H5T_STR_SPACEPAD ? ' ' : '\0');
+            for (std::size_t i = 0; i < values.size(); ++i)
+                std::memcpy(bytes.data() + i * width, values[i].data(), values[i].size());
+            c_.check(H5Dwrite(dataset, memory, r.memory_space, r.file_space, transfer, bytes.data()), field_path, "write fixed string record field");
         }
     }
 
@@ -832,6 +1022,49 @@ public:
         auto properties = dataset_properties(shape, sizeof(char*), path);
         auto links = link_properties(path);
         H5Handle dataset(c_.id(H5Dcreate2(parent, name.c_str(), type, space, links, properties, H5P_DEFAULT), path, "create string dataset"), H5Dclose);
+        write_attributes(c_, dataset, attrs, path);
+    }
+
+    void create_record(std::string_view path, const std::vector<std::size_t>& shape,
+            const std::vector<RecordFieldInfo>& fields, const Attributes& attrs) override {
+        ensure_writable();
+        if (fields.empty()) c_.fail(ErrorCode::unsupported_layout, path, "record datatype requires at least one field");
+        std::vector<H5Handle> member_types;
+        std::vector<std::size_t> offsets;
+        member_types.reserve(fields.size());
+        offsets.reserve(fields.size());
+        std::size_t width = 0;
+        for (const auto& field : fields) {
+            const auto field_path = record_field_path(path, field.name);
+            if (field.name.empty() || field.name.find('\0') != std::string::npos)
+                c_.fail(ErrorCode::invalid_argument, field_path, "record field name must be nonempty and NUL-free");
+            for (const auto& previous : fields) {
+                if (&previous == &field) break;
+                if (previous.name == field.name) c_.fail(ErrorCode::invalid_argument, field_path, "duplicate record field name");
+            }
+            H5Handle member;
+            if (field.strings) member = string_type(c_, field_path);
+            else if (field.dtype == DType::boolean) member = boolean_type(c_, field_path);
+            else {
+                const auto file = file_type(field.dtype, order_override_.value_or(field.byte_order));
+                if (file < 0) c_.fail(ErrorCode::unsupported_dtype, field_path, "unsupported numeric record datatype");
+                member = H5Handle(c_.id(H5Tcopy(file), field_path, "copy numeric record datatype"), H5Tclose);
+            }
+            const auto member_width = H5Tget_size(member);
+            if (!member_width || member_width > SIZE_MAX - width)
+                c_.fail(ErrorCode::unsupported_layout, field_path, "record datatype exceeds addressable size");
+            offsets.push_back(width);
+            width += member_width;
+            member_types.push_back(std::move(member));
+        }
+        H5Handle record(c_.id(H5Tcreate(H5T_COMPOUND, width), path, "create record datatype"), H5Tclose);
+        for (std::size_t i = 0; i < fields.size(); ++i)
+            c_.check(H5Tinsert(record, fields[i].name.c_str(), offsets[i], member_types[i]), record_field_path(path, fields[i].name), "insert record field");
+        auto [parent, name] = parent_for(path);
+        auto space = space_for(c_, shape, path);
+        auto properties = dataset_properties(shape, width, path);
+        auto links = link_properties(path);
+        H5Handle dataset(c_.id(H5Dcreate2(parent, name.c_str(), record, space, links, properties, H5P_DEFAULT), path, "create record dataset"), H5Dclose);
         write_attributes(c_, dataset, attrs, path);
     }
 

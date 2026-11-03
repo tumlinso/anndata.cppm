@@ -8,6 +8,7 @@ __pycache__/
 
 # Raw measurement campaigns and generated profiler artifacts stay local.
 /benchmarks/artifacts/
+/benchmarks/record_io_probe/artifacts/
 /benchmarks/results/storage.json
 /benchmarks/results/storage-baseline.json
 /benchmarks/results/storage-write-supplement.json

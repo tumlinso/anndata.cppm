@@ -212,6 +212,15 @@ ze::CreateOptions creation(int format,std::string_view compression,int level) {
     if((compression=="gzip" || compression=="blosc") && (level<0 || level>9)) throw Error(ErrorCode::invalid_argument,"zarr","gzip and Blosc compression levels must be between 0 and 9");
     ze::CreateOptions options; options.format=format; options.compression=compression; options.compression_level=level; return options;
 }
+// Records are metadata, not a substitute Zarr group encoding. Check before
+// preparing the destination; this walk reads no numerical field payload.
+template<class V> void require_zarr_metadata(const V& value,const std::string& path) {
+    const auto kind=value.kind();
+    if(kind==ElementKind::record_array)
+        throw Error(ErrorCode::unsupported_encoding,path,"Zarr rec-array codecs are not implemented");
+    if(kind!=ElementKind::mapping) return;
+    for(const auto& key:value.keys()) require_zarr_metadata(value.at(key),backed_detail::child(path,key));
+}
 } // namespace
 namespace detail {
 BackedAnnData open_zarr_backed(std::string_view path,BackedOptions options) {
@@ -224,6 +233,7 @@ void write_zarr_eager(std::string_view path,const AnnDataView& data,int format,b
     zarr_call([&] {
         auto options=creation(format,compression,level);
         if(scratch_bytes<1024) throw Error(ErrorCode::invalid_argument,std::string(path),"scratch_bytes must be at least 1024");
+        require_zarr_metadata(data.uns(),"/uns");
         prepare_destination(path,exclusive); ZarrBackend backend(std::string(path),true,scratch_bytes,options);
         backend.create_group("/",{}); backed_detail::initialize_store(backend,data,scratch_bytes,validation); backend.flush();
     });
@@ -236,6 +246,7 @@ void write_zarr_backed(std::string_view path,const BackedAnnDataView& data,int f
         if(!source) throw Error(ErrorCode::invalid_argument,std::string(path),"empty backed view");
         source->session->check_open();
         reject_source_overlap(path,source->session->backend->location());
+        require_zarr_metadata(data.uns(),"/uns");
         prepare_destination(path,exclusive); ZarrBackend backend(std::string(path),true,scratch_bytes,options);
         backed_detail::export_store(backend,data,scratch_bytes,validation); backend.flush();
     });

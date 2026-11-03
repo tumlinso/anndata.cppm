@@ -189,6 +189,8 @@ public:
     BackedStringArray string_array() const;
     BackedColumn column() const;
     BackedTable table() const;
+    std::vector<std::string> field_names() const;
+    Element read_field(std::string_view name) const;
     Element read() const;
 private:
     friend struct detail::BackedAccess;

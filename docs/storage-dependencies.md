@@ -32,3 +32,23 @@ The extracted prefix is `build/dependencies/usr`. CMake discovers it through `AN
 HDF5, zlib and Zstandard discovery uses pkg-config consistently to avoid mixing a system HDF5 library with unrelated Conda runtime libraries. Installed consumers must be able to discover the corresponding binary dependencies; nlohmann JSON is required to build the implementation, not to compile importing consumers.
 
 Python is development-only. `tests/requirements-interop.txt` pins the reference AnnData, Zarr, NumPy, pandas, SciPy, h5py and numcodecs versions. This milestone uses the existing workspace reference environment; it does not require installing Python to consume the C++ library.
+
+For native-record interoperability, `tests/requirements-records.txt` adds
+Scanpy 1.11.5 to those pins. The record milestone reused the native dependencies
+above and installed Python packages only in `/tmp/anndata-record-reference`.
+The effective bootstrap commands on this host were:
+
+```sh
+uv venv --allow-existing --no-project \
+  --python /home/tumlinson/anndata.cppm/.venv/bin/python3 \
+  --cache-dir /tmp/anndata-record-reference-uv-cache /tmp/anndata-record-reference
+uv pip install --python /tmp/anndata-record-reference/bin/python \
+  --cache-dir /tmp/anndata-record-reference-uv-cache pip
+/tmp/anndata-record-reference/bin/python -m pip install --disable-pip-version-check \
+  -r tests/requirements-records.txt
+```
+
+The actual install used `-r tests/requirements-interop.txt scanpy==1.11.5`,
+which is the same pinned package request. The original workspace environment
+and the system installation were unchanged. Systems with a working `venv`
+module may use the shorter commands in [development.md](development.md).

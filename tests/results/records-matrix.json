@@ -1,0 +1,207 @@
+{
+  "schema": "anndata.records.validation-matrix.v1",
+  "initial_pre_freeze_run": {
+    "source": {
+      "worktree": "/tmp/anndata-cppm-records",
+      "branch": "codex/record-arrays",
+      "base_commit": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+      "working_tree_dirty": true,
+      "sha256": {
+        "src/anndata.records.cppm": "92c1c86a395ac7c9c2701e21d3a6aefd2c56184d2a8c7ebdadaa2be2409ecff8",
+        "src/records.cpp": "f42e164e39abecfa7641ef8877f51db3ab4b5ca593c51ff29fc40dcd68209cbd",
+        "CMakeLists.txt": "11dd82c320d031c8ef05070169ed992de0cf9ec709b9dbe303140288b71e095d",
+        "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+        "cmake/test-installed-consumer.cmake": "f4b92dac224c1201ef281018671083f73b0475a64c4309203bc48f3ce1095136",
+        "tests/consumer/CMakeLists.txt": "1782002fa98ec4b7e9444bf61c193eb279dfb8609a358af7651987a9456209c2",
+        "tests/consumer/records.cpp": "db8a025a4c97d8fff37444ea4f6ef5a2c48a8a63724478721eb036886ebec9ed"
+      }
+    },
+    "environment": {
+      "cmake": "3.28.3",
+      "ninja": "1.11.1",
+      "compiler": "Clang 18.1.3",
+      "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+      "max_build_jobs": 2,
+      "interop_tests": false,
+      "runtime_performance_probes": false
+    },
+    "configurations": {
+      "core-only": {
+        "options": {
+          "ANNDATA_ENABLE_HDF5": false,
+          "ANNDATA_ENABLE_ZARR": false,
+          "CMAKE_BUILD_TYPE": "Debug"
+        },
+        "configure": {
+          "exit_code": 0,
+          "command": "cmake --preset core-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "log": "build/record-validation/core-only-configure.log"
+        },
+        "build": {
+          "exit_code": 0,
+          "command": "cmake --build --preset core-only --parallel 2",
+          "log": "build/record-validation/core-only-build.log"
+        },
+        "ctest": {
+          "exit_code": 0,
+          "passed": 8,
+          "failed": 0,
+          "command": "ctest --preset core-only",
+          "log": "build/record-validation/core-only-ctest.log",
+          "tests": [
+            "arrays",
+            "data",
+            "strings",
+            "records",
+            "backed",
+            "backed_categories",
+            "import_only_example",
+            "installed_consumer"
+          ]
+        }
+      },
+      "zarr-only": {
+        "options": {
+          "ANNDATA_ENABLE_HDF5": false,
+          "ANNDATA_ENABLE_ZARR": true,
+          "CMAKE_BUILD_TYPE": "Debug"
+        },
+        "configure": {
+          "exit_code": 0,
+          "command": "cmake --preset zarr-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "log": "build/record-validation/zarr-only-configure.log"
+        },
+        "build": {
+          "exit_code": 0,
+          "command": "cmake --build --preset zarr-only --parallel 2",
+          "log": "build/record-validation/zarr-only-build.log"
+        },
+        "ctest": {
+          "exit_code": 0,
+          "passed": 9,
+          "failed": 0,
+          "command": "ctest --preset zarr-only",
+          "log": "build/record-validation/zarr-only-ctest.log",
+          "tests": [
+            "arrays",
+            "data",
+            "strings",
+            "records",
+            "backed",
+            "backed_categories",
+            "record_zarr_rejection",
+            "import_only_example",
+            "installed_consumer"
+          ]
+        }
+      },
+      "shared": {
+        "status": "not_run",
+        "reason": "Awaiting root go-ahead after the HDF5 record VLEN fix is frozen."
+      }
+    },
+    "log_sha256": {
+      "core-only-configure": "d991f4a12ff59ab1569c194b261ad584f58af826f21ebc17ab21faeed50359a0",
+      "core-only-build": "004a3aaa3d64e1080d72703e832c6d0159d73f625ffc17e142131eddc9454144",
+      "core-only-ctest": "fb2479b809a1e5583c70c154d33fa075d0e9c3f6dcc19b957529af2aae9212ae",
+      "zarr-only-configure": "1cccbfd333473abac48ba2249f31ca3241eb55ac32a8e4d378b5028ee4cc1151",
+      "zarr-only-build": "3b59f3816c09530d4257b93441c4b5736d16841aeb1f6fc5837747e2b883c818",
+      "zarr-only-ctest": "1aeecb1c94a93766c9305603d00a9784a58482d96cbae30e9c9ca17a299a93cc"
+    }
+  },
+  "final_freeze_pre_merge": {
+    "integration_status": "pre-merge",
+    "worktree": "/tmp/anndata-cppm-records",
+    "branch": "codex/record-arrays",
+    "base_commit": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+    "working_tree_dirty": true,
+    "source_sha256": {
+      "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "src/h5ad.cpp": "df8492643d936ef16f9cfc0d6b123923cccdf813ffea3a20c0a667706088e989",
+      "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+      "CMakeLists.txt": "11dd82c320d031c8ef05070169ed992de0cf9ec709b9dbe303140288b71e095d",
+      "CMakePresets.json": "4c75b5c0e9fc955abc286c39e0c949612b5eea92b7ed345e569f3a0e9eb9a7f6",
+      "tests/consumer/records.cpp": "db8a025a4c97d8fff37444ea4f6ef5a2c48a8a63724478721eb036886ebec9ed"
+    },
+    "configuration_reused": true,
+    "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "interop_tests": false,
+    "max_build_jobs": 2,
+    "runtime_performance_probes": false,
+    "configurations": {
+      "core-only": {
+        "cache": {
+          "ANNDATA_ENABLE_HDF5": false,
+          "ANNDATA_ENABLE_ZARR": false
+        },
+        "build": {
+          "exit_code": 0,
+          "command": "cmake --build --preset core-only --parallel 2",
+          "log": "build/record-validation/final-freeze/core-only-build.log"
+        },
+        "ctest": {
+          "exit_code": 0,
+          "passed": 8,
+          "failed": 0,
+          "command": "ctest --preset core-only",
+          "log": "build/record-validation/final-freeze/core-only-ctest.log",
+          "tests": [
+            "arrays",
+            "data",
+            "strings",
+            "records",
+            "backed",
+            "backed_categories",
+            "import_only_example",
+            "installed_consumer"
+          ]
+        }
+      },
+      "zarr-only": {
+        "cache": {
+          "ANNDATA_ENABLE_HDF5": false,
+          "ANNDATA_ENABLE_ZARR": true
+        },
+        "build": {
+          "exit_code": 0,
+          "command": "cmake --build --preset zarr-only --parallel 2",
+          "log": "build/record-validation/final-freeze/zarr-only-build.log"
+        },
+        "ctest": {
+          "exit_code": 0,
+          "passed": 9,
+          "failed": 0,
+          "command": "ctest --preset zarr-only",
+          "log": "build/record-validation/final-freeze/zarr-only-ctest.log",
+          "tests": [
+            "arrays",
+            "data",
+            "strings",
+            "records",
+            "backed",
+            "backed_categories",
+            "record_zarr_rejection",
+            "import_only_example",
+            "installed_consumer"
+          ]
+        }
+      },
+      "shared": {
+        "status": "not_run",
+        "reason": "Root redirected validation to the post-merge integrator after the source refactor."
+      },
+      "hdf5-only": {
+        "status": "not_run",
+        "reason": "Root redirected validation to the post-merge integrator after the source refactor."
+      }
+    },
+    "log_sha256": {
+      "core-only-build": "ea238ebdc8126188ebeea27639e98571700cb32491b9803995f8999492375e5d",
+      "core-only-ctest": "9c8505b545dda3987010195ef410ac532eca1c4a004cdd8c4fc8dcae2c2c80d5",
+      "zarr-only-build": "27a0b5a231875fbab64a3b6dc20d9dd8b0c3f39485a4cf9bca6c3937c7e449d8",
+      "zarr-only-ctest": "dc24783f9ba076214397fd85f89ece965214486d2cc9b3d0b8abd12957f4f71a"
+    },
+    "followup": "Repeat combined backend matrix against post-merge source before final acceptance."
+  }
+}

@@ -18,10 +18,18 @@ namespace backed_detail {
 using Attribute = std::variant<std::string, std::vector<std::string>, std::int64_t,
                                std::vector<std::int64_t>, bool, double>;
 using Attributes = std::map<std::string, Attribute, std::less<>>;
+struct RecordFieldInfo {
+    std::string name;
+    bool strings = false;
+    DType dtype = DType::float64;
+    ByteOrder byte_order = ByteOrder::native;
+};
 struct NodeInfo {
     bool exists = false;
     bool group = false;
     bool strings = false;
+    bool record = false;
+    std::vector<RecordFieldInfo> fields;
     bool has_opaque_attrs = false;
     DType dtype = DType::float64;
     ByteOrder byte_order = ByteOrder::native;
@@ -78,6 +86,26 @@ public:
         ByteOrder byte_order = ByteOrder::native) = 0;
     virtual void create_strings(std::string_view path,
         const std::vector<std::size_t>& shape, const Attributes& attrs) = 0;
+    virtual void create_record(std::string_view path, const std::vector<std::size_t>&,
+        const std::vector<RecordFieldInfo>&, const Attributes&) {
+        throw Error(ErrorCode::unsupported_encoding, std::string(path), "record arrays are unsupported by this backend");
+    }
+    virtual void read_record_numeric(std::string_view path, std::string_view,
+        const std::vector<std::size_t>&, const std::vector<std::size_t>&, void*) {
+        throw Error(ErrorCode::unsupported_encoding, std::string(path), "record arrays are unsupported by this backend");
+    }
+    virtual void write_record_numeric(std::string_view path, std::string_view,
+        const std::vector<std::size_t>&, const std::vector<std::size_t>&, const void*) {
+        throw Error(ErrorCode::unsupported_encoding, std::string(path), "record arrays are unsupported by this backend");
+    }
+    virtual std::vector<std::string> read_record_strings_bounded(std::string_view path, std::string_view,
+        const std::vector<std::size_t>&, const std::vector<std::size_t>&, std::size_t) {
+        throw Error(ErrorCode::unsupported_encoding, std::string(path), "record arrays are unsupported by this backend");
+    }
+    virtual void write_record_strings(std::string_view path, std::string_view,
+        const std::vector<std::size_t>&, const std::vector<std::size_t>&, const std::vector<std::string>&) {
+        throw Error(ErrorCode::unsupported_encoding, std::string(path), "record arrays are unsupported by this backend");
+    }
     virtual void attributes(std::string_view path, const Attributes& attrs) = 0;
     virtual void erase(std::string_view path) = 0;
     virtual void rename(std::string_view source, std::string_view target) = 0;
@@ -158,6 +186,10 @@ std::string string_attr(const NodeInfo&, std::string_view key, std::string_view 
 std::vector<std::string> strings_attr(const NodeInfo&, std::string_view key, std::string_view path);
 std::vector<std::size_t> logical_shape(Session&, std::string_view path);
 Array read_array(const std::shared_ptr<detail::BackedNode>&);
+Element read_record_field(const std::shared_ptr<detail::BackedNode>&, const NodeInfo&, std::string_view);
+RecordArray read_record(const std::shared_ptr<detail::BackedNode>&, const NodeInfo&);
+void write_record(Backend&, std::string_view, RecordArrayView, std::size_t);
+void copy_record(Backend&, std::string_view, const std::shared_ptr<detail::BackedNode>&, const NodeInfo&, std::size_t);
 void copy_array(Backend&, std::string_view destination_path, const std::shared_ptr<detail::BackedNode>&, std::size_t scratch_bytes);
 void copy_node(Backend&, std::string_view destination_path, const std::shared_ptr<detail::BackedNode>&,
                std::size_t scratch_bytes, std::optional<std::size_t> string_scratch_bytes = {});

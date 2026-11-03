@@ -22,9 +22,13 @@ option(ANNDATA_BUILD_TESTS "Build standalone native tests" ${PROJECT_IS_TOP_LEVE
 option(ANNDATA_BUILD_EXAMPLES "Build import-only examples" ${PROJECT_IS_TOP_LEVEL})
 option(ANNDATA_BUILD_BENCHMARKS "Build numerical memory benchmarks" OFF)
 option(ANNDATA_ENABLE_INTEROP_TESTS "Compare semantics using Python AnnData fixtures" OFF)
+option(ANNDATA_ENABLE_RECORD_INTEROP_TESTS "Compare records using the isolated Scanpy reference" OFF)
 option(ANNDATA_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 option(ANNDATA_ENABLE_HDF5 "Enable native H5AD reading and writing" ON)
 option(ANNDATA_ENABLE_ZARR "Enable native Zarr v2/v3 reading and writing" ON)
+if(ANNDATA_ENABLE_RECORD_INTEROP_TESTS AND (NOT ANNDATA_ENABLE_INTEROP_TESTS OR NOT ANNDATA_ENABLE_HDF5))
+  message(FATAL_ERROR "Record interoperability tests require ANNDATA_ENABLE_INTEROP_TESTS and ANNDATA_ENABLE_HDF5.")
+endif()
 set(ANNDATA_DEPENDENCY_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/build/dependencies/usr" CACHE PATH
   "Optional private prefix containing storage development dependencies")
 if(EXISTS "${ANNDATA_DEPENDENCY_PREFIX}")
@@ -58,11 +62,13 @@ target_sources(anndata
     src/anndata.core.cppm
     src/anndata.arrays.cppm
     src/anndata.strings.cppm
+    src/anndata.records.cppm
     src/anndata.data.cppm
     src/anndata.backed.cppm
-  PRIVATE src/arrays.cpp src/strings.cpp src/data.cpp src/backed.cpp
+  PRIVATE src/arrays.cpp src/strings.cpp src/records.cpp src/data.cpp src/backed.cpp
     src/backed_array.cpp src/backed_codec.cpp src/backed_structure.cpp src/backed_writer.cpp
-    src/backed_index.cpp src/backed_copy.cpp src/backed_category.cpp src/backed_colors.cpp)
+    src/backed_index.cpp src/backed_copy.cpp src/backed_category.cpp src/backed_colors.cpp
+    src/backed_records.cpp)
 target_sources(anndata PRIVATE FILE_SET backed_internal TYPE CXX_MODULES
   BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES src/anndata.backed.storage.cppm)
 if(ANNDATA_ENABLE_HDF5)
@@ -106,7 +112,7 @@ if(ANNDATA_BUILD_EXAMPLES)
 endif()
 if(ANNDATA_BUILD_TESTS)
   enable_testing()
-  foreach(_suite arrays data strings)
+  foreach(_suite arrays data strings records)
     add_executable(test_${_suite} tests/test_${_suite}.cpp)
     target_link_libraries(test_${_suite} PRIVATE anndata::anndata)
     add_test(NAME ${_suite} COMMAND test_${_suite})
@@ -121,7 +127,19 @@ if(ANNDATA_BUILD_TESTS)
   add_executable(test_backed_categories tests/test_backed_categories.cpp)
   target_link_libraries(test_backed_categories PRIVATE anndata::anndata)
   add_test(NAME backed_categories COMMAND test_backed_categories "${CMAKE_CURRENT_BINARY_DIR}/backed-category-tests")
+  if(ANNDATA_ENABLE_ZARR)
+    add_executable(test_record_zarr_rejection tests/test_record_zarr_rejection.cpp)
+    target_link_libraries(test_record_zarr_rejection PRIVATE anndata::anndata)
+    add_test(NAME record_zarr_rejection COMMAND test_record_zarr_rejection "${CMAKE_CURRENT_BINARY_DIR}/record-zarr-rejection")
+  endif()
   if(ANNDATA_ENABLE_HDF5)
+    add_executable(test_records_h5ad tests/test_records_h5ad.cpp)
+    target_include_directories(test_records_h5ad PRIVATE src)
+    target_link_libraries(test_records_h5ad PRIVATE anndata::anndata PkgConfig::ANNDATA_HDF5 ${CMAKE_DL_LIBS})
+    add_test(NAME records_h5ad COMMAND test_records_h5ad "${CMAKE_CURRENT_BINARY_DIR}/records-h5ad-tests")
+    add_executable(test_backed_records tests/test_backed_records.cpp)
+    target_link_libraries(test_backed_records PRIVATE anndata::anndata)
+    add_test(NAME backed_records COMMAND test_backed_records "${CMAKE_CURRENT_BINARY_DIR}/backed-record-tests")
     add_executable(test_h5ad tests/test_h5ad.cpp)
     target_link_libraries(test_h5ad PRIVATE anndata::anndata)
     add_test(NAME h5ad COMMAND test_h5ad "${CMAKE_CURRENT_BINARY_DIR}/h5ad-tests")
@@ -150,6 +168,12 @@ if(ANNDATA_ENABLE_INTEROP_TESTS)
   add_test(NAME python_semantics COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_semantics.py $<TARGET_FILE:interop_driver>)
   if(ANNDATA_ENABLE_HDF5)
+    if(ANNDATA_ENABLE_RECORD_INTEROP_TESTS)
+      add_executable(records_interop_driver tests/records_interop_driver.cpp)
+      target_link_libraries(records_interop_driver PRIVATE anndata::anndata)
+      add_test(NAME python_records COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_records.py $<TARGET_FILE:records_interop_driver>)
+    endif()
     add_executable(h5ad_interop_driver tests/h5ad_interop_driver.cpp)
     target_link_libraries(h5ad_interop_driver PRIVATE anndata::anndata)
     add_test(NAME python_h5ad COMMAND ${Python3_EXECUTABLE}
@@ -164,9 +188,14 @@ if(ANNDATA_ENABLE_INTEROP_TESTS)
 endif()
 if(ANNDATA_BUILD_BENCHMARKS)
   find_package(Threads REQUIRED)
+  add_executable(records_benchmark benchmarks/records.cpp)
+  target_link_libraries(records_benchmark PRIVATE anndata::anndata)
   add_executable(memory_benchmark benchmarks/memory.cpp)
   target_link_libraries(memory_benchmark PRIVATE anndata::anndata Threads::Threads)
   if(ANNDATA_ENABLE_HDF5)
+    add_executable(record_io_probe benchmarks/record_io_probe/driver.cpp)
+    target_include_directories(record_io_probe PRIVATE benchmarks/record_io_probe)
+    target_link_libraries(record_io_probe PRIVATE anndata::anndata ${CMAKE_DL_LIBS})
     add_executable(h5ad_benchmark benchmarks/h5ad.cpp)
     target_link_libraries(h5ad_benchmark PRIVATE anndata::anndata)
   endif()

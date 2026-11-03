@@ -1,0 +1,14 @@
+{
+  "project": "anndata-cppm",
+  "requested_task": "record-arrays",
+  "route": "Project Control next_task",
+  "status": "attention_required",
+  "reason": "workflow_task_already_active",
+  "allowed_actions": [],
+  "handle_returned": false,
+  "authority_modified": false,
+  "source_baseline": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "worktree": "/tmp/anndata-cppm-records",
+  "branch": "codex/record-arrays",
+  "note": "Authorized library implementation proceeds separately. Existing workflow authority and the other agent's checkout are preserved. Local source validation is not native Todo outcome acceptance."
+}

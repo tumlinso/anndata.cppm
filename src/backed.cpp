@@ -82,7 +82,7 @@ std::string encoding(const NodeInfo& info, std::string_view path) {
     auto code = string_attr(info, "encoding-type", path);
     auto version = string_attr(info, "encoding-version", path);
     std::string_view expected;
-    if (code == "array" || code == "numeric-scalar" || code == "string" || code == "string-array" || code == "dataframe" || code == "categorical") expected = "0.2.0";
+    if (code == "array" || code == "numeric-scalar" || code == "string" || code == "string-array" || code == "dataframe" || code == "categorical" || code == "rec-array") expected = "0.2.0";
     else if (code == "anndata" || code == "raw" || code == "dict" || code == "null" || code == "csr_matrix" || code == "csc_matrix" || code == "nullable-integer" || code == "nullable-boolean" || code == "nullable-string-array") expected = "0.1.0";
     else fail(ErrorCode::unsupported_encoding, path, "unsupported encoding '" + code + "'");
     if (version != expected) fail(ErrorCode::unsupported_version, path, "unsupported " + code + " version '" + version + "'");
@@ -137,7 +137,7 @@ std::vector<std::size_t> logical_shape(Session& s, std::string_view path) {
     }
     if (code == "categorical") return logical_shape(s, child(path, "codes"));
     if (code == "nullable-integer" || code == "nullable-boolean" || code == "nullable-string-array") return logical_shape(s, child(path, "values"));
-    if (code == "array" || code == "string-array" || code == "numeric-scalar" || code == "string") return info.shape;
+    if (code == "array" || code == "string-array" || code == "numeric-scalar" || code == "string" || code == "rec-array") return info.shape;
     return {};
 }
 std::shared_ptr<detail::BackedNode> node(std::shared_ptr<Session> s, std::string path, std::vector<Axis> axes) {

@@ -1,0 +1,219 @@
+{
+  "baseline_cold_library_seconds": 52.86734721700486,
+  "baseline_commit": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+  "bmis": {
+    "baseline_count": 9,
+    "baseline_total_bytes": 39523092,
+    "final_count": 10,
+    "final_records_bytes": 6182324,
+    "final_total_bytes": 46428536
+  },
+  "conditions": {
+    "backend": "HDF5 and Zarr enabled",
+    "cache": "fresh baseline build; final consumer uses the existing, updated final2 build tree; OS page cache not cleared",
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "configuration": "Release (-O3 -DNDEBUG)",
+    "contention": "other qualification builds may have overlapped; no precision timing or variance claim",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz",
+    "parallel_jobs": 2,
+    "samples": 1
+  },
+  "consumer_wall_seconds": {
+    "baseline_core": 0.34219318800023757,
+    "baseline_facade": 0.3576849710007082,
+    "final_core": 0.37097538499801885,
+    "final_facade": 0.4096628429979319
+  },
+  "edit_isolation": {
+    "private_changed_bmis": [],
+    "private_facade_object_unchanged": true,
+    "private_seconds": 3.778475425002398,
+    "public_changed_bmis": [
+      "CMakeFiles/anndata.dir/anndata.backed-storage.pcm",
+      "CMakeFiles/anndata.dir/anndata.backed.pcm",
+      "CMakeFiles/anndata.dir/anndata.core-data.pcm",
+      "CMakeFiles/anndata.dir/anndata.core-records.pcm",
+      "CMakeFiles/anndata.dir/anndata.core.pcm",
+      "CMakeFiles/anndata.dir/anndata.h5ad.pcm",
+      "CMakeFiles/anndata.dir/anndata.pcm",
+      "CMakeFiles/anndata.dir/anndata.zarr.pcm"
+    ],
+    "public_facade_object_rebuilt": true,
+    "public_seconds": 46.27403564500128
+  },
+  "final_cold_library_seconds": null,
+  "hdf5_counts": {
+    "cases": {
+      "2_fields": {
+        "field_native_bytes": 65536,
+        "field_read_calls": 1,
+        "record_export_reads": 2,
+        "record_export_writes": 2,
+        "whole_native_bytes": 131072,
+        "whole_read_calls": 2
+      },
+      "8_fields": {
+        "field_native_bytes": 65536,
+        "field_read_calls": 1,
+        "record_export_reads": 8,
+        "record_export_writes": 8,
+        "whole_native_bytes": 524288,
+        "whole_read_calls": 8
+      }
+    },
+    "correctness": "all selected and exported field values matched; interposer projection_errors=0",
+    "fixture": "gzip level 4, 256-record chunks, 8192 records, f64 fields; 2 and 8 fields, 1x1 axes; selected memory-type bytes",
+    "limitations": "H5D calls and selected native bytes, not disk bytes, decompression counts, elapsed time or throughput",
+    "raw_json_sha256": "dd4e3a141d36c2a52ef8650a5db05e2654d4ad570f1616d4412e06bfda4e6fa0"
+  },
+  "measurement_sources_sha256": {
+    "benchmarks/records.cpp": "204326cbd45c1b1f2b20db115599581e44afc60bd629260e040791d100c83f36",
+    "tools/record_measurements.py": "1ff3c973918837aa5afd701f044a8c1b948e91c152919d427da3fd9bd151eb68"
+  },
+  "notes": [
+    "Final2 built the library and consumers but did not save timing fields because of a harness marker error. Final consumer timings use fresh consumer targets in the updated existing build tree.",
+    "Private/public edit experiments append a declaration to disposable source copies; hashes and mtimes, not only elapsed time, identify rebuilds.",
+    "No HDF5 throughput or physical chunk-decode count is inferred.",
+    "Compile timings and BMI sizes precede the cached-stride interface change; candidate runtime uses the changed interface. They are separate source identities."
+  ],
+  "raw_artifacts": {
+    "baseline_raw_sha256": "1058a31dd11cbf2b84bad0e5972d5cbfc3316d5ea18246cef8dc7e57edf145fb",
+    "final_incremental_raw_sha256": "edecd38a058f9415fd7faf5b525528bbb0cd164b788a86349aa83f2ee5a937a9",
+    "interrupted_final2_library_log_sha256": "79080ad5f87e96a5cbc01278f15462f3e411c9f068c02d0f1558724a5940f7ef"
+  },
+  "runtime": {
+    "allocation_counter": "ordinary global new/new[] only, not malloc, aligned allocation or backend allocators",
+    "benchmark_source_sha256": "204326cbd45c1b1f2b20db115599581e44afc60bd629260e040791d100c83f36",
+    "binary_sha256": "893e5cdc1aa393d456de2f512ba89ac44d0ad6d0222ffacaae28f00f392668d6",
+    "build_report_sha256": "fabcbbb2f8e2f9a0d1753b4edd57bbb11ba47fc37ee762bb8d35552561e56940",
+    "candidate": {
+      "benchmark_source_sha256": "204326cbd45c1b1f2b20db115599581e44afc60bd629260e040791d100c83f36",
+      "binary_sha256": "7b66bc20138cd024d9ad7cbe459695606f26d2d702cd93dce88c85b22b1fa15c",
+      "build_report_sha256": "f6504cde4053e8c946c4fbd6624cfcd6a3f9f5a0765673440cac206c03bae78b",
+      "conditions": "one later sequential observation, same geometry, compiler, benchmark source, settings and inputs; unrelated external host activity not ruled out",
+      "disassembly_observation": "member loop has no calls and is unrolled two rows",
+      "disassembly_sha256": "0b4b6543909048922ab6881cebe76f1ea357377890cabcbf533e13cd76b8d69f",
+      "observation": {
+        "acquire": {
+          "new_bytes": 0,
+          "new_calls": 0,
+          "seconds": 0.000176446
+        },
+        "acquisitions": 10000,
+        "checksum": 6143810.0,
+        "deep_copy": {
+          "new_bytes": 1575632,
+          "new_calls": 19,
+          "seconds": 0.00508334
+        },
+        "member": {
+          "new_bytes": 0,
+          "new_calls": 0,
+          "seconds": 0.00562418
+        },
+        "ok": true,
+        "raw": {
+          "new_bytes": 0,
+          "new_calls": 0,
+          "seconds": 0.00549655
+        },
+        "repeats": 100,
+        "row_bytes": 32,
+        "rows": 32768,
+        "stride": {
+          "new_bytes": 0,
+          "new_calls": 0,
+          "seconds": 0.00551843
+        },
+        "text_bytes_per_row": 48
+      },
+      "raw_json_sha256": "542af40c73fe0c7311b8e1d3de2a43ec7c3c4ab7ad659dc72b38fa4927c591c9",
+      "record_implementation_sha256": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "record_module_source_sha256": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "source_delta": "Only anndata.records.cppm and records.cpp differ from prior runtime snapshot; benchmark source and other src files match."
+    },
+    "conditions": "one sequential single-thread observation per path; all paths warmed once; caller-held numeric views acquired outside loop; other unrelated host activity not ruled out",
+    "disassembly_observation": "member loop makes two DenseDimensions::stride calls per element, with multiplications; raw and pointer-stride loops have no calls and are unrolled",
+    "disassembly_sha256": "0d798cb309bc342be80b766bf2f5c756f1585cc425a820a7b5f51aa33348a295",
+    "observation": {
+      "acquire": {
+        "new_bytes": 0,
+        "new_calls": 0,
+        "seconds": 0.000216738
+      },
+      "acquisitions": 10000,
+      "checksum": 6143810.0,
+      "deep_copy": {
+        "new_bytes": 1575632,
+        "new_calls": 19,
+        "seconds": 0.00487941
+      },
+      "member": {
+        "new_bytes": 0,
+        "new_calls": 0,
+        "seconds": 0.0152985
+      },
+      "ok": true,
+      "raw": {
+        "new_bytes": 0,
+        "new_calls": 0,
+        "seconds": 0.00558503
+      },
+      "repeats": 100,
+      "row_bytes": 32,
+      "rows": 32768,
+      "stride": {
+        "new_bytes": 0,
+        "new_calls": 0,
+        "seconds": 0.0052193
+      },
+      "text_bytes_per_row": 48
+    },
+    "raw_json_sha256": "79129ce523e08d23676970a8747002427ba0a4d7b80a9e0b834f9bd137d6406c",
+    "record_implementation_sha256": "f42e164e39abecfa7641ef8877f51db3ab4b5ca593c51ff29fc40dcd68209cbd",
+    "record_module_source_sha256": "92c1c86a395ac7c9c2701e21d3a6aefd2c56184d2a8c7ebdadaa2be2409ecff8",
+    "source_scope": "Runtime core record module and implementation matched current source at run. H5AD implementation changed after runtime snapshot; workload does not access H5AD."
+  },
+  "schema": "anndata.records-performance.v1",
+  "snapshot_changes_since_final2": [
+    "anndata.records.cppm",
+    "backed_hdf5.cpp",
+    "backed_records.cpp",
+    "h5ad.cpp",
+    "records.cpp"
+  ],
+  "snapshot_source_sha256": {
+    "anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+    "anndata.backed.cppm": "46b01af69ebae64969755f7985c6b72f6f2888a1a8a6264e0c034d6a347fd78f",
+    "anndata.backed.storage.cppm": "bebd04085c6873dc96f8a5296ac8b99d7208f511355307d5e7a30c099b31abe0",
+    "anndata.core.cppm": "84d83471d19cb26bc4b32c38ac2e2f4f1b08e16113ec367a92114edab23bd000",
+    "anndata.cppm": "6f2b3bcee0df87fe15337ebea427347fc32346f80dd7b2a7fe5cb2d9f3eb9290",
+    "anndata.data.cppm": "fe2caca2131bc6e65fa93b297a0ea5c6315105a5705d3a6f70caced4e5931073",
+    "anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "anndata.records.cppm": "92c1c86a395ac7c9c2701e21d3a6aefd2c56184d2a8c7ebdadaa2be2409ecff8",
+    "anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+    "anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+    "backed.cpp": "a22d1bc48d7dcd0178b653abdf8cada4459a67f9259ad7abcd910e8216c47b49",
+    "backed_array.cpp": "b5d9bfe1a0732b82199c5a035e24dea8bda958ccc62b500739f021245825e8be",
+    "backed_category.cpp": "d9a0b267acdb094459f9fec1969ba95b7b35dd360298e3353bbc52bf45b14c59",
+    "backed_codec.cpp": "ba6cc272d8265edd53ff38150d341edeb6f34c631f687dc1602fd07c3db53a19",
+    "backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "backed_copy.cpp": "efc4d3845ba787db9e89ecf8de7e7d186586653aa3ac364c3f6780da8c4a0d24",
+    "backed_hdf5.cpp": "2852a8de830e9f831b2d3c2811f4787d5ce786255b94bb175209c297808c7912",
+    "backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "backed_records.cpp": "6da86a5ecbf38e25c42a9186758b64fc3dcc644668ed33edac8f88692e38613f",
+    "backed_structure.cpp": "e154845994d1a9eebf0df842575a18f6542f804fa242eb6ea07d5c369615e1f7",
+    "backed_writer.cpp": "0d6dc20c59554d85ed2e2411eb32b42e89b3c4a45100a3abea425373b91a769e",
+    "backed_zarr.cpp": "395a01701cd1618104b6d8ca6eb3cc0b66701c974ca363d8adf6026da4d9182a",
+    "data.cpp": "3260f4250a700eb0218e386ceecb1dddff78c3a2b1f3fc9d1dce4007a45778a5",
+    "h5ad.cpp": "ca8d56002e6b77bb06f20bb292458947205f0fb39c6f5c2aa4c22edcf3c9f18c",
+    "records.cpp": "6881cd42081735217de2512488cbec52b19019316bdfed4f2096b781961217ea",
+    "strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+    "zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "zarr_codecs.cpp": "f0de47f0163d1b30050b77bd9153ba734a5d8f4d6ee8befbb905352c6f811a95",
+    "zarr_engine.cpp": "44299d1fa7e4b4ee65e8a37104d57e93fe81cd1ee35cbed31d924969fc8e762e",
+    "zarr_engine.hpp": "0c15d38dcf6a69b56fb04ade92e86db61abab8dca9b38d6ae037c2f5f7096476",
+    "zarr_sharding.cpp": "85aec7bee6016fcec883a88370e3c806b807d281905a8b31cc876b3d9f7cf6cc"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "anndata.records.interoperability.v1",
+  "source": {
+    "branch": "codex/record-arrays",
+    "base_commit": "2ddf57559412c90297e5b525bd6a5b6d9a0c36d1",
+    "working_tree_dirty": true,
+    "sha256": {
+      "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+      "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+      "src/h5ad.cpp": "df8492643d936ef16f9cfc0d6b123923cccdf813ffea3a20c0a667706088e989",
+      "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+      "tests/python_records.py": "6343e808e95bc4f962f30d446975aa1421741be8937f38149b3a32048baedd95",
+      "tests/records_interop_driver.cpp": "5ff53407e159c68037acd6e1bc920b3cbcdeb0b9ef05e0906dcad761003eb055",
+      "tests/python_h5ad.py": "5cbff4f56c4d086f36bddccba4237a3f571fc2f5dc3bf8f3f01a84d77c0c46e2",
+      "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+      "tests/requirements-records.txt": "2bc3bc6afb53af8b03533465fc1b53d40caa8cc3912f50e704f06ac52056b000"
+    },
+    "source_and_test_files_changed_during_final_test": false
+  },
+  "environment": {
+    "python": "3.12.3",
+    "anndata": "0.13.4",
+    "scanpy": "1.11.5",
+    "h5py": "3.16.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.17.1",
+    "zarr": "3.4.2",
+    "numcodecs": "0.17.1",
+    "compiler": "Clang 18.1.3",
+    "cmake": "3.28.3",
+    "hdf5_c": "1.10.10",
+    "independent_python_environment": "/tmp/anndata-record-reference"
+  },
+  "final_run": {
+    "command": "env MPLCONFIGDIR=/tmp/anndata-record-matplotlib PYTHONPYCACHEPREFIX=/tmp/anndata-record-python-cache ANNDATA_RECORD_FIXTURE_DIR=/tmp/anndata-cppm-records/build/records-interop/fixtures-05 ctest --test-dir build/records-interop -R '^python_(records|h5ad)$' --output-on-failure --output-junit final-interop.xml",
+    "exit_code": 0,
+    "passed": 2,
+    "failed": 0,
+    "seconds": {"python_records": 4.02, "python_h5ad": 1.95, "total": 5.96},
+    "log": "build/records-interop/final-interop-ctest.log",
+    "log_sha256": "c57108002be7d997666e4f0be1a8585a9936e54c986f39dc47d3d4ac8b355abb",
+    "junit": "build/records-interop/final-interop.xml",
+    "junit_sha256": "ff4ad30d3a224ea36cc8bf6fbc03c2d3015c5cae6ea8db4ccbd4199c299034b1",
+    "driver_sha256": {
+      "records_interop_driver": "4b8586086148fc064afef896a43d4a79768f1544d0bd2d25e1f39329565e847e",
+      "h5ad_interop_driver": "0506908e1e57c51a281c1cb06e7f5021013cd8ce07f041fb473cd0d497ba2638"
+    },
+    "archive_sha256": "7217bf3204a7680975da70ced486897a98b79b7b81a80ee165c3b12a5103274d"
+  },
+  "prior_regression_run": {
+    "passed": 4,
+    "failed": 0,
+    "seconds": {"python_semantics": 1.32, "python_records": 4.05, "python_h5ad": 2.07, "python_storage": 85.10, "total": 92.55},
+    "qualification": "This run preceded the final records.cpp fixed-string/stride changes and h5ad.cpp variable-length-string staging fix. The two affected record and H5AD tests were rerun above. The backed storage code and the semantics/storage test paths did not change between runs."
+  },
+  "fixtures": {
+    "path": "build/records-interop/fixtures-05",
+    "ignored": true,
+    "sha256": {
+      "input.h5ad": "30c89ca194f954271d3f887673bc5c0ed405339fe6401169d3be990a91c3e53a",
+      "eager.h5ad": "294ac640f29d2e1f45c04338d0b36f3a97332028d1b07f092a18e5afb78a5f07",
+      "backed.h5ad": "763c2179a908b062747afab4954c3b481a427b1d8d944f870abfd248785c342d",
+      "export.h5ad": "0a6efa4a86c15b887726f2c33052777edc47db4f2cdca739cc6aa7bf8db21347",
+      "fixed-utf8.h5ad": "5ed453ef6f4f17cfb1213dc6c1f2b886727783a8f5cc987de4537e1127ff561c",
+      "fixed-eager.h5ad": "58aa1381d58961feba9d29d1d01b1c96ffb16f7ad80f195b61d3089e62126a6b",
+      "fixed-backed.h5ad": "a7baa48a26753fded627f4bd8ca1df11ebf3ee56b059e02ddbd8ce1b5428e0bf"
+    }
+  },
+  "limitations": [
+    "AnnData 0.13.4 raises UnicodeDecodeError reading non-ASCII fixed-width UTF-8 compound fields; the native library reads this input and writes variable-length UTF-8 that the pinned reader accepts.",
+    "AnnData 0.13.4 returns numpy.void for a rank-zero rec-array and has no ordinary writer for that scalar object; the test checks native output reopened by Python, not a Python-only rewrite."
+  ]
+}

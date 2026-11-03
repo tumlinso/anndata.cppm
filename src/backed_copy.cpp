@@ -279,6 +279,7 @@ void copy_node_impl(Backend& destination,std::string_view path,const Node& sourc
     if(code=="numeric-scalar" && !info.shape.empty())fail(ErrorCode::shape_mismatch,source->path,"numeric-scalar requires rank zero");
     if(code=="string" && !info.shape.empty())fail(ErrorCode::shape_mismatch,source->path,"string scalar requires rank zero");
     if(code=="array"||code=="numeric-scalar"||code=="csr_matrix"||code=="csc_matrix"){copy_array(destination,path,source,budget);return;}
+    if(code=="rec-array"){copy_record(destination,path,source,info,budget);return;}
     if(code=="string-array"||code=="string"){copy_strings(destination,path,source,info,std::min(budget,string_scratch_bytes.value_or(budget)));return;}
     if(code=="null"){if(info.group)require_children(source,{});destination.create_numeric(path,DType::float64,{},info.attrs,ByteOrder::native);return;}
     if(!info.group)fail(ErrorCode::unsupported_encoding,source->path,"group encoding is stored as a dataset");

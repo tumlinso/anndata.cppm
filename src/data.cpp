@@ -75,6 +75,7 @@ struct ElementImpl {
     std::optional<ArrayView> view_array;
     std::optional<StringArray> string_array;
     std::optional<StringArrayView> view_string_array;
+    std::optional<RecordArray> record_array;
     std::optional<Column> column;
     std::optional<ColumnView> view_column;
     std::optional<Table> table;
@@ -845,6 +846,7 @@ Element::Element(const char* v) : Element() {
 }
 Element::Element(Array v) : Element() { impl_->kind = ElementKind::array; impl_->array.emplace(std::move(v)); }
 Element::Element(StringArray v) : Element() { impl_->kind = ElementKind::string_array; impl_->string_array.emplace(std::move(v)); }
+Element::Element(RecordArray v) : Element() { impl_->kind = ElementKind::record_array; impl_->record_array.emplace(std::move(v)); }
 Element::Element(Column v) : Element() { impl_->kind = ElementKind::column; impl_->column.emplace(std::move(v)); }
 Element::Element(Table v) : Element() { impl_->kind = ElementKind::table; impl_->table.emplace(std::move(v)); }
 Element Element::mapping() { Element e; e.impl_->kind = ElementKind::mapping; return e; }
@@ -893,6 +895,7 @@ ElementView Element::at(std::string_view key) const { return view().at(key); }
 void Element::validate() const {
     if (impl_->array) impl_->array->validate();
     if (impl_->string_array) impl_->string_array->validate();
+    if (impl_->record_array) impl_->record_array->validate();
     if (impl_->column) impl_->column->validate();
     if (impl_->table) impl_->table->validate();
     for (const auto& [name, value] : impl_->mapping) validate_at(value, name);
@@ -923,6 +926,10 @@ ArrayView ElementView::array() const {
 StringArrayView ElementView::string_array() const {
     check_kind(kind(), ElementKind::string_array);
     return impl_->view_string_array ? *impl_->view_string_array : impl_->string_array->view();
+}
+RecordArrayView ElementView::record_array() const {
+    check_kind(kind(), ElementKind::record_array);
+    return impl_->record_array->view();
 }
 ColumnView ElementView::column() const {
     check_kind(kind(), ElementKind::column);
@@ -963,6 +970,7 @@ Element ElementView::copy() const {
     case ElementKind::string: return Element(std::string(string()));
     case ElementKind::array: return Element(array().copy());
     case ElementKind::string_array: return Element(string_array().copy());
+    case ElementKind::record_array: return Element(record_array().copy());
     case ElementKind::column: return Element(column().copy());
     case ElementKind::table: return Element(table().copy());
     case ElementKind::mapping: {

@@ -12,6 +12,7 @@ checked("${CMAKE_COMMAND}" -S "${ANNDATA_SOURCE_DIR}/tests/consumer" -B "${_cons
   "-DCMAKE_PREFIX_PATH=${_prefix}\;${ANNDATA_DEPENDENCY_PREFIX}")
 checked("${CMAKE_COMMAND}" --build "${_consumer}" --parallel 2)
 checked("${_consumer}/consumer")
+checked("${_consumer}/consumer_records")
 checked("${_consumer}/consumer_backed")
 if(ANNDATA_HDF5_ENABLED)
   checked("${_consumer}/consumer_facade" "${_consumer}/facade.h5ad")

@@ -26,6 +26,7 @@ The implementation follows the [AnnData encoding specification](https://anndata.
 | `dict`, `null` | 0.1.0 | Nested mappings and distinct null elements |
 | `array`, `numeric-scalar` | 0.2.0 | bool, signed/unsigned 8–64-bit integers, float32/64 |
 | `string`, `string-array` | 0.2.0 | UTF-8 scalar text and dense n-dimensional packed strings |
+| `rec-array` | 0.2.0 | Ordered primitive numerical and text fields with a common outer shape |
 | `csr_matrix`, `csc_matrix` | 0.1.0 | Values, indices, indptr, orientation and independent integer widths |
 | `dataframe` | 0.2.0 | Ordered heterogeneous columns and named string row index |
 | `categorical` | 0.2.0 | Codes, complete category dictionary, ordering, missing code |
@@ -39,7 +40,22 @@ A plain string `Column` and a one-dimensional `StringArray` use the same establi
 
 Raw data without X can retain an independent raw variable table in C++ and on disk. AnnData 0.13.4's eager Raw constructor substitutes the parent variable metadata when raw X is None. Independent raw metadata in that case therefore has no Python-semantic round-trip guarantee; the library preserves the stored metadata rather than inventing numerical values or discarding the axis.
 
-Unknown encodings or versions, legacy unversioned data, compound/record arrays, complex and half-precision arrays, ragged/Awkward data, and nullable floating-point columns produce contextual errors. Such data is not silently removed or converted into a different encoding. In particular, some Scanpy results use compound arrays and remain outside this subset. Eager loading into the in-memory model does not retain arbitrary extra HDF5 attributes, matching ordinary AnnData loading behavior. [Backed updates](storage.md) can preserve untouched extension data and same-store opaque attributes; export rejects unsupported preservation. This is a logical-data round trip for the declared encodings, not a byte-identical HDF5 rewrite.
+Structured Scanpy result arrays use [native records](records.md). Compound
+members may be supported primitive numbers or UTF-8 text; nested records,
+subarray members, and non-string variable-length data remain unsupported.
+Numerical widths, field order, shape, values, and serialization byte order are
+preserved. Original member offsets, padding, and fixed-string capacity are
+normalized rather than preserved as a binary layout.
+
+Unknown encodings or versions, legacy unversioned data, complex and
+half-precision arrays, ragged/Awkward data, and nullable floating-point columns
+produce contextual errors. Such data is not silently removed or converted into
+a different encoding. Eager loading into the in-memory model does not retain
+arbitrary extra HDF5 attributes, matching ordinary AnnData loading behavior.
+[Backed updates](storage.md) can preserve untouched extension data and same-store
+opaque attributes; export rejects unsupported preservation. This is a
+logical-data round trip for the declared encodings, not a byte-identical HDF5
+rewrite.
 
 ## Memory and validation
 

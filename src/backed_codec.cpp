@@ -583,6 +583,7 @@ Element read_element(const std::shared_ptr<detail::BackedNode>& value) {
     }
     if (code == "array" || code == "csr_matrix" || code == "csc_matrix")
         return Element(read_array(value));
+    if (code == "rec-array") return Element(read_record(value, info));
     if (code == "string-array") return Element(read_string_array(value));
     if (code == "string") return Element(read_string_scalar(value));
     if (code == "numeric-scalar") {
@@ -940,6 +941,7 @@ ElementKind BackedElement::kind() const {
     if (code == "array" || code == "csr_matrix" || code == "csc_matrix")
         return ElementKind::array;
     if (code == "string-array") return ElementKind::string_array;
+    if (code == "rec-array") return ElementKind::record_array;
     if (code == "string") return ElementKind::string;
     if (code == "dataframe") return ElementKind::table;
     if (code == "categorical" || code == "nullable-integer" ||
@@ -1022,6 +1024,27 @@ BackedTable BackedElement::table() const {
     if (backed_detail::element_encoding(node_) != "dataframe")
         throw Error(ErrorCode::invalid_argument, node_->path, "element is not a table");
     return BackedTable(node_);
+}
+
+std::vector<std::string> BackedElement::field_names() const {
+    backed_detail::check_node(node_);
+    auto info = node_->session->backend->inspect(node_->path);
+    if (backed_detail::encoding(info, node_->path) != "rec-array")
+        throw Error(ErrorCode::invalid_argument, node_->path, "element is not a record array");
+    if (!info.record) throw Error(ErrorCode::unsupported_encoding, node_->path, "rec-array must be a compound dataset");
+    std::vector<std::string> names;
+    names.reserve(info.fields.size());
+    for (const auto& field : info.fields) names.push_back(field.name);
+    return names;
+}
+
+Element BackedElement::read_field(std::string_view name) const {
+    backed_detail::check_node(node_);
+    auto info = node_->session->backend->inspect(node_->path);
+    if (backed_detail::encoding(info, node_->path) != "rec-array")
+        throw Error(ErrorCode::invalid_argument, node_->path, "element is not a record array");
+    if (!info.record) throw Error(ErrorCode::unsupported_encoding, node_->path, "rec-array must be a compound dataset");
+    return backed_detail::read_record_field(node_, info, name);
 }
 
 Element BackedElement::read() const {

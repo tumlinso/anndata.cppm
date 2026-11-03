@@ -34,7 +34,14 @@ Public owners use erased out-of-line implementation. Small templates provide typ
 
 This matrix separates representable core data from complete file/schema compatibility. H5AD support covers the explicit subset in [h5ad.md](h5ad.md); backed H5AD and Zarr v2/v3 support the bounded contracts and codec subset in [storage.md](storage.md). Composed containers and domain validators remain future work.
 
-The dtype inventory covers numerical/bool arrays, arbitrary-dimensional packed UTF-8 string arrays, and nullable/categorical metadata columns. Complex/half-precision arrays, compound records, and ragged/Awkward values require later representation work. Native numerical memory and preferred serialization byte order are separate properties: HDF5 converts at the transfer boundary.
+The dtype inventory covers numerical/bool arrays, arbitrary-dimensional packed
+UTF-8 string arrays, nullable/categorical metadata columns, and native records
+with numerical/text members. Records have field-buffer and interleaved
+representations, including explicit pointer-and-length text references; see
+[records.md](records.md). H5AD supports the declared record subset. Zarr record
+codecs, nested/subarray members, complex/half-precision arrays, and ragged/Awkward
+values require later work. Native numerical memory and preferred serialization
+byte order are separate properties: HDF5 converts at the transfer boundary.
 
 | Ecosystem | Kind | Foundation | Required later work |
 |---|---|---|---|
