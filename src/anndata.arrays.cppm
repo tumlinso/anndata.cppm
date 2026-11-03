@@ -17,7 +17,8 @@ export namespace anndata {
 enum class DType { boolean, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64 };
 enum class Layout { dense, csr, csc };
 enum class Validation { full, none };
-enum class ErrorCode { invalid_argument, out_of_bounds, dtype_mismatch, unsupported_layout, shape_mismatch, invalid_sparse_structure, non_contiguous };
+enum class ByteOrder { native, little, big };
+enum class ErrorCode { invalid_argument, out_of_bounds, dtype_mismatch, unsupported_layout, shape_mismatch, invalid_sparse_structure, non_contiguous, io_error, unsupported_encoding, unsupported_version, unsupported_dtype, unavailable_filter };
 enum class NativeType : std::uint8_t {
     boolean, character, signed_character, unsigned_character, wide_character,
     character8, character16, character32, short_integer, unsigned_short_integer,
@@ -252,6 +253,36 @@ private:
 class Array;
 class ArrayEdit;
 
+// Runtime-typed sparse access keeps ownership and exposes the buffers without
+// a value/index/offset template cross product. Structural edits are explicit.
+template<class Byte> class SparseBytesView {
+public:
+    [[nodiscard]] Byte* values() const noexcept { return static_cast<Byte*>(descriptor_.values); }
+    [[nodiscard]] const std::byte* indices() const noexcept { return static_cast<const std::byte*>(descriptor_.indices); }
+    [[nodiscard]] const std::byte* offsets() const noexcept { return static_cast<const std::byte*>(descriptor_.offsets); }
+    [[nodiscard]] std::size_t rows() const noexcept { return descriptor_.rows; }
+    [[nodiscard]] std::size_t columns() const noexcept { return descriptor_.columns; }
+    [[nodiscard]] std::size_t nnz() const noexcept { return descriptor_.nnz; }
+    [[nodiscard]] std::size_t value_size() const noexcept { return value_size_; }
+    [[nodiscard]] std::size_t index_size() const noexcept { return index_size_; }
+    [[nodiscard]] std::size_t offset_size() const noexcept { return offset_size_; }
+    [[nodiscard]] std::byte* unsafe_indices() const requires (!std::is_const_v<Byte>) {
+        if (!descriptor_.indices_writable) throw Error(ErrorCode::invalid_argument, "array", "sparse indices are read-only");
+        return static_cast<std::byte*>(descriptor_.indices);
+    }
+    [[nodiscard]] std::byte* unsafe_offsets() const requires (!std::is_const_v<Byte>) {
+        if (!descriptor_.offsets_writable) throw Error(ErrorCode::invalid_argument, "array", "sparse offsets are read-only");
+        return static_cast<std::byte*>(descriptor_.offsets);
+    }
+private:
+    SparseBytesView(detail::SparseDescriptor descriptor, std::size_t value_size, std::size_t index_size, std::size_t offset_size)
+        : descriptor_(std::move(descriptor)), value_size_(value_size), index_size_(index_size), offset_size_(offset_size) {}
+    detail::SparseDescriptor descriptor_;
+    std::size_t value_size_, index_size_, offset_size_;
+    friend class ArrayView;
+    friend class ArrayEdit;
+};
+
 class ArrayView {
 public:
     ArrayView() = default;
@@ -262,11 +293,15 @@ public:
     [[nodiscard]] NativeType native_type() const;
     [[nodiscard]] DType index_dtype() const;
     [[nodiscard]] DType offset_dtype() const;
+    [[nodiscard]] ByteOrder serialization_byte_order() const;
+    [[nodiscard]] ByteOrder index_serialization_byte_order() const;
+    [[nodiscard]] ByteOrder offset_serialization_byte_order() const;
     [[nodiscard]] NativeType index_native_type() const;
     [[nodiscard]] NativeType offset_native_type() const;
     [[nodiscard]] ArrayView select(std::vector<std::optional<std::vector<std::size_t>>> axes) const;
-    [[nodiscard]] Array copy() const;
+    [[nodiscard]] Array copy(Validation validation = Validation::full) const;
     [[nodiscard]] DenseBytesView<const std::byte> bytes() const;
+    [[nodiscard]] SparseBytesView<const std::byte> sparse_bytes() const;
     template<class T> [[nodiscard]] DenseView<const T> dense() const {
         return DenseView<const T>(dense_descriptor(dtype_of<T>(), detail::native_type_of<T>(), true));
     }
@@ -295,6 +330,7 @@ public:
     ArrayEdit() = default;
     [[nodiscard]] ArrayView view() const;
     [[nodiscard]] DenseBytesView<std::byte> bytes() const;
+    [[nodiscard]] SparseBytesView<std::byte> sparse_bytes() const;
     template<class T> [[nodiscard]] DenseView<T> dense() const {
         return DenseView<T>(view().dense_descriptor(dtype_of<T>(), detail::native_type_of<T>(), true));
     }
@@ -343,6 +379,8 @@ public:
     template<class T, class Index, class Offset> [[nodiscard]] static Array csc(std::size_t rows, std::size_t columns, std::size_t nnz) {
         return allocate_sparse(Layout::csc, dtype_of<T>(), dtype_of<Index>(), dtype_of<Offset>(), detail::native_type_of<T>(), detail::native_type_of<Index>(), detail::native_type_of<Offset>(), rows, columns, nnz);
     }
+    [[nodiscard]] static Array from_sparse_buffers(Layout layout, Array values, Array indices, Array offsets,
+        std::size_t rows, std::size_t columns, Validation validation = Validation::full);
     // Strides are in elements; data denotes the first logical element. Checked
     // wrapping validates representable offsets and alignment by default. With
     // Validation::none the caller guarantees valid metadata and buffers; the
@@ -392,11 +430,17 @@ public:
     [[nodiscard]] std::size_t rank() const noexcept;
     [[nodiscard]] std::size_t extent(std::size_t axis) const;
     [[nodiscard]] DType dtype() const;
+    [[nodiscard]] ByteOrder serialization_byte_order() const;
+    [[nodiscard]] ByteOrder index_serialization_byte_order() const;
+    [[nodiscard]] ByteOrder offset_serialization_byte_order() const;
     [[nodiscard]] Layout layout() const;
     [[nodiscard]] NativeType native_type() const;
     [[nodiscard]] ArrayView view() const;
     [[nodiscard]] ArrayEdit edit();
-    [[nodiscard]] Array copy() const;
+    [[nodiscard]] Array copy(Validation validation = Validation::full) const;
+    void set_serialization_byte_order(ByteOrder);
+    void set_index_serialization_byte_order(ByteOrder);
+    void set_offset_serialization_byte_order(ByteOrder);
     void validate() const;
 private:
     friend class ArrayView;

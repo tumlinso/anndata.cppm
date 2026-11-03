@@ -22,6 +22,9 @@ struct State {
     Layout format = Layout::dense;
     DType index_type = DType::int32;
     DType offset_type = DType::int32;
+    ByteOrder value_byte_order = ByteOrder::native;
+    ByteOrder indices_byte_order = ByteOrder::native;
+    ByteOrder offsets_byte_order = ByteOrder::native;
     NativeType native = NativeType::single;
     NativeType native_index = NativeType::integer;
     NativeType native_offset = NativeType::integer;
@@ -110,7 +113,12 @@ std::vector<std::ptrdiff_t> row_major_strides(const std::vector<std::size_t>& sh
     return result;
 }
 bool is_index_dtype(DType t) {
-    return t == DType::int32 || t == DType::uint32 || t == DType::int64 || t == DType::uint64;
+    switch (t) {
+    case DType::int8: case DType::uint8: case DType::int16: case DType::uint16:
+    case DType::int32: case DType::uint32: case DType::int64: case DType::uint64:
+        return true;
+    default: return false;
+    }
 }
 template<class T> std::size_t read_nonnegative(const void* p, std::size_t i) {
     T value;
@@ -122,11 +130,15 @@ template<class T> std::size_t read_nonnegative(const void* p, std::size_t i) {
 }
 std::size_t read_index(const void* p, DType t, std::size_t i) {
     switch (t) {
+    case DType::int8: return read_nonnegative<std::int8_t>(p, i);
+    case DType::uint8: return read_nonnegative<std::uint8_t>(p, i);
+    case DType::int16: return read_nonnegative<std::int16_t>(p, i);
+    case DType::uint16: return read_nonnegative<std::uint16_t>(p, i);
     case DType::int32: return read_nonnegative<std::int32_t>(p, i);
     case DType::uint32: return read_nonnegative<std::uint32_t>(p, i);
     case DType::int64: return read_nonnegative<std::int64_t>(p, i);
     case DType::uint64: return read_nonnegative<std::uint64_t>(p, i);
-    default: fail(ErrorCode::invalid_argument, "sparse indices and offsets must be 32-bit or 64-bit integers");
+    default: fail(ErrorCode::invalid_argument, "sparse indices and offsets must be 8-bit to 64-bit integers");
     }
 }
 template<class T> void write_checked(void* p, std::size_t i, std::size_t value) {
@@ -136,6 +148,10 @@ template<class T> void write_checked(void* p, std::size_t i, std::size_t value) 
 }
 void write_index(void* p, DType t, std::size_t i, std::size_t value) {
     switch (t) {
+    case DType::int8: write_checked<std::int8_t>(p, i, value); break;
+    case DType::uint8: write_checked<std::uint8_t>(p, i, value); break;
+    case DType::int16: write_checked<std::int16_t>(p, i, value); break;
+    case DType::uint16: write_checked<std::uint16_t>(p, i, value); break;
     case DType::int32: write_checked<std::int32_t>(p, i, value); break;
     case DType::uint32: write_checked<std::uint32_t>(p, i, value); break;
     case DType::int64: write_checked<std::int64_t>(p, i, value); break;
@@ -156,7 +172,7 @@ void validate_state(const State& s) {
     }
     if (s.format != Layout::csr && s.format != Layout::csc) fail(ErrorCode::unsupported_layout, "invalid sparse layout");
     if (s.shape.size() != 2) fail(ErrorCode::shape_mismatch, "compressed sparse array must be two-dimensional");
-    if (!is_index_dtype(s.index_type) || !is_index_dtype(s.offset_type)) fail(ErrorCode::invalid_argument, "sparse indices and offsets must be 32-bit or 64-bit integers");
+    if (!is_index_dtype(s.index_type) || !is_index_dtype(s.offset_type)) fail(ErrorCode::invalid_argument, "sparse indices and offsets must be 8-bit to 64-bit integers");
     const auto major = s.format == Layout::csr ? s.shape[0] : s.shape[1];
     const auto minor = s.format == Layout::csr ? s.shape[1] : s.shape[0];
     if (major == std::numeric_limits<std::size_t>::max()) fail(ErrorCode::invalid_argument, "sparse major dimension overflow");
@@ -280,7 +296,7 @@ Array Array::allocate_dense(DType type, detail::NativeType native, std::vector<s
 }
 Array Array::allocate_sparse(Layout layout, DType type, DType index, DType offset, detail::NativeType native, detail::NativeType native_index, detail::NativeType native_offset, std::size_t rows, std::size_t columns, std::size_t nnz) {
     if (layout != Layout::csr && layout != Layout::csc) fail(ErrorCode::unsupported_layout, "compressed sparse layout must be CSR or CSC");
-    if (!is_index_dtype(index) || !is_index_dtype(offset)) fail(ErrorCode::invalid_argument, "sparse index and offset dtype must be 32-bit or 64-bit integer");
+    if (!is_index_dtype(index) || !is_index_dtype(offset)) fail(ErrorCode::invalid_argument, "sparse index and offset dtype must be 8-bit to 64-bit integer");
     auto major = layout == Layout::csr ? rows : columns;
     if (major == std::numeric_limits<std::size_t>::max()) fail(ErrorCode::invalid_argument, "sparse major dimension overflow");
     auto s = std::make_shared<State>();
@@ -310,14 +326,64 @@ Array Array::wrap_sparse(Layout layout, DType type, DType index, DType offset, d
     if (validation == Validation::full) validate_state(*s);
     return Array(std::move(s));
 }
+Array Array::from_sparse_buffers(Layout layout, Array values, Array indices, Array offsets,
+        std::size_t rows, std::size_t columns, Validation validation) {
+    if (layout != Layout::csr && layout != Layout::csc)
+        fail(ErrorCode::unsupported_layout, "compressed sparse layout must be CSR or CSC");
+    auto check_component = [](const Array& component) {
+        require_state(component.state_);
+        if (component.state_->format != Layout::dense || component.state_->shape.size() != 1 ||
+            (component.state_->shape[0] > 1 && component.state_->strides[0] != 1))
+            fail(ErrorCode::unsupported_layout, "sparse components must be contiguous one-dimensional arrays");
+    };
+    check_component(values); check_component(indices); check_component(offsets);
+    if (!is_index_dtype(indices.dtype()) || !is_index_dtype(offsets.dtype()))
+        fail(ErrorCode::invalid_argument, "sparse index and offset dtype must be 8-bit to 64-bit integer");
+    const auto major = layout == Layout::csr ? rows : columns;
+    if (major == std::numeric_limits<std::size_t>::max()) fail(ErrorCode::invalid_argument, "sparse major dimension overflow");
+    if (values.extent(0) != indices.extent(0) || offsets.extent(0) != major + 1)
+        fail(ErrorCode::shape_mismatch, "sparse component lengths do not match compressed shape");
+    auto s = std::make_shared<State>();
+    s->format = layout; s->shape = {rows, columns}; s->nnz = values.extent(0);
+    s->type = values.dtype(); s->index_type = indices.dtype(); s->offset_type = offsets.dtype();
+    s->native = values.native_type(); s->native_index = indices.native_type(); s->native_offset = offsets.native_type();
+    s->value_byte_order = values.serialization_byte_order();
+    s->indices_byte_order = indices.serialization_byte_order();
+    s->offsets_byte_order = offsets.serialization_byte_order();
+    s->data = values.state_->data; s->indices = indices.state_->data; s->offsets = offsets.state_->data;
+    s->data_owner = std::shared_ptr<void>(values.state_, s->data);
+    s->indices_owner = std::shared_ptr<void>(indices.state_, s->indices);
+    s->offsets_owner = std::shared_ptr<void>(offsets.state_, s->offsets);
+    s->writable = values.state_->writable;
+    s->indices_writable = indices.state_->writable;
+    s->offsets_writable = offsets.state_->writable;
+    if (validation == Validation::full) validate_state(*s);
+    return Array(std::move(s));
+}
 std::size_t Array::rank() const noexcept { return state_ ? state_->shape.size() : 0; }
 std::size_t Array::extent(std::size_t axis) const { return view().extent(axis); }
 DType Array::dtype() const { return view().dtype(); }
+ByteOrder Array::serialization_byte_order() const { return view().serialization_byte_order(); }
+ByteOrder Array::index_serialization_byte_order() const { return view().index_serialization_byte_order(); }
+ByteOrder Array::offset_serialization_byte_order() const { return view().offset_serialization_byte_order(); }
 Layout Array::layout() const { return view().layout(); }
 NativeType Array::native_type() const { return view().native_type(); }
 ArrayView Array::view() const { require_state(state_); return ArrayView(state_); }
 ArrayEdit Array::edit() { require_state(state_); if (!state_->writable) fail(ErrorCode::invalid_argument, "array was created from read-only storage"); return ArrayEdit(state_); }
-Array Array::copy() const { return view().copy(); }
+Array Array::copy(Validation validation) const { return view().copy(validation); }
+void Array::set_serialization_byte_order(ByteOrder value) {
+    require_state(state_); state_->value_byte_order = value;
+}
+void Array::set_index_serialization_byte_order(ByteOrder value) {
+    require_state(state_);
+    if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse indices");
+    state_->indices_byte_order = value;
+}
+void Array::set_offset_serialization_byte_order(ByteOrder value) {
+    require_state(state_);
+    if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse offsets");
+    state_->offsets_byte_order = value;
+}
 void Array::validate() const { view().validate(); }
 
 ArrayView::ArrayView(std::shared_ptr<State> state, std::shared_ptr<const ArraySelection> selection) : state_(std::move(state)), selection_(std::move(selection)) {}
@@ -327,6 +393,13 @@ DenseBytesView<std::byte> ArrayEdit::bytes() const {
     auto v = view();
     return {v.dense_descriptor(state_->type, state_->native, true), dtype_size(state_->type)};
 }
+SparseBytesView<std::byte> ArrayEdit::sparse_bytes() const {
+    require_state(state_);
+    if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse buffers");
+    const auto descriptor = view().sparse_descriptor(state_->format, state_->type, state_->index_type,
+        state_->offset_type, state_->native, state_->native_index, state_->native_offset);
+    return {descriptor, dtype_size(state_->type), dtype_size(state_->index_type), dtype_size(state_->offset_type)};
+}
 std::size_t ArrayView::rank() const noexcept { return state_ ? state_->shape.size() : 0; }
 std::size_t ArrayView::extent(std::size_t axis) const { require_state(state_); return view_extent(*state_, selection_, axis); }
 DType ArrayView::dtype() const { require_state(state_); return state_->type; }
@@ -334,6 +407,9 @@ Layout ArrayView::layout() const { require_state(state_); return state_->format;
 NativeType ArrayView::native_type() const { require_state(state_); return state_->native; }
 DType ArrayView::index_dtype() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse indices"); return state_->index_type; }
 DType ArrayView::offset_dtype() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse offsets"); return state_->offset_type; }
+ByteOrder ArrayView::serialization_byte_order() const { require_state(state_); return state_->value_byte_order; }
+ByteOrder ArrayView::index_serialization_byte_order() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse indices"); return state_->indices_byte_order; }
+ByteOrder ArrayView::offset_serialization_byte_order() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse offsets"); return state_->offsets_byte_order; }
 NativeType ArrayView::index_native_type() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse indices"); return state_->native_index; }
 NativeType ArrayView::offset_native_type() const { require_state(state_); if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse offsets"); return state_->native_offset; }
 void ArrayView::validate() const { require_state(state_); validate_state(*state_); }
@@ -415,13 +491,21 @@ DenseBytesView<const std::byte> ArrayView::bytes() const {
     require_state(state_);
     return {dense_descriptor(state_->type, state_->native, true), dtype_size(state_->type)};
 }
+SparseBytesView<const std::byte> ArrayView::sparse_bytes() const {
+    require_state(state_);
+    if (state_->format == Layout::dense) fail(ErrorCode::unsupported_layout, "dense arrays have no sparse buffers");
+    const auto descriptor = sparse_descriptor(state_->format, state_->type, state_->index_type,
+        state_->offset_type, state_->native, state_->native_index, state_->native_offset);
+    return {descriptor, dtype_size(state_->type), dtype_size(state_->index_type), dtype_size(state_->offset_type)};
+}
 
-Array ArrayView::copy() const {
+Array ArrayView::copy(Validation validation) const {
     require_state(state_);
     if (state_->format == Layout::dense) {
         std::vector<std::size_t> shape;
         for (std::size_t a = 0; a < rank(); ++a) shape.push_back(extent(a));
         auto result = Array::allocate_dense(state_->type, state_->native, shape, false);
+        result.state_->value_byte_order = state_->value_byte_order;
         const auto n = element_count(shape), width = dtype_size(state_->type);
         auto* output = static_cast<std::byte*>(result.state_->data);
         auto* input = static_cast<const std::byte*>(state_->data);
@@ -454,6 +538,9 @@ Array ArrayView::copy() const {
         auto result = Array::allocate_sparse(state_->format, state_->type, state_->index_type,
                                               state_->offset_type, state_->native, state_->native_index,
                                               state_->native_offset, state_->shape[0], state_->shape[1], state_->nnz);
+        result.state_->value_byte_order = state_->value_byte_order;
+        result.state_->indices_byte_order = state_->indices_byte_order;
+        result.state_->offsets_byte_order = state_->offsets_byte_order;
         if (state_->nnz) {
             std::memcpy(result.state_->data, state_->data, checked_mul(state_->nnz, dtype_size(state_->type)));
             std::memcpy(result.state_->indices, state_->indices, checked_mul(state_->nnz, dtype_size(state_->index_type)));
@@ -462,7 +549,7 @@ Array ArrayView::copy() const {
                     checked_mul(state_->shape[major_axis] + 1, dtype_size(state_->offset_type)));
         return result;
     }
-    validate_state(*state_);
+    if (validation == Validation::full) validate_state(*state_);
     const auto out_major = extent(major_axis), out_minor = extent(minor_axis);
     std::unordered_map<std::size_t, std::vector<std::size_t>> selected_minor;
     const bool filtered_minor = selection_ && selection_->axes[minor_axis].has_value();
@@ -486,6 +573,9 @@ Array ArrayView::copy() const {
     auto result = Array::allocate_sparse(state_->format, state_->type, state_->index_type, state_->offset_type,
                                          state_->native, state_->native_index, state_->native_offset,
                                          extent(0), extent(1), source_positions.size());
+    result.state_->value_byte_order = state_->value_byte_order;
+    result.state_->indices_byte_order = state_->indices_byte_order;
+    result.state_->offsets_byte_order = state_->offsets_byte_order;
     const auto width = dtype_size(state_->type);
     for (std::size_t i = 0; i < source_positions.size(); ++i) {
         std::memcpy(static_cast<std::byte*>(result.state_->data) + i * width,

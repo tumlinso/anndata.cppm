@@ -23,18 +23,32 @@ option(ANNDATA_BUILD_EXAMPLES "Build import-only examples" ${PROJECT_IS_TOP_LEVE
 option(ANNDATA_BUILD_BENCHMARKS "Build numerical memory benchmarks" OFF)
 option(ANNDATA_ENABLE_INTEROP_TESTS "Compare semantics using Python AnnData fixtures" OFF)
 option(ANNDATA_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(ANNDATA_ENABLE_HDF5 "Enable native H5AD reading and writing" ON)
+
+if(ANNDATA_ENABLE_HDF5)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(ANNDATA_HDF5 REQUIRED IMPORTED_TARGET hdf5>=1.10)
+endif()
 
 add_library(anndata)
 add_library(anndata::anndata ALIAS anndata)
 target_compile_features(anndata PUBLIC cxx_std_20)
-set_target_properties(anndata PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(anndata PUBLIC ANNDATA_HAS_HDF5=$<BOOL:${ANNDATA_ENABLE_HDF5}>)
+set_target_properties(anndata PROPERTIES POSITION_INDEPENDENT_CODE ON EXPORT_NAME anndata_binary)
 target_sources(anndata
   PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES
     src/anndata.cppm
     src/anndata.core.cppm
     src/anndata.arrays.cppm
+    src/anndata.strings.cppm
     src/anndata.data.cppm
-  PRIVATE src/arrays.cpp src/data.cpp)
+  PRIVATE src/arrays.cpp src/strings.cpp src/data.cpp)
+if(ANNDATA_ENABLE_HDF5)
+  target_sources(anndata
+    PUBLIC FILE_SET CXX_MODULES FILES src/anndata.h5ad.cppm
+    PRIVATE src/h5ad.cpp)
+  target_link_libraries(anndata PRIVATE PkgConfig::ANNDATA_HDF5)
+endif()
 target_compile_options(anndata PRIVATE -Wall -Wextra -Wpedantic)
 if(ANNDATA_ENABLE_SANITIZERS)
   target_compile_options(anndata PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
@@ -63,11 +77,16 @@ if(ANNDATA_BUILD_EXAMPLES)
 endif()
 if(ANNDATA_BUILD_TESTS)
   enable_testing()
-  foreach(_suite arrays data)
+  foreach(_suite arrays data strings)
     add_executable(test_${_suite} tests/test_${_suite}.cpp)
     target_link_libraries(test_${_suite} PRIVATE anndata::anndata)
     add_test(NAME ${_suite} COMMAND test_${_suite})
   endforeach()
+  if(ANNDATA_ENABLE_HDF5)
+    add_executable(test_h5ad tests/test_h5ad.cpp)
+    target_link_libraries(test_h5ad PRIVATE anndata::anndata)
+    add_test(NAME h5ad COMMAND test_h5ad "${CMAKE_CURRENT_BINARY_DIR}/h5ad-tests")
+  endif()
   if(ANNDATA_BUILD_EXAMPLES)
     add_test(NAME import_only_example COMMAND anndata_example)
   endif()
@@ -76,6 +95,7 @@ if(ANNDATA_BUILD_TESTS)
     -DANNDATA_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
     -DANNDATA_COMPILER=${CMAKE_CXX_COMPILER}
     -DANNDATA_CONFIG=$<CONFIG>
+    -DANNDATA_HDF5_ENABLED=${ANNDATA_ENABLE_HDF5}
     -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test-installed-consumer.cmake)
 endif()
 if(ANNDATA_ENABLE_INTEROP_TESTS)
@@ -85,9 +105,19 @@ if(ANNDATA_ENABLE_INTEROP_TESTS)
   target_link_libraries(interop_driver PRIVATE anndata::anndata)
   add_test(NAME python_semantics COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_semantics.py $<TARGET_FILE:interop_driver>)
+  if(ANNDATA_ENABLE_HDF5)
+    add_executable(h5ad_interop_driver tests/h5ad_interop_driver.cpp)
+    target_link_libraries(h5ad_interop_driver PRIVATE anndata::anndata)
+    add_test(NAME python_h5ad COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_h5ad.py $<TARGET_FILE:h5ad_interop_driver>)
+  endif()
 endif()
 if(ANNDATA_BUILD_BENCHMARKS)
   find_package(Threads REQUIRED)
   add_executable(memory_benchmark benchmarks/memory.cpp)
   target_link_libraries(memory_benchmark PRIVATE anndata::anndata Threads::Threads)
+  if(ANNDATA_ENABLE_HDF5)
+    add_executable(h5ad_benchmark benchmarks/h5ad.cpp)
+    target_link_libraries(h5ad_benchmark PRIVATE anndata::anndata)
+  endif()
 endif()

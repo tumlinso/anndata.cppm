@@ -28,6 +28,7 @@ struct ColumnImpl {
     std::vector<char> bytes;
     std::vector<std::uint8_t> validity;
     bool nullable{false};
+    StringMissingValue string_missing_value{StringMissingValue::NA};
     std::shared_ptr<ColumnImpl> categories;
     bool ordered{false};
     std::size_t size() const {
@@ -64,6 +65,7 @@ struct TableViewImpl {
 struct ElementImpl {
     ElementKind kind{ElementKind::null};
     DType scalar_dtype{DType::boolean};
+    ByteOrder scalar_byte_order{ByteOrder::native};
     bool boolean{};
     std::int64_t signed_integer{};
     std::uint64_t unsigned_integer{};
@@ -71,6 +73,8 @@ struct ElementImpl {
     std::string string;
     std::optional<Array> array;
     std::optional<ArrayView> view_array;
+    std::optional<StringArray> string_array;
+    std::optional<StringArrayView> view_string_array;
     std::optional<Column> column;
     std::optional<ColumnView> view_column;
     std::optional<Table> table;
@@ -79,7 +83,7 @@ struct ElementImpl {
 };
 
 struct RawData {
-    Array x;
+    std::optional<Array> x;
     Table var;
     std::vector<std::pair<std::string, Element>> varm;
 };
@@ -101,6 +105,7 @@ struct AnnDataViewImpl {
     std::vector<std::pair<std::string, ArrayView>> layers, obsp, varp;
     std::vector<std::pair<std::string, ElementView>> obsm, varm;
     ElementView uns;
+    bool raw_present{false};
     std::optional<ArrayView> raw_x;
     TableView raw_var;
     std::vector<std::pair<std::string, ElementView>> raw_varm;
@@ -180,10 +185,20 @@ std::int64_t read_code(const ArrayView& a, std::size_t i) {
     const auto* p = v.data() + static_cast<std::ptrdiff_t>(i) * v.stride_bytes(0);
     switch (a.dtype()) {
         case DType::int8: { std::int8_t value; std::memcpy(&value, p, sizeof value); return value; }
+        case DType::uint8: { std::uint8_t value; std::memcpy(&value, p, sizeof value); return value; }
         case DType::int16: { std::int16_t value; std::memcpy(&value, p, sizeof value); return value; }
+        case DType::uint16: { std::uint16_t value; std::memcpy(&value, p, sizeof value); return value; }
         case DType::int32: { std::int32_t value; std::memcpy(&value, p, sizeof value); return value; }
+        case DType::uint32: { std::uint32_t value; std::memcpy(&value, p, sizeof value); return value; }
         case DType::int64: { std::int64_t value; std::memcpy(&value, p, sizeof value); return value; }
-        default: fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed integers");
+        case DType::uint64: {
+            std::uint64_t value;
+            std::memcpy(&value, p, sizeof value);
+            if (value > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+                fail(ErrorCode::out_of_bounds, "categorical/codes", "unsigned category code exceeds the supported dictionary index range");
+            return static_cast<std::int64_t>(value);
+        }
+        default: fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed or unsigned integers");
     }
 }
 
@@ -191,10 +206,17 @@ Array make_codes(const ArrayView& selected, const std::vector<std::int64_t>& val
     auto out = selected.copy();
     auto bytes = out.edit().bytes();
     visit_numeric(selected.dtype(), [&]<class T>() {
-        if constexpr (!std::is_integral_v<T> || !std::is_signed_v<T>) {
-            fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed integers");
+        if constexpr (!std::is_integral_v<T> || std::is_same_v<T, bool>) {
+            fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed or unsigned integers");
         } else {
             for (std::size_t i = 0; i < values.size(); ++i) {
+                if constexpr (std::is_unsigned_v<T>) {
+                    if (values[i] < 0 || static_cast<std::uint64_t>(values[i]) > std::numeric_limits<T>::max())
+                        fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original unsigned dtype");
+                } else {
+                    if (values[i] < -1 || values[i] > std::numeric_limits<T>::max())
+                        fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original signed dtype");
+                }
                 const auto value = static_cast<T>(values[i]);
                 std::memcpy(bytes.data() + static_cast<std::ptrdiff_t>(i) * bytes.stride_bytes(0), &value, sizeof value);
             }
@@ -253,6 +275,11 @@ void check_first(const ArrayView& a, std::size_t rows, std::string_view path) {
         fail(ErrorCode::shape_mismatch, path, "first dimension does not match aligned axis");
 }
 
+void check_first(const StringArrayView& a, std::size_t rows, std::string_view path) {
+    if (a.rank() < 1 || a.extent(0) != rows)
+        fail(ErrorCode::shape_mismatch, path, "first dimension does not match aligned axis");
+}
+
 void check_pairwise(const ArrayView& a, std::size_t n, std::string_view path) {
     if (a.rank() < 2 || a.extent(0) != n || a.extent(1) != n)
         fail(ErrorCode::shape_mismatch, path, "first two dimensions must match the aligned axis");
@@ -261,6 +288,16 @@ void check_pairwise(const ArrayView& a, std::size_t n, std::string_view path) {
 ArrayView select_first(const ArrayView& a, const std::vector<std::size_t>& rows, bool all = false) {
     if (all) return a;
     std::vector<std::optional<std::vector<std::size_t>>> axes(a.rank());
+    axes[0] = rows;
+    return a.select(std::move(axes));
+}
+
+StringArrayView select_first(const StringArrayView& a,
+                             const std::vector<std::size_t>& rows,
+                             bool all = false) {
+    if (all) return a;
+    std::vector<std::optional<std::vector<std::size_t>>> axes(a.rank());
+    if (a.rank() == 0) fail(ErrorCode::shape_mismatch, "string-array", "aligned string array must have at least one dimension");
     axes[0] = rows;
     return a.select(std::move(axes));
 }
@@ -413,35 +450,45 @@ Column Column::strings(std::initializer_list<std::string_view> values, std::vect
     for (auto value : values) copied.emplace_back(value);
     return strings(std::move(copied), std::move(validity));
 }
-Column Column::nullable_strings(std::vector<std::string> values, std::vector<std::uint8_t> validity) {
+Column Column::nullable_strings(std::vector<std::string> values, std::vector<std::uint8_t> validity,
+                                StringMissingValue missing) {
     if (validity.size() != values.size())
         fail(ErrorCode::shape_mismatch, "column/validity", "nullable validity length differs from column length");
     auto c = strings(std::move(values), std::move(validity));
     c.impl_->nullable = true;
+    c.impl_->string_missing_value = missing;
     return c;
 }
-Column Column::nullable_strings(std::initializer_list<std::string_view> values, std::vector<std::uint8_t> validity) {
+Column Column::nullable_strings(std::initializer_list<std::string_view> values,
+                                std::vector<std::uint8_t> validity,
+                                StringMissingValue missing) {
     std::vector<std::string> copied;
     copied.reserve(values.size());
     for (auto value : values) copied.emplace_back(value);
-    return nullable_strings(std::move(copied), std::move(validity));
+    return nullable_strings(std::move(copied), std::move(validity), missing);
 }
 
-Column Column::categorical(Array codes, Column categories, bool ordered) {
+Column Column::categorical(Array codes, Column categories, bool ordered, Validation validation) {
     if (codes.rank() != 1 || codes.layout() != Layout::dense)
         fail(ErrorCode::shape_mismatch, "categorical/codes", "categorical codes require a one-dimensional dense array");
     if (categories.kind() == ColumnKind::categorical)
         fail(ErrorCode::invalid_argument, "categorical/categories", "category dictionaries cannot themselves be categorical");
     auto cats = categories.view();
-    check_category_dictionary(cats);
+    if (validation == Validation::full) check_category_dictionary(cats);
     auto cv = codes.view();
-    // Also validates signed integer dtype for empty code arrays.
-    if (cv.dtype() != DType::int8 && cv.dtype() != DType::int16 && cv.dtype() != DType::int32 && cv.dtype() != DType::int64)
-        fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed integers");
-    for (std::size_t i = 0; i < cv.extent(0); ++i) {
-        auto code = read_code(cv, i);
-        if (code < -1 || (code >= 0 && static_cast<std::uint64_t>(code) >= cats.size()))
-            fail(ErrorCode::out_of_bounds, "categorical/codes", "category code is outside dictionary bounds");
+    // Signed codes use -1 for missing values. Unsigned codes have no missing
+    // sentinel; retain their actual width instead of coercing or wrapping.
+    if (cv.dtype() != DType::int8 && cv.dtype() != DType::uint8 &&
+        cv.dtype() != DType::int16 && cv.dtype() != DType::uint16 &&
+        cv.dtype() != DType::int32 && cv.dtype() != DType::uint32 &&
+        cv.dtype() != DType::int64 && cv.dtype() != DType::uint64)
+        fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed or unsigned integers");
+    if (validation == Validation::full) {
+        for (std::size_t i = 0; i < cv.extent(0); ++i) {
+            auto code = read_code(cv, i);
+            if (code < -1 || (code >= 0 && static_cast<std::uint64_t>(code) >= cats.size()))
+                fail(ErrorCode::out_of_bounds, "categorical/codes", "category code is outside dictionary bounds");
+        }
     }
     auto p = std::make_shared<detail::ColumnImpl>();
     p->kind = ColumnKind::categorical;
@@ -485,6 +532,10 @@ std::string_view ColumnView::string(std::size_t row) const {
     const auto& s = *impl_->source;
     const auto n = s.offsets[r + 1] - s.offsets[r];
     return n == 0 ? std::string_view{} : std::string_view(s.bytes.data() + s.offsets[r], n);
+}
+StringMissingValue ColumnView::string_missing_value() const {
+    if (kind() != ColumnKind::string) fail(ErrorCode::invalid_argument, "column", "column is not a string column");
+    return impl_->source->string_missing_value;
 }
 bool ColumnView::ordered() const {
     if (kind() != ColumnKind::categorical) fail(ErrorCode::invalid_argument, "column", "column is not categorical");
@@ -576,7 +627,7 @@ Column ColumnView::copy() const {
     std::vector<std::string> strings;
     strings.reserve(size());
     for (std::size_t i = 0; i < size(); ++i) strings.emplace_back(string(i));
-    return nullable() ? Column::nullable_strings(std::move(strings), std::move(validity))
+    return nullable() ? Column::nullable_strings(std::move(strings), std::move(validity), string_missing_value())
                       : Column::strings(std::move(strings));
 }
 ArrayEdit Column::edit_values() {
@@ -735,6 +786,7 @@ Element::Element(const char* v) : Element() {
     impl_->kind = ElementKind::string; impl_->string = v;
 }
 Element::Element(Array v) : Element() { impl_->kind = ElementKind::array; impl_->array.emplace(std::move(v)); }
+Element::Element(StringArray v) : Element() { impl_->kind = ElementKind::string_array; impl_->string_array.emplace(std::move(v)); }
 Element::Element(Column v) : Element() { impl_->kind = ElementKind::column; impl_->column.emplace(std::move(v)); }
 Element::Element(Table v) : Element() { impl_->kind = ElementKind::table; impl_->table.emplace(std::move(v)); }
 Element Element::mapping() { Element e; e.impl_->kind = ElementKind::mapping; return e; }
@@ -764,6 +816,16 @@ void Element::set(std::string key, Element value) {
     check_kind(impl_->kind, ElementKind::mapping);
     put(impl_->mapping, std::move(key), std::move(value));
 }
+void Element::set_serialization_byte_order(ByteOrder byte_order) {
+    if (impl_->kind == ElementKind::array) {
+        impl_->array->set_serialization_byte_order(byte_order);
+        return;
+    }
+    if (impl_->kind != ElementKind::boolean && impl_->kind != ElementKind::signed_integer &&
+        impl_->kind != ElementKind::unsigned_integer && impl_->kind != ElementKind::floating)
+        fail(ErrorCode::invalid_argument, "element", "storage byte order applies to numeric scalars and arrays");
+    impl_->scalar_byte_order = byte_order;
+}
 void Element::erase(std::string_view key) {
     check_kind(impl_->kind, ElementKind::mapping);
     auto it = find_key(impl_->mapping, key);
@@ -772,6 +834,7 @@ void Element::erase(std::string_view key) {
 ElementView Element::at(std::string_view key) const { return view().at(key); }
 void Element::validate() const {
     if (impl_->array) impl_->array->validate();
+    if (impl_->string_array) impl_->string_array->validate();
     if (impl_->column) impl_->column->validate();
     if (impl_->table) impl_->table->validate();
     for (const auto& [name, value] : impl_->mapping) validate_at(value, name);
@@ -788,9 +851,20 @@ std::int64_t ElementView::signed_integer() const { check_kind(kind(), ElementKin
 std::uint64_t ElementView::unsigned_integer() const { check_kind(kind(), ElementKind::unsigned_integer); return impl_->unsigned_integer; }
 double ElementView::floating() const { check_kind(kind(), ElementKind::floating); return impl_->floating; }
 std::string_view ElementView::string() const { check_kind(kind(), ElementKind::string); return impl_->string; }
+ByteOrder ElementView::serialization_byte_order() const {
+    if (kind() == ElementKind::array) return array().serialization_byte_order();
+    if (kind() != ElementKind::boolean && kind() != ElementKind::signed_integer &&
+        kind() != ElementKind::unsigned_integer && kind() != ElementKind::floating)
+        return ByteOrder::native;
+    return impl_->scalar_byte_order;
+}
 ArrayView ElementView::array() const {
     check_kind(kind(), ElementKind::array);
     return impl_->view_array ? *impl_->view_array : impl_->array->view();
+}
+StringArrayView ElementView::string_array() const {
+    check_kind(kind(), ElementKind::string_array);
+    return impl_->view_string_array ? *impl_->view_string_array : impl_->string_array->view();
 }
 ColumnView ElementView::column() const {
     check_kind(kind(), ElementKind::column);
@@ -817,6 +891,7 @@ Element ElementView::copy() const {
         kind() == ElementKind::unsigned_integer || kind() == ElementKind::floating) {
         Element e;
         e.impl_->kind = kind(); e.impl_->scalar_dtype = impl_->scalar_dtype;
+        e.impl_->scalar_byte_order = impl_->scalar_byte_order;
         e.impl_->boolean = impl_->boolean; e.impl_->signed_integer = impl_->signed_integer;
         e.impl_->unsigned_integer = impl_->unsigned_integer; e.impl_->floating = impl_->floating;
         return e;
@@ -829,6 +904,7 @@ Element ElementView::copy() const {
     case ElementKind::floating: return Element(floating());
     case ElementKind::string: return Element(std::string(string()));
     case ElementKind::array: return Element(array().copy());
+    case ElementKind::string_array: return Element(string_array().copy());
     case ElementKind::column: return Element(column().copy());
     case ElementKind::table: return Element(table().copy());
     case ElementKind::mapping: {
@@ -893,12 +969,18 @@ void AnnData::set_layer(std::string name, Array a) {
 void AnnData::set_obsm(std::string name, Array a) {
     check_first(a.view(), n_obs(), "obsm/" + name); put(impl_->obsm, std::move(name), Element(std::move(a)));
 }
+void AnnData::set_obsm(std::string name, StringArray a) {
+    check_first(a.view(), n_obs(), "obsm/" + name); put(impl_->obsm, std::move(name), Element(std::move(a)));
+}
 void AnnData::set_obsm(std::string name, Table t) {
     if (t.size() != n_obs() || t.view().names() != obs().names())
         fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
     put(impl_->obsm, std::move(name), Element(std::move(t)));
 }
 void AnnData::set_varm(std::string name, Array a) {
+    check_first(a.view(), n_vars(), "varm/" + name); put(impl_->varm, std::move(name), Element(std::move(a)));
+}
+void AnnData::set_varm(std::string name, StringArray a) {
     check_first(a.view(), n_vars(), "varm/" + name); put(impl_->varm, std::move(name), Element(std::move(a)));
 }
 void AnnData::set_varm(std::string name, Table t) {
@@ -922,6 +1004,16 @@ ArrayEdit AnnData::edit_obsm_array(std::string_view name) {
 ArrayEdit AnnData::edit_varm_array(std::string_view name) {
     auto& e = require_key(impl_->varm, name, "varm"); check_kind(e.impl_->kind, ElementKind::array); return e.impl_->array->edit();
 }
+StringArrayEdit AnnData::edit_obsm_string_array(std::string_view name) {
+    auto& e = require_key(impl_->obsm, name, "obsm");
+    check_kind(e.impl_->kind, ElementKind::string_array);
+    return e.impl_->string_array->edit();
+}
+StringArrayEdit AnnData::edit_varm_string_array(std::string_view name) {
+    auto& e = require_key(impl_->varm, name, "varm");
+    check_kind(e.impl_->kind, ElementKind::string_array);
+    return e.impl_->string_array->edit();
+}
 ArrayView AnnData::obsp(std::string_view name) const { return require_key(impl_->obsp, name, "obsp").view(); }
 ArrayView AnnData::varp(std::string_view name) const { return require_key(impl_->varp, name, "varp").view(); }
 ArrayEdit AnnData::edit_obsp(std::string_view name) { return require_key(impl_->obsp, name, "obsp").edit(); }
@@ -938,7 +1030,15 @@ void AnnData::set_raw(Array x, Table var) {
     check_matrix(x.view(), n_obs(), var.size(), "raw/X");
     impl_->raw.emplace(detail::RawData{std::move(x), std::move(var), {}});
 }
+void AnnData::set_raw(Table var) {
+    impl_->raw.emplace(detail::RawData{std::nullopt, std::move(var), {}});
+}
 void AnnData::set_raw_varm(std::string name, Array a) {
+    if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
+    check_first(a.view(), impl_->raw->var.size(), "raw/varm/" + name);
+    put(impl_->raw->varm, std::move(name), Element(std::move(a)));
+}
+void AnnData::set_raw_varm(std::string name, StringArray a) {
     if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
     check_first(a.view(), impl_->raw->var.size(), "raw/varm/" + name);
     put(impl_->raw->varm, std::move(name), Element(std::move(a)));
@@ -950,9 +1050,11 @@ void AnnData::set_raw_varm(std::string name, Table t) {
     put(impl_->raw->varm, std::move(name), Element(std::move(t)));
 }
 bool AnnData::has_raw() const { return impl_->raw.has_value(); }
+bool AnnData::has_raw_x() const { return has_raw() && impl_->raw->x.has_value(); }
 ArrayView AnnData::raw_x() const {
     if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
-    return impl_->raw->x.view();
+    if (!has_raw_x()) fail(ErrorCode::invalid_argument, "raw/X", "raw X is absent");
+    return impl_->raw->x->view();
 }
 TableView AnnData::raw_var() const {
     if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
@@ -987,6 +1089,7 @@ AnnDataView AnnData::view() const {
             auto snapshot = std::make_shared<detail::ElementImpl>();
             snapshot->kind = e.view().kind();
             if (snapshot->kind == ElementKind::array) snapshot->view_array = e.view().array();
+            else if (snapshot->kind == ElementKind::string_array) snapshot->view_string_array = e.view().string_array();
             else snapshot->view_table = e.view().table();
             dest.emplace_back(name, ElementView(std::move(snapshot)));
         }
@@ -994,7 +1097,9 @@ AnnDataView AnnData::view() const {
     snapshot_aligned(impl_->obsm, p->obsm);
     snapshot_aligned(impl_->varm, p->varm);
     if (has_raw()) {
-        p->raw_x = raw_x(); p->raw_var = raw_var();
+        p->raw_present = true;
+        if (has_raw_x()) p->raw_x = raw_x();
+        p->raw_var = raw_var();
         snapshot_aligned(impl_->raw->varm, p->raw_varm);
     }
     return AnnDataView(std::move(p));
@@ -1036,9 +1141,11 @@ std::vector<std::string> AnnDataView::varm_names() const { return impl_ ? keys(i
 std::vector<std::string> AnnDataView::obsp_names() const { return impl_ ? keys(impl_->obsp) : std::vector<std::string>{}; }
 std::vector<std::string> AnnDataView::varp_names() const { return impl_ ? keys(impl_->varp) : std::vector<std::string>{}; }
 ElementView AnnDataView::uns() const { return impl_ ? impl_->uns : ElementView{}; }
-bool AnnDataView::has_raw() const { return impl_ && impl_->raw_x.has_value(); }
+bool AnnDataView::has_raw() const { return impl_ && impl_->raw_present; }
+bool AnnDataView::has_raw_x() const { return has_raw() && impl_->raw_x.has_value(); }
 ArrayView AnnDataView::raw_x() const {
     if (!has_raw()) fail(ErrorCode::invalid_argument, "raw", "raw is absent");
+    if (!has_raw_x()) fail(ErrorCode::invalid_argument, "raw/X", "raw X is absent");
     return *impl_->raw_x;
 }
 TableView AnnDataView::raw_var() const {
@@ -1073,6 +1180,11 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                     auto ep = std::make_shared<detail::ElementImpl>();
                     ep->view_array = select_first(e.array(), selected, all_selected);
                     ep->kind = ElementKind::array;
+                    dest.emplace_back(name, ElementView(std::move(ep)));
+                } else if (e.kind() == ElementKind::string_array) {
+                    auto ep = std::make_shared<detail::ElementImpl>();
+                    ep->kind = ElementKind::string_array;
+                    ep->view_string_array = select_first(e.string_array(), selected, all_selected);
                     dest.emplace_back(name, ElementView(std::move(ep)));
                 } else {
                     auto ep = std::make_shared<detail::ElementImpl>();
@@ -1126,12 +1238,17 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                         return Element(std::move(a)).view();
                     });
                     scalar_color = true;
+                } else if (color.kind() == ElementKind::string_array && color.string_array().rank() == 0) {
+                    color = Element(StringArray::from_strings({1}, {color.string_array().string(0)})).view();
+                    scalar_color = true;
                 }
                 if (scalar_color) { it->second = Element(color.impl_); continue; }
                 const bool array_colors = color.kind() == ElementKind::array && color.array().rank() >= 1 &&
                     color.array().extent(0) == column.categories().size();
                 const bool column_colors = color.kind() == ElementKind::column && color.column().size() == column.categories().size();
-                if (!array_colors && !column_colors) {
+                const bool string_array_colors = color.kind() == ElementKind::string_array && color.string_array().rank() >= 1 &&
+                    color.string_array().extent(0) == column.categories().size();
+                if (!array_colors && !column_colors && !string_array_colors) {
                     uns_impl->mapping.erase(it);
                     continue;
                 }
@@ -1148,6 +1265,9 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                 if (array_colors) {
                     ep->kind = ElementKind::array;
                     ep->view_array = select_first(color.array(), category_positions);
+                } else if (string_array_colors) {
+                    ep->kind = ElementKind::string_array;
+                    ep->view_string_array = select_first(color.string_array(), category_positions);
                 } else {
                     ep->kind = ElementKind::column;
                     ep->view_column = color.column().select(category_positions, false);
@@ -1159,7 +1279,8 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
         fix_colors(var(), cols, all_cols);
         p->uns = ElementView(std::move(uns_impl));
         if (has_raw()) {
-            p->raw_x = select_first(raw_x(), rows, all_rows);
+            p->raw_present = true;
+            if (has_raw_x()) p->raw_x = select_first(raw_x(), rows, all_rows);
             p->raw_var = raw_var(); p->raw_varm = impl_->raw_varm;
         }
     }
@@ -1176,17 +1297,21 @@ AnnData AnnDataView::copy() const {
         for (const auto& [name, v] : impl_->varp) a.set_varp(name, v.copy());
         for (const auto& [name, v] : impl_->obsm) {
             if (v.kind() == ElementKind::array) a.set_obsm(name, v.array().copy());
+            else if (v.kind() == ElementKind::string_array) a.set_obsm(name, v.string_array().copy());
             else a.set_obsm(name, v.table().copy());
         }
         for (const auto& [name, v] : impl_->varm) {
             if (v.kind() == ElementKind::array) a.set_varm(name, v.array().copy());
+            else if (v.kind() == ElementKind::string_array) a.set_varm(name, v.string_array().copy());
             else a.set_varm(name, v.table().copy());
         }
         a.set_uns(uns().copy());
         if (has_raw()) {
-            a.set_raw(raw_x().copy(), raw_var().copy());
+            if (has_raw_x()) a.set_raw(raw_x().copy(), raw_var().copy());
+            else a.set_raw(raw_var().copy());
             for (const auto& [name, v] : impl_->raw_varm) {
                 if (v.kind() == ElementKind::array) a.set_raw_varm(name, v.array().copy());
+                else if (v.kind() == ElementKind::string_array) a.set_raw_varm(name, v.string_array().copy());
                 else a.set_raw_varm(name, v.table().copy());
             }
         }
@@ -1205,19 +1330,25 @@ void AnnData::validate() const {
     for (const auto& [name, e] : impl_->obsm) {
         validate_at(e, "obsm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_obs(), "obsm/" + name);
+        else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_obs(), "obsm/" + name);
         else if (e.view().table().names() != obs().names()) fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
     }
     for (const auto& [name, e] : impl_->varm) {
         validate_at(e, "varm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_vars(), "varm/" + name);
+        else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_vars(), "varm/" + name);
         else if (e.view().table().names() != var().names()) fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
     }
     if (has_raw()) {
         validate_at(impl_->raw->var, "raw/var");
-        check_matrix(raw_x(), n_obs(), raw_var().size(), "raw/X"); validate_at(impl_->raw->x, "raw/X");
+        if (has_raw_x()) {
+            check_matrix(raw_x(), n_obs(), raw_var().size(), "raw/X");
+            validate_at(*impl_->raw->x, "raw/X");
+        }
         for (const auto& [name, e] : impl_->raw->varm) {
             validate_at(e, "raw/varm/" + name);
             if (e.view().kind() == ElementKind::array) check_first(e.view().array(), raw_var().size(), "raw/varm/" + name);
+            else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), raw_var().size(), "raw/varm/" + name);
             else if (e.view().table().names() != raw_var().names())
                 fail(ErrorCode::shape_mismatch, "raw/varm/" + name, "table index differs from raw variable index");
         }

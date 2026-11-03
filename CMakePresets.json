@@ -54,6 +54,24 @@
         "ANNDATA_ENABLE_INTEROP_TESTS": "ON",
         "Python3_EXECUTABLE": "${sourceDir}/.venv/bin/python3"
       }
+    },
+    {
+      "name": "core-only",
+      "displayName": "Dependency-free core",
+      "inherits": "native-check",
+      "binaryDir": "${sourceDir}/build/core-only",
+      "cacheVariables": {
+        "ANNDATA_ENABLE_HDF5": "OFF"
+      }
+    },
+    {
+      "name": "shared",
+      "displayName": "Shared library and installed consumer",
+      "inherits": "native-check",
+      "binaryDir": "${sourceDir}/build/shared",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -77,6 +95,16 @@
     {
       "name": "interop-check",
       "configurePreset": "interop-check",
+      "jobs": 2
+    },
+    {
+      "name": "core-only",
+      "configurePreset": "core-only",
+      "jobs": 2
+    },
+    {
+      "name": "shared",
+      "configurePreset": "shared",
       "jobs": 2
     }
   ],
@@ -130,6 +158,26 @@
       "execution": {
         "noTestsAction": "error"
       }
+    },
+    {
+      "name": "core-only",
+      "configurePreset": "core-only",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "shared",
+      "configurePreset": "shared",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
     }
   ],
   "workflowPresets": [
@@ -166,6 +214,40 @@
         {
           "type": "test",
           "name": "interop-check"
+        }
+      ]
+    },
+    {
+      "name": "core-only",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "core-only"
+        },
+        {
+          "type": "build",
+          "name": "core-only"
+        },
+        {
+          "type": "test",
+          "name": "core-only"
+        }
+      ]
+    },
+    {
+      "name": "shared",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "shared"
+        },
+        {
+          "type": "build",
+          "name": "shared"
+        },
+        {
+          "type": "test",
+          "name": "shared"
         }
       ]
     }

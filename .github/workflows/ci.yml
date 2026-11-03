@@ -1,4 +1,4 @@
-name: foundation
+name: native-and-h5ad
 on: [push, pull_request]
 
 jobs:
@@ -7,11 +7,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [debug, release, sanitizers]
+        preset: [debug, release, sanitizers, core-only, shared]
     steps:
       - uses: actions/checkout@v4
       - name: Install module toolchain
-        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build
+        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev
       - name: Configure
         run: cmake --preset ${{ matrix.preset }} -DANNDATA_ENABLE_INTEROP_TESTS=OFF
       - name: Build
@@ -29,11 +29,11 @@ jobs:
       - name: Install toolchain and development-only reference packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build
+          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev
           python -m pip install -r tests/requirements-interop.txt
       - name: Configure
         run: cmake --preset debug -DANNDATA_ENABLE_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
       - name: Build
         run: cmake --build --preset debug --parallel 2
-      - name: Compare Python-written H5AD fixture semantics
+      - name: Compare semantics and bidirectional H5AD interoperability
         run: ctest --preset debug

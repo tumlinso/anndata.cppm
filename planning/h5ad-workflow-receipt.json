@@ -1,0 +1,52 @@
+{
+  "format": "anndata-cppm.workflow-observation",
+  "version": 1,
+  "observed_at": "2026-11-03T09:58:24Z",
+  "project": "anndata-cppm",
+  "repository": "anndata-cppm",
+  "authority": "todo_semantic_workflow",
+  "authority_revision": 40,
+  "plan": {
+    "foundation": "accepted work definition; no accepted outcome",
+    "h5ad-io": "accepted work definition; depends on foundation completion",
+    "active_run": null
+  },
+  "foundation_attempt": {
+    "attempt_id": "attempt-6f7e9d3c40f88cae3f273de50f2d5423574df79622a570913dc0008dd8a450a3",
+    "workspace_id": "pcw-ws-a4ad26fca245ce97f881470307d601a4",
+    "base_commit": "d4c9ecb40248fa220a9358843acd2ee7b88ec258",
+    "state": "admitted",
+    "source_observation": "clean",
+    "children": "none",
+    "external_operations": [],
+    "evidence": [],
+    "lease_expires_at": "2026-11-02T22:46:09.644483+00:00",
+    "lease_expired": true,
+    "process_observation": "unknown",
+    "offered_recovery_intents": []
+  },
+  "qualification": {
+    "observation": "Run-free next_task admitted the attempt, then returned native_operation_rejected during context assembly. finish_task(release) returned workflow_attempt_not_active.",
+    "source_diagnosis": "The installed Project Control path passes an attempt without a run or assignment, while the installed Todo context API requires those three references together. The frontdoor redacts the underlying exception.",
+    "recovery_condition": "Satisfied: root independently observed the exact agent completed, recorded host attestation, reviewed the single offered intent, and applied it through the supported authenticated API.",
+    "limits": "This observation is not an accepted outcome, verification receipt, or file-interoperability result. Local H5AD validation is external evidence until recorded through the authority.",
+    "remaining_limit": "The installed run-free next_task/context adapter remains incompatible; H5AD local evidence is not a native Todo accepted outcome. Do not claim a new attempt until the adapter can bind a complete context."
+  },
+  "recovery": {
+    "observed_agent": "/root/workflow_h5ad",
+    "lifecycle_observed": "completed through configured Codex collaboration API",
+    "attestation_id": "60d6e19d6255af7d8f38a30026e3511d82ba824e2ff5a40fc32b0e1ae87fde03",
+    "reviewed_intent": "release_expired_attempt",
+    "expected_revision": 40,
+    "applied_revision": 41,
+    "receipt_id": "receipt-70df5d5a603343bf8070b47fce85aff3",
+    "applied_at": "2026-11-03T10:04:47.381826+00:00",
+    "final_attempt_state": "released",
+    "accepted_outcome": false
+  },
+  "current_state": {
+    "authority_revision": 41,
+    "attempt": "released",
+    "accepted_outcome": false
+  }
+}

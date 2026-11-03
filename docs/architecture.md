@@ -14,11 +14,11 @@ References: [AnnData encoding specification](https://anndata.readthedocs.io/en/s
 
 ## Module and implementation boundaries
 
-`anndata.core` owns the public data API. Its arrays and data interface partitions organize that module; they are not independently importable modules. `anndata` re-exports the core as the ordinary user entry point. Future named format modules add specialized controls, while the facade exposes common enabled I/O.
+`anndata.core` owns the public data API. Its arrays, strings, and data interface partitions organize that module; they are not independently importable modules. `anndata.h5ad` adds file operations and options while keeping HDF5 implementation details private. `anndata` re-exports the core and enabled H5AD module as the ordinary user entry point. Future named format modules add specialized controls.
 
-The first package places all interfaces in a single exported CMake target. Consumers install interface sources plus CMake module metadata and compile their own BMIs. A temporary probe with CMake 3.28.3/Clang 18 found installed dependent module targets unreliable when split across exported targets. Separate component targets therefore require qualification before introduction. BMIs are not portable distribution artifacts across arbitrary compilers, flags, or standard libraries.
+The package installs one binary plus interface sources and CMake module metadata. Its configuration creates one consumer-local module-interface provider behind `anndata::anndata`, so multiple executables share the same interface build. This avoids duplicate synthesized module rules in CMake 3.28.3 while preserving ordinary `find_package()` consumption. Static, shared, and core-only configurations use the same public target. Consumers compile their own BMIs; those artifacts are not portable across arbitrary compilers, flags, or standard libraries. Separate exported format-component targets require additional qualification.
 
-Public owners use erased out-of-line implementation. Small templates provide typed memory views. HDF5, Arrow, JSON, codec, and other backend headers belong in implementation boundaries. No storage dependency is required by the current core.
+Public owners use erased out-of-line implementation. Small templates provide typed memory views. HDF5, Arrow, JSON, codec, and other backend headers belong in implementation boundaries. No storage dependency is required by the core; HDF5 is enabled by default and can be disabled at configuration.
 
 ## Reuse decisions
 
@@ -30,13 +30,13 @@ Public owners use erased out-of-line implementation. Small templates provide typ
 
 ## Compatibility matrix
 
-This matrix separates representable core data from complete file/schema compatibility. Current file I/O support is **not implemented**.
+This matrix separates representable core data from complete file/schema compatibility. H5AD support covers the explicit subset in [h5ad.md](h5ad.md); other storage formats remain future work.
 
-The initial dtype inventory covers numerical/bool arrays and one-dimensional UTF-8 metadata columns. Multidimensional string ndarrays, complex/half-precision arrays, compound records, and ragged/Awkward values require later representation work. A string-valued table is not claimed to substitute for a string ndarray encoding.
+The dtype inventory covers numerical/bool arrays, arbitrary-dimensional packed UTF-8 string arrays, and nullable/categorical metadata columns. Complex/half-precision arrays, compound records, and ragged/Awkward values require later representation work. Native numerical memory and preferred serialization byte order are separate properties: HDF5 converts at the transfer boundary.
 
 | Ecosystem | Kind | Foundation | Required later work |
 |---|---|---|---|
-| [AnnData](https://anndata.readthedocs.io/en/stable/fileformat-prose.html) | Encodings in HDF5/Zarr | Standard slots and supported in-memory elements | H5AD read/write, backed storage, separate Zarr v2/v3 qualification |
+| [AnnData](https://anndata.readthedocs.io/en/stable/fileformat-prose.html) | Encodings in HDF5/Zarr | Standard slots, supported in-memory elements, versioned H5AD subset | Extend encoding coverage, backed storage, separate Zarr v2/v3 qualification |
 | [MuData](https://mudata.readthedocs.io/stable/io/spec.html) | Multimodal container | Reusable arrays/tables | Modalities, order, shared axes, observation/variable maps |
 | [TreeData](https://treedata.readthedocs.io/en/stable/fileformat.html) | Tree-bearing AnnData extension | Reusable attributes | Trees, node/edge attributes, alignment, versioned HDF5/Zarr representations |
 | [AnnDataSet](https://snapatac2.scverse.org/version/2.8/api/_autosummary/snapatac2.read_dataset.html) | SnapATAC2 linked .h5ads collection | Component primitives | Backed linked datasets, relative paths, relocation/missing-component handling |

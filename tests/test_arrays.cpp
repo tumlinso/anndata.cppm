@@ -769,6 +769,104 @@ void sparse_layout_and_validation() {
                  "non-owning sparse descriptor preserves read-only offset access");
 }
 
+void compact_sparse_integer_widths() {
+    auto signed_csr = anndata::Array::csr<float, std::int8_t, std::int16_t>(2, 3, 3);
+    {
+        auto sparse = signed_csr.edit().csr<float, std::int8_t, std::int16_t>();
+        sparse.unsafe_offsets()[0] = 0;
+        sparse.unsafe_offsets()[1] = 2;
+        sparse.unsafe_offsets()[2] = 3;
+        sparse.unsafe_indices()[0] = 2;
+        sparse.unsafe_indices()[1] = 0;
+        sparse.unsafe_indices()[2] = 1;
+        sparse.values()[0] = 1;
+        sparse.values()[1] = 2;
+        sparse.values()[2] = 3;
+    }
+    signed_csr.validate();
+    auto signed_csr_view = signed_csr.view().csr<float, std::int8_t, std::int16_t>();
+    auto signed_csr_copy = signed_csr.copy();
+    auto signed_csr_copy_view = signed_csr_copy.view().csr<float, std::int8_t, std::int16_t>();
+    auto signed_csr_gather = signed_csr.view().select({
+        std::vector<std::size_t>{1, 0}, std::nullopt
+    }).copy();
+    auto signed_csr_gather_view = signed_csr_gather.view().csr<float, std::int8_t, std::int16_t>();
+    expect(signed_csr_view.indices()[0] == 2 && signed_csr_view.offsets()[2] == 3 &&
+           signed_csr_copy_view.indices()[0] == 2 && signed_csr_copy_view.offsets()[2] == 3 &&
+           signed_csr_gather_view.indices()[0] == 1 && signed_csr_gather_view.offsets()[1] == 1,
+           "signed 8-bit CSR indices and 16-bit offsets survive access, copy, and row gather");
+
+    auto unsigned_csr = anndata::Array::csr<double, std::uint8_t, std::uint16_t>(2, 3, 3);
+    {
+        auto sparse = unsigned_csr.edit().csr<double, std::uint8_t, std::uint16_t>();
+        sparse.unsafe_offsets()[0] = 0;
+        sparse.unsafe_offsets()[1] = 2;
+        sparse.unsafe_offsets()[2] = 3;
+        sparse.unsafe_indices()[0] = 2;
+        sparse.unsafe_indices()[1] = 0;
+        sparse.unsafe_indices()[2] = 1;
+        sparse.values()[0] = 4;
+        sparse.values()[1] = 5;
+        sparse.values()[2] = 6;
+    }
+    unsigned_csr.validate();
+    auto unsigned_csr_view = unsigned_csr.view().csr<double, std::uint8_t, std::uint16_t>();
+    auto unsigned_csr_copy = unsigned_csr.copy();
+    auto unsigned_csr_copy_view = unsigned_csr_copy.view().csr<double, std::uint8_t, std::uint16_t>();
+    expect(unsigned_csr_view.indices()[0] == 2 && unsigned_csr_view.offsets()[2] == 3 &&
+           unsigned_csr_copy_view.indices()[2] == 1 && unsigned_csr_copy_view.offsets()[2] == 3,
+           "unsigned 8-bit CSR indices and 16-bit offsets survive direct access and copy");
+
+    auto signed_csc = anndata::Array::csc<float, std::int8_t, std::int16_t>(3, 2, 3);
+    {
+        auto sparse = signed_csc.edit().csc<float, std::int8_t, std::int16_t>();
+        sparse.unsafe_offsets()[0] = 0;
+        sparse.unsafe_offsets()[1] = 2;
+        sparse.unsafe_offsets()[2] = 3;
+        sparse.unsafe_indices()[0] = 2;
+        sparse.unsafe_indices()[1] = 0;
+        sparse.unsafe_indices()[2] = 1;
+        sparse.values()[0] = 7;
+        sparse.values()[1] = 8;
+        sparse.values()[2] = 9;
+    }
+    signed_csc.validate();
+    auto signed_csc_view = signed_csc.view().csc<float, std::int8_t, std::int16_t>();
+    auto signed_csc_gather = signed_csc.view().select({
+        std::nullopt, std::vector<std::size_t>{1, 0}
+    }).copy();
+    auto signed_csc_gather_view = signed_csc_gather.view().csc<float, std::int8_t, std::int16_t>();
+    expect(signed_csc_view.indices()[0] == 2 && signed_csc_view.offsets()[2] == 3 &&
+           signed_csc_gather_view.indices()[0] == 1 && signed_csc_gather_view.offsets()[2] == 3,
+           "signed 8-bit CSC indices and 16-bit offsets survive access and column gather");
+
+    auto index_overflow = anndata::Array::csr<float, std::uint8_t, std::uint16_t>(1, 256, 1);
+    {
+        auto sparse = index_overflow.edit().csr<float, std::uint8_t, std::uint16_t>();
+        sparse.unsafe_offsets()[0] = 0;
+        sparse.unsafe_offsets()[1] = 1;
+        sparse.unsafe_indices()[0] = 255;
+        sparse.values()[0] = 1;
+    }
+    std::vector<std::size_t> repeated_column(257, 255);
+    expect_error(anndata::ErrorCode::invalid_sparse_structure,
+        [&] { (void)index_overflow.view().select({std::nullopt, repeated_column}).copy(); },
+        "gather rejects a remapped compact index that no longer fits uint8");
+
+    auto offset_overflow = anndata::Array::csr<float, std::uint8_t, std::uint8_t>(1, 1, 1);
+    {
+        auto sparse = offset_overflow.edit().csr<float, std::uint8_t, std::uint8_t>();
+        sparse.unsafe_offsets()[0] = 0;
+        sparse.unsafe_offsets()[1] = 1;
+        sparse.unsafe_indices()[0] = 0;
+        sparse.values()[0] = 1;
+    }
+    std::vector<std::size_t> repeated_row(257, 0);
+    expect_error(anndata::ErrorCode::invalid_sparse_structure,
+        [&] { (void)offset_overflow.view().select({repeated_row, std::nullopt}).copy(); },
+        "gather rejects a compact offset that no longer fits uint8");
+}
+
 } // namespace
 
 int main() {
@@ -780,6 +878,7 @@ int main() {
     retained_and_borrowed_memory();
     lazy_dense_selection();
     sparse_layout_and_validation();
+    compact_sparse_integer_widths();
     if (failures != 0) {
         std::cerr << failures << " array assertion(s) failed\n";
         return EXIT_FAILURE;

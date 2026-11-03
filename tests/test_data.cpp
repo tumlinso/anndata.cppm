@@ -666,6 +666,85 @@ void reviewed_category_and_validation_regressions() {
                  "dataset validation annotates numerical errors with the affected slot key");
 }
 
+void unsigned_categorical_codes() {
+    std::vector<std::string> categories;
+    categories.reserve(256);
+    for (int i = 0; i < 256; ++i) categories.push_back(std::to_string(i));
+
+    auto byte_codes = array_of<std::uint8_t>({0, 255, 1, 255}, {4});
+    auto byte_groups = anndata::Column::categorical(
+        std::move(byte_codes), anndata::Column::strings(std::move(categories)), true);
+    auto byte_view = byte_groups.view();
+    expect(byte_view.codes().dtype() == anndata::DType::uint8 &&
+           byte_view.code(0) == 0 && byte_view.code(1) == 255 &&
+           byte_view.code(3) == 255 && byte_view.valid(1),
+           "uint8 categorical codes retain width and all values, including 255, remain valid");
+
+    auto unsigned_copy = byte_view.copy();
+    expect(unsigned_copy.view().codes().dtype() == anndata::DType::uint8 &&
+           unsigned_copy.view().code(1) == 255 && unsigned_copy.view().valid(1),
+           "categorical copy preserves unsigned byte codes without inventing a missing sentinel");
+
+    auto pruned = byte_view.select({1, 2});
+    expect(pruned.categories().size() == 2 && pruned.codes().dtype() == anndata::DType::uint8 &&
+           pruned.code(0) == 1 && pruned.code(1) == 0 &&
+           pruned.categories().string(0) == "1" && pruned.categories().string(1) == "255",
+           "pruning unsigned byte categories preserves dtype and recodes without a signed sentinel");
+
+    auto uint16_codes = array_of<std::uint16_t>({1, 2}, {2});
+    auto uint16_group = anndata::Column::categorical(
+        std::move(uint16_codes), anndata::Column::strings({"a", "b", "c"}));
+    auto uint16_subset = uint16_group.view().select({1}, false);
+    expect(uint16_subset.codes().dtype() == anndata::DType::uint16 &&
+           uint16_subset.code(0) == 2,
+           "unsigned 16-bit category codes survive selection without dictionary pruning");
+
+    auto uint32_group = anndata::Column::categorical(
+        array_of<std::uint32_t>({0, 2, 1}, {3}),
+        anndata::Column::strings({"a", "b", "c"}));
+    auto uint32_view = uint32_group.view();
+    auto uint32_pruned = uint32_view.select({2, 0});
+    auto uint32_copy = uint32_view.copy();
+    expect(uint32_view.code(1) == 2 && uint32_pruned.code(0) == 1 &&
+           uint32_pruned.code(1) == 0 && uint32_pruned.codes().dtype() == anndata::DType::uint32 &&
+           uint32_copy.view().codes().dtype() == anndata::DType::uint32 &&
+           uint32_copy.view().code(1) == 2,
+           "uint32 categorical codes support access, pruned recoding, and copy with width preserved");
+
+    auto uint64_group = anndata::Column::categorical(
+        array_of<std::uint64_t>({0, 2, 1}, {3}),
+        anndata::Column::strings({"a", "b", "c"}));
+    auto uint64_view = uint64_group.view();
+    auto uint64_pruned = uint64_view.select({2, 0});
+    auto uint64_copy = uint64_view.copy();
+    expect(uint64_view.code(1) == 2 && uint64_pruned.code(0) == 1 &&
+           uint64_pruned.code(1) == 0 && uint64_pruned.codes().dtype() == anndata::DType::uint64 &&
+           uint64_copy.view().codes().dtype() == anndata::DType::uint64 &&
+           uint64_copy.view().code(1) == 2,
+           "uint64 categorical codes within range support access, pruning, and copy with width preserved");
+
+    expect_error(anndata::ErrorCode::out_of_bounds, "categorical/codes",
+        [&] {
+            (void)anndata::Column::categorical(
+                array_of<std::uint64_t>({std::uint64_t{1} << 63}, {1}),
+                anndata::Column::strings({"only"}));
+        },
+        "uint64 category codes above the public signed code range fail without wrapping");
+    expect_error(anndata::ErrorCode::out_of_bounds, "categorical/codes",
+        [&] {
+            (void)anndata::Column::categorical(
+                array_of<std::uint8_t>({2}, {1}),
+                anndata::Column::strings({"a", "b"}));
+        },
+        "unsigned codes outside the category dictionary are rejected");
+
+    auto signed_missing = anndata::Column::categorical(
+        array_of<std::int8_t>({-1, 0}, {2}), anndata::Column::strings({"a"}));
+    expect(!signed_missing.view().valid(0) && signed_missing.view().code(0) == -1 &&
+           signed_missing.view().code(1) == 0,
+           "signed categorical codes retain -1 as the missing-value sentinel");
+}
+
 } // namespace
 
 int main() {
@@ -677,6 +756,7 @@ int main() {
     structural_snapshot_and_scalar_edges();
     raw_tables_and_empty_nullable_columns();
     reviewed_category_and_validation_regressions();
+    unsigned_categorical_codes();
     if (failures != 0) {
         std::cerr << failures << " data test(s) failed\n";
         return 1;

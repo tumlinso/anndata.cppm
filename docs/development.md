@@ -4,6 +4,8 @@
 
 The first qualified pairing is Clang 18.1.3, matching clang-scan-deps-18, CMake 3.28.3, and Ninja 1.11.1 on Linux. Configure rejects unqualified compiler families and generators with an actionable message. A compatible newer Clang can be selected explicitly; that does not establish a portability claim until its tests pass.
 
+H5AD support defaults to `ANNDATA_ENABLE_HDF5=ON` and discovers the HDF5 C library (>=1.10) through pkg-config. Neither HDF5 headers nor numerical framework headers enter public module interfaces. Configure with `-DANNDATA_ENABLE_HDF5=OFF`, or run the `core-only` workflow, to omit the storage dependency. `shared` qualifies the shared-library package and installed consumer; the normal build produces a static library.
+
 ```sh
 cmake --preset debug
 cmake --build --preset debug
@@ -44,13 +46,13 @@ cmake --build --preset debug
 ctest --preset debug
 ```
 
-The Python test creates and independently reopens real H5AD fixtures, then compares logical slicing/metadata outcomes to corresponding C++ in-memory data. This establishes a bounded semantic comparison; C++ H5AD reading/writing and file round trips belong to the subsequent milestone.
+`python_semantics` compares slicing/metadata outcomes with independently generated Python AnnData objects. When HDF5 is enabled, `python_h5ad` additionally exercises Python-written files through the C++ reader/writer and independently reads C++ output with AnnData and h5py. These are separate checks: in-memory behavior alone does not establish file compatibility. The declared encoding subset and failure contracts are documented in [h5ad.md](h5ad.md).
 
 For a one-command reference check, prepare a workspace-local `.venv` containing the pinned development packages, then run `cmake --workflow --preset interop-check`. When using Project Control's command sandbox, the virtual environment's interpreter and dependencies must also be accessible inside its trusted mounts (for example, create it from `/usr/bin/python3`). Provisioning that optional environment is separate from the standalone native gate; the gate does not download packages.
 
 ## Benchmarks
 
-The release preset builds `memory_benchmark`. See docs/performance.md for exact recorded commands, conditions, results, and limitations. `tools/compile_benchmark.py` works on a disposable source copy so rebuild experiments never edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.
+The release preset builds `memory_benchmark` and, when enabled, `h5ad_benchmark`. See [performance.md](performance.md) for the historical core baseline and [h5ad-performance.md](h5ad-performance.md) for H5AD measurements. The compilation benchmark tools use disposable source copies so rebuild experiments do not edit the live checkout. Record source identity, compiler/scanner, flags, cache conditions, wall time, memory, and affected compilation commands alongside results.
 
 ## Workflow state
 

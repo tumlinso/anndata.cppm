@@ -1,0 +1,150 @@
+{
+  "format": "anndata.cppm.h5ad-validation",
+  "version": 1,
+  "observed_at": "2026-11-03T10:08:41.027101+00:00",
+  "foundation_commit": "d4c9ecb40248fa220a9358843acd2ee7b88ec258",
+  "environment": {
+    "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "compiler": "Clang 18.1.3",
+    "scanner": "clang-scan-deps-18",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "hdf5_c": "1.10.10",
+    "language": "C++20, extensions OFF"
+  },
+  "checks": [
+    {
+      "command": "cmake --workflow --preset native-check",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "command": "cmake --workflow --preset core-only",
+      "passed": 5,
+      "total": 5
+    },
+    {
+      "command": "cmake --workflow --preset shared",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "command": "cmake --preset release -DANNDATA_ENABLE_INTEROP_TESTS=OFF -DANNDATA_BUILD_BENCHMARKS=OFF; cmake --build --preset release --parallel 2; ctest --preset release",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "command": "cmake --preset sanitizers -DANNDATA_ENABLE_INTEROP_TESTS=OFF -DANNDATA_BUILD_BENCHMARKS=OFF; cmake --build --preset sanitizers --parallel 2; ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ctest --preset sanitizers",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "command": "cmake --workflow --preset interop-check",
+      "passed": 8,
+      "total": 8,
+      "reference": "AnnData 0.13.4",
+      "python": "3.12.3"
+    },
+    {
+      "command": "python3 tests/python_h5ad.py build/interop/h5ad_interop_driver --compat-0.12",
+      "result": "passed shared-subset round trip",
+      "reference": "AnnData 0.12.10",
+      "python": "3.13.11"
+    },
+    {
+      "command": "ninja -C build/sanitizers -n; ninja -C build/shared -n; ninja -C build/release -n",
+      "result": "all no work to do after final native test changes"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "independent_review": {
+    "final_source_matches": true,
+    "targeted_sanitizer_reproductions_passed": 9,
+    "confirmed_remaining_defects": 0,
+    "additional_core_probe": "1000 randomized selections and lifetime cases passed ASan/UBSan",
+    "strings_data_sanitizer_groups": "2/2 passed independent fixed snapshot"
+  },
+  "installed_consumers": {
+    "hdf5_enabled": [
+      "anndata.core",
+      "anndata facade with file I/O",
+      "anndata.h5ad with file I/O"
+    ],
+    "core_only": [
+      "anndata.core",
+      "anndata facade"
+    ],
+    "multiple_executables": "same C++-only CMake project",
+    "configurations": [
+      "static",
+      "shared",
+      "ASan/UBSan",
+      "core-only"
+    ],
+    "additional_agent_evidence": "sibling find_package and downstream library export qualified"
+  },
+  "coverage": [
+    "all supported numeric widths and bool",
+    "dense/CSR/CSC, compact and independent sparse widths, duplicates and explicit zeros",
+    "all standard slots and raw",
+    "nullable int/bool/string including NA and NaN sentinels",
+    "categorical signed missing and unsigned codes",
+    "UTF-8 nD strings and rank-zero explicit owners",
+    "Python bare AnnData empty column-order attribute",
+    "byte order hints across numerical components, native conversion",
+    "file compression, missing-filter errors, exclusive output",
+    "malformed encodings, versions, structures, paths and unknown children",
+    "slices and explicit copies; full versus trusted validation"
+  ],
+  "limits": [
+    "declared H5AD subset only; no backed access or Zarr",
+    "Python 0.13.4 substitutes raw variable metadata when raw.X is None",
+    "SciPy 1.17.1 rejects foreign-endian sparse data; native output conversion tested",
+    "unmodeled HDF5 attributes not retained",
+    "compound/ragged/complex/half/legacy encodings not supported",
+    "LeakSanitizer disabled for local ptrace sandbox; ASan and UBSan enabled",
+    "GitHub CI authored but not executed remotely",
+    "local evidence is not a Todo outcome acceptance receipt"
+  ],
+  "source_sha256": {
+    ".github/workflows/ci.yml": "ef00615162221f63261f31e517696628f68e982b468052848d54f42111e82bd4",
+    "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+    "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+    "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+    "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+    "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+    "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+    "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+    "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+    "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+    "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+    "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+    "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+    "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+    "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+    "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+    "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+    "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+    "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+    "tests/python_h5ad.py": "5cbff4f56c4d086f36bddccba4237a3f571fc2f5dc3bf8f3f01a84d77c0c46e2",
+    "tests/python_semantics.py": "d6170c59e9a3c288b8104b7bb5205fd529c819c50dcea3c344b3667e620f2d0e",
+    "tests/requirements-interop.txt": "83060e6ee62b1a0200cb7f9a5cc2d086a100ecf2c51f21544358511c32befff1",
+    "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+    "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+    "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+    "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+  },
+  "performance_evidence": {
+    "report": "benchmarks/results/h5ad.json",
+    "sha256": "e3998b03ee05d75ce824f0ffcd6cb3076fafc30acde9c47e034f65b3abb6023d",
+    "summary": "docs/h5ad-performance.md",
+    "build_trials": 6,
+    "io_observations": 48,
+    "private_edit_preserves_public_bmis_and_consumer_objects": true
+  }
+}

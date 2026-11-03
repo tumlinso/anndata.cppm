@@ -1,5 +1,5 @@
 set(_prefix "${ANNDATA_BUILD_DIR}/installed-test/prefix")
-set(_consumer "${ANNDATA_BUILD_DIR}/installed-test/consumer")
+set(_consumer "${ANNDATA_BUILD_DIR}/installed-test/consumer-v2")
 function(checked)
   execute_process(COMMAND ${ARGV} RESULT_VARIABLE _result OUTPUT_VARIABLE _stdout ERROR_VARIABLE _stderr)
   if(NOT _result EQUAL 0)
@@ -10,5 +10,9 @@ checked("${CMAKE_COMMAND}" --install "${ANNDATA_BUILD_DIR}" --prefix "${_prefix}
 checked("${CMAKE_COMMAND}" -S "${ANNDATA_SOURCE_DIR}/tests/consumer" -B "${_consumer}" -G Ninja
   "-DCMAKE_CXX_COMPILER=${ANNDATA_COMPILER}" "-DCMAKE_BUILD_TYPE=${ANNDATA_CONFIG}"
   "-DCMAKE_PREFIX_PATH=${_prefix}")
-checked("${CMAKE_COMMAND}" --build "${_consumer}")
+checked("${CMAKE_COMMAND}" --build "${_consumer}" --parallel 2)
 checked("${_consumer}/consumer")
+checked("${_consumer}/consumer_facade" "${_consumer}/facade.h5ad")
+if(ANNDATA_HDF5_ENABLED)
+  checked("${_consumer}/consumer_h5ad" "${_consumer}/roundtrip.h5ad")
+endif()

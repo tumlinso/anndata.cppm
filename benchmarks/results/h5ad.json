@@ -1,0 +1,2999 @@
+{
+  "format": "anndata.cppm.h5ad-benchmark",
+  "version": 1,
+  "generated_utc": "2026-11-03T10:08:50.077164+00:00",
+  "revision": "d4c9ecb40248fa220a9358843acd2ee7b88ec258",
+  "working_tree_dirty": true,
+  "working_tree_paths": [
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "CMakeLists.txt",
+    "CMakePresets.json",
+    "README.md",
+    "cmake/anndataConfig.cmake.in",
+    "cmake/test-installed-consumer.cmake",
+    "docs/architecture.md",
+    "docs/development.md",
+    "docs/memory.md",
+    "docs/validation.md",
+    "src/anndata.arrays.cppm",
+    "src/anndata.core.cppm",
+    "src/anndata.cppm",
+    "src/anndata.data.cppm",
+    "src/arrays.cpp",
+    "src/data.cpp",
+    "tests/consumer/CMakeLists.txt",
+    "tests/test_arrays.cpp",
+    "tests/test_data.cpp",
+    "benchmarks/h5ad.cpp",
+    "docs/h5ad-performance.md",
+    "docs/h5ad.md",
+    "planning/h5ad-workflow-receipt.json",
+    "src/anndata.h5ad.cppm",
+    "src/anndata.strings.cppm",
+    "src/h5ad.cpp",
+    "src/strings.cpp",
+    "tests/consumer/facade.cpp",
+    "tests/consumer/h5ad.cpp",
+    "tests/h5ad_interop_driver.cpp",
+    "tests/python_h5ad.py",
+    "tests/results/h5ad-validation.json",
+    "tests/test_h5ad.cpp",
+    "tests/test_strings.cpp",
+    "tools/h5ad_benchmark.py"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+    "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+    "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+    "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+    "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+    "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+    "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+    "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+    "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+    "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+    "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+    "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+    "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+    "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+    "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+    "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+    "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+    "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+    "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+    "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+    "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+    "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+    "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+    "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+    "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+    "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+    "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+  },
+  "environment": {
+    "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "logical_cpus": 80,
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "module_scanner": "clang-scan-deps-18 (clang-tools-18 package 18.1.3-1ubuntu1)",
+    "cmake": "cmake version 3.28.3",
+    "ninja": "1.11.1",
+    "hdf5": "1.10.10",
+    "page_cache": "not cleared; repeated input reads use host cache",
+    "host_cpu_model": "Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz"
+  },
+  "conditions": {
+    "parallel_build_jobs": 2,
+    "repetitions": 3,
+    "rss": "GNU time maximum resident set for the waited process",
+    "input": "float32 dense 4096x2048; float32 CSR 4096x2048 with 128 entries per row",
+    "build_type": "Release",
+    "language_mode": "C++20, CXX extensions disabled",
+    "io_trial_count": 48,
+    "io_read_write_pair_count": 24,
+    "io_validation": "Validation::full defaults for read_h5ad and write_h5ad",
+    "io_max_rss_scope": "GNU time covers the entire benchmark process, including data setup and checksum; operation seconds cover only the H5AD read/write call"
+  },
+  "build_trials": [
+    {
+      "hdf5_enabled": false,
+      "trial": 1,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-0-1",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-0-1",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=OFF",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.5637676919996011,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-0-1",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.401510866000535,
+        "max_rss_kib": 250240,
+        "compiler_actions": [
+          "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[7/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[10/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.arrays.cppm",
+          "[11/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.strings.cppm",
+          "[12/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.data.cppm",
+          "[13/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.core.cppm",
+          "[14/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/strings.cpp",
+          "[15/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/arrays.cpp",
+          "[16/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/anndata.cppm",
+          "[17/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/src/data.cpp"
+        ],
+        "compiler_action_count": 16
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-1",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.1746205990002636,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-1",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.1796471540001221,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-1/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700533525764374,
+          "sha256": "006529db8a21dadeb23b65652099f47eb50bb2035da1404ad492c8ccb6384185"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700535776721999,
+          "sha256": "783e41445988b07b2fa8c342f4d5794db724f924b980d19fb6d8248299dd7786"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700534507745869,
+          "sha256": "fbc28949aa7df9c7617ade7676c0565e1fbabc2bf3982a553f5096277a6ca7b8"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700536011717582,
+          "sha256": "8b29d2ae5660fd46f01cd1de36849afec4e9f175ead37c3615b9b4636fbd26cc"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 17376,
+          "mtime_ns": 1793700538459671701,
+          "sha256": "4747185503df547a6492fcd2ec289a8eaea5521dd0ceadb37fbb39f6f769f81c"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700533573763469,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700536037717094,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700538483671252,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700535959718559,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700534547745116,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700538403672748,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700545715536781,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700537981680642,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700545876533804,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700546055530497,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700545876533804,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700546055530497,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700533573763469,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700536037717094,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700538483671252,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700535959718559,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700534547745116,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700538403672748,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700545715536781,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700537981680642,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    },
+    {
+      "hdf5_enabled": false,
+      "trial": 2,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-0-2",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-0-2",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=OFF",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.5645352330002424,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-0-2",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.360833607000131,
+        "max_rss_kib": 250240,
+        "compiler_actions": [
+          "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[7/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[10/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.arrays.cppm",
+          "[11/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.strings.cppm",
+          "[12/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.data.cppm",
+          "[13/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.core.cppm",
+          "[14/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/strings.cpp",
+          "[15/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/arrays.cpp",
+          "[16/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/anndata.cppm",
+          "[17/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/src/data.cpp"
+        ],
+        "compiler_action_count": 16
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-2",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.16150983799980168,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-2",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.17185914299989236,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-2/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700548881478416,
+          "sha256": "e3e96160ed3e26fada2b6400cf0690a1b3ec08b2c834cbac1c7df6c59061984a"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700551173436355,
+          "sha256": "7ab22380dfe1f576c7ef93e49a39231cf9524bb7499ae6db8dd5919f7a5a1485"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700549946458851,
+          "sha256": "9b803e5e746ca13a3da6241a985654ff5774b7baf32a3d7b3f2154e43915b1d3"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700551400432199,
+          "sha256": "85196b9014ab04e69067ee677e1550c2d1c2fca46f63d999cb7f7b713fb34791"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 17376,
+          "mtime_ns": 1793700553646391151,
+          "sha256": "cf0c935f091e8e26253b8397df5e4160d192f9c33d0b75f99cfd131b843dd158"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700548924477625,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700551427431705,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700553676390604,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700551348433151,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700549980458227,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700553588392209,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700560928259102,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700553291397629,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700561075256453,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700561244253409,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700561075256453,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700561244253409,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700548924477625,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700551427431705,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700553676390604,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700551348433151,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700549980458227,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700553588392209,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700560928259102,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700553291397629,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    },
+    {
+      "hdf5_enabled": false,
+      "trial": 3,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-0-3",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-0-3",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=OFF",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.5478912620001211,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-0-3",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.478213604999837,
+        "max_rss_kib": 250240,
+        "compiler_actions": [
+          "[1/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[2/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[3/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[4/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[5/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[6/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[7/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[8/18] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[10/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.arrays.cppm",
+          "[11/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.strings.cppm",
+          "[12/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.data.cppm",
+          "[13/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.core.cppm",
+          "[14/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/strings.cpp",
+          "[15/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/arrays.cpp",
+          "[16/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/anndata.cppm",
+          "[17/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/src/data.cpp"
+        ],
+        "compiler_action_count": 16
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-3",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.15861967299952084,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-0-3",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.1783987220005656,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=0  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-0-3/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  libanndata.a && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700563909205502,
+          "sha256": "f3291a2b18fdb3b63c4ba09ad832068d40a0b8029e8c7d2e38cdb5c36c0704da"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700566171165005,
+          "sha256": "4faa16f20fda62ce8d1962851b8d6266920dcfb4b5f37037761e639424fdaed1"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700564918187419,
+          "sha256": "1241fc4a9b47ad15b8f8b307519c32775b1e3ad7e2154ccc9d972ad5040cde87"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700566415160647,
+          "sha256": "db9c3fd258453f78d7d83379f99109d816245670fc3f0a1e92222d1514922d94"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 17376,
+          "mtime_ns": 1793700568794118233,
+          "sha256": "d6ee30849fea84998bb5024ed7b814c95bc978c317581b84e9c81ae762488152"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700563950204766,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700566442160165,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700568826117663,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700566362161594,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700564955186756,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700568735119283,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700576148988149,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700568270127561,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700576294985584,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700576469982509,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700576294985584,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700576469982509,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700563950204766,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700566442160165,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700568826117663,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700566362161594,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700564955186756,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700568735119283,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700576148988149,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700568270127561,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    },
+    {
+      "hdf5_enabled": true,
+      "trial": 1,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-1-1",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=ON",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.6064175299998169,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.933616486000574,
+        "max_rss_kib": 250240,
+        "compiler_actions": [
+          "[1/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[2/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[3/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[4/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/h5ad.cpp -c -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi",
+          "[5/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[6/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[7/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[8/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[9/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.h5ad.cppm -c -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi",
+          "[10/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[12/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.arrays.cppm",
+          "[13/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.strings.cppm",
+          "[14/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.data.cppm",
+          "[15/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.core.cppm",
+          "[16/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/strings.cpp",
+          "[17/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/arrays.cpp",
+          "[18/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.h5ad.cppm",
+          "[19/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.d @CMakeFiles/anndata.dir/src/h5ad.cpp.o.modmap -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/h5ad.cpp",
+          "[20/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/anndata.cppm",
+          "[21/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/src/data.cpp"
+        ],
+        "compiler_action_count": 20
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.21055313200031378,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.21001013500062982,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_module": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_module"
+          ],
+          "elapsed_seconds": 0.2141750629998569,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/h5ad.cpp -c -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.d @CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/imports/h5ad.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -o h5ad_import_module  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700579235934017,
+          "sha256": "44eb7f6861e22ada39e0468acebd684c586a93ab727d3ebfc300bc3acbf19c32"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700581616892451,
+          "sha256": "1e01dc759287d3de2fe8a3a4c648fb6b5103fa7e2cdfd8f9fe02395bde3e55ed"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700580309915248,
+          "sha256": "1ba8a3274ce3657ab4b81c80eb552a0dbe0823ebc28f07ce7c7606cf885f23e9"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700581848888408,
+          "sha256": "dc5d2a1040808e302e514e3ccae69cab8d1c8ebd55c86767d649d42b389a269b"
+        },
+        "CMakeFiles/anndata.dir/anndata.h5ad.pcm": {
+          "bytes": 2108496,
+          "mtime_ns": 1793700584540841627,
+          "sha256": "1b7ec1c52147809e962d8e68de0ba621885e63c3b62d8c443ad5baeccf2e72f6"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 70396,
+          "mtime_ns": 1793700591407723214,
+          "sha256": "ec39b4c3af1b6e2e3db7edc191c414c17969cd45852cbdcc55df5e046f979448"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "benchmark_driver_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "h5ad_benchmark"
+        ],
+        "elapsed_seconds": 2.226042498999959,
+        "max_rss_kib": 224640,
+        "compiler_actions": [
+          "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/h5ad.cpp -c -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi",
+          "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.d @CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-1/benchmarks/h5ad.cpp",
+          "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -o h5ad_benchmark  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+        ],
+        "compiler_action_count": 3
+      },
+      "io_executable": "/tmp/anndata-h5ad-bench-kqic53_k/build-1-1/h5ad_benchmark",
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700579272933370,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700581869888042,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700591438722683,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700581796889315,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700584581840916,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700580355914445,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700584009850835,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700591880715105,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700591323724654,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700583662856862,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700592035712449,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700592247708820,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700592459705191,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700592035712449,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700592247708820,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700592459705191,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700579272933370,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700581869888042,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700591438722683,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700581796889315,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700584581840916,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700580355914445,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700584009850835,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700591880715105,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700591323724654,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700583662856862,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    },
+    {
+      "hdf5_enabled": true,
+      "trial": 2,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-1-2",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=ON",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.6472372629996244,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.540758268999525,
+        "max_rss_kib": 250240,
+        "compiler_actions": [
+          "[1/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[2/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[3/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[4/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/h5ad.cpp -c -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi",
+          "[5/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[6/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[7/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[8/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[9/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.h5ad.cppm -c -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi",
+          "[10/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[12/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.arrays.cppm",
+          "[13/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.strings.cppm",
+          "[14/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.data.cppm",
+          "[15/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.core.cppm",
+          "[16/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/strings.cpp",
+          "[17/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/arrays.cpp",
+          "[18/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.h5ad.cppm",
+          "[19/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.d @CMakeFiles/anndata.dir/src/h5ad.cpp.o.modmap -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/h5ad.cpp",
+          "[20/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/anndata.cppm",
+          "[21/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/src/data.cpp"
+        ],
+        "compiler_action_count": 20
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.20934913900055108,
+          "max_rss_kib": 94080,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.21696573500048544,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_module": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_module"
+          ],
+          "elapsed_seconds": 0.22694281399981264,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/h5ad.cpp -c -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.d @CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/imports/h5ad.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -o h5ad_import_module  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700597705615772,
+          "sha256": "a89d0c3839512bbe08ce03138415d05ae69bdbfa5256799ce1e1c28aaac50deb"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700600089575386,
+          "sha256": "ac6e6827ecfb1af87f26474dfb5fa6ac0da0bf99a378c33a75c77c9e0041d29f"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700598837596576,
+          "sha256": "00ba2fedb9dc2f25854bee1eaa1713ce0d6570e989e4b3db711944bc20087d99"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700600329571331,
+          "sha256": "a07dca4fad1d88123a692699bcffcd118cfcb9979bd1c76ee09931e4bba9416f"
+        },
+        "CMakeFiles/anndata.dir/anndata.h5ad.pcm": {
+          "bytes": 2108496,
+          "mtime_ns": 1793700602990526454,
+          "sha256": "dc1076780b05ace72c39ed01761477a843dab842f07333c4984dd2a34caa0e4b"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 70396,
+          "mtime_ns": 1793700609094424248,
+          "sha256": "e25dfa9d2d98495773e1efab594d96d95114e4e16815bef0d30688eeb0a98b4c"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "benchmark_driver_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "h5ad_benchmark"
+        ],
+        "elapsed_seconds": 2.24519131299985,
+        "max_rss_kib": 224640,
+        "compiler_actions": [
+          "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/h5ad.cpp -c -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi",
+          "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.d @CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-2/benchmarks/h5ad.cpp",
+          "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -o h5ad_benchmark  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+        ],
+        "compiler_action_count": 3
+      },
+      "io_executable": "/tmp/anndata-h5ad-bench-kqic53_k/build-1-2/h5ad_benchmark",
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700597751614991,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700600356570875,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700609119423832,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700600271572311,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700603032525748,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700598876595915,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700602456535447,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700609961409812,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700609029425330,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700602189539944,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700610109407351,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700610321403826,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700610550400020,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700610109407351,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700610321403826,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700610550400020,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700597751614991,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700600356570875,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700609119423832,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700600271572311,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700603032525748,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700598876595915,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700602456535447,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700609961409812,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700609029425330,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700602189539944,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    },
+    {
+      "hdf5_enabled": true,
+      "trial": 3,
+      "configure_command": [
+        "cmake",
+        "-S",
+        "/tmp/anndata-h5ad-bench-kqic53_k/src-1-3",
+        "-B",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+        "-G",
+        "Ninja",
+        "-DCMAKE_CXX_COMPILER=clang++-18",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DANNDATA_BUILD_TESTS=ON",
+        "-DANNDATA_BUILD_EXAMPLES=ON",
+        "-DANNDATA_BUILD_BENCHMARKS=ON",
+        "-DANNDATA_ENABLE_HDF5=ON",
+        "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"
+      ],
+      "configure_seconds": 0.6827138589997048,
+      "cold_library_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "anndata"
+        ],
+        "elapsed_seconds": 13.380727468999794,
+        "max_rss_kib": 249600,
+        "compiler_actions": [
+          "[1/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/strings.cpp -c -o CMakeFiles/anndata.dir/src/strings.cpp.o -MT CMakeFiles/anndata.dir/src/strings.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/strings.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/strings.cpp.o.ddi",
+          "[2/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/arrays.cpp -c -o CMakeFiles/anndata.dir/src/arrays.cpp.o -MT CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/arrays.cpp.o.ddi",
+          "[3/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/data.cpp -c -o CMakeFiles/anndata.dir/src/data.cpp.o -MT CMakeFiles/anndata.dir/src/data.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/data.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/data.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/data.cpp.o.ddi",
+          "[4/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp -c -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi",
+          "[5/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.cppm -c -o CMakeFiles/anndata.dir/src/anndata.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.cppm.o.ddi",
+          "[6/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.core.cppm -c -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.core.cppm.o.ddi",
+          "[7/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.arrays.cppm -c -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.ddi",
+          "[8/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.strings.cppm -c -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.ddi",
+          "[9/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.data.cppm -c -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.data.cppm.o.ddi",
+          "[10/22] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.h5ad.cppm -c -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi",
+          "[12/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.arrays.cppm",
+          "[13/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.strings.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.strings.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.strings.cppm",
+          "[14/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.data.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.data.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.data.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.data.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.data.cppm",
+          "[15/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.core.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.core.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.core.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.core.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.core.cppm",
+          "[16/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/strings.cpp.o -MF CMakeFiles/anndata.dir/src/strings.cpp.o.d @CMakeFiles/anndata.dir/src/strings.cpp.o.modmap -o CMakeFiles/anndata.dir/src/strings.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/strings.cpp",
+          "[17/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/arrays.cpp.o -MF CMakeFiles/anndata.dir/src/arrays.cpp.o.d @CMakeFiles/anndata.dir/src/arrays.cpp.o.modmap -o CMakeFiles/anndata.dir/src/arrays.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/arrays.cpp",
+          "[18/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.h5ad.cppm",
+          "[19/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.d @CMakeFiles/anndata.dir/src/h5ad.cpp.o.modmap -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp",
+          "[20/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.cppm",
+          "[21/22] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/data.cpp.o -MF CMakeFiles/anndata.dir/src/data.cpp.o.d @CMakeFiles/anndata.dir/src/data.cpp.o.modmap -o CMakeFiles/anndata.dir/src/data.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/data.cpp"
+        ],
+        "compiler_action_count": 20
+      },
+      "first_import_builds": {
+        "h5ad_import_core": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_core"
+          ],
+          "elapsed_seconds": 0.21740374599994539,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/core.cpp -c -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.d > CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi.tmp CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -MF CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.d @CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o.modmap -o CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/core.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_facade": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_facade"
+          ],
+          "elapsed_seconds": 0.25986557100077334,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/facade.cpp -c -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.d > CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi.tmp CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/facade.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        },
+        "h5ad_import_module": {
+          "command": [
+            "cmake",
+            "--build",
+            "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+            "--parallel",
+            "2",
+            "--verbose",
+            "--target",
+            "h5ad_import_module"
+          ],
+          "elapsed_seconds": 0.2226715980004883,
+          "max_rss_kib": 95360,
+          "compiler_actions": [
+            "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/h5ad.cpp -c -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.ddi",
+            "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.d @CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/h5ad.cpp",
+            "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -o h5ad_import_module  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+          ],
+          "compiler_action_count": 3
+        }
+      },
+      "bmis": {
+        "CMakeFiles/anndata.dir/anndata.core-arrays.pcm": {
+          "bytes": 6779476,
+          "mtime_ns": 1793700615722314407,
+          "sha256": "9ffc0a5edbbb042321e67132896f4c3917a03b8e61ff8808e447a444c49e8d4f"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-data.pcm": {
+          "bytes": 7295292,
+          "mtime_ns": 1793700618010276759,
+          "sha256": "121a14e68538f4a359c7fc91e9ad98bcd42fe85df8c330eb508cb0196b078f3e"
+        },
+        "CMakeFiles/anndata.dir/anndata.core-strings.pcm": {
+          "bytes": 6040400,
+          "mtime_ns": 1793700616733297755,
+          "sha256": "b202123e06637bd77a5ed6d93fcb96cd0c1a0626cdbcf9f23fe2665705fff2d6"
+        },
+        "CMakeFiles/anndata.dir/anndata.core.pcm": {
+          "bytes": 17496,
+          "mtime_ns": 1793700618263272607,
+          "sha256": "9f3807cb759caf4cbb1a2fc911c171ce8866b751970d6e5cbcb0b727556a8c63"
+        },
+        "CMakeFiles/anndata.dir/anndata.h5ad.pcm": {
+          "bytes": 2108496,
+          "mtime_ns": 1793700620918229114,
+          "sha256": "4984b11c6054a9c89511fa407c373fa7abf7638c658c10038c7fa5e4f756a9af"
+        },
+        "CMakeFiles/anndata.dir/anndata.pcm": {
+          "bytes": 70396,
+          "mtime_ns": 1793700627185127190,
+          "sha256": "8f5360d0957b83e4234b1a514a03c6110f5f580b89c646b5cf1c0cddfd8d18d4"
+        }
+      },
+      "source_sha256": {
+        "CMakeLists.txt": "4c9bb5db990a819d1fc094d7139ae58577b0cb0760ee8e2143e1a9a10e64c179",
+        "CMakePresets.json": "017e80e8835b6eabc96c45f3064d9a0b8302e325e67791817d54ba0bff61042e",
+        "benchmarks/h5ad.cpp": "7d14c01ca359d9408cfb3fbf482f0bee89739b8e9a5ef2c7e294767e0fdc4a6a",
+        "benchmarks/memory.cpp": "8eb2e88ace00648a620595c03e5dbd8cc063df5dd743cd2fbcb446e7ae1af67f",
+        "cmake/anndataConfig.cmake.in": "0d6b85617b4c6aac83b7de295e313f14fa6e497db0f310d90dca2c54608d1c68",
+        "cmake/test-installed-consumer.cmake": "17bec126c887ff7fa08d1c0c4a5e2374c680d5457c1f963eba1bb5baf91ff2d4",
+        "examples/foundation.cpp": "2f562010e4cb4535a2db22faa1a64ba8ce8162d2b9242c8b4ae3aa0bfd8820a5",
+        "src/anndata.arrays.cppm": "2f92aaf6577e4476629c2dd3c56e337188c8604ea66f06ec0eed814aefc8eb17",
+        "src/anndata.core.cppm": "2286ea4cf2ffa0b91999c2593a9893176d590b70dbc6e77372352a616950b631",
+        "src/anndata.cppm": "abb909e1cffcd0f3a1b0d6566dc3b2ab0d738d0fd083c9675a9dce93b83c27b9",
+        "src/anndata.data.cppm": "05d606dec7278033e58cd21b8a74213e887e7a3fb66bd53e4c4b32569a18c1c4",
+        "src/anndata.h5ad.cppm": "4400a2dfec46f04418e003e8405a5ab087cebf4e2e7366a91d4d1c151aaec582",
+        "src/anndata.strings.cppm": "d00350249a2165899d052e6bf0509fb57e9c1038519b4fdd87330a56ce58df3e",
+        "src/arrays.cpp": "98edf43b8443ea9040d28f970c6547a034eabc0e93ee7a4eaae9339266653448",
+        "src/data.cpp": "0bc296a2ebe120d7852642287b0311457a3d309dfc403a9a693857100249360c",
+        "src/h5ad.cpp": "c88bbd416fb91e235d72fc5b8e2c6f3df45e6964bb2f4b6975ebcc46064c4d4c",
+        "src/strings.cpp": "54cff624266c7b0ddb05e2590a95d171cebef915ed30c3757f362ac0b24c37ff",
+        "tests/consumer/CMakeLists.txt": "3fd7820efdabba1f52fd9abf55550a57e9d843faeb7afce310c22208e4ea77fd",
+        "tests/consumer/facade.cpp": "bc8df2d80cd0ebbda7e86681443477d308a2c5ee2ff6dbb7ca3a0c56e984c1f4",
+        "tests/consumer/h5ad.cpp": "14c0a619115179611c80b8590abb29c7ad7facdc66f7bcbe7bf9c424cd15d95b",
+        "tests/consumer/main.cpp": "7f2f21a4c9a68a6148bb6e02aa589121c88abf08e57f57ef3db9ae57e9b57149",
+        "tests/h5ad_interop_driver.cpp": "0786a937f52c0bf2977499636b9e518cfaa46ad63c50f2769e2872db1722ea6c",
+        "tests/interop_driver.cpp": "9117b9de25414f2187b72b6fb7d8239676deeaf5548e8be37844ef443c8037ae",
+        "tests/test_arrays.cpp": "aa407d900f8c4d7ed9c2d0ad256186ca6be67bfce8f71c30aa754e99ad5c951d",
+        "tests/test_data.cpp": "a0bd83a5c8ab84f29e6cdff74a99b4ebe9593d332363d98ad89059e708b783c9",
+        "tests/test_h5ad.cpp": "a2802bc1a21ac1424fa194a8014c51ba9cecbb56b9a4016646030cefc369ae9c",
+        "tests/test_strings.cpp": "210d27abf982b5ca4aa71426addb905b607f098ee725be106b7200b8e297e2b8"
+      },
+      "benchmark_driver_build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+          "--parallel",
+          "2",
+          "--verbose",
+          "--target",
+          "h5ad_benchmark"
+        ],
+        "elapsed_seconds": 2.315055547999691,
+        "max_rss_kib": 224640,
+        "compiler_actions": [
+          "[1/4] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/h5ad.cpp -c -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi -MD -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.d > CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi.tmp CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.ddi",
+          "[3/4] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.d @CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/h5ad.cpp",
+          "[4/4] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -o h5ad_benchmark  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+        ],
+        "compiler_action_count": 3
+      },
+      "io_executable": "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3/h5ad_benchmark",
+      "all_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700615769313632,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700618299272017,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700627216126688,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700618199273658,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700620957228476,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700616775297064,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700620413237374,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700627832116725,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700627112128370,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700620074242919,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        },
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700627990114170,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700628231110278,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700628469106435,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "consumer_objects": {
+        "CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700627990114170,
+          "sha256": "ec5e3f1b66d5fef966c9b72384369f24d228bea715e75dd2129b6f2ee3d38ff3"
+        },
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o": {
+          "bytes": 1536,
+          "mtime_ns": 1793700628231110278,
+          "sha256": "e17e8577b0f07387b6cbb9d8a47d4906ac711ae8aa2ed51c94a2b7247c78c29a"
+        },
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o": {
+          "bytes": 1544,
+          "mtime_ns": 1793700628469106435,
+          "sha256": "1844c281656b897017248387ccfb33fc9bee5754d708a888405035038cc38be0"
+        }
+      },
+      "library_objects": {
+        "CMakeFiles/anndata.dir/src/anndata.arrays.cppm.o": {
+          "bytes": 1440,
+          "mtime_ns": 1793700615769313632,
+          "sha256": "0de9ab6fffe585c389fd9408c3a0037c1eeaf467e1c150ccadef901b07f3a56d"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.core.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700618299272017,
+          "sha256": "7115f6d438750e54e8543a1b1c12818619fe8a23d311be6274fd3be9551d515c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o": {
+          "bytes": 880,
+          "mtime_ns": 1793700627216126688,
+          "sha256": "9d4ba696bfda1e86506bcdcacdbceee24a170572b8941f69bcfc2bfd3603c4b2"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.data.cppm.o": {
+          "bytes": 9160,
+          "mtime_ns": 1793700618199273658,
+          "sha256": "e15f61a759c20a37be20ccb85192a0bfbaac7131ef030d43d8506de39f7a210c"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o": {
+          "bytes": 896,
+          "mtime_ns": 1793700620957228476,
+          "sha256": "8c9b443bafeb1ecdb5ab2dc163578f2de16b7798989e736e58e768737a848af3"
+        },
+        "CMakeFiles/anndata.dir/src/anndata.strings.cppm.o": {
+          "bytes": 912,
+          "mtime_ns": 1793700616775297064,
+          "sha256": "c7acc1e51ec279563e1e0e6ce3224f7f1f44dfa72a18321f6980b2c16275b679"
+        },
+        "CMakeFiles/anndata.dir/src/arrays.cpp.o": {
+          "bytes": 98064,
+          "mtime_ns": 1793700620413237374,
+          "sha256": "6e6f83032b8c76899203c4f68539a8759b3cab3725766c04c1d0fb0458678b74"
+        },
+        "CMakeFiles/anndata.dir/src/data.cpp.o": {
+          "bytes": 577192,
+          "mtime_ns": 1793700627832116725,
+          "sha256": "5515b347b72d001dca5dd788ffb01ba14002bfc772a9cc19d4a1b7579bf2528e"
+        },
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o": {
+          "bytes": 411016,
+          "mtime_ns": 1793700627112128370,
+          "sha256": "e4b2adab0908b6013ed9656e25970980a875eaf3a14caa781aaf8effa9809ed7"
+        },
+        "CMakeFiles/anndata.dir/src/strings.cpp.o": {
+          "bytes": 78376,
+          "mtime_ns": 1793700620074242919,
+          "sha256": "5848a896e9ddae5c9b6c0e441cf24fb9509fdda2ad62770bb57e8ac99d0c2bd4"
+        }
+      }
+    }
+  ],
+  "rebuild_invalidation": {
+    "commands": {
+      "implementation": [
+        "cmake",
+        "--build",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+        "--parallel",
+        "2",
+        "--verbose",
+        "--target",
+        "h5ad_import_core",
+        "h5ad_import_facade",
+        "h5ad_import_module",
+        "h5ad_benchmark"
+      ],
+      "interface": [
+        "cmake",
+        "--build",
+        "/tmp/anndata-h5ad-bench-kqic53_k/build-1-3",
+        "--parallel",
+        "2",
+        "--verbose",
+        "--target",
+        "h5ad_import_core",
+        "h5ad_import_facade",
+        "h5ad_import_module",
+        "h5ad_benchmark"
+      ]
+    },
+    "implementation_edit": {
+      "elapsed_seconds": 6.51943756899982,
+      "compiler_actions": [
+        "[1/12] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp -c -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi",
+        "[7/12] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.d @CMakeFiles/anndata.dir/src/h5ad.cpp.o.modmap -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp",
+        "[9/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[10/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -o h5ad_benchmark  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[11/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[12/12] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -o h5ad_import_module  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+      ],
+      "changed_bmis": [],
+      "changed_consumer_objects": [],
+      "changed_library_objects": [
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o"
+      ],
+      "public_bmis_preserved": true,
+      "consumer_objects_preserved": true
+    },
+    "interface_edit": {
+      "elapsed_seconds": 7.048765425000056,
+      "compiler_actions": [
+        "[1/14] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.h5ad.cppm -c -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi -MD -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.d > CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi.tmp CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.ddi",
+        "[2/14] \"/usr/bin/clang-scan-deps-18\" -format=p1689 -- /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -x c++ /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp -c -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi -MD -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.d > CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp && mv CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi.tmp CMakeFiles/anndata.dir/src/h5ad.cpp.o.ddi",
+        "[8/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.h5ad.cppm",
+        "[9/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/anndata.cppm.o -MF CMakeFiles/anndata.dir/src/anndata.cppm.o.d @CMakeFiles/anndata.dir/src/anndata.cppm.o.modmap -o CMakeFiles/anndata.dir/src/anndata.cppm.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/anndata.cppm",
+        "[10/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -MF CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.d @CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/h5ad.cpp",
+        "[11/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -MF CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.d @CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o.modmap -o CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/facade.cpp",
+        "[12/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1  -O3 -DNDEBUG -std=c++20 -MD -MT CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -MF CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.d @CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o.modmap -o CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/benchmarks/imports/h5ad.cpp",
+        "[13/18] /usr/bin/clang++-18 -DANNDATA_HAS_HDF5=1 -isystem /usr/include/hdf5/serial -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/anndata.dir/src/h5ad.cpp.o -MF CMakeFiles/anndata.dir/src/h5ad.cpp.o.d @CMakeFiles/anndata.dir/src/h5ad.cpp.o.modmap -o CMakeFiles/anndata.dir/src/h5ad.cpp.o -c /tmp/anndata-h5ad-bench-kqic53_k/src-1-3/src/h5ad.cpp",
+        "[15/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_core.dir/benchmarks/imports/core.cpp.o -o h5ad_import_core  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[16/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o -o h5ad_benchmark  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[17/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o -o h5ad_import_facade  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :",
+        "[18/18] : && /usr/bin/clang++-18 -O3 -DNDEBUG  CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o -o h5ad_import_module  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial  libanndata.a  /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so && :"
+      ],
+      "changed_bmis": [
+        "CMakeFiles/anndata.dir/anndata.h5ad.pcm",
+        "CMakeFiles/anndata.dir/anndata.pcm"
+      ],
+      "changed_consumer_objects": [
+        "CMakeFiles/h5ad_benchmark.dir/benchmarks/h5ad.cpp.o",
+        "CMakeFiles/h5ad_import_facade.dir/benchmarks/imports/facade.cpp.o",
+        "CMakeFiles/h5ad_import_module.dir/benchmarks/imports/h5ad.cpp.o"
+      ],
+      "changed_library_objects": [
+        "CMakeFiles/anndata.dir/src/anndata.cppm.o",
+        "CMakeFiles/anndata.dir/src/anndata.h5ad.cppm.o",
+        "CMakeFiles/anndata.dir/src/h5ad.cpp.o"
+      ],
+      "at_least_one_bmi_rebuilt": true,
+      "at_least_one_consumer_object_rebuilt": true
+    },
+    "dependency_assertions_passed": true
+  },
+  "io_raw_trials": [
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0432531,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.1295634110001629,
+      "max_rss_kib": 49308
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0334942,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.1185445510000136,
+      "max_rss_kib": 48680
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0344322,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.12057656799970573,
+      "max_rss_kib": 49304
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0241868,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.08186531100000138,
+      "max_rss_kib": 48000
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0248783,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.0858222669994575,
+      "max_rss_kib": 48000
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0246346,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.08222268800000165,
+      "max_rss_kib": 48000
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0384815,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.1222449200004121,
+      "max_rss_kib": 49308
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0387856,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.12383733900060179,
+      "max_rss_kib": 48848
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0376854,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.11728556999969442,
+      "max_rss_kib": 49304
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0330897,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.09139870699982566,
+      "max_rss_kib": 48640
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.032179,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.08966989399959857,
+      "max_rss_kib": 48000
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 33832354,
+      "seconds": 0.0352757,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.09445456600042235,
+      "max_rss_kib": 48640
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 1.29514,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 1.381311564000498,
+      "max_rss_kib": 51192
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 1.27913,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 1.3600741279997237,
+      "max_rss_kib": 51188
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 1.29281,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 1.3828780670000924,
+      "max_rss_kib": 51188
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 0.186097,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.24526731400055723,
+      "max_rss_kib": 52544
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 0.177984,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.2387275299997782,
+      "max_rss_kib": 52544
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221013,
+      "seconds": 0.189963,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.25153896899973915,
+      "max_rss_kib": 51868
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 1.37951,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 1.4671501209995768,
+      "max_rss_kib": 51188
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 1.39106,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 1.4744825879997734,
+      "max_rss_kib": 51568
+    },
+    {
+      "action": "write",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 1.42936,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 1.5171019529998375,
+      "max_rss_kib": 51564
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 0.183082,
+      "checksum": 4193270.0,
+      "trial": 1,
+      "command_seconds": 0.24185456700070063,
+      "max_rss_kib": 52200
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 0.186823,
+      "checksum": 4193270.0,
+      "trial": 2,
+      "command_seconds": 0.24733362200004194,
+      "max_rss_kib": 52524
+    },
+    {
+      "action": "read",
+      "kind": "dense",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 33554432,
+      "file_bytes": 30221071,
+      "seconds": 0.185356,
+      "checksum": 4193270.0,
+      "trial": 3,
+      "command_seconds": 0.2440973450002275,
+      "max_rss_kib": 52528
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.0104052,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.024399904000347306,
+      "max_rss_kib": 20664
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.0106033,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.02547403900007339,
+      "max_rss_kib": 20664
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.0104609,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.0247452700004942,
+      "max_rss_kib": 20892
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00805841,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.016254649999609683,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00846711,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.019181085999662173,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00826919,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.016442997000012838,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.0113852,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.02440210799977649,
+      "max_rss_kib": 20664
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.011541,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.024921537000409444,
+      "max_rss_kib": 20664
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.0112288,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.025441313000555965,
+      "max_rss_kib": 20480
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00990828,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.01959165900007065,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00930873,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.019139540000651323,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "none",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 4506698,
+      "seconds": 0.00852958,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.016240772999481123,
+      "max_rss_kib": 19840
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.102719,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.11597382899981312,
+      "max_rss_kib": 21916
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.0981206,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.11307005700018635,
+      "max_rss_kib": 21920
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.0981909,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.11307020699950954,
+      "max_rss_kib": 21516
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.0266093,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.038404099000217684,
+      "max_rss_kib": 21684
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.0223932,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.031152865999501955,
+      "max_rss_kib": 22600
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "native",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2107722,
+      "seconds": 0.0219194,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.03095794500040938,
+      "max_rss_kib": 22472
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.105239,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.11922021400005178,
+      "max_rss_kib": 22556
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.106722,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.1216720879992863,
+      "max_rss_kib": 22556
+    },
+    {
+      "action": "write",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.106632,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.11963971899967873,
+      "max_rss_kib": 22560
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.0223295,
+      "checksum": 262111,
+      "trial": 1,
+      "command_seconds": 0.030090983000263805,
+      "max_rss_kib": 22472
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.0237085,
+      "checksum": 262111,
+      "trial": 2,
+      "command_seconds": 0.03237993899983849,
+      "max_rss_kib": 22472
+    },
+    {
+      "action": "read",
+      "kind": "csr",
+      "byte_order": "big",
+      "compression": "gzip",
+      "rows": 4096,
+      "columns": 2048,
+      "payload_bytes": 4227080,
+      "file_bytes": 2119443,
+      "seconds": 0.0239514,
+      "checksum": 262111,
+      "trial": 3,
+      "command_seconds": 0.032241251000414195,
+      "max_rss_kib": 21928
+    }
+  ],
+  "io_summary": [
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "native",
+      "action": "write",
+      "median_seconds": 0.0344322,
+      "min_seconds": 0.0334942,
+      "max_seconds": 0.0432531,
+      "median_max_rss_kib": 49304,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 33832354,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "native",
+      "action": "read",
+      "median_seconds": 0.0246346,
+      "min_seconds": 0.0241868,
+      "max_seconds": 0.0248783,
+      "median_max_rss_kib": 48000,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 33832354,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "big",
+      "action": "write",
+      "median_seconds": 0.0384815,
+      "min_seconds": 0.0376854,
+      "max_seconds": 0.0387856,
+      "median_max_rss_kib": 49304,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 33832354,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "big",
+      "action": "read",
+      "median_seconds": 0.0330897,
+      "min_seconds": 0.032179,
+      "max_seconds": 0.0352757,
+      "median_max_rss_kib": 48640,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 33832354,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "native",
+      "action": "write",
+      "median_seconds": 1.29281,
+      "min_seconds": 1.27913,
+      "max_seconds": 1.29514,
+      "median_max_rss_kib": 51188,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 30221013,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "native",
+      "action": "read",
+      "median_seconds": 0.186097,
+      "min_seconds": 0.177984,
+      "max_seconds": 0.189963,
+      "median_max_rss_kib": 52544,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 30221013,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "big",
+      "action": "write",
+      "median_seconds": 1.39106,
+      "min_seconds": 1.37951,
+      "max_seconds": 1.42936,
+      "median_max_rss_kib": 51564,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 30221071,
+      "checksums_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "big",
+      "action": "read",
+      "median_seconds": 0.185356,
+      "min_seconds": 0.183082,
+      "max_seconds": 0.186823,
+      "median_max_rss_kib": 52524,
+      "payload_bytes": 33554432,
+      "median_file_bytes": 30221071,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "native",
+      "action": "write",
+      "median_seconds": 0.0104609,
+      "min_seconds": 0.0104052,
+      "max_seconds": 0.0106033,
+      "median_max_rss_kib": 20664,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 4506698,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "native",
+      "action": "read",
+      "median_seconds": 0.00826919,
+      "min_seconds": 0.00805841,
+      "max_seconds": 0.00846711,
+      "median_max_rss_kib": 19840,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 4506698,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "big",
+      "action": "write",
+      "median_seconds": 0.0113852,
+      "min_seconds": 0.0112288,
+      "max_seconds": 0.011541,
+      "median_max_rss_kib": 20664,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 4506698,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "big",
+      "action": "read",
+      "median_seconds": 0.00930873,
+      "min_seconds": 0.00852958,
+      "max_seconds": 0.00990828,
+      "median_max_rss_kib": 19840,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 4506698,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "native",
+      "action": "write",
+      "median_seconds": 0.0981909,
+      "min_seconds": 0.0981206,
+      "max_seconds": 0.102719,
+      "median_max_rss_kib": 21916,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 2107722,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "native",
+      "action": "read",
+      "median_seconds": 0.0223932,
+      "min_seconds": 0.0219194,
+      "max_seconds": 0.0266093,
+      "median_max_rss_kib": 22472,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 2107722,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "big",
+      "action": "write",
+      "median_seconds": 0.106632,
+      "min_seconds": 0.105239,
+      "max_seconds": 0.106722,
+      "median_max_rss_kib": 22556,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 2119443,
+      "checksums_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "big",
+      "action": "read",
+      "median_seconds": 0.0237085,
+      "min_seconds": 0.0223295,
+      "max_seconds": 0.0239514,
+      "median_max_rss_kib": 22472,
+      "payload_bytes": 4227080,
+      "median_file_bytes": 2119443,
+      "checksums_match": true
+    }
+  ],
+  "roundtrip_checksums": [
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "native",
+      "write_checksum": 4193270.0,
+      "read_checksum": 4193270.0,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "none",
+      "byte_order": "big",
+      "write_checksum": 4193270.0,
+      "read_checksum": 4193270.0,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "native",
+      "write_checksum": 4193270.0,
+      "read_checksum": 4193270.0,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "dense",
+      "compression": "gzip",
+      "byte_order": "big",
+      "write_checksum": 4193270.0,
+      "read_checksum": 4193270.0,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "native",
+      "write_checksum": 262111,
+      "read_checksum": 262111,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "none",
+      "byte_order": "big",
+      "write_checksum": 262111,
+      "read_checksum": 262111,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "native",
+      "write_checksum": 262111,
+      "read_checksum": 262111,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    },
+    {
+      "kind": "csr",
+      "compression": "gzip",
+      "byte_order": "big",
+      "write_checksum": 262111,
+      "read_checksum": 262111,
+      "all_write_checksums_equal": true,
+      "all_read_checksums_equal": true,
+      "write_read_match": true
+    }
+  ],
+  "limitations": [
+    "One Linux host and installed HDF5; page cache was not cleared.",
+    "Maximum RSS is GNU time %M for each waited process, not a sum across processes.",
+    "Dense and CSR inputs are deterministic synthetic float32 data.",
+    "Cold build trials use isolated source snapshots and two Ninja jobs.",
+    "The measurements establish workload-specific observations, not general speedups."
+  ],
+  "measurement_correction": "Cold build and H5AD I/O samples were retained unchanged. The first invalidation snapshot counted CMakeFiles/anndata.dir/src/h5ad.cpp.o as a consumer object; this was a classification error. Restored the measured H5AD interface source, rebuilt the same imported consumers, then reran only the implementation/interface invalidation checks with module-provider objects separated from library objects. Source snapshots exclude documentation, benchmark reports, and measurement tooling.",
+  "checksums": {
+    "printed_precision": "C++ standard stream default, six significant digits",
+    "role": "round-trip sanity check only; exact correctness is covered by independent interoperability tests",
+    "all_write_read_groups_match": true
+  },
+  "measurement_tool_sha256": "b758d6abf5ed38c6ec11d3c1b10a6fc8860be23a6f778f7d279cca6b919e0126",
+  "invalidation_reclassification_tool_sha256": "7959a711e2fbb9233cfc7fb70e8d4c9c5a2f797e8d9fda19348158b8af7fb875"
+}

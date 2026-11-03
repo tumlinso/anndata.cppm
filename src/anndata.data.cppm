@@ -13,6 +13,7 @@ module;
 
 export module anndata.core:data;
 export import :arrays;
+export import :strings;
 
 export namespace anndata {
 
@@ -98,6 +99,7 @@ private:
 };
 
 enum class ColumnKind { numeric, string, categorical };
+enum class StringMissingValue { NA, NaN };
 
 class Column;
 class Table;
@@ -112,6 +114,7 @@ public:
     bool valid(std::size_t row) const;
     ArrayView values() const;
     std::string_view string(std::size_t row) const;
+    [[nodiscard]] StringMissingValue string_missing_value() const;
     bool ordered() const;
     ColumnView categories() const;
     std::int64_t code(std::size_t row) const;
@@ -143,10 +146,13 @@ public:
     static Column strings(std::initializer_list<std::string_view> values,
                           std::vector<std::uint8_t> validity = {});
     static Column nullable_strings(std::vector<std::string> values,
-                                   std::vector<std::uint8_t> validity);
+                                   std::vector<std::uint8_t> validity,
+                                   StringMissingValue missing = StringMissingValue::NA);
     static Column nullable_strings(std::initializer_list<std::string_view> values,
-                                   std::vector<std::uint8_t> validity);
-    static Column categorical(Array codes, Column categories, bool ordered = false);
+                                   std::vector<std::uint8_t> validity,
+                                   StringMissingValue missing = StringMissingValue::NA);
+    static Column categorical(Array codes, Column categories, bool ordered = false,
+                              Validation validation = Validation::full);
     template<class T>
     static Column from_values(std::initializer_list<T> values,
                               std::vector<std::uint8_t> validity = {}) {
@@ -219,7 +225,7 @@ private:
 };
 
 enum class ElementKind { null, boolean, signed_integer, unsigned_integer,
-                         floating, string, array, column, table, mapping };
+                         floating, string, array, string_array, column, table, mapping };
 class ElementView;
 
 class Element {
@@ -243,6 +249,7 @@ public:
     explicit Element(std::string);
     explicit Element(const char*);
     explicit Element(Array);
+    explicit Element(StringArray);
     explicit Element(Column);
     explicit Element(Table);
     static Element mapping();
@@ -252,6 +259,7 @@ public:
     ElementView view() const;
     Element copy() const;
     void set(std::string key, Element value);
+    void set_serialization_byte_order(ByteOrder);
     void erase(std::string_view key);
     ElementView at(std::string_view key) const;
     void validate() const;
@@ -282,7 +290,9 @@ public:
     std::uint64_t unsigned_integer() const;
     double floating() const;
     std::string_view string() const;
+    [[nodiscard]] ByteOrder serialization_byte_order() const;
     ArrayView array() const;
+    StringArrayView string_array() const;
     ColumnView column() const;
     TableView table() const;
     std::vector<std::string> keys() const;
@@ -325,8 +335,10 @@ public:
     ArrayEdit edit_var_values(std::string_view);
     void set_layer(std::string, Array);
     void set_obsm(std::string, Array);
+    void set_obsm(std::string, StringArray);
     void set_obsm(std::string, Table);
     void set_varm(std::string, Array);
+    void set_varm(std::string, StringArray);
     void set_varm(std::string, Table);
     void set_obsp(std::string, Array);
     void set_varp(std::string, Array);
@@ -336,6 +348,8 @@ public:
     ElementView varm(std::string_view) const;
     ArrayEdit edit_obsm_array(std::string_view);
     ArrayEdit edit_varm_array(std::string_view);
+    StringArrayEdit edit_obsm_string_array(std::string_view);
+    StringArrayEdit edit_varm_string_array(std::string_view);
     ArrayView obsp(std::string_view) const;
     ArrayView varp(std::string_view) const;
     ArrayEdit edit_obsp(std::string_view);
@@ -350,9 +364,12 @@ public:
     void set_uns(std::string, Element);
     // raw carries X, var and varm; observation alignment is shared with this object.
     void set_raw(Array, Table);
+    void set_raw(Table);
     void set_raw_varm(std::string, Array);
+    void set_raw_varm(std::string, StringArray);
     void set_raw_varm(std::string, Table);
     bool has_raw() const;
+    bool has_raw_x() const;
     ArrayView raw_x() const;
     TableView raw_var() const;
     ElementView raw_varm(std::string_view) const;
@@ -387,6 +404,7 @@ public:
     std::vector<std::string> varp_names() const;
     ElementView uns() const;
     bool has_raw() const;
+    bool has_raw_x() const;
     ArrayView raw_x() const;
     TableView raw_var() const;
     ElementView raw_varm(std::string_view) const;

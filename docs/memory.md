@@ -1,5 +1,9 @@
 # Memory access and ownership
 
+Packed UTF-8 `StringArray` uses the same move-only ownership and retained-view model as numerical arrays. Its view exposes `bytes()` and 64-bit `offsets()` for unselected packed storage. A lazy selection exposes its original allocation through explicitly named `storage_bytes()` and `storage_offsets()`; use `copy()` to pack the logical selection. Mutable bytes and `unsafe_offsets()` are available through `edit()`. Validation is explicit after unsafe structural edits.
+
+Numerical `ByteOrder` serialization hints describe preferred file representation, independently of the native byte order used by typed memory access. They do not add checks to numerical loops. The erased sparse-byte descriptor supports codecs and external adapters without generating a template specialization for every combination of value/index/offset types.
+
 ## Owners, retained access, and borrowing
 
 `Array` and `AnnData` are move-only owning resources. `copy()` produces independent numerical data and metadata. Moving an owner transfers it without copying buffers. Read-only `ArrayView` and dataset slices retain the referenced storage. Mutable numerical access is explicit through `edit()` or a dataset's `edit_x()`.

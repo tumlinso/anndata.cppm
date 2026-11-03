@@ -1,4 +1,27 @@
-# Foundation validation
+# Validation
+
+## H5AD milestone
+
+The [H5AD validation record](../tests/results/h5ad-validation.json) identifies final source hashes, commands and coverage. Local qualification uses Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1 and HDF5 C 1.10.10. The [H5AD encoding matrix](h5ad.md) states the supported subset and upstream limitations.
+
+| Check | Result |
+|---|---|
+| Native HDF5-enabled workflow | 6/6 CTest groups passed |
+| Dependency-free core-only workflow | 5/5 passed; no HDF5 in the example's dynamic dependencies |
+| Shared-library workflow | 6/6 passed |
+| Release build and CTest | 6/6 passed |
+| ASan + UBSan build and CTest | 6/6 passed, including installed consumers |
+| Pinned AnnData 0.13.4 interoperability workflow | 8/8 passed, including the existing 13 in-memory scenarios and independent bidirectional file tests |
+| AnnData 0.12.10 compatibility mode | Shared-subset file round trip passed |
+| Independent final-source sanitizer review | Nine targeted reproductions passed; no remaining confirmed defects in the reviewed scope |
+
+Installed-package tests build multiple consumers together in a C++-only project, covering `anndata.core`, the convenience facade, and the H5AD module. HDF5-enabled consumers actually read and write files. Static, shared, core-only and sanitizer installations pass. Additional independent probes qualified sibling-directory package discovery and a downstream library's exported dependency.
+
+File tests independently inspect encodings/dtypes with h5py and read C++ output using Python AnnData. Cases include compact sparse integer widths, unsigned categorical codes, raw and empty dimensions, UTF-8 arrays, nullable sentinels, selected views, physical byte order, explicit native conversion, compression, validation opt-out and path-specific failures. Limits for raw without X and foreign-endian sparse data are recorded rather than counted as universal Python interoperability.
+
+The installed Project Control run-free context adapter failed before a usable workflow handle was returned. Its expired attempt was released through the supported recovery API after root observed producer completion. [The workflow receipt](../planning/h5ad-workflow-receipt.json) distinguishes this recovery from outcome acceptance; the results here are local evidence. GitHub CI has been authored but not run remotely.
+
+## Historical in-memory foundation
 
 The first foundation was qualified locally on Linux with Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1, and C++20 without language extensions. The [validation record](../tests/results/validation.json) identifies the source inputs and actual commands. GitHub CI is configured but was not executed remotely in this session.
 
