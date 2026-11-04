@@ -1,0 +1,240 @@
+{
+  "baseline_revision": "dc946845e1457299351b0ffc4ba36ef91d49db7b",
+  "candidate_base_revision": "c159d88",
+  "cases": {
+    "1024/zarr3_gather_read": {
+      "baseline_cpp": {
+        "cpu_seconds": 0.72912942,
+        "lifetime_hwm_kib": 11836,
+        "logical_read_bytes": 32768,
+        "logical_read_calls": 8192,
+        "prepare_seconds": 0.003522859,
+        "rss_after_kib": 11836,
+        "rss_before_kib": 11312,
+        "scratch_bytes": 256,
+        "seconds": 0.735440021
+      },
+      "baseline_cpp_probe": {
+        "malloc_calls": 1507385,
+        "malloc_requested_bytes": 1735651952,
+        "read_bytes": 29448048,
+        "read_calls": 16384,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0,
+        "zstd_stream_decode_calls": 8192
+      },
+      "baseline_python": {
+        "cpu_seconds": 0.28509509999999993,
+        "lifetime_hwm_kib": 119044,
+        "logical_read_bytes": null,
+        "logical_read_calls": null,
+        "prepare_seconds": 0.003163626999594271,
+        "rss_after_kib": 119044,
+        "rss_before_kib": 117848,
+        "scratch_bytes": null,
+        "seconds": 0.2854702330005239
+      },
+      "candidate_cpp": {
+        "cpu_seconds": 0.062861838,
+        "lifetime_hwm_kib": 11724,
+        "logical_read_bytes": 20971520,
+        "logical_read_calls": 640,
+        "prepare_seconds": 0.003335334,
+        "rss_after_kib": 11724,
+        "rss_before_kib": 11268,
+        "scratch_bytes": 32768,
+        "seconds": 0.063312078
+      },
+      "candidate_cpp_probe": {
+        "malloc_calls": 198506,
+        "malloc_requested_bytes": 136905984,
+        "read_bytes": 2287160,
+        "read_calls": 1280,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0,
+        "zstd_stream_decode_calls": 640
+      },
+      "candidate_output_matches": true,
+      "candidate_probe_output_matches": true,
+      "candidate_speed_ratio": 11.616109346466247,
+      "sha256": "f437f53d6b2d505eccf179ba6339680e3e5fb25a76219cdc40499c447cfeb6a5",
+      "status": "complete"
+    },
+    "4096/zarr3_gather_read": {
+      "baseline_cpp": {
+        "cpu_seconds": 0.712919464,
+        "lifetime_hwm_kib": 11856,
+        "logical_read_bytes": 32768,
+        "logical_read_calls": 8192,
+        "prepare_seconds": 0.003183011,
+        "rss_after_kib": 11856,
+        "rss_before_kib": 11356,
+        "scratch_bytes": 256,
+        "seconds": 0.719213921
+      },
+      "baseline_cpp_probe": {
+        "malloc_calls": 1523769,
+        "malloc_requested_bytes": 1736731904,
+        "read_bytes": 29652152,
+        "read_calls": 16384,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0
+      },
+      "baseline_python": {
+        "cpu_seconds": 0.7892091319999999,
+        "lifetime_hwm_kib": 118952,
+        "logical_read_bytes": null,
+        "logical_read_calls": null,
+        "prepare_seconds": 0.003743974000826711,
+        "rss_after_kib": 118952,
+        "rss_before_kib": 117748,
+        "scratch_bytes": null,
+        "seconds": 0.7905711749990587
+      },
+      "candidate_cpp": {
+        "cpu_seconds": 0.161154659,
+        "lifetime_hwm_kib": 11772,
+        "logical_read_bytes": 49807360,
+        "logical_read_calls": 1520,
+        "prepare_seconds": 0.002977049,
+        "rss_after_kib": 11772,
+        "rss_before_kib": 11260,
+        "scratch_bytes": 32768,
+        "seconds": 0.163328991
+      },
+      "candidate_cpp_probe": {
+        "malloc_calls": 471306,
+        "malloc_requested_bytes": 325139856,
+        "read_bytes": 5456976,
+        "read_calls": 3040,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0
+      },
+      "candidate_output_matches": true,
+      "candidate_probe_output_matches": true,
+      "candidate_speed_ratio": 4.403467606066335,
+      "sha256": "df0416c48a0e8c7a040e6645431d10b4f3bd2af09c7d5c406b610cb649e049e6",
+      "status": "complete"
+    },
+    "4096/zarr3_sharded_read": {
+      "baseline_cpp": {
+        "cpu_seconds": 0.222120059,
+        "lifetime_hwm_kib": 77244,
+        "logical_read_bytes": 67108864,
+        "logical_read_calls": 32,
+        "prepare_seconds": 0.003323697,
+        "rss_after_kib": 77244,
+        "rss_before_kib": 11240,
+        "scratch_bytes": 16384,
+        "seconds": 0.223806163
+      },
+      "baseline_cpp_probe": {
+        "malloc_calls": 556608,
+        "malloc_requested_bytes": 434275380,
+        "read_bytes": 7334074,
+        "read_calls": 4096,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0
+      },
+      "baseline_python": {
+        "cpu_seconds": 0.948434113,
+        "lifetime_hwm_kib": 184188,
+        "logical_read_bytes": null,
+        "logical_read_calls": null,
+        "prepare_seconds": 0.003959076999308309,
+        "rss_after_kib": 184188,
+        "rss_before_kib": 117948,
+        "scratch_bytes": null,
+        "seconds": 0.9499874660032219
+      },
+      "candidate_cpp": {
+        "cpu_seconds": 0.213893044,
+        "lifetime_hwm_kib": 77400,
+        "logical_read_bytes": 67108864,
+        "logical_read_calls": 32,
+        "prepare_seconds": 0.002686345,
+        "rss_after_kib": 77400,
+        "rss_before_kib": 11316,
+        "scratch_bytes": 16384,
+        "seconds": 0.215447371
+      },
+      "candidate_cpp_probe": {
+        "malloc_calls": 552512,
+        "malloc_requested_bytes": 434107444,
+        "read_bytes": 7334074,
+        "read_calls": 4096,
+        "read_rejections": 0,
+        "write_bytes": 0,
+        "write_rejections": 0
+      },
+      "candidate_output_matches": true,
+      "candidate_probe_output_matches": true,
+      "candidate_speed_ratio": 1.0387973729324365,
+      "sha256": "f665a6a0a5f735de7bf6ccf1f2a680bc485ad468ce9dee8c08da397af85904ce",
+      "status": "complete"
+    }
+  },
+  "conditions": {
+    "blas_threads": 1,
+    "blosc_threads": 1,
+    "cache": "whole input files read immediately before each trial; OS cache not dropped",
+    "cpu_policy": "one CPU chosen from caller affinity",
+    "intercepted_read_cap_bytes": 536870912,
+    "intercepted_write_cap_bytes": 536870912,
+    "logical_cpu": 0,
+    "omp_threads": 1,
+    "probe_scope": "instrumented pilots only; uninstrumented timing repetitions require successful pilots",
+    "probe_timeout_seconds": 30,
+    "process_rss_limit_kib": 1048576,
+    "zarr_async_concurrency": 1,
+    "zarr_threading_max_workers": 1
+  },
+  "limits": [
+    "One candidate and one earlier baseline observation per case; no confidence interval.",
+    "Python times are preserved from the earlier baseline screen, not rerun with the candidate.",
+    "Scratch bytes count retained buffers after the call, not temporary per-axis grouping allocations or process peak.",
+    "Native logical transfer bytes now count full codec-tile reads; they are not the user-visible selected output bytes.",
+    "I/O and codec counts are from instrumented pilots and exclude direct syscalls, mmap and hidden symbols.",
+    "HDF5 and codec versions differ between C++ and Python; OS page cache was warm.",
+    "One CPU was selected from the allowed affinity set on a shared host; other work may contend."
+  ],
+  "raw_sha256": "bb4d2ce55bbff940a4a4d7b39413859b78da905c22a64d2dc8e2e11c5ef80d53",
+  "schema": "anndata.cppm.gather-read.summary.v1",
+  "shared_host_after": {
+    "captured_unix": 1793795823.4655168,
+    "cpu_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=81751281\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+    "load_average": [
+      3.3828125,
+      2.751953125,
+      2.52587890625
+    ],
+    "selected_cpu_ticks": "cpu0 44986 0 10697 2515796 315 0 141 0 0 0"
+  },
+  "shared_host_before": {
+    "captured_unix": 1793795821.884523,
+    "cpu_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=81732798\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+    "load_average": [
+      3.50341796875,
+      2.7646484375,
+      2.52880859375
+    ],
+    "selected_cpu_ticks": "cpu0 44881 0 10653 2515788 314 0 141 0 0 0"
+  },
+  "sources": {
+    "baseline_campaign_sha256": "c1d59da73464383840eda9085305bd66357a177091c8ae6b4a4272f0c8a511b3",
+    "candidate_backed_array_sha256": "6fc37582528d2b2e62fc4a32be5d381f1435a9094b1dfda98091096ffc2ed67e",
+    "candidate_binary_sha256": "407b5e762d32a404577b707cf2dfd5cabed95ef4fbed9e5e7787cb866b9a9394",
+    "candidate_library_sha256": "b4812754f97dfd9a889fff6a70acd357a22ba215490a8ae6b984d901c8197618",
+    "comparison_source_sha256": "16c7966953b02cfa1e80cdc9364615ece080bdc7b9a8e8715a219258b04ff353",
+    "counter_large_sha256": "0feb9829853cdc35a9d684e5a9b220547b780cee3645a056601c269e4acfb703",
+    "counter_small_sha256": "0b1df4210e3451bbe0f02b697a3ed25a2953dc017777d50f214f62551fe55517",
+    "driver_sha256": "f09e54370ec2ab95ad9bb285b0ba4a0a25164d11ac11d096561c96b23f56769e",
+    "fixture_manifest_sha256": "ece7b87fd5e62290da83e668098400d2ac16046cc2a1bd40b051ec2e73a21e40",
+    "original_cpp_driver_sha256": "71322dfb973140717c67fd3a7dbf90cda26c117f2318c5592f7dc2f1f17d817c"
+  }
+}

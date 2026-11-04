@@ -1,0 +1,131 @@
+{
+  "baseline_revision": "dc946845e1457299351b0ffc4ba36ef91d49db7b",
+  "build_metadata_sha256": {
+    "CMakeLists.txt": "1b25b4b3cbc107c4837ef6c4f07578bea47284a5b024e4b583333efd8a9213df"
+  },
+  "captured_utc": "2026-11-04T12:45:32.291648+00:00",
+  "dependency_installs": [],
+  "gates": [
+    {
+      "command": "ctest --test-dir build/debug -E ^python_ --output-on-failure",
+      "environment": {},
+      "failed": 0,
+      "log_sha256": "279dc83948b7a9e05a5f19f9bc9e5f6a355ce0ad02241f90fb7712b99e922048",
+      "name": "Debug native including installed consumer",
+      "passed": 20,
+      "raw_log": "build/gather-debug-native-all.log"
+    },
+    {
+      "command": "ctest --test-dir build/sanitizers --output-on-failure",
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "failed": 0,
+      "log_sha256": "95a1648d0db3e5381e291b699a2f11fb40de9cd83e30aded0ca2e8130f57ef44",
+      "name": "ASan/UBSan native including installed consumer",
+      "passed": 20,
+      "raw_log": "build/gather-asan-native-all.log"
+    },
+    {
+      "command": "ctest --test-dir build/debug -R ^(python_completeness|python_completeness_threaded|python_storage)$ --output-on-failure",
+      "environment": {},
+      "failed": 0,
+      "log_sha256": "8b201bc7a01ecb1450591ae3abcc1325cee3fcc169ed7433678f89c39d8b9cc7",
+      "name": "Final-source Python storage/completeness",
+      "passed": 3,
+      "raw_log": "build/gather-python-final.log"
+    }
+  ],
+  "limits": [
+    "One candidate observation per affected case, earlier paired baseline preserved; shared-host timing is not a confidence interval.",
+    "Codec and HDF5 versions differ between the Python wheels and native dependencies; package results do not isolate language cost.",
+    "Memory figures are process peak through operation, including import/setup; retained transfer scratch is not peak live allocation.",
+    "Only sharded numerical Zarr gathers use the new batching. Conservative output alias or insufficient-scratch cases retain the old logical-order path.",
+    "Public module interfaces and acquired numerical loops were unchanged.",
+    "LeakSanitizer disabled for local runner restrictions; AddressSanitizer and UndefinedBehaviorSanitizer active.",
+    "Concurrent fp16/CUDA changes in the primary checkout were preserved and are not included or qualified by these results. This isolated branch is ready for later integration.",
+    "Initial harness-only preload and validator failures are preserved separately from accepted results. No production optimization beyond this focused gather fix."
+  ],
+  "measurements": {
+    "Python_comparison": "Previously preserved baseline observations; not rerun",
+    "baseline_summary": "benchmarks/results/head-to-head-summary.json",
+    "baseline_summary_sha256": "5bb6377ba16a44ceae8a6d017baaa2ba7217e19f4c47f2db074ae0a56a8de948",
+    "candidate_executable_sha256": "407b5e762d32a404577b707cf2dfd5cabed95ef4fbed9e5e7787cb866b9a9394",
+    "candidate_library_sha256": "b4812754f97dfd9a889fff6a70acd357a22ba215490a8ae6b984d901c8197618",
+    "candidate_raw_sha256": "bb4d2ce55bbff940a4a4d7b39413859b78da905c22a64d2dc8e2e11c5ef80d53",
+    "candidate_summary": "benchmarks/results/gather-read-summary.json",
+    "candidate_summary_sha256": "9c5d16f1a6d284ba32f060424503fda41ec1ea13465b265a7b0812c250aa82d6",
+    "cases": 3,
+    "instrumented_pilots": 3,
+    "intercepted_io_cap_rejections": 0,
+    "timeouts": 0,
+    "uninstrumented_observations": 3
+  },
+  "native_todo_acceptance_claimed": false,
+  "preserved_baseline": {
+    "manifest_sha256": "e7d7f3d14f25f50b2b326fd071af7e6a828bacb86fa4e1bc191723dad7ba7698",
+    "path": "/home/tumlinson/anndata.cppm/build/evidence/head-to-head-baseline-20261104"
+  },
+  "preserved_candidate": {
+    "bytes": 239446721,
+    "files": 717,
+    "fixture_symlink": "The copied fixture symlink was dereferenced into this archive; original link and target remain untouched.",
+    "manifest_sha256": "f3c46164ea9e3a52930a27ab5ecb08a659ab06faa87352714e91503a46dbde26",
+    "path": "/home/tumlinson/anndata.cppm/build/evidence/gather-read-20261104"
+  },
+  "private_edit": {
+    "command": "python3 tools/check_private_rebuild.py --source . --build build/debug --unit src/backed_array.cpp --output build/gather-private-edit",
+    "consumer_objects_unchanged": 2,
+    "public_bmis_unchanged": 10,
+    "receipt_sha256": "348b5f358a31e87b3cc2f065d55e654f56043894baad8accfcda670aa2c5bf07",
+    "restored_binary_hashes_match": true
+  },
+  "production_changes": [
+    "src/backed_array.cpp"
+  ],
+  "schema": "anndata.cppm.gather-read-validation.v1",
+  "screen_checkpoint_commit": "c159d886fa875278e9c754034c5dea3c66b9d62c",
+  "source_sha256": {
+    "src/anndata.arrays.cppm": "1f6b9907c1cfbde805be448d78d31b1f0ac99bb5ae88ebb245f4cc3c333c79c0",
+    "src/anndata.backed.cppm": "3f2f37cfaa4c1244c8a1b3ef53f9dff95913ded2ba594b99e4122b4d2d57f0d3",
+    "src/anndata.backed.storage.cppm": "f9c2f8733e2758c956570a5ab00128ba14a35826fc2d51ea57912a0d6dc695d6",
+    "src/anndata.core.cppm": "84d83471d19cb26bc4b32c38ac2e2f4f1b08e16113ec367a92114edab23bd000",
+    "src/anndata.cppm": "991a9e1f5fd8e51c4affc061e7a49751ccaeb3d0feda0a2e173db84b843a6490",
+    "src/anndata.data.cppm": "0a67211ab96517562af525cf29b605ee11bb25b10fd1714456ae653a7f381ba3",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+    "src/anndata.streaming.cppm": "d2f81863fa54139930e486d32f348508d05725c97433d1da3350d6c2fbedfe2f",
+    "src/anndata.strings.cppm": "1dfefcb0741a8cf1cfa994963aafa5e39c253d67ca0e5091622a81895dd82db8",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "e332fe352f082d5294f4d17885402f1a0719a73b27026a36b93229f024aa667e",
+    "src/backed.cpp": "04fddb3d2b0ff61e238ce5f06dde7c761c645c4d99d4287eb25589b6cdef92dd",
+    "src/backed_array.cpp": "6fc37582528d2b2e62fc4a32be5d381f1435a9094b1dfda98091096ffc2ed67e",
+    "src/backed_category.cpp": "dac5f71d7f9a041d1f567e946184c290b0b16b6558bb3866407476dd66a37d15",
+    "src/backed_codec.cpp": "ba6cc272d8265edd53ff38150d341edeb6f34c631f687dc1602fd07c3db53a19",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "eda0d532c747d47f5cc081e2f6db430856e1d671d1ad74c2665362d042da05df",
+    "src/backed_geometry.cpp": "b6d17961d7e25c124c64e408b56dcb110687c631aafd45208efb34bec0511d3f",
+    "src/backed_hdf5.cpp": "9aabe1d6c4f5c8266f3999871bd634b7c61296230e3c24d4b9256ae74bafbf07",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_records.cpp": "6da86a5ecbf38e25c42a9186758b64fc3dcc644668ed33edac8f88692e38613f",
+    "src/backed_structure.cpp": "29d84942b772cbf1dc16f87ef3259458a2cc4b6c4ad31bcb7d30469cad5a61bb",
+    "src/backed_writer.cpp": "d23615645a0fb845f2a5a1982ec04d46465ad2dccf9d1a1696f100cc9339124b",
+    "src/backed_zarr.cpp": "5f261b6652d4bdb4b831ed38a2aafadf5d68d66226e30bee86849868ed85fd40",
+    "src/data.cpp": "235339e3b46073190500eebd49842bff7475f6ce21adf31dd86eb6e55559f1e6",
+    "src/h5ad.cpp": "b27c8d92165cef3eeb61c6c5d63de544b18ac4e83d7f9c72c4197310f6798a67",
+    "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+    "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+    "src/streaming.cpp": "981ea09e98c2263e16dfb5cceb884c5aa0caf1428cf01a453590478e2a0676e9",
+    "src/strings.cpp": "2e113cd18f11c3ca56f2c0f1bddce8c49f44f86d275b3003f0f92e1da6527aeb",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "bd32e8cd47d98fba47e52912d5560919037ef85420a3de8c662962acc6c01e60",
+    "src/zarr_engine.cpp": "46c3b931e3e2764066bbb39b46ff118bcdcbf0e8e8e050afc6582c50fbe89b67",
+    "src/zarr_engine.hpp": "cd1e5c55cffcf6ea05c60f674d188e8cc80a4d86db66ed9a5d5ae16cea13d66d",
+    "src/zarr_sharding.cpp": "130127f0f642bbbdbe6fab7b38b106ee15ee9d1b1addbab9ce5ddf3a3fef5eee"
+  },
+  "tests_sha256": {
+    "tests/test_gather_transfer.cpp": "83d76d582cacf636fa45eed665364290a118d690a8bb4e6475de2fe0f0d5ce2d"
+  },
+  "workflow_observation": "planning/head-to-head-workflow-observation.json"
+}

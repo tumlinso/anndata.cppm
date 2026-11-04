@@ -202,6 +202,120 @@ std::vector<std::size_t> dense_block_shape(const Descriptor& d, std::size_t maxi
     }
     return block;
 }
+
+struct ReadPoint { std::size_t physical, logical; };
+struct ReadAxis {
+    const Axis* axis = nullptr;
+    std::size_t start = 0, count = 0;
+    ReadPoint* points = nullptr;
+    std::size_t logical(std::size_t i) const {
+        return points ? points[i].logical : axis->step < 0 ? count-1-i : i;
+    }
+    std::size_t physical(std::size_t i) const {
+        return points ? points[i].physical : axis->at(start+logical(i));
+    }
+    std::size_t lower(std::size_t value) const {
+        std::size_t a=0,b=count;
+        while(a<b) {auto k=a+(b-a)/2;if(physical(k)<value)a=k+1;else b=k;}
+        return a;
+    }
+};
+
+// Reordering scatter is valid only if distinct destination elements cannot
+// alias. Conservative rejection preserves the original logical write order.
+bool disjoint_dense(const std::vector<std::size_t>& shape,const std::vector<std::ptrdiff_t>& strides,std::size_t width) {
+    std::vector<std::size_t> order(shape.size());
+    for(std::size_t i=0;i<order.size();++i)order[i]=i;
+    auto magnitude=[&](std::size_t i) {auto s=strides[i];return s<0?std::size_t(-(s+1))+1:std::size_t(s);};
+    std::sort(order.begin(),order.end(),[&](auto a,auto b){return magnitude(a)<magnitude(b);});
+    std::size_t span=width;
+    for(auto i:order) if(shape[i]>1) {
+        const auto step=magnitude(i);
+        if(step<span || (step && shape[i]-1>(std::numeric_limits<std::size_t>::max()-span)/step))return false;
+        span+=(shape[i]-1)*step;
+    }
+    return true;
+}
+
+// Group only the independently selected axes; never construct their Cartesian
+// product or scan unselected chunk coordinates. Each touched codec tile is
+// read once, then scattered to its distinct logical destinations.
+bool grouped_shard_read(const NodePtr& node,const Descriptor& d,const std::vector<std::size_t>& start,
+                        const std::vector<std::size_t>& count,const std::vector<std::ptrdiff_t>& strides,
+                        std::byte* output,backed_detail::NumericTransfer& source,
+                        std::vector<std::byte>& tile,std::size_t available) {
+    const auto rank=count.size(),width=dtype_size(d.data.dtype);
+    const auto& unit=d.data.codec_tile_shape;
+    if(!rank || !d.data.sharded_payload || unit.size()!=rank || available<4096 || rank>(available-4096)/256)return false;
+    if(!disjoint_dense(count,strides,width))return false;
+    std::size_t mapped=0;
+    for(std::size_t i=0;i<rank;++i) {
+        if(!unit[i])return false;
+        if(d.axes[i].has_positions()) {
+            if(count[i]>(std::numeric_limits<std::size_t>::max()-mapped))return false;
+            mapped+=count[i];
+        }
+    }
+    if(mapped>available/sizeof(ReadPoint))return false;
+    const auto map_bytes=mapped*sizeof(ReadPoint);
+    if(rank>(std::numeric_limits<std::size_t>::max()-4096)/256)return false;
+    const auto control=4096+rank*256;
+    if(map_bytes>available || control>available-map_bytes)return false;
+    const auto tile_bytes=multiply(elements(unit,node),width,node),limit=available-map_bytes-control;
+    if(tile_bytes>limit)return false;
+    if(tile.capacity()>limit || tile.capacity()<tile_bytes) {std::vector<std::byte>().swap(tile);tile.resize(tile_bytes);}
+    else tile.resize(tile_bytes);
+
+    std::vector<ReadAxis> axes(rank);
+    std::unique_ptr<ReadPoint[]> points(mapped?new ReadPoint[mapped]:nullptr);
+    std::size_t offset=0;
+    for(std::size_t i=0;i<rank;++i) {
+        auto& a=axes[i];a.axis=&d.axes[i];a.start=start[i];a.count=count[i];
+        if(!a.axis->has_positions())continue;
+        a.points=points.get()+offset;offset+=a.count;
+        for(std::size_t j=0;j<a.count;++j) {
+            const auto physical=a.axis->at(a.start+j);
+            if(physical>=d.source_shape[i])fail(ErrorCode::out_of_bounds,node,"gathered read exceeds source extent");
+            a.points[j]={physical,j};
+        }
+        std::sort(a.points,a.points+a.count,[](auto a,auto b){return a.physical<b.physical || (a.physical==b.physical && a.logical<b.logical);});
+    }
+    std::vector<std::size_t> lo(rank),hi(rank),base(rank),extent(rank),index(rank);
+    auto end_group=[&](std::size_t axis,std::size_t first) {
+        const auto b=(axes[axis].physical(first)/unit[axis])*unit[axis];
+        return axes[axis].lower(b+std::min(unit[axis],d.source_shape[axis]-b));
+    };
+    for(std::size_t i=0;i<rank;++i)hi[i]=end_group(i,0);
+    const bool canonical=d.data.dtype==DType::boolean && node->session->options.validation==Validation::full;
+    while(true) {
+        for(std::size_t i=0;i<rank;++i) {
+            base[i]=(axes[i].physical(lo[i])/unit[i])*unit[i];
+            extent[i]=std::min(unit[i],d.source_shape[i]-base[i]);
+            index[i]=lo[i];
+        }
+        source.read(base,extent,tile.data());
+        if(canonical)for(std::size_t i=0,n=elements(extent,node);i<n;++i)tile[i]=tile[i]==std::byte{0}?std::byte{0}:std::byte{1};
+        while(true) {
+            std::size_t from=0;std::ptrdiff_t to=0;
+            for(std::size_t i=0;i<rank;++i) {
+                from=from*extent[i]+axes[i].physical(index[i])-base[i];
+                to+=std::ptrdiff_t(axes[i].logical(index[i]))*strides[i];
+            }
+            std::memcpy(output+to,tile.data()+from*width,width);
+            std::size_t i=rank;
+            while(i) {--i;if(++index[i]<hi[i])break;index[i]=lo[i];}
+            if(!i && index[0]==lo[0])break;
+        }
+        std::size_t i=rank;
+        while(i) {
+            --i;lo[i]=hi[i];
+            if(lo[i]<count[i]) {hi[i]=end_group(i,lo[i]);break;}
+            lo[i]=0;hi[i]=end_group(i,0);
+        }
+        if(!i && lo[0]==0)break;
+    }
+    return true;
+}
 // Each transfer is a rectangle in storage. Contiguous selected runs go directly
 // to/from the caller's buffer; non-contiguous memory uses a bounded packing tile.
 void dense_transfer(const NodePtr& n, const Descriptor& d, const DenseBuffer& b, bool writing) {
@@ -247,6 +361,14 @@ void dense_transfer(const NodePtr& n, const Descriptor& d, const DenseBuffer& b,
         return;
     }
     const bool packed = strides == contiguous_strides(d.shape, width, n);
+    if (!writing && d.data.sharded_payload && !forward_rectangle(d) && !n->code_recode) {
+        const auto workspace=std::max(backend.numeric_workspace_bytes(d.data,false),
+                                      n->session->options.mode==AccessMode::read_write?backend.numeric_workspace_bytes(d.data,true):std::size_t{0});
+        const auto available=staging_budget(available_scratch,workspace,n);
+        auto source=backend.prepare_numeric(n->path);
+        std::vector<std::byte> tile;
+        if(grouped_shard_read(n,d,std::vector<std::size_t>(rank,0),d.shape,strides,dest,*source,tile,available))return;
+    }
     if (packed && forward_rectangle(d)) {
         std::vector<std::size_t> start(rank);
         for (std::size_t axis = 0; axis < rank; ++axis) start[axis] = d.axes[axis].at(0);
@@ -1119,6 +1241,12 @@ struct TransferContextImpl {
         if(writing && d.data.sharded_payload) {
             auto selected=selected_write(d,start,count,budget-tile.capacity());selected.data=b.data;selected.strides=strides;
             if(data->write_selection(selected)) return;
+        }
+        if(!writing && d.data.sharded_payload && !forward_rectangle(d)) {
+            const auto workspace=std::max(backend->numeric_workspace_bytes(d.data,false),
+                                          node->writable?backend->numeric_workspace_bytes(d.data,true):std::size_t{0});
+            const auto available=staging_budget(budget,workspace,node);
+            if(grouped_shard_read(node,d,start,count,strides,p,*data,tile,available))return;
         }
         const bool canonical = !writing && d.data.dtype == DType::boolean && node->session->options.validation == Validation::full;
         auto transfer = [&](const std::vector<std::size_t>& source, const std::vector<std::size_t>& ext, std::byte* q) {

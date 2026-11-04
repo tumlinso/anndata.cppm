@@ -1,5 +1,22 @@
 # Validation
 
+## Python comparison and gathered-read correction
+
+The [bounded screen](head-to-head-performance.md) records one matched observation
+per language across ten workloads and two sizes, plus a warmed Numba control.
+The [focused gathered-read correction](gather-read-performance.md) preserves that
+baseline and measures only two affected gathers and one aligned-read control.
+Each output matched independent fixture hashes; no performance probe timed out
+or reached its intercepted I/O cap. Memory is reported as fresh-process peak
+through the operation, including imports and setup.
+
+The [validation receipt](../tests/results/gather-read-validation.json) records
+Debug 20/20, ASan/UBSan 20/20, three final-source Python storage/completeness
+groups, installed consumers and exact private-edit restoration. All ten public
+BMIs and two measured consumer objects retained their hashes and timestamps.
+The production change is confined to `backed_array.cpp` in an isolated worktree;
+concurrent uncommitted fp16 work was preserved and is outside these results.
+
 ## Storage completeness
 
 The [completeness receipt](../tests/results/completeness-validation.json) records

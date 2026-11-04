@@ -1,5 +1,9 @@
 # Bounded C++ and Python performance screen
 
+This preserves the initial screen. The observed native gathered-read deficit
+was subsequently addressed in the [focused correction](gather-read-performance.md),
+with both original and updated measurements retained.
+
 This is one paired observation per language, case and size. It identifies large
 potential deficits, not stable speedups or statistical confidence intervals.
 The C++ source is commit `dc946845e1457299351b0ffc4ba36ef91d49db7b`. The

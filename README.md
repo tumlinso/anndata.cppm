@@ -62,6 +62,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndata:
 - [Backed storage and compilation measurements](docs/storage-performance.md)
 - [Shard batching and bounded runtime-tuning measurements](docs/completeness-performance.md)
 - [Matched Python and C++ runtime and memory comparisons](docs/head-to-head-performance.md)
+- [Gathered Zarr read correction and paired measurements](docs/gather-read-performance.md)
 
 AnnData and Scanpy conventions determine data alignment and biological metadata behavior. The C++ interface uses native ownership, pointers, explicit copies, and lightweight typed access rather than reproducing Python mechanics.
 
