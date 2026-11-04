@@ -96,6 +96,14 @@ semantics. Backed selection continues to use its existing `Selection` interface.
 
 Native C++ type compatibility also matters: equal-width distinct types do not always permit aliasing. Use the stored element type for checked typed acquisition. Explicit unchecked access leaves its documented type/alignment preconditions to the caller.
 
+`ArrayView::copy_into(destination.edit())` copies a dense numerical selection
+into existing storage with the same dtype and shape. Gathers, signed strides,
+multidimensional shapes and empty arrays are supported. The source and destination
+must not overlap. No numerical destination or full-source temporary is allocated;
+rank metadata may allocate. Boundary validation defaults to `Validation::full`;
+trusted callers can request `Validation::none`. Copies preserve numerical bits
+without casting. Sparse arrays continue to use their explicit sparse APIs.
+
 ## Metadata acquisition
 
 `data.obs_column("quality")` and `data.var_column("symbol")` acquire one

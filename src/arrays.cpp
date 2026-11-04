@@ -550,6 +550,74 @@ SparseBytesView<const std::byte> ArrayView::sparse_bytes() const {
     return {descriptor, dtype_size(state_->type), dtype_size(state_->index_type), dtype_size(state_->offset_type)};
 }
 
+void ArrayView::copy_into(const ArrayEdit& destination, Validation validation) const {
+    require_state(state_);
+    const auto target = destination.view();
+    if (layout() != Layout::dense || target.layout() != Layout::dense)
+        fail(ErrorCode::unsupported_layout, "copy_into requires dense numerical arrays");
+    if (dtype() != target.dtype()) fail(ErrorCode::dtype_mismatch, "copy_into dtypes differ");
+    const auto r = rank(), width = dtype_size(state_->type);
+    if (r != target.rank()) fail(ErrorCode::shape_mismatch, "copy_into ranks differ");
+    std::vector<std::size_t> shape(r), coordinate(r);
+    for (std::size_t a = 0; a < r; ++a) {
+        shape[a] = extent(a);
+        if (shape[a] != target.extent(a)) fail(ErrorCode::shape_mismatch, "copy_into shapes differ");
+    }
+    if (validation == Validation::full) { validate(); target.validate(); }
+    const auto n = element_count(shape), byte_count = checked_mul(n, width);
+    if (!n) return;
+    if (state_->strides.size() != r) fail(ErrorCode::shape_mismatch, "source stride rank differs");
+    auto out = destination.bytes();
+    const auto* input = static_cast<const std::byte*>(state_->data);
+    if (!input || !out.data()) fail(ErrorCode::invalid_argument, "copy_into has a null buffer");
+    bool gathered = false;
+    if (selection_) for (const auto& a : selection_->axes) gathered = gathered || a.is_gather();
+    if (!gathered && out.contiguous()) {
+        auto in = bytes();
+        if (in.contiguous()) { std::memcpy(out.data(), in.data(), byte_count); return; }
+    }
+    std::vector<std::ptrdiff_t> source_stride(r), target_stride(r);
+    for (std::size_t a = 0; a < r; ++a) {
+        source_stride[a] = state_->shape[a] > 1 ? detail::checked_byte_stride(state_->strides[a], width) : 0;
+        target_stride[a] = shape[a] > 1 ? out.stride_bytes(a) : 0;
+    }
+    std::size_t run = 1;
+    if (r && shape.back() > 1 && source_stride.back() && target_stride.back() == static_cast<std::ptrdiff_t>(width)) {
+        const auto axis = selection_ ? selection_->axes.back() : Axis::all();
+        if (!axis.is_gather()) {
+            auto step = axis.is_all() ? std::ptrdiff_t{1} : signed_index(axis.step());
+            if (axis.reverse()) step = -step;
+            if (checked_signed_mul(source_stride.back(), step) == static_cast<std::ptrdiff_t>(width)) run = shape.back();
+        }
+    }
+    const auto run_bytes = checked_mul(run, width), outer = n / run;
+    const auto dimensions = r - (run > 1 ? 1 : 0);
+    // Validated strides and selectors make these offsets ordinary arithmetic.
+    // Trusted callers retain the same usable-buffer preconditions as borrowing.
+    auto transfer = [&]<std::size_t Width>() {
+        for (std::size_t i = 0; i < outer; ++i) {
+            std::ptrdiff_t from = 0, to = 0;
+            for (std::size_t a = 0; a < r; ++a) {
+                if (source_stride[a]) from += static_cast<std::ptrdiff_t>(original_index(selection_, a, coordinate[a])) * source_stride[a];
+                to += static_cast<std::ptrdiff_t>(coordinate[a]) * target_stride[a];
+            }
+            if (run == 1) std::memcpy(out.data() + to, input + from, Width);
+            else std::memcpy(out.data() + to, input + from, run_bytes);
+            for (std::size_t a = dimensions; a > 0; --a) {
+                if (++coordinate[a-1] < shape[a-1]) break;
+                coordinate[a-1] = 0;
+            }
+        }
+    };
+    switch (width) {
+    case 1: transfer.template operator()<1>(); break;
+    case 2: transfer.template operator()<2>(); break;
+    case 4: transfer.template operator()<4>(); break;
+    case 8: transfer.template operator()<8>(); break;
+    default: fail(ErrorCode::unsupported_dtype, "copy_into has an unsupported scalar width");
+    }
+}
+
 Array ArrayView::copy(Validation validation) const {
     require_state(state_);
     if (state_->format == Layout::dense) {

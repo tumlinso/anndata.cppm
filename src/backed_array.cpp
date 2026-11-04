@@ -911,6 +911,104 @@ MappedArray BackedArray::map_readonly() const {
     if (!result) fail(ErrorCode::unsupported_layout, node_, "dataset cannot be mapped as native contiguous read-only bytes");
     return std::move(*result);
 }
+namespace {
+backed_detail::NumericWrite selected_write(const Descriptor& d,const std::vector<std::size_t>& start,
+                                          const std::vector<std::size_t>& count,std::size_t budget) {
+    backed_detail::NumericWrite w;w.scratch_bytes=budget;w.axes.reserve(count.size());
+    for(std::size_t i=0;i<count.size();++i) {
+        const auto& a=d.axes[i];
+        if(a.category_positions) throw Error(ErrorCode::unsupported_layout,"selected write","transformed axes are read-only");
+        w.axes.push_back({count[i],a.positions?0:std::ptrdiff_t(a.at(start[i])),a.step,a.positions?a.positions->data()+start[i]:nullptr});
+    }
+    return w;
+}
+std::size_t packing_metadata(const Descriptor& d,const NodePtr& node) {
+    std::size_t positions=0;
+    for(std::size_t i=0;i<d.shape.size();++i) {
+        const auto chunk=d.data.codec_tile_shape.empty()?d.shape[i]:d.data.codec_tile_shape[i];
+        positions+=std::min(chunk,d.shape[i]);
+    }
+    return multiply(positions,6*sizeof(std::size_t),node)+multiply(d.shape.size(),4*sizeof(anndata::Axis)+1024,node)+2048;
+}
+template<class T> void pack_view(void* context,const std::vector<std::vector<std::size_t>>& positions,void* out) {
+    const auto& source=*static_cast<const ArrayView*>(context);
+    std::vector<anndata::Axis> axes;axes.reserve(positions.size());
+    std::vector<std::size_t> shape;shape.reserve(positions.size());
+    for(const auto& a:positions) {axes.push_back(anndata::Axis::gather(a.data(),a.size()));shape.push_back(a.size());}
+    std::vector<std::ptrdiff_t> strides(shape.size());std::ptrdiff_t stride=1;
+    for(std::size_t i=shape.size();i--;) {strides[i]=stride;stride*=std::ptrdiff_t(shape[i]);}
+    auto destination=Array::borrow_dense(static_cast<T*>(out),std::move(shape),std::move(strides),Validation::none);
+    source.select(axes.data(),axes.size()).copy_into(destination.edit(),Validation::none);
+}
+auto view_packer(DType type) -> void (*)(void*,const std::vector<std::vector<std::size_t>>&,void*) {
+    switch(type) {
+    case DType::boolean:return pack_view<bool>;
+    case DType::int8:return pack_view<std::int8_t>;case DType::uint8:return pack_view<std::uint8_t>;
+    case DType::int16:return pack_view<std::int16_t>;case DType::uint16:return pack_view<std::uint16_t>;
+    case DType::int32:return pack_view<std::int32_t>;case DType::uint32:return pack_view<std::uint32_t>;
+    case DType::int64:return pack_view<std::int64_t>;case DType::uint64:return pack_view<std::uint64_t>;
+    case DType::float32:return pack_view<float>;case DType::float64:return pack_view<double>;
+    }
+    throw Error(ErrorCode::unsupported_dtype,"selected write","unsupported numerical dtype");
+}
+void write_gathered_view(const NodePtr& node,const Descriptor& d,const ArrayView& source) {
+    if(node->session->options.validation==Validation::full) source.validate();
+    const auto budget=backed_detail::scratch_remaining(node),rank=d.shape.size(),width=dtype_size(d.data.dtype);
+    if(!elements(d.shape,node)) return;
+    auto backend=node->session->backend->fork(budget);
+    if(backend->identity()!=node->session->backend->identity()) fail(ErrorCode::invalid_argument,node,"store identity changed during write preparation");
+    auto transfer=backend->prepare_numeric(node->path);
+    auto input=selected_write(d,std::vector<std::size_t>(rank,0),d.shape,budget);
+    input.context=const_cast<ArrayView*>(&source);input.pack=view_packer(d.data.dtype);input.packing_metadata_bytes=packing_metadata(d,node);
+    if(d.data.sharded_payload && transfer->write_selection(input)) return;
+    // Bounded gathering for the remaining numerical backends. There is no
+    // owning copy of the complete source selection.
+    const auto workspace=backend->numeric_workspace_bytes(d.data,true),available=staging_budget(budget,workspace,node);
+    const auto metadata=multiply(rank,4*sizeof(anndata::Axis)+1024,node)+2048;
+    if(available<=metadata || (available-metadata)/(width+6*sizeof(std::size_t))<1)
+        fail(ErrorCode::invalid_argument,node,"gathered source packing exceeds scratch memory budget");
+    if(forward_rectangle(d)) {
+        auto maximum=std::min<std::size_t>(1024*1024,available-metadata)/width;
+        std::vector<std::size_t> block;
+        while(maximum) {
+            block=dense_block_shape(d,maximum,d.data.codec_tile_shape,node);
+            std::size_t axis_positions=0;for(auto e:block)axis_positions+=e;
+            const auto needed=multiply(elements(block,node),width,node)+multiply(axis_positions,6*sizeof(std::size_t),node);
+            if(needed<=available-metadata)break;
+            maximum/=2;
+        }
+        if(!maximum)fail(ErrorCode::invalid_argument,node,"gathered rectangle cannot fit scratch memory budget");
+        std::vector<std::byte> packed(multiply(elements(block,node),width,node));
+        std::vector<std::vector<std::size_t>> positions(rank);
+        std::vector<std::size_t> logical(rank,0),physical(rank),count(rank);
+        while(true) {
+            for(std::size_t i=0;i<rank;++i) {
+                count[i]=std::min(block[i],d.shape[i]-logical[i]);physical[i]=d.axes[i].at(logical[i]);
+                positions[i].resize(count[i]);for(std::size_t j=0;j<count[i];++j)positions[i][j]=logical[i]+j;
+            }
+            input.pack(input.context,positions,packed.data());transfer->write(physical,count,packed.data());
+            bool finished=true;
+            for(std::size_t i=rank;i--;) {if(block[i]<d.shape[i]-logical[i]){logical[i]+=block[i];finished=false;break;}logical[i]=0;}
+            if(finished)return;
+        }
+    }
+    const auto maximum=std::min<std::size_t>(1024*1024,available-metadata)/(width+6*sizeof(std::size_t));
+    const auto columns=rank?d.shape.back():1;
+    std::vector<std::byte> packed(multiply(std::min(columns,maximum),width,node));
+    std::vector<std::vector<std::size_t>> positions(rank);
+    std::vector<std::size_t> physical(rank,0),count(rank,1);
+    const auto outer=elements(d.shape,node)/columns;
+    for(std::size_t row=0;row<outer;++row) {
+        auto k=row;
+        for(std::size_t i=rank?rank-1:0;i--;) {const auto j=k%d.shape[i];k/=d.shape[i];positions[i]={j};physical[i]=d.axes[i].at(j);}
+        for(std::size_t first=0;first<columns;) {
+            const auto limit=std::min(maximum,columns-first);std::size_t run=1;
+            if(rank) {physical.back()=d.axes.back().at(first);while(run<limit && d.axes.back().at(first+run)==physical.back()+run)++run;positions.back().resize(run);for(std::size_t j=0;j<run;++j)positions.back()[j]=first+j;count.back()=run;}
+            input.pack(input.context,positions,packed.data());transfer->write(physical,count,packed.data());first+=run;
+        }
+    }
+}
+}
 void BackedArray::write(const ArrayView& source) const {
     auto d = describe(node_);
     if (node_->code_recode || node_->color_override) fail(ErrorCode::invalid_argument, node_, "transformed arrays are read-only");
@@ -937,18 +1035,17 @@ void BackedArray::write(const ArrayView& source) const {
         write_sparse(node_, d, value, *bytes);
         return;
     }
-    std::optional<Array> gathered;
     std::optional<DenseBytesView<const std::byte>> bytes;
     try { bytes.emplace(source.bytes()); }
     catch (const Error& e) {
         if (e.code() != ErrorCode::non_contiguous) throw;
-        gathered.emplace(source.copy());
-        bytes.emplace(gathered->view().bytes());
+        write_gathered_view(node_,d,source); return;
     }
     std::vector<std::ptrdiff_t> strides;
     for (std::size_t i = 0; i < bytes->rank(); ++i) strides.push_back(bytes->stride_bytes(i));
     DenseBuffer b{const_cast<std::byte*>(bytes->data()), d.data.dtype, d.shape, std::move(strides)};
-    dense_transfer(node_, d, b, true);
+    if(d.data.sharded_payload) {auto transfer=prepare_transfer();transfer.write_from(std::vector<std::size_t>(d.shape.size(),0),d.shape,b);}
+    else dense_transfer(node_, d, b, true);
 }
 namespace detail {
 struct TransferContextImpl {
@@ -1019,6 +1116,10 @@ struct TransferContextImpl {
         if (!n) return;
         auto strides = b.strides.empty() ? contiguous_strides(count, width, node) : b.strides;
         auto* p = static_cast<std::byte*>(b.data);
+        if(writing && d.data.sharded_payload) {
+            auto selected=selected_write(d,start,count,budget-tile.capacity());selected.data=b.data;selected.strides=strides;
+            if(data->write_selection(selected)) return;
+        }
         const bool canonical = !writing && d.data.dtype == DType::boolean && node->session->options.validation == Validation::full;
         auto transfer = [&](const std::vector<std::size_t>& source, const std::vector<std::size_t>& ext, std::byte* q) {
             if (writing) data->write(source, ext, q); else data->read(source, ext, q);

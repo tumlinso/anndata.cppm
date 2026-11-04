@@ -47,6 +47,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndata:
 ## Design and evidence
 
 - [Architecture and compatibility matrix](docs/architecture.md)
+- [Extension contracts and qualification requirements](docs/extension-contract.md)
 - [Development, installation, and validation](docs/development.md)
 - [Memory access and ownership](docs/memory.md)
 - [Native records and compound H5AD elements](docs/records.md)
@@ -59,6 +60,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndata:
 - [Measured performance and compilation behavior](docs/performance.md)
 - [H5AD I/O and optional-module measurements](docs/h5ad-performance.md)
 - [Backed storage and compilation measurements](docs/storage-performance.md)
+- [Shard batching and bounded runtime-tuning measurements](docs/completeness-performance.md)
 
 AnnData and Scanpy conventions determine data alignment and biological metadata behavior. The C++ interface uses native ownership, pointers, explicit copies, and lightweight typed access rather than reproducing Python mechanics.
 

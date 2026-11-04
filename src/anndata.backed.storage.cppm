@@ -46,12 +46,26 @@ struct NumericTransferStats {
     std::size_t read_calls = 0, write_calls = 0, read_bytes = 0, write_bytes = 0;
     std::size_t scratch_allocations = 0, scratch_bytes = 0;
 };
+struct NumericWriteAxis {
+    std::size_t count = 0;
+    std::ptrdiff_t start = 0, step = 1;
+    const std::size_t* positions = nullptr;
+};
+struct NumericWrite {
+    std::vector<NumericWriteAxis> axes;
+    const void* data = nullptr;
+    std::vector<std::ptrdiff_t> strides;
+    void* context = nullptr;
+    void (*pack)(void*, const std::vector<std::vector<std::size_t>>&, void*) = nullptr;
+    std::size_t scratch_bytes = 0, packing_metadata_bytes = 0;
+};
 // One worker owns each prepared transfer. Its backend must outlive it.
 class NumericTransfer {
 public:
     virtual ~NumericTransfer() = default;
     virtual void read(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, void*) = 0;
     virtual void write(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const void*) = 0;
+    virtual bool write_selection(const NumericWrite&) { return false; }
     virtual NumericTransferStats stats() const = 0;
     virtual std::size_t scratch_capacity() const = 0;
 };

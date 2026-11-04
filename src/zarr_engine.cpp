@@ -286,6 +286,7 @@ std::vector<std::string> Store::children(const std::string& path) const {
 }
 void Store::mutation() {
     if(!writable_) throw Error(Failure::argument,root_.string(),"Zarr store is read-only");
+    metadata_dirty_=true;
     if(std::filesystem::exists(root_/".zmetadata")) { consolidation_v2_=true; std::filesystem::remove(root_/".zmetadata"); }
     if(std::filesystem::exists(root_/"zarr.json")) { auto root=load_json(root_/"zarr.json"); if(root.contains("consolidated_metadata")) { consolidation_v3_=true; root.erase("consolidated_metadata"); save_json(root_/"zarr.json",root); } }
 }
@@ -329,6 +330,15 @@ void Store::transfer(const std::string& path,const ArrayMetadata& m,const Shape&
     if(!output_count) return;
     if(strings && strings->size()!=output_count) throw Error(Failure::argument,path,"string transfer size mismatch");
     if(!strings && !numeric) throw Error(Failure::argument,path,"null Zarr transfer buffer");
+    if(writing && !strings && sharding(m)) {
+        NumericWrite input; input.data=numeric; input.axes.resize(rank); input.strides.resize(rank);
+        std::size_t stride=m.item_size;
+        for(std::size_t i=rank;i--;) {input.axes[i]={count[i],std::ptrdiff_t(start[i]),1,nullptr};input.strides[i]=std::ptrdiff_t(stride);stride*=count[i];}
+        input.scratch_bytes=(scratch_bytes_/8)*7;
+        const_cast<Store*>(this)->write_selection(path,m,input); return;
+    }
+    Bytes().swap(packed_scratch_); Bytes().swap(shard_scratch_.index); Bytes().swap(shard_scratch_.encoded);
+    std::vector<WritePoint>().swap(selection_scratch_);
     const auto shape=inner_shape(m,scratch_bytes_); Shape first(rank),stop(rank);
     const bool raw=codec && !strings && raw_native(m);
     const bool compressed=codec && !raw && !strings && codec->kind!=NumericCodec::Kind::none;
@@ -421,6 +431,202 @@ void Store::write_numeric(const std::string& path,const ArrayMetadata& m,const N
     // remains valid and independent chunk writers need not modify it.
     transfer(path,m,start,count,const_cast<void*>(input),nullptr,true,&codec);
 }
+namespace {
+struct WritePlan {
+    WriteAxis axis;
+    WritePoint* points = nullptr;
+    std::size_t size = 0;
+    std::size_t logical(std::size_t i) const {
+        return points ? points[i].logical : !axis.step ? axis.count-1 : axis.step<0 ? axis.count-1-i : i;
+    }
+    std::size_t physical(std::size_t i) const {
+        if(points) return points[i].physical;
+        const auto j=logical(i),a=std::size_t(axis.start);
+        const auto d=axis.step<0?std::size_t(-(axis.step+1))+1:std::size_t(axis.step);
+        return axis.step<0?a-j*d:a+j*d;
+    }
+    std::size_t lower(std::size_t value) const {
+        std::size_t a=0,b=size;
+        while(a<b) {const auto k=a+(b-a)/2;if(physical(k)<value)a=k+1;else b=k;}
+        return a;
+    }
+};
+std::size_t write_mul(std::size_t a,std::size_t b,const std::string& path) {
+    if(b && a>std::numeric_limits<std::size_t>::max()/b) throw Error(Failure::argument,path,"write workspace size overflows");
+    return a*b;
+}
+std::size_t write_add(std::size_t a,std::size_t b,const std::string& path) {
+    if(b>std::numeric_limits<std::size_t>::max()-a) throw Error(Failure::argument,path,"write workspace size overflows");
+    return a+b;
+}
+void pack_numeric(const NumericWrite& input,const std::vector<Shape>& axes,std::size_t width,void* out) {
+    Shape shape; for(const auto& a:axes) shape.push_back(a.size());
+    const auto n=checked_product(shape),rank=shape.size();
+    auto* destination=static_cast<std::byte*>(out); auto* source=static_cast<const std::byte*>(input.data);
+    if(!rank) {std::memcpy(destination,source,width);return;}
+    const auto last=rank-1,columns=shape[last],rows=n/columns;
+    for(std::size_t row=0;row<rows;++row) {
+        auto k=row;std::ptrdiff_t offset=0;
+        for(std::size_t i=last;i--;) {const auto j=k%shape[i];k/=shape[i];offset+=std::ptrdiff_t(axes[i][j])*input.strides[i];}
+        for(std::size_t j=0;j<columns;) {
+            auto* q=source+offset+std::ptrdiff_t(axes[last][j])*input.strides[last];std::size_t run=1;
+            if(input.strides[last]==std::ptrdiff_t(width))
+                while(j+run<columns && axes[last][j+run]==axes[last][j]+run) ++run;
+            else if(input.strides[last]==-std::ptrdiff_t(width))
+                while(j+run<columns && axes[last][j]>=run && axes[last][j+run]==axes[last][j]-run) ++run;
+            std::memcpy(destination+(row*columns+j)*width,q,run*width);j+=run;
+        }
+    }
+}
+void scatter_numeric(const std::vector<Shape>& axes,const Shape& chunk,std::size_t width,const void* input,void* out) {
+    Shape shape; for(const auto& a:axes) shape.push_back(a.size());
+    const auto n=checked_product(shape),rank=shape.size();
+    auto* source=static_cast<const std::byte*>(input);auto* destination=static_cast<std::byte*>(out);
+    if(!rank) {std::memcpy(destination,source,width);return;}
+    const auto last=rank-1,columns=shape[last],rows=n/columns;
+    for(std::size_t row=0;row<rows;++row) {
+        auto k=row;std::size_t offset=0,stride=chunk[last];
+        for(std::size_t i=last;i--;) {const auto j=k%shape[i];k/=shape[i];offset+=axes[i][j]*stride;stride*=chunk[i];}
+        for(std::size_t j=0;j<columns;) {
+            std::size_t run=1;while(j+run<columns && axes[last][j+run]==axes[last][j]+run)++run;
+            std::memcpy(destination+(offset+axes[last][j])*width,source+(row*columns+j)*width,run*width);j+=run;
+        }
+    }
+}
+}
+bool Store::write_selection(const std::string& path,const ArrayMetadata& m,const NumericWrite& input) {
+    if(!sharding(m)) return false;
+    if(!writable_) throw Error(Failure::argument,path,"Zarr store is read-only");
+    const auto rank=m.shape.size();
+    if(m.type==Type::string || input.axes.size()!=rank || (!input.pack && input.strides.size()!=rank))
+        throw Error(Failure::argument,path,"invalid selected numerical write descriptor");
+    Shape requested;for(const auto& a:input.axes)requested.push_back(a.count);
+    if(!checked_product(requested)) return true;
+    if(!input.pack && !input.data) throw Error(Failure::argument,path,"null selected write input");
+    const auto budget=std::min(scratch_bytes_,input.scratch_bytes?input.scratch_bytes:scratch_bytes_);
+    auto spec=shard_spec(m,budget);const auto& inner=spec.chunk_shape;
+    const auto index_bytes=shard_index_workspace(spec,path);
+    std::size_t positions=0,axis_points=0;
+    for(std::size_t i=0;i<rank;++i) {
+        const auto& a=input.axes[i];
+        if(a.positions) positions=write_add(positions,a.count,path);
+        else {
+            if(a.start<0 || std::size_t(a.start)>=m.shape[i]) throw Error(Failure::argument,path,"write axis start is out of bounds");
+            const auto step=a.step<0?std::size_t(-(a.step+1))+1:std::size_t(a.step),distance=write_mul(a.count-1,step,path);
+            if(a.step<0 ? distance>std::size_t(a.start) : distance>=m.shape[i]-std::size_t(a.start))
+                throw Error(Failure::argument,path,"write axis extent is out of bounds");
+        }
+        axis_points=write_add(axis_points,std::min(inner[i],a.count),path);
+    }
+    const auto map_bytes=write_mul(positions,sizeof(WritePoint),path);
+    auto control=write_add(std::size_t{4096},write_mul(rank,sizeof(WritePlan)+256,path),path);
+    control=write_add(control,write_mul(axis_points,2*sizeof(std::size_t),path),path);
+    control=write_add(control,write_mul(path.size(),4,path),path);
+    control=write_add(control,input.packing_metadata_bytes,path);
+    const auto reserved=write_add(write_add(map_bytes,control,path),index_bytes,path);
+    if(reserved>=budget) throw Error(Failure::argument,path,"selected write planning exceeds scratch memory budget");
+    ArrayMetadata payload=m;payload.chunks=inner;payload.codecs=spec.codecs;
+    validate_index_pipeline({payload,spec.codecs,budget},inner);
+    const auto codec=prepare_numeric_codec({payload,spec.codecs,budget},inner);
+    const bool raw=raw_native(payload),common=raw || codec.kind!=NumericCodec::Kind::none;
+    const auto slot=(budget-reserved)/(common?4:8),chunk_bytes=write_mul(checked_product(inner),m.item_size,path);
+    if(slot<4 || chunk_bytes>slot || (common && !raw && reusable_encoded_bound(codec,chunk_bytes,std::numeric_limits<std::size_t>::max())>slot))
+        throw Error(Failure::argument,path,"selected write chunk staging exceeds scratch memory budget");
+    // These buffers are shared between calls, never cached data. Release an
+    // overlarge previous reservation before replacing it, including map growth.
+    auto reserve=[&](Bytes& b,std::size_t n) {
+        if(n>slot) throw Error(Failure::argument,path,"selected write exceeds admitted staging capacity");
+        if(b.capacity()>slot || b.capacity()<n) {Bytes().swap(b);Bytes fresh(n);b.swap(fresh);++numeric_scratch_allocations_;}
+        else b.resize(n);
+    };
+    if(selection_scratch_.capacity()!=positions) {
+        std::vector<WritePoint>().swap(selection_scratch_);selection_scratch_.resize(positions);numeric_scratch_allocations_+=positions!=0;
+    } else selection_scratch_.resize(positions);
+    if(shard_scratch_.capacity()>index_bytes) {Bytes().swap(shard_scratch_.index);Bytes().swap(shard_scratch_.encoded);}
+    reserve(numeric_scratch_,chunk_bytes);reserve(packed_scratch_,chunk_bytes);
+    if(encoded_scratch_.capacity()>slot) Bytes().swap(encoded_scratch_);
+    if(codec_scratch_.capacity()>slot) Bytes().swap(codec_scratch_);
+    std::vector<WritePlan> plans(rank);std::size_t first=0;
+    for(std::size_t i=0;i<rank;++i) {
+        auto& p=plans[i];p.axis=input.axes[i];p.size=p.axis.step || p.axis.positions?p.axis.count:1;
+        if(!p.axis.positions) continue;
+        p.points=selection_scratch_.data()+first;first+=p.axis.count;
+        for(std::size_t j=0;j<p.axis.count;++j) {
+            if(p.axis.positions[j]>=m.shape[i]) throw Error(Failure::argument,path,"gathered write index is out of bounds");
+            p.points[j]={p.axis.positions[j],j};
+        }
+        std::sort(p.points,p.points+p.axis.count,[](auto a,auto b){return a.physical<b.physical || (a.physical==b.physical && a.logical<b.logical);});
+        p.size=0;
+        for(std::size_t j=0;j<p.axis.count;++j) {
+            if(p.size && p.points[p.size-1].physical==p.points[j].physical)p.points[p.size-1]=p.points[j];
+            else p.points[p.size++]=p.points[j];
+        }
+    }
+    auto group_end=[&](std::size_t i,std::size_t begin,std::size_t last,std::size_t unit) {
+        const auto base=(plans[i].physical(begin)/unit)*unit;
+        return std::min(last,plans[i].lower(base+std::min(unit,m.shape[i]-base)));
+    };
+    auto next_group=[&](Shape& lo,Shape& hi,const Shape& begin,const Shape& end,const Shape& units) {
+        for(std::size_t i=rank;i--;) {
+            lo[i]=hi[i];
+            if(lo[i]<end[i]) {hi[i]=group_end(i,lo[i],end[i],units[i]);return true;}
+            lo[i]=begin[i];hi[i]=group_end(i,lo[i],end[i],units[i]);
+        }
+        return false;
+    };
+    Shape zero(rank,0),last(rank),shard_lo(rank,0),shard_hi(rank),shard_coord(rank),chunk_lo(rank),chunk_hi(rank),local(rank);
+    std::vector<Shape> source_axes(rank),target_axes(rank);
+    for(std::size_t i=0;i<rank;++i) {
+        last[i]=plans[i].size;shard_hi[i]=group_end(i,0,last[i],m.chunks[i]);
+        source_axes[i].reserve(std::min(inner[i],plans[i].size));target_axes[i].reserve(std::min(inner[i],plans[i].size));
+    }
+    // Restrict the physical writer to its disjoint fixed-index reservation.
+    spec.scratch_bytes=index_bytes;
+    do {
+        for(std::size_t i=0;i<rank;++i) {shard_coord[i]=plans[i].physical(shard_lo[i])/m.chunks[i];chunk_lo[i]=shard_lo[i];chunk_hi[i]=group_end(i,chunk_lo[i],shard_hi[i],inner[i]);}
+        {
+            ShardWriter writer(node_path(path)/chunk_key(m,shard_coord),spec,shard_scratch_);
+            do {
+                bool full=true;
+                for(std::size_t i=0;i<rank;++i) {
+                    const auto base=(plans[i].physical(chunk_lo[i])/inner[i])*inner[i];
+                    local[i]=(base%m.chunks[i])/inner[i];source_axes[i].clear();target_axes[i].clear();
+                    for(auto j=chunk_lo[i];j<chunk_hi[i];++j) {source_axes[i].push_back(plans[i].logical(j));target_axes[i].push_back(plans[i].physical(j)-base);}
+                    full=full && source_axes[i].size()==std::min(inner[i],m.shape[i]-base);
+                }
+                if(full) fill_numeric(numeric_scratch_,m);
+                else if(raw) {
+                    if(!writer.read(local,numeric_scratch_,slot)) {reserve(numeric_scratch_,chunk_bytes);fill_numeric(numeric_scratch_,m);}
+                    else if(numeric_scratch_.size()!=chunk_bytes) throw Error(Failure::encoding,path,"decoded inner chunk has wrong byte size");
+                } else if(writer.read(local,encoded_scratch_,slot)) {
+                    if(common) {
+                        if(reusable_needs_block(codec,false))reserve(codec_scratch_,std::min<std::size_t>(slot,65536));
+                        decode_numeric_reusable(codec,chunk_bytes,slot,encoded_scratch_,numeric_scratch_,codec_scratch_);
+                    } else {
+                        Bytes().swap(numeric_scratch_);
+                        auto decoded=decode_payload({payload,spec.codecs,slot*4},inner,encoded_scratch_);
+                        numeric_scratch_=std::move(decoded.numeric);
+                    }
+                } else fill_numeric(numeric_scratch_,m);
+                if(input.pack) input.pack(input.context,source_axes,packed_scratch_.data());
+                else pack_numeric(input,source_axes,m.item_size,packed_scratch_.data());
+                scatter_numeric(target_axes,inner,m.item_size,packed_scratch_.data(),numeric_scratch_.data());
+                if(raw) writer.replace(local,numeric_scratch_);
+                else if(common) {
+                    reserve(encoded_scratch_,reusable_encoded_bound(codec,chunk_bytes,slot));
+                    if(reusable_needs_block(codec,true))reserve(codec_scratch_,std::min<std::size_t>(slot,65536));
+                    encode_numeric_reusable(codec,slot,numeric_scratch_,encoded_scratch_,codec_scratch_);writer.replace(local,encoded_scratch_);
+                } else {
+                    Bytes().swap(encoded_scratch_);Chunk value;value.numeric.swap(numeric_scratch_);
+                    encoded_scratch_=encode_payload({payload,spec.codecs,slot*4},inner,value);numeric_scratch_.swap(value.numeric);
+                    writer.replace(local,encoded_scratch_);
+                }
+            } while(next_group(chunk_lo,chunk_hi,shard_lo,shard_hi,inner));
+            reserve(codec_scratch_,std::min<std::size_t>(slot,1024*1024));writer.commit(codec_scratch_);
+        }
+    } while(next_group(shard_lo,shard_hi,zero,last,m.chunks));
+    return true;
+}
 std::vector<std::string> Store::read_strings(const std::string& path,const Shape& start,const Shape& count) const { std::vector<std::string> result(checked_product(count)); transfer(path,start,count,nullptr,&result,false); return result; }
 std::vector<std::string> Store::read_strings_bounded(const std::string& path,const Shape& start,
                                                    const Shape& count,std::size_t byte_budget) const {
@@ -461,8 +667,14 @@ std::vector<std::string> Store::read_strings_bounded(const std::string& path,con
     for(std::size_t i=0;i<admitted;++i) result.push_back(std::move(decoded.strings[offset+i]));
     return result;
 }
-void Store::write_numeric(const std::string& path,const Shape& start,const Shape& count,const void* input) { mutation(); transfer(path,start,count,const_cast<void*>(input),nullptr,true); }
-void Store::write_strings(const std::string& path,const Shape& start,const Shape& count,const std::vector<std::string>& input) { mutation(); transfer(path,start,count,nullptr,const_cast<std::vector<std::string>*>(&input),true); }
+void Store::write_numeric(const std::string& path,const Shape& start,const Shape& count,const void* input) {
+    if(!writable_) throw Error(Failure::argument,path,"Zarr store is read-only");
+    transfer(path,start,count,const_cast<void*>(input),nullptr,true);
+}
+void Store::write_strings(const std::string& path,const Shape& start,const Shape& count,const std::vector<std::string>& input) {
+    if(!writable_) throw Error(Failure::argument,path,"Zarr store is read-only");
+    transfer(path,start,count,nullptr,const_cast<std::vector<std::string>*>(&input),true);
+}
 void Store::create_group(const std::string& path,const Json& attributes,int format) {
     mutation(); auto directory=node_path(path);
     if(inspect(path).exists) throw Error(Failure::argument,path,"Zarr element already exists");
@@ -543,7 +755,7 @@ void Store::rename(const std::string& source,const std::string& target) {
     std::filesystem::rename(node_path(source),node_path(target));
 }
 void Store::flush() {
-    if(!writable_) return;
+    if(!writable_ || !metadata_dirty_) return;
     if(consolidation_v2_) {
         Json all=Json::object();
         for(const auto& entry:std::filesystem::recursive_directory_iterator(root_)) if(entry.is_regular_file()) { auto name=entry.path().filename().string(); if(name==".zarray" || name==".zgroup" || name==".zattrs") all[std::filesystem::relative(entry.path(),root_).generic_string()]=load_json(entry.path()); }
@@ -554,6 +766,7 @@ void Store::flush() {
         for(const auto& entry:std::filesystem::recursive_directory_iterator(root_)) if(entry.is_regular_file() && entry.path().filename()=="zarr.json" && entry.path()!=root_/"zarr.json") { auto metadata=load_json(entry.path()); metadata.erase("consolidated_metadata"); all[std::filesystem::relative(entry.path().parent_path(),root_).generic_string()]=metadata; }
         root["consolidated_metadata"]={{"kind","inline"},{"must_understand",false},{"metadata",all}}; save_json(root_/"zarr.json",root);
     }
+    metadata_dirty_=false;
 }
 std::filesystem::path Store::mapping_file(const std::string& path) const {
     const auto node=inspect(path); if(!node.exists || node.group || node.array.type==Type::string) return {};

@@ -65,17 +65,35 @@ An adaptive caller reports each transfer's duration through `BlockCompletion`.
 Parallel callers issue several requests, execute them with independent contexts
 and buffers, then serialize completion reporting back to the stream.
 
-The scratch cap covers library-owned numerical payload staging, not output
-storage, schema metadata, HDF5 caches, or third-party codec internal allocations.
+The scratch cap covers library-owned numerical payload staging and sharded-write
+grouping, index, packing and encoded-payload workspace. It excludes output
+storage, persistent schema metadata, HDF5 caches and third-party codec internal
+allocations.
 `stats()` separates backend transfer calls and native transfer bytes from owned
 scratch capacity. These are not physical device-byte counters. Payload reuse
 does not imply that every metadata or third-party allocation disappears.
 
-The initial reusable Zarr pipeline covers unsharded C-order native-endian raw
-buffers and the common gzip/zlib, Zstd, and Blosc encodings. Sharded transfers,
-foreign-endian conversion, transpose, and more complex codec pipelines use the
-existing bounded implementation after releasing reusable pipeline capacity.
-They retain format support but do not yet reuse all codec or shard staging.
+Reusable Zarr staging covers unsharded C-order native-endian raw buffers and the
+common gzip/zlib, Zstd and Blosc encodings. Numerical sharded writes additionally
+reuse bounded grouping, chunk, index and payload workspace. Less common codec
+pipelines retain their bounded fallback; staging reuse does not eliminate codec
+internal allocations.
+
+Within one public numerical write, each affected shard is replaced once.
+Per-axis grouping handles repeated, nonmonotonic and reversed selections without
+enumerating a Cartesian coordinate map or scanning the gaps between chunks.
+Duplicate destinations keep the existing logical C-order last-write result.
+Each changed inner chunk is encoded once; a partial update decodes its old chunk
+once, while a full overwrite needs no old decode. Untouched encoded payloads are
+copied without decoding. Gathered source views are packed into bounded staging;
+HDF5 and unsharded irregular destinations retain a bounded logical-run fallback.
+
+Nominal planning capacity is checked before mutation. A data-dependent oversized
+existing encoded payload can still exhaust the cap during processing. The active
+shard is written through a temporary file and replacement; completed earlier
+shards can remain changed after failure. Calls are independent and there is no
+whole-call transaction. Payload-only writes and explicit flush preserve existing
+consolidated metadata; structural updates still invalidate and rebuild it.
 
 ## Parallel execution
 
@@ -109,11 +127,15 @@ and finish timestamps additionally establish overlap for concurrency tuning.
 Without interval evidence, only block sizing can adapt. Include transfer time
 and exclude application numerical computation from the reported I/O interval.
 
-The controller compares epochs of at least 16 completions, changes one parameter
-at a time, retains improvements exceeding 5%, and rolls back degradation over
-20%. Stable settings are reviewed every 64 completions; two consecutive shifts
-over 25% reopen exploration. Small streams can finish before evidence supports
-any tuning. Settings and limit reasons remain inspectable.
+The controller compares epochs of at least 16 useful completions, alternates
+block-size and in-flight trials, retains improvements exceeding 5%, and rolls
+back degradation over 20%. Successive accepted moves can continue in the same
+direction; a failed upward trial permits a downward trial. Exploration is capped
+at eight candidate epochs. Stable settings are reviewed every 64 useful
+completions; two consecutive shifts over 25% reopen exploration. Zero-useful
+transfers still contribute their I/O time. Timing observations are bounded and
+overlapping intervals are counted once. Small streams can finish before evidence
+supports tuning. Settings and limit reasons remain inspectable.
 
 Manual mode fixes target block size and in-flight limits, subject to backend
 capabilities and physical conflict units. It ignores completion timing unless
@@ -121,14 +143,17 @@ statistics are requested. Drain outstanding requests before changing modes or
 configuration; reserved capacities cannot grow implicitly. Manual mode provides
 deterministic coverage and an escape from unsuitable adaptive choices.
 
-Already-owned dense regions retain their tiling until completion. New target
-sizes apply to subsequent regions, preserving exact coverage during mode changes.
-Exploration samples nearby settings; it does not guarantee a global optimum.
+Already-owned dense regions retain their tiling until completion. Before sampling
+a different target, the stream finishes these regions and excludes their old
+tiles from candidate evidence. Large shards with small tiles can therefore delay
+adaptation. New target sizes apply to subsequent regions, preserving exact
+coverage during mode changes. Exploration does not guarantee a global optimum.
 
 Sparse output size is unknown until its requirements are read. If capacity is
 insufficient, explicitly split an unexecuted request into fewer major-axis rows
 or columns. A single over-capacity row/column requires larger caller storage or
 the existing lower-level selection API; no partial completion is reported.
 
-See [streaming performance](streaming-performance.md) for measured workloads,
-source identities, budgets, and remaining implementation limitations.
+See [completeness measurements](completeness-performance.md) for the paired shard,
+gather and caller-worker evidence. The [earlier streaming measurements](streaming-performance.md)
+preserve the original baseline and its limitations.

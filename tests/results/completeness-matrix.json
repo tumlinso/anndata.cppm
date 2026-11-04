@@ -1,0 +1,301 @@
+{
+  "schema": "anndata.cppm.storage-completeness-matrix.v1",
+  "captured_unix": 1793791853,
+  "worktree": "/tmp/anndata-cppm-completeness",
+  "branch": "codex/storage-completeness",
+  "head": "2565c3c79354b67be5aba43a84af42f8011b68d9",
+  "source": {
+    "manifest_before_sha256": "88badea95e9d7849d15b196c5d19d15f254edb1b90a0e124b4ade670234b08bb",
+    "manifest_after_sha256": "f8fc14af1869adac26fd8fafd971a64902c2d2049023f55b65fd4ca8f6d80ee8",
+    "changed_source_test_config_files": [
+      {
+        "path": "CMakePresets.json",
+        "before_sha256": "b0ad7a4be854482fc6d7c30a27b8602da68a4cbb267e6718e4d815cee446f91e",
+        "after_sha256": "b397db5b20ae4147a7b111c5b7c08a55b88bf20444c74b27a54b377296b1060f"
+      },
+      {
+        "path": "tests/completeness_interop_driver.cpp",
+        "before_sha256": "9dc794e90ee4737a0d72152fac2c2cf4ba0a15a100b89c0b7b7dd389bce3e00b",
+        "after_sha256": "aa5a13c904bb8cf0f82a3baf6f719013014b4cc033d2fff4f408f8ed6ae60fa5"
+      },
+      {
+        "path": "tests/consumer/main.cpp",
+        "before_sha256": "6650b8538a32711f9c61cfaccc81c1a29eeb5c7d49c9c1e955de620179a4f216",
+        "after_sha256": "a4d4f3a68ecd8d2b89eccc846c1bff2ad3839efc07589fde8103f405e9c97524"
+      },
+      {
+        "path": "tests/test_streaming.cpp",
+        "before_sha256": "2a44b356577555cfb3a28b14b3ff6d6b0cea5b70d781eae4f7063e23d845b0d4",
+        "after_sha256": "adda6d2579692f0c3eefa0297f969799a5b9b8bf68db5dc2968b1a38ec6a0307"
+      }
+    ],
+    "production_src_only_sha256_before": "5d745b044c6b527dbace83e1d420b613ea41b51a5cbafda96d2feebc4fa0fba9",
+    "production_src_only_sha256_after": "5d745b044c6b527dbace83e1d420b613ea41b51a5cbafda96d2feebc4fa0fba9",
+    "production_src_unchanged": true,
+    "post_tests_and_cmake_manifest_sha256": "15b105fbf8773314e69181fc8ec69e15541a010b381dafb0cf76a2d71f5799a5",
+    "post_tests_and_cmake_file_count": 44,
+    "consumer_copy_into_source_sha256": "a4d4f3a68ecd8d2b89eccc846c1bff2ad3839efc07589fde8103f405e9c97524"
+  },
+  "conditions": {
+    "generator": "Ninja",
+    "compiler": "clang++-18",
+    "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "build_parallelism": 2,
+    "interop_tests": "OFF in all five caches",
+    "record_interop_tests": "OFF in all five caches",
+    "build_cleanliness": "incremental; no clean/reset performed"
+  },
+  "configs": [
+    {
+      "preset": "core-only",
+      "binary_dir": "build/core-only",
+      "cache": {
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "OFF",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++-18"
+      },
+      "ctest": {
+        "passed": 12,
+        "failed": 0,
+        "required_tests": {
+          "copy_into": "5/12 Test  #5: copy_into ........................   Passed    0.00 sec",
+          "installed_consumer": "12/12 Test #12: installed_consumer ...............   Passed    9.37 sec"
+        }
+      },
+      "commands": [
+        {
+          "phase": "configure",
+          "command": "cmake --preset core-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/core-only.configure.log",
+          "log_sha256": "96acf5b61ca9de07be0bb519a9ddad8ed57e7a9ef37fce9b8ed9a5f8c410fd85",
+          "log_bytes": 407
+        },
+        {
+          "phase": "build",
+          "command": "cmake --build --preset core-only --parallel 2",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/core-only.build.log",
+          "log_sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+          "log_bytes": 22
+        },
+        {
+          "phase": "ctest",
+          "command": "ctest --preset core-only --output-on-failure",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/core-only.ctest.log",
+          "log_sha256": "68294dd89410507a0c261456ade0d7bf6c78f064968c9b3b250cc11f8c220a59",
+          "log_bytes": 1336
+        }
+      ]
+    },
+    {
+      "preset": "hdf5-only",
+      "binary_dir": "build/hdf5-only",
+      "cache": {
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "OFF",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18"
+      },
+      "ctest": {
+        "passed": 16,
+        "failed": 0,
+        "required_tests": {
+          "copy_into": "5/16 Test  #5: copy_into ........................   Passed    0.01 sec",
+          "installed_consumer": "16/16 Test #16: installed_consumer ...............   Passed   10.21 sec"
+        }
+      },
+      "commands": [
+        {
+          "phase": "configure",
+          "command": "cmake --preset hdf5-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/hdf5-only.configure.log",
+          "log_sha256": "4a2d1b5a9e26669c8f8179d983574ddc67edb207e9483e97f350049261b0216f",
+          "log_bytes": 929
+        },
+        {
+          "phase": "build",
+          "command": "cmake --build --preset hdf5-only --parallel 2",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/hdf5-only.build.log",
+          "log_sha256": "208c52282a0cc1416faea988560535c22f9b78fde8e9e11937a9fc3178560cd3",
+          "log_bytes": 9311
+        },
+        {
+          "phase": "ctest",
+          "command": "ctest --preset hdf5-only --output-on-failure",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/hdf5-only.ctest.log",
+          "log_sha256": "bd2f8036fd51f1e9315f2fb26230489ef69166d6f529aeb2a81ce42ffe1215bb",
+          "log_bytes": 1733
+        }
+      ]
+    },
+    {
+      "preset": "zarr-only",
+      "binary_dir": "build/zarr-only",
+      "cache": {
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18"
+      },
+      "ctest": {
+        "passed": 15,
+        "failed": 0,
+        "required_tests": {
+          "copy_into": "5/15 Test  #5: copy_into ........................   Passed    0.00 sec",
+          "installed_consumer": "15/15 Test #15: installed_consumer ...............   Passed   10.48 sec"
+        }
+      },
+      "commands": [
+        {
+          "phase": "configure",
+          "command": "cmake --preset zarr-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/zarr-only.configure.log",
+          "log_sha256": "9fe9b7b13cc46c68d757d5b243f3a444acd6a1e2d322a9919a687caeafd19f08",
+          "log_bytes": 1280
+        },
+        {
+          "phase": "build",
+          "command": "cmake --build --preset zarr-only --parallel 2",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/zarr-only.build.log",
+          "log_sha256": "396853d6a1110d1aaa587d6b419eaf1c01abb03851e999d93aecb8f273398ec8",
+          "log_bytes": 9593
+        },
+        {
+          "phase": "ctest",
+          "command": "ctest --preset zarr-only --output-on-failure",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/zarr-only.ctest.log",
+          "log_sha256": "917fcf7c9ae0a85e01b5661fd2b4f1ac9a77de75c353b2814951e72c58dc2ac9",
+          "log_bytes": 1652
+        }
+      ]
+    },
+    {
+      "preset": "shared",
+      "binary_dir": "build/shared",
+      "cache": {
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON",
+        "BUILD_SHARED_LIBS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18"
+      },
+      "ctest": {
+        "passed": 19,
+        "failed": 0,
+        "required_tests": {
+          "copy_into": "5/19 Test  #5: copy_into ........................   Passed    0.01 sec",
+          "installed_consumer": "19/19 Test #19: installed_consumer ...............   Passed   10.25 sec"
+        }
+      },
+      "commands": [
+        {
+          "phase": "configure",
+          "command": "cmake --preset shared -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared.configure.log",
+          "log_sha256": "bd21cf775e109cc68b5490110c1e8fee694cdb3d40152123bdbfae87a2adf2a4",
+          "log_bytes": 1316
+        },
+        {
+          "phase": "build",
+          "command": "cmake --build --preset shared --parallel 2",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared.build.log",
+          "log_sha256": "b0aa06279e0efcbe0730b8c63db2052eeaa896ee461b7624d7b67a5f7232c5aa",
+          "log_bytes": 11327
+        },
+        {
+          "phase": "ctest",
+          "command": "ctest --preset shared --output-on-failure",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared.ctest.log",
+          "log_sha256": "a7e0c24289572520ac7f8e7223cf6ff9447bf8301b0a6d7ab2581072d38b1e34",
+          "log_bytes": 2046
+        }
+      ]
+    },
+    {
+      "preset": "shared-release",
+      "binary_dir": "build/shared-release",
+      "cache": {
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON",
+        "BUILD_SHARED_LIBS": "ON",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18"
+      },
+      "ctest": {
+        "passed": 19,
+        "failed": 0,
+        "required_tests": {
+          "copy_into": "5/19 Test  #5: copy_into ........................   Passed    0.01 sec",
+          "installed_consumer": "19/19 Test #19: installed_consumer ...............   Passed   10.02 sec"
+        }
+      },
+      "commands": [
+        {
+          "phase": "configure",
+          "command": "cmake --preset shared-release -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared-release.configure.log",
+          "log_sha256": "e4cd29456d56d743bfe358d29a06f312db2f7f8e62024485a1708d98b3aaf8a3",
+          "log_bytes": 1326
+        },
+        {
+          "phase": "build",
+          "command": "cmake --build --preset shared-release --parallel 2",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared-release.build.log",
+          "log_sha256": "393cb5526b741b58aad691c9883d63b406356851c92c31958a5901b0e678bc9c",
+          "log_bytes": 11327
+        },
+        {
+          "phase": "ctest",
+          "command": "ctest --preset shared-release --output-on-failure",
+          "exit_code": 0,
+          "log": "build/completeness-matrix/raw/shared-release.ctest.log",
+          "log_sha256": "f2ab0c014f212b931559b1c14ac23d20d94ffc13ee607dc8d38b7a5aad464b5f",
+          "log_bytes": 2054
+        }
+      ]
+    }
+  ],
+  "updated_consumer_rerun": {
+    "phase": "ctest_rerun",
+    "command": "ctest --preset core-only --output-on-failure -R '^installed_consumer$'",
+    "exit_code": 0,
+    "log": "build/completeness-matrix/raw/core-only.installed_consumer-rerun.log",
+    "log_sha256": "d2f968e8f8b16437ff21b4d25f45b5e859d06ea2cdb04dc8b38a4fd5b768bc32",
+    "log_bytes": 244,
+    "summary": "100% tests passed, 0 tests failed out of 1"
+  },
+  "notes": [
+    "The initial full core-only CTest result was 12/12; after tests/consumer/main.cpp gained the copy_into call, installed_consumer was rerun and passed 1/1.",
+    "The formal core-only build returned success and logged ninja: no work to do because a prior exploratory cmake --build --preset core-only --help invocation had actually built that worktree; that exploratory build is excluded from the matrix commands/results.",
+    "The final source comparison is production-src stable; test and preset files changed concurrently during the run, recorded with before/after hashes."
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "command": [
+    "ctest",
+    "--test-dir",
+    "build/debug",
+    "-R",
+    "^python_",
+    "--output-on-failure",
+    "--output-junit",
+    "completeness-python-junit.xml"
+  ],
+  "started_utc": "2026-11-04T11:14:28.428373+00:00",
+  "elapsed_seconds": 240.615,
+  "environment": {
+    "ANNDATA_INTEROP_ZARR_WAKEUP": "1",
+    "MPLCONFIGDIR": "temporary directory",
+    "ANNDATA_COMPLETENESS_NO_AS_LIMIT": "unset"
+  },
+  "exit_code": 0,
+  "source_files": 74,
+  "source_manifest_sha256": "2595f13b91929a0d2ddddabf59976fc6ddbcee61c7194029c39905341f5d3a1e",
+  "executable_manifest_sha256": "0377392d7d196e57c92fdd33d86ca0bf860bc77f5e2fa521596b7fc20ce6f2c4",
+  "sources_unchanged": true,
+  "executables_unchanged": true,
+  "tests": [
+    {
+      "name": "python_semantics",
+      "seconds": 1.21604,
+      "result": "passed"
+    },
+    {
+      "name": "python_records",
+      "seconds": 3.76763,
+      "result": "passed"
+    },
+    {
+      "name": "python_h5ad",
+      "seconds": 1.79575,
+      "result": "passed"
+    },
+    {
+      "name": "python_streaming",
+      "seconds": 28.7021,
+      "result": "passed"
+    },
+    {
+      "name": "python_streaming_threaded",
+      "seconds": 15.827,
+      "result": "passed"
+    },
+    {
+      "name": "python_completeness",
+      "seconds": 91.8026,
+      "result": "passed"
+    },
+    {
+      "name": "python_completeness_threaded",
+      "seconds": 15.031,
+      "result": "passed"
+    },
+    {
+      "name": "python_storage",
+      "seconds": 82.451,
+      "result": "passed"
+    }
+  ],
+  "raw_log": "build/debug/completeness-python-ctest.log",
+  "raw_provenance": "build/debug/completeness-python-provenance-{before,after}.json",
+  "reference_dependencies": {
+    "anndata": "0.13.4",
+    "zarr": "3.4.2",
+    "numpy": "2.2.6",
+    "h5py": "3.16.0",
+    "scanpy": "1.11.5"
+  }
+}

@@ -423,4 +423,6 @@ Bytes encode_payload(const PayloadMeta& meta, const Shape& shape, const Chunk& c
     for (const auto& codec : p.byte_codecs) bytes = apply(std::move(bytes), codec, true, m.item_size, limit);
     return bytes;
 }
+void validate_index_pipeline(const PayloadMeta& meta, const Shape& shape) { (void)pipeline(meta, shape); }
+std::uint32_t shard_crc32c(std::span<const std::byte> bytes) { return crc32c(bytes); }
 } // namespace anndata_zarr

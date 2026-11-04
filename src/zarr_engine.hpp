@@ -41,6 +41,20 @@ struct Node {
     Json attributes = Json::object();
     ArrayMetadata array;
 };
+struct WriteAxis {
+    std::size_t count = 0;
+    std::ptrdiff_t start = 0, step = 1;
+    const std::size_t* positions = nullptr;
+};
+struct WritePoint { std::size_t physical = 0, logical = 0; };
+struct NumericWrite {
+    std::vector<WriteAxis> axes;
+    const void* data = nullptr;
+    std::vector<std::ptrdiff_t> strides;
+    void* context = nullptr;
+    void (*pack)(void*, const std::vector<std::vector<std::size_t>>&, void*) = nullptr;
+    std::size_t scratch_bytes = 0, packing_metadata_bytes = 0;
+};
 struct Chunk {
     Bytes numeric;
     std::vector<std::string> strings;
@@ -82,6 +96,33 @@ struct ShardSpec {
 Bytes read_shard_chunk(const std::filesystem::path&, const ShardSpec&, const Shape& local_chunk);
 void write_shard_chunk(const std::filesystem::path&, const ShardSpec&, const Shape& local_chunk, std::span<const std::byte>);
 
+// Admission for the fixed-size index, excluding caller-owned payload and copy
+// buffers. Call once before writing any shards. The immutable spec and one
+// exclusively used workspace must outlive the writer. Each local chunk may be
+// replaced only once; the original shard changes only at commit().
+std::size_t shard_index_workspace(const ShardSpec&, const std::filesystem::path& context = {});
+void validate_index_pipeline(const PayloadMeta&, const Shape&);
+std::uint32_t shard_crc32c(std::span<const std::byte>);
+struct ShardWorkspace {
+    Bytes index, encoded;
+    std::size_t allocations = 0;
+    std::size_t capacity() const noexcept { return index.capacity() + encoded.capacity(); }
+};
+class ShardWriter {
+public:
+    ShardWriter(const std::filesystem::path&, const ShardSpec&, ShardWorkspace&);
+    ShardWriter(const std::filesystem::path&, ShardSpec&&, ShardWorkspace&) = delete;
+    ~ShardWriter();
+    ShardWriter(const ShardWriter&) = delete;
+    ShardWriter& operator=(const ShardWriter&) = delete;
+    bool read(const Shape& local, Bytes& encoded, std::size_t max_bytes);
+    void replace(const Shape& local, std::span<const std::byte> encoded);
+    void commit(Bytes& copy_buffer);
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 struct CreateOptions {
     int format = 3;
     std::size_t target_chunk_bytes = 1024 * 1024;
@@ -96,10 +137,11 @@ public:
     // Prepared metadata remains valid while callers exclude structural updates.
     ArrayMetadata prepare_numeric(const std::string&);
     NumericCodec numeric_codec(const ArrayMetadata&) const;
-    std::size_t retained_scratch_bytes() const noexcept { return numeric_scratch_.capacity()+encoded_scratch_.capacity()+codec_scratch_.capacity(); }
-    std::size_t scratch_allocations() const noexcept { return numeric_scratch_allocations_; }
+    std::size_t retained_scratch_bytes() const noexcept { return numeric_scratch_.capacity()+encoded_scratch_.capacity()+codec_scratch_.capacity()+packed_scratch_.capacity()+shard_scratch_.capacity()+selection_scratch_.capacity()*sizeof(WritePoint); }
+    std::size_t scratch_allocations() const noexcept { return numeric_scratch_allocations_+shard_scratch_.allocations; }
     void read_numeric(const std::string&, const ArrayMetadata&, const NumericCodec&, const Shape&, const Shape&, void*) const;
     void write_numeric(const std::string&, const ArrayMetadata&, const NumericCodec&, const Shape&, const Shape&, const void*);
+    bool write_selection(const std::string&, const ArrayMetadata&, const NumericWrite&);
     std::vector<std::string> children(const std::string&) const;
     void read_numeric(const std::string&, const Shape& start, const Shape& count, void*) const;
     std::vector<std::string> read_strings(const std::string&, const Shape& start, const Shape& count) const;
@@ -124,8 +166,12 @@ private:
     mutable Bytes numeric_scratch_;
     mutable Bytes encoded_scratch_;
     mutable Bytes codec_scratch_;
+    mutable Bytes packed_scratch_;
+    mutable ShardWorkspace shard_scratch_;
+    mutable std::vector<WritePoint> selection_scratch_;
     mutable std::size_t numeric_scratch_allocations_ = 0;
     mutable bool consolidation_v2_ = false, consolidation_v3_ = false;
+    bool metadata_dirty_ = false;
     std::filesystem::path node_path(const std::string&) const;
     void mutation();
     Chunk chunk(const std::string&, const ArrayMetadata&, const Shape&) const;

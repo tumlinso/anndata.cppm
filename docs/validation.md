@@ -1,5 +1,45 @@
 # Validation
 
+## Storage completeness
+
+The [completeness receipt](../tests/results/completeness-validation.json) records
+the final source, commands, log hashes, measured binaries and preserved evidence.
+Debug passed 19/19 native groups and all eight independent Python gates, including
+Scanpy 1.11.5 records and existing storage regressions. Release passed 18/18
+groups in the benchmark build, whose import-only example was disabled; the
+ordinary Debug and shared Release builds include that example. ASan/UBSan passed
+23/23 groups, including both full and threaded transfer/interoperability suites.
+The focused maintained TSan preset passed 4/4 groups with real caller-owned Zarr
+workers and independent Python readback.
+
+The [package matrix](../tests/results/completeness-matrix.json) passed core-only
+12/12, HDF5-only 16/16, Zarr-only 15/15, shared 19/19 and shared Release 19/19.
+Installed consumers exercise `copy_into()` in each configuration. Test-only
+allocation instrumentation is omitted under TSan because its runtime owns the
+allocation interceptors; ordinary native and ASan checks retain it. ASan omits
+the huge-fixture address-space limit to accommodate shadow memory; the normal
+Python gate verifies that case under a 512 MiB limit. LeakSanitizer remains
+disabled for local runner restrictions.
+
+Native checks cover allocation-free numerical destinations, empty and signed
+strides, duplicate selections, shard scratch admission/reuse, codec/index variants,
+untouched encoded payloads, permissions and injected read/write failures. The
+paired [performance report](completeness-performance.md) preserves the baseline
+and distinguishes counted work from single-observation timings. No larger
+benchmark campaign was needed. Generated stores and raw reports remain ignored.
+
+A private `zarr_engine.cpp` edit rebuilt one implementation unit while all ten
+public BMIs and two consumer objects retained identical hashes and timestamps.
+Restoring the source reproduced the original object, library and executable
+hashes. Raw evidence is preserved under `build/evidence/completeness-20261104`
+in the primary checkout.
+
+Qualification remains Linux/Clang 18 with the pinned reference versions. The
+[extension contract](extension-contract.md) records native memory, backend,
+parallelism and build requirements without claiming new format support. Project
+Control again returned an active-task conflict without a workflow handle; source
+qualification is separate from native Todo acceptance.
+
 ## Adaptive backed block I/O
 
 The [validation receipt](../tests/results/streaming-validation.json) records final

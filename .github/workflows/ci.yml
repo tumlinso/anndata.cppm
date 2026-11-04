@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [debug, release, sanitizers, core-only, hdf5-only, zarr-only, shared]
+        preset: [debug, release, sanitizers, core-only, hdf5-only, zarr-only, shared, shared-release]
     steps:
       - uses: actions/checkout@v4
       - name: Install module toolchain
@@ -37,3 +37,41 @@ jobs:
         run: cmake --build --preset debug --parallel 2
       - name: Compare semantics and bidirectional H5AD interoperability
         run: ctest --preset debug
+
+  records:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install module toolchain and development-only record reference
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
+          python -m pip install -r tests/requirements-records.txt
+      - name: Configure record interoperability
+        run: cmake --preset interop-check -DANNDATA_ENABLE_RECORD_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
+      - name: Build
+        run: cmake --build --preset interop-check --parallel 2
+      - name: Compare records with Scanpy 1.11.5
+        run: ctest --preset interop-check -R '^python_records$'
+
+  thread-sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install module toolchain and streaming reference packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
+          python -m pip install -r tests/requirements-interop.txt
+      - name: Configure ThreadSanitizer
+        run: cmake --preset thread-sanitizers -DPython3_EXECUTABLE="$(command -v python)"
+      - name: Build
+        run: cmake --build --preset thread-sanitizers --parallel 2
+      - name: Run focused streaming checks
+        run: ctest --preset thread-sanitizers

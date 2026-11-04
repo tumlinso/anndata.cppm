@@ -1,6 +1,7 @@
 #include "zarr_engine.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
@@ -122,11 +123,6 @@ IndexLayout layout(const ShardSpec& spec, const Shape& local, const std::filesys
         fail(Failure::codec, path, "unsupported or misplaced shard index codec: " + name);
     }
     if (!has_bytes) fail(Failure::encoding, path, "shard index requires a bytes codec");
-    // The payload codec may hold both encoded and decoded buffers as well as
-    // temporary conversion buffers. Bound index work before allocation.
-    const auto index_bytes = result.count * 16;
-    if (result.encoded_size > spec.scratch_bytes || index_bytes > (spec.scratch_bytes - result.encoded_size) / 3)
-        fail(Failure::argument, path, "shard index exceeds scratch memory budget");
     result.metadata.format = 3;
     result.metadata.type = Type::uint64;
     result.metadata.item_size = 8;
@@ -143,14 +139,8 @@ void set(Chunk& index, std::size_t entry, std::uint64_t offset, std::uint64_t si
     std::memcpy(index.numeric.data() + (entry * 2 + 1) * sizeof(size), &size, sizeof(size));
 }
 
-Chunk read_index(int fd, std::uint64_t size, const IndexLayout& layout, const ShardSpec& spec, const std::filesystem::path& path) {
-    if (size < layout.encoded_size) fail(Failure::encoding, path, "shard is shorter than its index");
-    Bytes encoded(layout.encoded_size);
-    auto position = spec.index_location == "start" ? 0 : size - layout.encoded_size;
-    read_at(fd, position, encoded, path);
-    Chunk index;
-    try { index = decode_payload({layout.metadata, spec.index_codecs, spec.scratch_bytes}, layout.shape, encoded); }
-    catch (const Error& e) { throw Error(e.failure, path.string(), e.what()); }
+void check_index(const Chunk& index, std::uint64_t size, const IndexLayout& layout,
+                 const ShardSpec& spec, const std::filesystem::path& path) {
     if (index.numeric.size() != layout.count * 16) fail(Failure::encoding, path, "incorrect shard index length");
     const auto data_start = spec.index_location == "start" ? layout.encoded_size : 0;
     const auto data_end = spec.index_location == "end" ? size - layout.encoded_size : size;
@@ -160,6 +150,19 @@ Chunk read_index(int fd, std::uint64_t size, const IndexLayout& layout, const Sh
         if (offset == missing || length == missing || offset < data_start || offset > data_end || length > data_end - offset)
             fail(Failure::encoding, path, "invalid shard index entry");
     }
+}
+Chunk read_index(int fd, std::uint64_t size, const IndexLayout& layout, const ShardSpec& spec, const std::filesystem::path& path) {
+    if (size < layout.encoded_size) fail(Failure::encoding, path, "shard is shorter than its index");
+    const auto bytes = std::max(layout.encoded_size, layout.count * std::size_t{16});
+    if (bytes > std::numeric_limits<std::size_t>::max() / 4 || bytes * 4 > spec.scratch_bytes)
+        fail(Failure::argument, path, "shard index exceeds scratch memory budget");
+    Bytes encoded(layout.encoded_size);
+    auto position = spec.index_location == "start" ? 0 : size - layout.encoded_size;
+    read_at(fd, position, encoded, path);
+    Chunk index;
+    try { index = decode_payload({layout.metadata, spec.index_codecs, spec.scratch_bytes}, layout.shape, encoded); }
+    catch (const Error& e) { throw Error(e.failure, path.string(), e.what()); }
+    check_index(index, size, layout, spec, path);
     return index;
 }
 
@@ -186,69 +189,216 @@ Bytes read_shard_chunk(const std::filesystem::path& path, const ShardSpec& spec,
     return result;
 }
 
-void write_shard_chunk(const std::filesystem::path& path, const ShardSpec& spec, const Shape& local_chunk, std::span<const std::byte> payload) {
-    auto index_layout = layout(spec, local_chunk, path);
+std::size_t shard_index_workspace(const ShardSpec& spec, const std::filesystem::path& context) {
+    auto info = layout(spec, Shape(spec.shard_shape.size(), 0), context);
+    try { validate_index_pipeline({info.metadata, spec.index_codecs, spec.scratch_bytes}, info.shape); }
+    catch (const Error& e) { throw Error(e.failure, context.string(), e.what()); }
+    const auto bytes = std::max(info.encoded_size, info.count * std::size_t{16});
+    const bool simple = spec.index_codecs.size() <= 2 && spec.index_codecs.front().value("name",std::string()) == "bytes";
+    const std::size_t copies = simple ? 1 : 4;
+    if (bytes > std::numeric_limits<std::size_t>::max() / copies || bytes * copies > spec.scratch_bytes)
+        fail(Failure::argument, context, "shard index exceeds scratch memory budget");
+    // The in-place bytes/CRC path uses one buffer; the general codec has a
+    // bounded input, working copy and up to two simultaneous temporary copies.
+    return bytes * copies;
+}
+
+namespace {
+constexpr std::uint64_t replaced = std::uint64_t{1} << 63;
+struct OutputFile {
+    File file;
+    std::string name;
+    bool committed = false;
+    ~OutputFile() { if (file.fd >= 0 && !committed) ::unlink(name.c_str()); }
+};
+}
+
+struct ShardWriter::Impl {
+    std::filesystem::path path;
+    const ShardSpec& spec;
+    ShardWorkspace& workspace;
+    IndexLayout info;
     File old;
-    open_existing(old, path);
+    OutputFile output;
     Chunk index;
-    if (old.fd >= 0) index = read_index(old.fd, file_size(old.fd, path), index_layout, spec, path);
-    else index.numeric.assign(index_layout.count * 16, std::byte{0xff});
+    std::uint64_t next = 0;
+    bool simple = false, crc = false, swap = false;
 
-    std::error_code ec;
-    if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path(), ec);
-    if (ec) fail(Failure::io, path, "create shard directory: " + ec.message());
-    auto pattern = path.string() + ".tmp-XXXXXX";
-    std::vector<char> name(pattern.begin(), pattern.end());
-    name.push_back('\0');
-    TempFile temp;
-    temp.file.fd = ::mkstemp(name.data());
-    if (temp.file.fd < 0) syserr(path, "create temporary shard");
-    temp.path = name.data();
-    // Replacement must not silently remove existing group or other read
-    // permissions just because mkstemp creates a private temporary file.
-    if (old.fd >= 0) {
-        struct stat previous{};
-        if (::fstat(old.fd, &previous) != 0) syserr(path, "stat existing shard");
-        if (::fchmod(temp.file.fd, previous.st_mode & 07777) != 0) syserr(path, "preserve shard permissions");
+    Impl(const std::filesystem::path& p, const ShardSpec& s, ShardWorkspace& work)
+        : path(p), spec(s), workspace(work), info(layout(s, Shape(s.shard_shape.size(), 0), p)) {
+        simple = spec.index_codecs.size() <= 2 && spec.index_codecs.front().value("name",std::string()) == "bytes";
+        crc = simple && spec.index_codecs.size() == 2;
+        const auto bytes = std::max(info.encoded_size, info.count * std::size_t{16});
+        const std::size_t copies = simple ? 1 : 4;
+        if (bytes > std::numeric_limits<std::size_t>::max()/copies || bytes*copies > spec.scratch_bytes)
+            fail(Failure::argument, path, "shard index exceeds scratch memory budget");
+        if (simple) {
+            const auto& codec = spec.index_codecs.front();
+            const auto& cfg = codec.contains("configuration") ? codec.at("configuration") : codec;
+            const auto endian = cfg.at("endian").get<std::string>();
+            swap = (endian == "little") != (std::endian::native == std::endian::little);
+        }
+        index.numeric = std::move(workspace.index);
+        open_existing(old, path);
+        if (old.fd >= 0) {
+            const auto size = file_size(old.fd, path);
+            if (size < info.encoded_size) fail(Failure::encoding, path, "shard is shorter than its index");
+            if (simple) {
+                resize(bytes);
+                read_at(old.fd, spec.index_location == "start" ? 0 : size - info.encoded_size, index.numeric, path);
+                if (crc) {
+                    const auto n = index.numeric.size()-4;
+                    const auto* q = index.numeric.data()+n;
+                    const auto stored = std::uint32_t(std::to_integer<unsigned char>(q[0])) |
+                        (std::uint32_t(std::to_integer<unsigned char>(q[1])) << 8) |
+                        (std::uint32_t(std::to_integer<unsigned char>(q[2])) << 16) |
+                        (std::uint32_t(std::to_integer<unsigned char>(q[3])) << 24);
+                    if (shard_crc32c(std::span(index.numeric.data(),n)) != stored)
+                        fail(Failure::encoding, path, "CRC32C checksum mismatch");
+                    index.numeric.resize(n);
+                }
+                if (swap) byte_swap();
+                check_index(index, size, info, spec, path);
+            } else {
+                Bytes().swap(index.numeric);
+                index = read_index(old.fd, size, info, spec, path);
+                if (!index.numeric.empty()) ++workspace.allocations;
+            }
+        } else {
+            resize(bytes);
+            index.numeric.resize(info.count*16);
+            std::fill(index.numeric.begin(),index.numeric.end(),std::byte{0xff});
+        }
+        std::error_code ec;
+        if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path(), ec);
+        if (ec) fail(Failure::io, path, "create shard directory: " + ec.message());
+        output.name = path.string() + ".tmp-XXXXXX";
+        output.file.fd = ::mkstemp(output.name.data());
+        if (output.file.fd < 0) syserr(path, "create temporary shard");
+        if (old.fd >= 0) {
+            struct stat previous{};
+            if (::fstat(old.fd, &previous) != 0) syserr(path, "stat existing shard");
+            if (::fchmod(output.file.fd, previous.st_mode & 07777) != 0)
+                syserr(path, "preserve shard permissions");
+        }
+        next = spec.index_location == "start" ? info.encoded_size : 0;
     }
+    ~Impl() { workspace.index = std::move(index.numeric); }
+    void resize(std::size_t bytes) {
+        if (index.numeric.capacity() > bytes || index.numeric.capacity() < bytes) {
+            Bytes().swap(index.numeric);
+            index.numeric.resize(bytes);
+            ++workspace.allocations;
+        } else index.numeric.resize(bytes);
+        if (index.numeric.capacity() > bytes) {
+            Bytes().swap(index.numeric);
+            fail(Failure::argument, path, "shard index exceeds scratch memory budget");
+        }
+    }
+    void byte_swap() {
+        for (std::size_t i = 0; i < index.numeric.size(); i += 8)
+            std::reverse(index.numeric.begin()+i, index.numeric.begin()+i+8);
+    }
+    std::size_t entry(const Shape& local) const {
+        if (local.size() + 1 != info.shape.size()) fail(Failure::argument, path, "inner chunk rank mismatch");
+        std::size_t n = 0;
+        for (std::size_t i = 0; i < local.size(); ++i) {
+            if (local[i] >= info.shape[i]) fail(Failure::argument, path, "inner chunk coordinate outside shard");
+            n = n * info.shape[i] + local[i];
+        }
+        return n;
+    }
+    void check() const {
+        if (output.committed) fail(Failure::argument, path, "shard writer already committed");
+    }
+};
 
-    // Leave space for a leading index; pwrite writes it once after payloads.
-    std::uint64_t output_offset = spec.index_location == "start" ? index_layout.encoded_size : 0;
-    const auto index_reserved = index_layout.encoded_size + index_layout.count * 16 * 3;
-    const auto copy_size = std::min<std::size_t>(1024 * 1024, spec.scratch_bytes - index_reserved);
-    if (!copy_size) fail(Failure::argument, path, "scratch memory budget leaves no shard copy buffer");
-    Bytes buffer(copy_size);
-    for (std::size_t i = 0; i < index_layout.count; ++i) {
-        auto offset = get(index, i, 0), length = get(index, i, 1);
-        if (i == index_layout.selected) {
-            if (payload.empty()) { set(index, i, missing, missing); continue; }
-            if (payload.size() > std::numeric_limits<std::uint64_t>::max() - output_offset) fail(Failure::io, path, "shard size overflow");
-            write_at(temp.file.fd, output_offset, payload, temp.path);
-            set(index, i, output_offset, payload.size());
-            output_offset += payload.size();
+ShardWriter::ShardWriter(const std::filesystem::path& path, const ShardSpec& spec, ShardWorkspace& workspace)
+    : impl_(std::make_unique<Impl>(path, spec, workspace)) {}
+ShardWriter::~ShardWriter() = default;
+
+bool ShardWriter::read(const Shape& local, Bytes& encoded, std::size_t max_bytes) {
+    auto& w = *impl_; w.check();
+    const auto i = w.entry(local), offset = get(w.index, i, 0), length = get(w.index, i, 1);
+    if (offset == missing) { encoded.clear(); return false; }
+    if (offset & replaced) fail(Failure::argument, w.path, "inner chunk has already been replaced");
+    if (!length) fail(Failure::encoding, w.path, "empty encoded inner chunk");
+    if (length > std::numeric_limits<std::size_t>::max() || length > max_bytes)
+        fail(Failure::argument, w.path, "encoded inner chunk exceeds scratch memory budget");
+    const auto bytes = static_cast<std::size_t>(length);
+    if (encoded.capacity() > max_bytes || encoded.capacity() < bytes) Bytes().swap(encoded);
+    encoded.resize(bytes);
+    if (encoded.capacity() > max_bytes) {
+        Bytes().swap(encoded);
+        fail(Failure::argument, w.path, "encoded inner chunk exceeds scratch memory budget");
+    }
+    read_at(w.old.fd, offset, encoded, w.path);
+    return true;
+}
+
+void ShardWriter::replace(const Shape& local, std::span<const std::byte> encoded) {
+    auto& w = *impl_; w.check();
+    const auto i = w.entry(local), previous = get(w.index, i, 0);
+    if (previous != missing && (previous & replaced))
+        fail(Failure::argument, w.path, "inner chunk has already been replaced");
+    if (encoded.empty()) { set(w.index, i, replaced, missing); return; }
+    write_at(w.output.file.fd, w.next, encoded, w.path);
+    set(w.index, i, w.next | replaced, encoded.size());
+    w.next += encoded.size();
+}
+
+void ShardWriter::commit(Bytes& copy_buffer) {
+    auto& w = *impl_; w.check();
+    if (copy_buffer.empty()) fail(Failure::argument, w.path, "shard copy buffer is empty");
+    for (std::size_t i = 0; i < w.info.count; ++i) {
+        auto offset = get(w.index, i, 0), length = get(w.index, i, 1);
+        if (offset == missing) continue;
+        if (offset & replaced) {
+            set(w.index, i, length == missing ? missing : offset & ~replaced, length);
             continue;
         }
-        if (offset == missing) continue;
-        if (length > std::numeric_limits<std::uint64_t>::max() - output_offset) fail(Failure::io, path, "shard size overflow");
-        const auto new_offset = output_offset;
+        if (length > std::uint64_t(std::numeric_limits<off_t>::max()) - w.next)
+            fail(Failure::io, w.path, "shard size overflow");
+        const auto output_offset = w.next;
         for (std::uint64_t done = 0; done < length;) {
-            auto amount = static_cast<std::size_t>(std::min<std::uint64_t>(length - done, buffer.size()));
-            read_at(old.fd, offset + done, std::span<std::byte>(buffer.data(), amount), path);
-            write_at(temp.file.fd, output_offset, std::span<const std::byte>(buffer.data(), amount), temp.path);
-            output_offset += amount;
-            done += amount;
+            const auto n = static_cast<std::size_t>(std::min<std::uint64_t>(length - done, copy_buffer.size()));
+            auto bytes = std::span(copy_buffer.data(), n);
+            read_at(w.old.fd, offset + done, bytes, w.path);
+            write_at(w.output.file.fd, w.next, bytes, w.path);
+            w.next += n; done += n;
         }
-        set(index, i, new_offset, length);
+        set(w.index, i, output_offset, length);
     }
-    buffer.clear();
-    buffer.shrink_to_fit();
-    Bytes encoded;
-    try { encoded = encode_payload({index_layout.metadata, spec.index_codecs, spec.scratch_bytes}, index_layout.shape, index); }
-    catch (const Error& e) { throw Error(e.failure, path.string(), e.what()); }
-    if (encoded.size() != index_layout.encoded_size) fail(Failure::encoding, path, "incorrect encoded shard index length");
-    write_at(temp.file.fd, spec.index_location == "start" ? 0 : output_offset, encoded, temp.path);
-    if (::rename(temp.path.c_str(), path.c_str()) != 0) syserr(path, "replace shard");
-    temp.committed = true;
+    if (w.simple) {
+        if (w.swap) w.byte_swap();
+        if (w.crc) {
+            const auto n = w.index.numeric.size();
+            const auto value = shard_crc32c(w.index.numeric);
+            w.index.numeric.resize(n+4);
+            for (int i = 0; i < 4; ++i) w.index.numeric[n+i] = std::byte((value >> (8*i)) & 255);
+        }
+        if (w.index.numeric.size() != w.info.encoded_size) fail(Failure::encoding, w.path, "incorrect encoded shard index length");
+        write_at(w.output.file.fd, w.spec.index_location == "start" ? 0 : w.next, w.index.numeric, w.path);
+    } else {
+        Bytes encoded;
+        try { encoded = encode_payload({w.info.metadata, w.spec.index_codecs, w.spec.scratch_bytes}, w.info.shape, w.index); }
+        catch (const Error& e) { throw Error(e.failure, w.path.string(), e.what()); }
+        if (encoded.size() != w.info.encoded_size) fail(Failure::encoding, w.path, "incorrect encoded shard index length");
+        write_at(w.output.file.fd, w.spec.index_location == "start" ? 0 : w.next, encoded, w.path);
+    }
+    if (::rename(w.output.name.c_str(), w.path.c_str()) != 0) syserr(w.path, "replace shard");
+    w.output.committed = true;
+}
+
+void write_shard_chunk(const std::filesystem::path& path, const ShardSpec& spec,
+                       const Shape& local, std::span<const std::byte> payload) {
+    const auto index = shard_index_workspace(spec, path);
+    if (index >= spec.scratch_bytes) fail(Failure::argument, path, "scratch memory budget leaves no shard copy buffer");
+    Bytes copy(std::min<std::size_t>(1024 * 1024, spec.scratch_bytes - index));
+    ShardWorkspace workspace;
+    ShardWriter writer(path, spec, workspace);
+    writer.replace(local, payload);
+    writer.commit(copy);
 }
 
 } // namespace anndata_zarr

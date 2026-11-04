@@ -148,8 +148,9 @@ def replace_codec_array(path: Path, fmt: int, codec: str, values: np.ndarray) ->
 
 
 def main() -> None:
-    if len(sys.argv) != 3:
-        raise SystemExit("usage: python_streaming.py DRIVER ARTIFACT_DIRECTORY")
+    focused = len(sys.argv) == 4 and sys.argv[3] == "--threaded"
+    if len(sys.argv) not in (3, 4) or (len(sys.argv) == 4 and not focused):
+        raise SystemExit("usage: python_streaming.py DRIVER ARTIFACT_DIRECTORY [--threaded]")
     for name, expected in (("anndata", "0.13.4"), ("zarr", "3.4.2")):
         if version(name) != expected:
             raise SystemExit(f"expected {name} {expected}, got {version(name)}")
@@ -158,7 +159,8 @@ def main() -> None:
     root = Path(tempfile.mkdtemp(prefix="streaming-", dir=artifacts))
     a = fixture()
     seeds = {}
-    for kind in ("hdf5-contiguous", "hdf5-chunked", "zarr2", "zarr3"):
+    cases = ("zarr2", "zarr3") if focused else ("hdf5-contiguous", "hdf5-chunked", "zarr2", "zarr3")
+    for kind in cases:
         path = root / (kind + (".h5ad" if kind.startswith("hdf5") else ".zarr"))
         write_fixture(path, kind, a)
         if kind.startswith("zarr"):
@@ -170,8 +172,8 @@ def main() -> None:
             assert metadata_hashes(path) == before, "payload writes changed Zarr metadata"
         check_output(path, kind, a)
         print(f"{kind}: exact values, sparse buffers, annotations and raw passed", flush=True)
-    codecs = ((2, "raw"), (2, "gzip"), (2, "zlib"), (2, "zstd"),
-              (3, "raw"), (3, "gzip"), (3, "zstd"), (3, "blosc"))
+    codecs = () if focused else ((2, "raw"), (2, "gzip"), (2, "zlib"), (2, "zstd"),
+                                 (3, "raw"), (3, "gzip"), (3, "zstd"), (3, "blosc"))
     for fmt, codec in codecs:
         kind = f"zarr{fmt}-{codec}"
         path = root / (kind + ".zarr")

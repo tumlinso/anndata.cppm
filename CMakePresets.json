@@ -75,6 +75,28 @@
       }
     },
     {
+      "name": "shared-release",
+      "displayName": "Release shared library and installed consumer",
+      "inherits": "shared",
+      "binaryDir": "${sourceDir}/build/shared-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "thread-sanitizers",
+      "displayName": "ThreadSanitizer streaming qualification",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build/thread-sanitizers",
+      "cacheVariables": {
+        "ANNDATA_ENABLE_INTEROP_TESTS": "ON",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=thread"
+      }
+    },
+    {
       "name": "hdf5-only",
       "inherits": "native-check",
       "binaryDir": "${sourceDir}/build/hdf5-only",
@@ -124,6 +146,17 @@
     {
       "name": "shared",
       "configurePreset": "shared",
+      "jobs": 2
+    },
+    {
+      "name": "shared-release",
+      "configurePreset": "shared-release",
+      "jobs": 2
+    },
+    {
+      "name": "thread-sanitizers",
+      "configurePreset": "thread-sanitizers",
+      "targets": ["test_streaming", "test_transfer_context", "streaming_interop_driver", "completeness_interop_driver"],
       "jobs": 2
     },
     {
@@ -206,6 +239,31 @@
       },
       "execution": {
         "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "shared-release",
+      "configurePreset": "shared-release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "thread-sanitizers",
+      "configurePreset": "thread-sanitizers",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      },
+      "filter": {
+        "include": {
+          "name": "^(streaming|transfer_context|python_streaming_threaded|python_completeness_threaded)$"
+        }
       }
     },
     {
@@ -297,6 +355,42 @@
         {
           "type": "test",
           "name": "shared"
+        }
+      ]
+    },
+    {
+      "name": "shared-release",
+      "displayName": "Configure, build, and verify the Release shared package",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "shared-release"
+        },
+        {
+          "type": "build",
+          "name": "shared-release"
+        },
+        {
+          "type": "test",
+          "name": "shared-release"
+        }
+      ]
+    },
+    {
+      "name": "thread-sanitizers",
+      "displayName": "Configure, build, and run focused ThreadSanitizer tests",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "thread-sanitizers"
+        },
+        {
+          "type": "build",
+          "name": "thread-sanitizers"
+        },
+        {
+          "type": "test",
+          "name": "thread-sanitizers"
         }
       ]
     },

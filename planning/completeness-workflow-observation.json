@@ -1,0 +1,12 @@
+{
+  "project": "anndata-cppm",
+  "task": "storage-completeness",
+  "baseline": "2565c3c79354b67be5aba43a84af42f8011b68d9",
+  "route": "next_task",
+  "status": "attention_required",
+  "reason": "workflow_task_already_active",
+  "allowed_actions": [],
+  "workflow_handle_returned": false,
+  "authority_modified": false,
+  "note": "Source work proceeds under explicit user authorization; native Todo acceptance is not claimed."
+}

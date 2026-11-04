@@ -339,6 +339,9 @@ public:
         return select(axes.begin(), axes.size());
     }
     [[nodiscard]] Array copy(Validation validation = Validation::full) const;
+    // Dense numerical copy into existing storage; dtype and shape must match.
+    // Buffers must not overlap. No numerical allocation or implicit conversion.
+    void copy_into(const ArrayEdit& destination, Validation validation = Validation::full) const;
     [[nodiscard]] DenseBytesView<const std::byte> bytes() const;
     [[nodiscard]] SparseBytesView<const std::byte> sparse_bytes() const;
     template<class T> [[nodiscard]] DenseView<const T> dense() const {

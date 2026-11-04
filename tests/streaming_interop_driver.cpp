@@ -112,6 +112,7 @@ void sparse_read(const BackedArray& array, bool csr) {
 
 void stream_read(std::string_view kind, const std::string& path, const BackedArray& x, StreamMode mode) {
     auto g = x.storage_geometry();
+    if (kind.starts_with("zarr")) require(g.parallel_reads, "Zarr must expose parallel read capability");
     StreamOptions options;
     options.mode = mode;
     options.operation = StreamOperation::read;

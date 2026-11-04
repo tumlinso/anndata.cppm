@@ -102,6 +102,17 @@ public:
         zarr_call([&] { store_.write_numeric(path_,metadata_,codec_,start,count,in); });
         const auto n=bytes(count); if(n) { ++stats_.write_calls; stats_.write_bytes+=n; }
     }
+    bool write_selection(const backed_detail::NumericWrite& input) override {
+        if(!writable_) throw Error(ErrorCode::invalid_argument,path_,"transfer was not prepared for writing");
+        ze::NumericWrite selected;selected.axes.reserve(input.axes.size());
+        std::vector<std::size_t> count;count.reserve(input.axes.size());
+        for(const auto& a:input.axes) {selected.axes.push_back({a.count,a.start,a.step,a.positions});count.push_back(a.count);}
+        selected.data=input.data;selected.strides=input.strides;selected.context=input.context;selected.pack=input.pack;
+        selected.scratch_bytes=input.scratch_bytes;selected.packing_metadata_bytes=input.packing_metadata_bytes;
+        const bool done=zarr_call([&]{return store_.write_selection(path_,metadata_,selected);});
+        const auto n=bytes(count);if(done && n){++stats_.write_calls;stats_.write_bytes+=n;}
+        return done;
+    }
     backed_detail::NumericTransferStats stats() const override { return stats_; }
     std::size_t scratch_capacity() const override { return 0; }
 };

@@ -51,11 +51,16 @@ struct BlockStreamImpl {
     StreamStats stats;
     std::vector<Lane> lanes;
     std::vector<std::size_t> unit,grid,position,origin;
-    bool source_grid=false, exhausted=false, transition=false;
-    std::size_t pending=0, major=0, coalesce=0, item=0, epoch_count=0, trial_kind=0, attempts=0, shifted=0;
+    bool source_grid=false, exhausted=false, transition=false, window_full=false;
+    bool draining_regions=false, settling=false;
+    std::size_t pending=0, major=0, coalesce=0, item=0, epoch_useful=0, exploration_trials=0, next_parameter=0, shifted=0;
+    std::size_t trial_parameter=0;
+    int block_direction=1,flight_direction=1,trial_direction=1;
+    bool block_done=false,flight_done=false,block_up_accepted=false,flight_up_accepted=false;
     std::size_t saved_block=0,saved_flight=0;
     std::uint64_t next_id=1;
-    double epoch_bytes=0,epoch_seconds=0,reference=0,stable_rate=0,sparse_row_bytes=0;
+    std::size_t window_samples=0;
+    double epoch_bytes=0,epoch_seconds=0,epoch_busy=0,reference=0,stable_rate=0,sparse_row_bytes=0;
     bool intervals=true,reference_intervals=true;
     std::vector<std::pair<double,double>> interval_samples;
 
@@ -120,7 +125,28 @@ struct BlockStreamImpl {
         for(std::size_t i=0;i<rank;++i) if(grid[i]>1) coalesce=i;
         exhausted=product(g.shape)==0;
     }
-    void reset_epoch() { epoch_count=0;epoch_bytes=epoch_seconds=0;interval_samples.clear();intervals=true;transition=false; }
+    void reset_epoch() {
+        epoch_useful=window_samples=0;epoch_bytes=epoch_seconds=epoch_busy=0;
+        interval_samples.clear();intervals=true;transition=window_full=draining_regions=false;
+    }
+    bool live() const { for(const auto& lane:lanes) if(lane.live) return true; return false; }
+    void flush_window() {
+        if(intervals && !interval_samples.empty()) {
+            std::sort(interval_samples.begin(),interval_samples.end());
+            double first=interval_samples.front().first,last=interval_samples.front().second;
+            for(const auto& [a,b]:interval_samples) {
+                if(a>last) {epoch_busy+=last-first;first=a;last=b;}
+                else last=std::max(last,b);
+            }
+            epoch_busy+=last-first;
+        }
+        interval_samples.clear();window_samples=0;window_full=false;
+    }
+    void reset_exploration() {
+        exploration_trials=next_parameter=shifted=0;
+        block_direction=flight_direction=1;block_done=flight_done=false;
+        block_up_accepted=flight_up_accepted=false;
+    }
     void advance_grid(std::size_t n) {
         if(position.empty()) { exhausted=true; return; }
         const auto axis=g.layout==Layout::dense?coalesce:major;
@@ -192,56 +218,93 @@ struct BlockStreamImpl {
         fail("request is unknown or already completed");
     }
     bool candidate() {
-        for(;trial_kind<4;++trial_kind) {
-            const auto block=settings.target_block_bytes,flight=settings.in_flight_limit;
-            auto b=block,f=flight;
-            if(trial_kind==0) b=block>options.max_block_bytes/2?options.max_block_bytes:block*2;
-            if(trial_kind==1) b=std::max(options.min_block_bytes,block/2);
-            if(trial_kind==2 && settings.overlap_timing_available && !settings.backend_serialized) f=std::min(options.max_in_flight,flight>options.max_in_flight/2?options.max_in_flight:flight*2);
-            if(trial_kind==3 && settings.overlap_timing_available) f=std::max<std::size_t>(1,flight/2);
-            if(b==block && f==flight) continue;
-            saved_block=block;saved_flight=flight;
-            settings.target_block_bytes=b;settings.in_flight_limit=f;settings.phase=StreamPhase::trial;
-            settings.limit=StreamLimit::none;++stats.trials;++attempts;++trial_kind;return true;
+        for(std::size_t k=0;k<4 && exploration_trials<8;++k) {
+            trial_parameter=next_parameter;next_parameter=1-next_parameter;
+            if(!trial_parameter) {
+                if(block_done) continue;
+                const auto block=settings.target_block_bytes;
+                const auto b=block_direction>0
+                    ? (block>options.max_block_bytes/2?options.max_block_bytes:block*2)
+                    : std::max(options.min_block_bytes,block/2);
+                if(b==block) {
+                    if(block_direction>0 && !block_up_accepted && block>options.min_block_bytes) block_direction=-1;
+                    else block_done=true;
+                    continue;
+                }
+                trial_direction=block_direction;saved_block=block;saved_flight=settings.in_flight_limit;
+                settings.target_block_bytes=b;
+            } else {
+                if(flight_done) continue;
+                if(!reference_intervals || !settings.overlap_timing_available || settings.backend_serialized) {
+                    flight_done=true;continue;
+                }
+                const auto flight=settings.in_flight_limit;
+                const auto f=flight_direction>0
+                    ? (flight>options.max_in_flight/2?options.max_in_flight:flight*2)
+                    : std::max<std::size_t>(1,flight/2);
+                if(f==flight) {
+                    if(flight_direction>0 && !flight_up_accepted && flight>1) flight_direction=-1;
+                    else flight_done=true;
+                    continue;
+                }
+                trial_direction=flight_direction;saved_block=settings.target_block_bytes;saved_flight=flight;
+                settings.in_flight_limit=f;
+            }
+            settings.phase=StreamPhase::trial;settings.limit=StreamLimit::none;
+            ++stats.trials;++exploration_trials;return true;
         }
         settings.phase=StreamPhase::stable;stable_rate=reference;
         settings.limit=settings.backend_serialized?StreamLimit::backend_serialized:!settings.overlap_timing_available?StreamLimit::no_overlap_evidence:StreamLimit::capacity;
         return false;
     }
-    void tune() {
+    void tune(bool terminal=false) {
         if(!transition || pending) return;
-        double seconds=epoch_seconds;
-        if(intervals) {
-            // The union measures I/O busy time, excluding caller computation
-            // gaps while retaining actual worker overlap. Capacity was reserved
-            // for the largest epoch plus all outstanding requests.
-            std::sort(interval_samples.begin(),interval_samples.end());
-            double first=interval_samples.front().first,last=interval_samples.front().second;
-            seconds=0;
-            for(const auto& [a,b]:interval_samples) {
-                if(a>last) {seconds+=last-first;first=a;last=b;}
-                else last=std::max(last,b);
-            }
-            seconds+=last-first;
-        }
+        // Every observation window is drained before its union is added, so
+        // windows cannot overlap and timing storage remains bounded.
+        flush_window();
+        const auto seconds=intervals?epoch_busy:epoch_seconds;
         const auto rate=seconds>0?epoch_bytes/seconds:0;
         stats.throughput_bytes_per_second=rate;
         settings.overlap_timing_available=intervals;
         if(settings.phase!=StreamPhase::baseline && intervals!=reference_intervals) {
             if(settings.phase==StreamPhase::trial) {settings.target_block_bytes=saved_block;settings.in_flight_limit=saved_flight;}
-            reference=rate;reference_intervals=intervals;trial_kind=attempts=shifted=0;
-            settings.phase=StreamPhase::baseline;candidate();reset_epoch();return;
+            reference=stable_rate=0;reference_intervals=intervals;reset_exploration();
+            settings.phase=terminal?StreamPhase::stable:StreamPhase::baseline;
+            settings.limit=settings.backend_serialized?StreamLimit::backend_serialized:StreamLimit::insufficient_samples;
+            reset_epoch();return;
         }
         if(settings.phase==StreamPhase::stable) {
             shifted=stable_rate>0 && std::abs(rate/stable_rate-1)>0.25?shifted+1:0;
-            if(shifted>=2) {trial_kind=attempts=shifted=0;reference=rate;candidate();}
-        } else if(settings.phase==StreamPhase::baseline) {reference=rate;reference_intervals=intervals;candidate();}
+            if(shifted>=2 && !terminal) {reference=rate;reference_intervals=intervals;reset_exploration();candidate();}
+        } else if(settings.phase==StreamPhase::baseline) {
+            reference=rate;reference_intervals=intervals;reset_exploration();
+            if(terminal) {settings.phase=StreamPhase::stable;settings.limit=StreamLimit::insufficient_samples;}
+            else candidate();
+        }
         else {
-            if(rate>reference*1.05) {reference=rate;++stats.adaptations;}
-            else {settings.target_block_bytes=saved_block;settings.in_flight_limit=saved_flight;if(rate<reference*0.8)++stats.rollbacks;}
-            candidate();
+            if(rate>reference*1.05) {
+                reference=rate;++stats.adaptations;
+                if(trial_direction>0) {if(!trial_parameter)block_up_accepted=true;else flight_up_accepted=true;}
+            }
+            else {
+                settings.target_block_bytes=saved_block;settings.in_flight_limit=saved_flight;
+                if(rate<reference*0.8)++stats.rollbacks;
+                if(!trial_parameter) {if(trial_direction>0)block_direction=-1;else block_done=true;}
+                else if(trial_direction>0)flight_direction=-1;else flight_done=true;
+            }
+            if(terminal) {settings.phase=StreamPhase::stable;settings.limit=StreamLimit::insufficient_samples;}
+            else candidate();
         }
         reset_epoch();
+    }
+    void finish() {
+        if(options.mode!=StreamMode::adaptive || !exhausted || pending || live()) return;
+        if(transition && !settling) tune(true);
+        else if(settings.phase==StreamPhase::trial) {
+            settings.target_block_bytes=saved_block;settings.in_flight_limit=saved_flight;
+            settings.phase=StreamPhase::stable;settings.limit=StreamLimit::insufficient_samples;
+            reset_epoch();
+        }
     }
 };
 }
@@ -251,11 +314,19 @@ BlockStream::BlockStream(BlockStream&&) noexcept=default;
 BlockStream& BlockStream::operator=(BlockStream&&) noexcept=default;
 std::optional<BlockRequest> BlockStream::next() {
     if(!impl_) fail("empty stream"); auto& p=*impl_;
-    p.tune();
-    if(p.transition || p.pending>=p.settings.in_flight_limit) return {};
+    if(!p.pending) {
+        if(p.window_full) p.flush_window();
+        if(p.settling && !p.live()) p.settling=false;
+        if(p.transition && !p.settling) {
+            if(p.live()) p.draining_regions=true;
+            else p.tune();
+        }
+    }
+    if(p.window_full || (p.transition && !p.draining_regions) || p.pending>=p.settings.in_flight_limit) return {};
     Lane* lane=nullptr;
     for(auto& x:p.lanes) if(x.live && !x.pending) {lane=&x;break;}
-    if(!lane && !p.exhausted) for(auto& x:p.lanes) if(!x.live) {p.region(x);lane=&x;break;}
+    if(!lane && !p.exhausted && !p.transition && !p.settling)
+        for(auto& x:p.lanes) if(!x.live) {p.region(x);lane=&x;break;}
     if(!lane) return {};
     auto& r=lane->request;r.id=p.next_id++;
     if(!r.id) fail("request identity overflow");
@@ -275,21 +346,22 @@ void BlockStream::complete(const BlockRequest& r,const BlockCompletion& sample) 
     if(p.stats.useful_bytes>std::numeric_limits<std::size_t>::max()-sample.useful_bytes) fail("completed byte count overflows size_t");
     ++p.stats.completed;p.stats.useful_bytes+=sample.useful_bytes;
     if(observe) p.stats.io_seconds+=sample.io_seconds;
-    if(p.options.mode==StreamMode::adaptive) {
+    if(p.options.mode==StreamMode::adaptive && !p.settling && !p.draining_regions) {
+        const bool useful=sample.useful_bytes>0;
         const bool interval=std::isfinite(sample.started_seconds)&&std::isfinite(sample.finished_seconds)&&sample.finished_seconds>sample.started_seconds;
         p.intervals=p.intervals&&interval;
-        if(interval) {
-            p.interval_samples.emplace_back(sample.started_seconds,sample.finished_seconds);
-        }
-        if(p.g.layout!=Layout::dense && r.count[p.major] && sample.useful_bytes) {
+        if(p.intervals) p.interval_samples.emplace_back(sample.started_seconds,sample.finished_seconds);
+        p.epoch_bytes+=sample.useful_bytes;p.epoch_seconds+=sample.io_seconds;
+        ++p.window_samples;if(useful)++p.epoch_useful;
+        if(p.g.layout!=Layout::dense && r.count[p.major] && useful) {
             const auto observed=double(sample.useful_bytes)/double(r.count[p.major]);
             p.sparse_row_bytes=p.sparse_row_bytes>0?0.75*p.sparse_row_bytes+0.25*observed:observed;
         }
-        p.epoch_bytes+=sample.useful_bytes;p.epoch_seconds+=sample.io_seconds;++p.epoch_count;
         const auto count=p.settings.phase==StreamPhase::stable?64u:16u;
-        p.transition=p.transition||p.epoch_count>=count;
+        p.transition=p.transition||p.epoch_useful>=count;
+        p.window_full=p.window_full||p.window_samples>=64;
     }
-    lane.pending=false;--p.pending;p.advance(lane);
+    lane.pending=false;--p.pending;p.advance(lane);p.finish();
 }
 void BlockStream::complete(const BlockRequest& r,std::size_t bytes,double seconds) {complete(r,BlockCompletion{bytes,seconds,0,0});}
 void BlockStream::split(const BlockRequest& r,std::size_t max_major_count) {
@@ -309,7 +381,8 @@ void BlockStream::configure(StreamOptions o) {
     p.settings.limit=p.settings.backend_serialized?StreamLimit::backend_serialized:o.mode==StreamMode::manual?StreamLimit::manual:StreamLimit::insufficient_samples;
     p.settings.target_block_bytes=o.target_block_bytes;
     p.settings.in_flight_limit=o.mode==StreamMode::manual&&!p.settings.backend_serialized?o.max_in_flight:1;
-    p.trial_kind=p.attempts=p.shifted=0;p.reference=p.stable_rate=0;p.settings.overlap_timing_available=false;p.reset_epoch();
+    p.reset_exploration();p.reference=p.stable_rate=0;p.settings.overlap_timing_available=false;p.reset_epoch();
+    p.settling=o.mode==StreamMode::adaptive && p.live();
     // Retile only the remaining suffix within each already-owned region.
     for(auto& lane:p.lanes) if(lane.live) {
         if(p.g.layout!=Layout::dense) lane.tile[p.major]=std::min(lane.tile[p.major],o.sparse_major_count);

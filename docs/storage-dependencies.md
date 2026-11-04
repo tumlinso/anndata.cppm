@@ -2,6 +2,19 @@
 
 The C++ core requires no storage library or Python runtime. Default builds enable HDF5 and Zarr. Storage headers, JSON and codecs remain private to implementation units.
 
+The completeness pass installed no packages. It reused these native dependencies
+and the isolated pinned reference environment created for the adaptive-transfer
+milestone. A portable development setup is:
+
+```sh
+sudo apt-get install clang-18 clang-tools-18 cmake ninja-build pkg-config \
+  libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
+python3 -m venv build/reference
+build/reference/bin/python -m pip install -r tests/requirements-records.txt
+```
+
+Python and Scanpy are needed only for independent interoperability tests.
+
 The adaptive-transfer milestone installed no native packages. Its isolated
 reference environment was created from the existing workspace interpreter with:
 

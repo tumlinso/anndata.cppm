@@ -4,7 +4,7 @@
 
 The first qualified pairing is Clang 18.1.3, matching clang-scan-deps-18, CMake 3.28.3, and Ninja 1.11.1 on Linux. Configure rejects unqualified compiler families and generators with an actionable message. A compatible newer Clang can be selected explicitly; that does not establish a portability claim until its tests pass.
 
-Storage defaults to `ANNDATA_ENABLE_HDF5=ON` and `ANNDATA_ENABLE_ZARR=ON`. HDF5 C (>=1.10), zlib and Zstandard are discovered through pkg-config; C-Blosc and nlohmann JSON are private Zarr build dependencies. See [storage-dependencies.md](storage-dependencies.md) for installation commands and the optional private prefix. Backend headers do not enter public module interfaces. The `core-only` workflow disables both backends. `hdf5-only`, `zarr-only` and `shared` qualify the corresponding package configurations; the normal build produces a static library.
+Storage defaults to `ANNDATA_ENABLE_HDF5=ON` and `ANNDATA_ENABLE_ZARR=ON`. HDF5 C (>=1.10), zlib and Zstandard are discovered through pkg-config; C-Blosc and nlohmann JSON are private Zarr build dependencies. See [storage-dependencies.md](storage-dependencies.md) for installation commands and the optional private prefix. Backend headers do not enter public module interfaces. The `core-only` workflow disables both backends. `hdf5-only`, `zarr-only` and `shared` qualify the corresponding package configurations; `shared-release` checks an optimized shared library and installed consumer in its own build directory. The normal build produces a static library.
 
 ```sh
 cmake --preset debug
@@ -14,6 +14,8 @@ ctest --preset debug
 cmake --preset sanitizers
 cmake --build --preset sanitizers
 ctest --preset sanitizers
+
+cmake --workflow --preset shared-release
 ```
 
 `cmake --workflow --preset native-check` configures, builds, and runs the entire native/import/installed-consumer suite in one command with Python tests disabled. It is the standalone integrated verification contract used by the Todo foundation milestone.
@@ -60,6 +62,26 @@ The `python_streaming` gate uses the ordinary interoperability requirements. It
 independently checks contiguous/chunked HDF5, Zarr v2/v3 chunks and shards,
 compressed/raw reusable buffers, sparse major-axis transfers, parallel worker
 execution, and reopened metadata. Generated stores remain under the build tree.
+The `thread-sanitizers` preset instruments the library and test executables with
+ThreadSanitizer and filters CTest to `streaming`, `transfer_context`, and the
+focused `python_streaming_threaded` and `python_completeness_threaded` Zarr v2/v3
+fixture gates. Its build preset selects the four required executables. Supply the pinned
+interop environment when configuring locally:
+
+```sh
+cmake --preset thread-sanitizers \
+  -DPython3_EXECUTABLE=/path/to/reference/bin/python
+cmake --build --preset thread-sanitizers
+ctest --preset thread-sanitizers
+```
+
+The `python_completeness` gate covers all supported numerical dtypes, gathered
+and signed-stride writes, shard boundaries, metadata preservation, caller buffers
+and a huge logical array under a 512 MiB address-space limit. For ASan only,
+`ANNDATA_COMPLETENESS_NO_AS_LIMIT=1` omits that incompatible virtual-address
+limit; normal qualification retains it. TSan uses its own allocation interceptors,
+so custom allocation observations are omitted from its focused tests. Ordinary
+native and ASan tests retain those observations.
 
 The record-array reference check additionally uses Scanpy 1.11.5. Keep its
 development dependencies separate from application environments:
@@ -74,10 +96,12 @@ ctest --preset interop-check
 ```
 
 `ANNDATA_ENABLE_RECORD_INTEROP_TESTS` defaults to `OFF`, so existing Python
-checks do not acquire a Scanpy dependency. Native records require no Python or
-additional native library. `records_benchmark` is built with the ordinary
-benchmark option; its acquired record-member loops are compared with the same
-work on raw native structs.
+checks do not acquire a Scanpy dependency. CI runs the pinned Scanpy 1.11.5
+record gate with Python 3.12 and `tests/requirements-records.txt`; the existing
+Python 3.13 semantic and storage job remains separate. Native records require no
+Python or additional native library. `records_benchmark` is built with the
+ordinary benchmark option; its acquired record-member loops are compared with
+the same work on raw native structs.
 
 ## Benchmarks
 
