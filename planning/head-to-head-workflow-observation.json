@@ -1,0 +1,12 @@
+{
+  "project": "anndata-cppm",
+  "task": "python-head-to-head",
+  "baseline": "dc946845e1457299351b0ffc4ba36ef91d49db7b",
+  "route": "next_task",
+  "status": "attention_required",
+  "reason": "workflow_task_already_active",
+  "allowed_actions": [],
+  "workflow_handle_returned": false,
+  "authority_modified": false,
+  "note": "Bounded benchmark work proceeds under explicit user authorization; native Todo acceptance is not claimed."
+}

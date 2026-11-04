@@ -1,0 +1,3506 @@
+{
+  "baseline_revision": "dc946845e1457299351b0ffc4ba36ef91d49db7b",
+  "cases": {
+    "1024/h5ad_eager_read_dense": {
+      "case": "h5ad_eager_read_dense",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.015206053001747932,
+          "median": 0.015206053001747932,
+          "min": 0.015206053001747932,
+          "samples": [
+            0.015206053001747932
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.007699532,
+          "median": 0.007699532,
+          "min": 0.007699532,
+          "samples": [
+            0.007699532
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.007697555,
+          "median": 0.007697555,
+          "min": 0.007697555,
+          "samples": [
+            0.007697555
+          ]
+        },
+        "preparation_seconds": {
+          "max": 1.3633e-05,
+          "median": 1.3633e-05,
+          "min": 1.3633e-05,
+          "samples": [
+            1.3633e-05
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 20652,
+          "median": 20652,
+          "min": 20652,
+          "samples": [
+            20652
+          ]
+        },
+        "rss_after_kib": {
+          "max": 20652,
+          "median": 20652,
+          "min": 20652,
+          "samples": [
+            20652
+          ]
+        },
+        "rss_before_kib": {
+          "max": 10104,
+          "median": 10104,
+          "min": 10104,
+          "samples": [
+            10104
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 4863124,
+            "intercepted_read_calls": 179,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 8089,
+            "malloc_requested_bytes": 7968423
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 4860060,
+            "intercepted_read_calls": 173,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 5802,
+            "malloc_requested_bytes": 3371097
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7919801069983805,
+          "median": 0.7919801069983805,
+          "min": 0.7919801069983805,
+          "samples": [
+            0.7919801069983805
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.028750909999999963,
+          "median": 0.028750909999999963,
+          "min": 0.028750909999999963,
+          "samples": [
+            0.028750909999999963
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.02883094000208075,
+          "median": 0.02883094000208075,
+          "min": 0.02883094000208075,
+          "samples": [
+            0.02883094000208075
+          ]
+        },
+        "preparation_seconds": {
+          "max": 1.1455002095317468e-05,
+          "median": 1.1455002095317468e-05,
+          "min": 1.1455002095317468e-05,
+          "samples": [
+            1.1455002095317468e-05
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 125012,
+          "median": 125012,
+          "min": 125012,
+          "samples": [
+            125012
+          ]
+        },
+        "rss_after_kib": {
+          "max": 125012,
+          "median": 125012,
+          "min": 125012,
+          "samples": [
+            125012
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117732,
+          "median": 117732,
+          "min": 117732,
+          "samples": [
+            117732
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 3.74546722979969,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/h5ad_eager_write_dense": {
+      "case": "h5ad_eager_write_dense",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.02337777800130425,
+          "median": 0.02337777800130425,
+          "min": 0.02337777800130425,
+          "samples": [
+            0.02337777800130425
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.009021832,
+          "median": 0.009021832,
+          "min": 0.009021832,
+          "samples": [
+            0.009021832
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.009019818,
+          "median": 0.009019818,
+          "min": 0.009019818,
+          "samples": [
+            0.009019818
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.006949853,
+          "median": 0.006949853,
+          "min": 0.006949853,
+          "samples": [
+            0.006949853
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 22412,
+          "median": 22412,
+          "min": 22412,
+          "samples": [
+            22412
+          ]
+        },
+        "rss_after_kib": {
+          "max": 22412,
+          "median": 22412,
+          "min": 22412,
+          "samples": [
+            22412
+          ]
+        },
+        "rss_before_kib": {
+          "max": 20476,
+          "median": 20476,
+          "min": 20476,
+          "samples": [
+            20476
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 4837224,
+            "intercepted_write_calls": 41,
+            "malloc_calls": 2058,
+            "malloc_requested_bytes": 14886456
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 1308,
+            "intercepted_read_calls": 2,
+            "intercepted_write_bytes": 4844172,
+            "intercepted_write_calls": 69,
+            "malloc_calls": 5191,
+            "malloc_requested_bytes": 14962493
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8502058150006633,
+          "median": 0.8502058150006633,
+          "min": 0.8502058150006633,
+          "samples": [
+            0.8502058150006633
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.02882047600000004,
+          "median": 0.02882047600000004,
+          "min": 0.02882047600000004,
+          "samples": [
+            0.02882047600000004
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.02882056599992211,
+          "median": 0.02882056599992211,
+          "min": 0.02882056599992211,
+          "samples": [
+            0.02882056599992211
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.028885441002785228,
+          "median": 0.028885441002785228,
+          "min": 0.028885441002785228,
+          "samples": [
+            0.028885441002785228
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 125288,
+          "median": 125288,
+          "min": 125288,
+          "samples": [
+            125288
+          ]
+        },
+        "rss_after_kib": {
+          "max": 125288,
+          "median": 125288,
+          "min": 125288,
+          "samples": [
+            125288
+          ]
+        },
+        "rss_before_kib": {
+          "max": 124984,
+          "median": 124984,
+          "min": 124984,
+          "samples": [
+            124984
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 3.195249172424777,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "1024/h5ad_sparse_cols_csc": {
+      "case": "h5ad_sparse_cols_csc",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.014130909003142733,
+          "median": 0.014130909003142733,
+          "min": 0.014130909003142733,
+          "samples": [
+            0.014130909003142733
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001417285,
+          "median": 0.001417285,
+          "min": 0.001417285,
+          "samples": [
+            0.001417285
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001415604,
+          "median": 0.001415604,
+          "min": 0.001415604,
+          "samples": [
+            0.001415604
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.004091614,
+          "median": 0.004091614,
+          "min": 0.004091614,
+          "samples": [
+            0.004091614
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 17076,
+          "median": 17076,
+          "min": 17076,
+          "samples": [
+            17076
+          ]
+        },
+        "rss_after_kib": {
+          "max": 17076,
+          "median": 17076,
+          "min": 17076,
+          "samples": [
+            17076
+          ]
+        },
+        "rss_before_kib": {
+          "max": 15928,
+          "median": 15928,
+          "min": 15928,
+          "samples": [
+            15928
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 938240,
+            "intercepted_read_calls": 64,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 283,
+            "malloc_requested_bytes": 1047856
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 943456,
+            "intercepted_read_calls": 68,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 462,
+            "malloc_requested_bytes": 2069165
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7548663019988453,
+          "median": 0.7548663019988453,
+          "min": 0.7548663019988453,
+          "samples": [
+            0.7548663019988453
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.0037777239999999823,
+          "median": 0.0037777239999999823,
+          "min": 0.0037777239999999823,
+          "samples": [
+            0.0037777239999999823
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.0037781130013172515,
+          "median": 0.0037781130013172515,
+          "min": 0.0037781130013172515,
+          "samples": [
+            0.0037781130013172515
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0014280989998951554,
+          "median": 0.0014280989998951554,
+          "min": 0.0014280989998951554,
+          "samples": [
+            0.0014280989998951554
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 121084,
+          "median": 121084,
+          "min": 121084,
+          "samples": [
+            121084
+          ]
+        },
+        "rss_after_kib": {
+          "max": 121084,
+          "median": 121084,
+          "min": 121084,
+          "samples": [
+            121084
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118884,
+          "median": 118884,
+          "min": 118884,
+          "samples": [
+            118884
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 2.668905288002331,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/h5ad_sparse_rows_csr": {
+      "case": "h5ad_sparse_rows_csr",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.012213421003252733,
+          "median": 0.012213421003252733,
+          "min": 0.012213421003252733,
+          "samples": [
+            0.012213421003252733
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001133779,
+          "median": 0.001133779,
+          "min": 0.001133779,
+          "samples": [
+            0.001133779
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001131949,
+          "median": 0.001131949,
+          "min": 0.001131949,
+          "samples": [
+            0.001131949
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003288164,
+          "median": 0.003288164,
+          "min": 0.003288164,
+          "samples": [
+            0.003288164
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 17040,
+          "median": 17040,
+          "min": 17040,
+          "samples": [
+            17040
+          ]
+        },
+        "rss_after_kib": {
+          "max": 17040,
+          "median": 17040,
+          "min": 17040,
+          "samples": [
+            17040
+          ]
+        },
+        "rss_before_kib": {
+          "max": 15896,
+          "median": 15896,
+          "min": 15896,
+          "samples": [
+            15896
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 938240,
+            "intercepted_read_calls": 64,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 275,
+            "malloc_requested_bytes": 1041576
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 943456,
+            "intercepted_read_calls": 68,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 454,
+            "malloc_requested_bytes": 2062853
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7571422430009989,
+          "median": 0.7571422430009989,
+          "min": 0.7571422430009989,
+          "samples": [
+            0.7571422430009989
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.003801044000000031,
+          "median": 0.003801044000000031,
+          "min": 0.003801044000000031,
+          "samples": [
+            0.003801044000000031
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.003801687002123799,
+          "median": 0.003801687002123799,
+          "min": 0.003801687002123799,
+          "samples": [
+            0.003801687002123799
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.001467776997742476,
+          "median": 0.001467776997742476,
+          "min": 0.001467776997742476,
+          "samples": [
+            0.001467776997742476
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 120940,
+          "median": 120940,
+          "min": 120940,
+          "samples": [
+            120940
+          ]
+        },
+        "rss_after_kib": {
+          "max": 120940,
+          "median": 120940,
+          "min": 120940,
+          "samples": [
+            120940
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118768,
+          "median": 118768,
+          "min": 118768,
+          "samples": [
+            118768
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 3.358532055882199,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/h5py_dense_read_direct": {
+      "case": "h5py_dense_read_direct",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.011590381000132766,
+          "median": 0.011590381000132766,
+          "min": 0.011590381000132766,
+          "samples": [
+            0.011590381000132766
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001889202,
+          "median": 0.001889202,
+          "min": 0.001889202,
+          "samples": [
+            0.001889202
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001887461,
+          "median": 0.001887461,
+          "min": 0.001887461,
+          "samples": [
+            0.001887461
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.002178685,
+          "median": 0.002178685,
+          "min": 0.002178685,
+          "samples": [
+            0.002178685
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 19236,
+          "median": 19236,
+          "min": 19236,
+          "samples": [
+            19236
+          ]
+        },
+        "rss_after_kib": {
+          "max": 19236,
+          "median": 19236,
+          "min": 19236,
+          "samples": [
+            19236
+          ]
+        },
+        "rss_before_kib": {
+          "max": 14936,
+          "median": 14936,
+          "min": 14936,
+          "samples": [
+            14936
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 4194304,
+            "intercepted_read_calls": 8,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 82,
+            "malloc_requested_bytes": 23768
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 4194304,
+            "intercepted_read_calls": 8,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 115,
+            "malloc_requested_bytes": 53208
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7508771659995546,
+          "median": 0.7508771659995546,
+          "min": 0.7508771659995546,
+          "samples": [
+            0.7508771659995546
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.0031203780000000902,
+          "median": 0.0031203780000000902,
+          "min": 0.0031203780000000902,
+          "samples": [
+            0.0031203780000000902
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.0031211819987220224,
+          "median": 0.0031211819987220224,
+          "min": 0.0031211819987220224,
+          "samples": [
+            0.0031211819987220224
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0007578119984827936,
+          "median": 0.0007578119984827936,
+          "min": 0.0007578119984827936,
+          "samples": [
+            0.0007578119984827936
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 123184,
+          "median": 123184,
+          "min": 123184,
+          "samples": [
+            123184
+          ]
+        },
+        "rss_after_kib": {
+          "max": 123184,
+          "median": 123184,
+          "min": 123184,
+          "samples": [
+            123184
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118832,
+          "median": 118832,
+          "min": 118832,
+          "samples": [
+            118832
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.6536405248754928,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/numpy_fused_loop": {
+      "case": "numpy_fused_loop",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.018878627997764852,
+          "median": 0.018878627997764852,
+          "min": 0.018878627997764852,
+          "samples": [
+            0.018878627997764852
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001910124,
+          "median": 0.001910124,
+          "min": 0.001910124,
+          "samples": [
+            0.001910124
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001971135,
+          "median": 0.001971135,
+          "min": 0.001971135,
+          "samples": [
+            0.001971135
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.008807159,
+          "median": 0.008807159,
+          "min": 0.008807159,
+          "samples": [
+            0.008807159
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 20884,
+          "median": 20884,
+          "min": 20884,
+          "samples": [
+            20884
+          ]
+        },
+        "rss_after_kib": {
+          "max": 20884,
+          "median": 20884,
+          "min": 20884,
+          "samples": [
+            20884
+          ]
+        },
+        "rss_before_kib": {
+          "max": 20756,
+          "median": 20756,
+          "min": 20756,
+          "samples": [
+            20756
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 0,
+            "malloc_requested_bytes": 0
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 0,
+            "malloc_requested_bytes": 0
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8291922549979063,
+          "median": 0.8291922549979063,
+          "min": 0.8291922549979063,
+          "samples": [
+            0.8291922549979063
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.003500810000000021,
+          "median": 0.003500810000000021,
+          "min": 0.003500810000000021,
+          "samples": [
+            0.003500810000000021
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.003501545001199702,
+          "median": 0.003501545001199702,
+          "min": 0.003501545001199702,
+          "samples": [
+            0.003501545001199702
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.029178420998505317,
+          "median": 0.029178420998505317,
+          "min": 0.029178420998505317,
+          "samples": [
+            0.029178420998505317
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 125276,
+          "median": 125276,
+          "min": 125276,
+          "samples": [
+            125276
+          ]
+        },
+        "rss_after_kib": {
+          "max": 125276,
+          "median": 125276,
+          "min": 125276,
+          "samples": [
+            125276
+          ]
+        },
+        "rss_before_kib": {
+          "max": 125212,
+          "median": 125212,
+          "min": 125212,
+          "samples": [
+            125212
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.7764105458021402,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/zarr3_full_write": {
+      "case": "zarr3_full_write",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.013723670999752358,
+          "median": 0.013723670999752358,
+          "min": 0.013723670999752358,
+          "samples": [
+            0.013723670999752358
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001930437,
+          "median": 0.001930437,
+          "min": 0.001930437,
+          "samples": [
+            0.001930437
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001928434,
+          "median": 0.001928434,
+          "min": 0.001928434,
+          "samples": [
+            0.001928434
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003219211,
+          "median": 0.003219211,
+          "min": 0.003219211,
+          "samples": [
+            0.003219211
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 13808,
+          "median": 13808,
+          "min": 13808,
+          "samples": [
+            13808
+          ]
+        },
+        "rss_after_kib": {
+          "max": 13808,
+          "median": 13808,
+          "min": 13808,
+          "samples": [
+            13808
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11832,
+          "median": 11832,
+          "min": 11832,
+          "samples": [
+            11832
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 260,
+            "intercepted_read_calls": 1,
+            "intercepted_write_bytes": 612,
+            "intercepted_write_calls": 17,
+            "malloc_calls": 414,
+            "malloc_requested_bytes": 9838248
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 612,
+            "intercepted_write_calls": 1,
+            "malloc_calls": 353,
+            "malloc_requested_bytes": 10807715
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7635625549992255,
+          "median": 0.7635625549992255,
+          "min": 0.7635625549992255,
+          "samples": [
+            0.7635625549992255
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.009133270999999943,
+          "median": 0.009133270999999943,
+          "min": 0.009133270999999943,
+          "samples": [
+            0.009133270999999943
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.009134289997746237,
+          "median": 0.009134289997746237,
+          "min": 0.009134289997746237,
+          "samples": [
+            0.009134289997746237
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0031659759988542646,
+          "median": 0.0031659759988542646,
+          "min": 0.0031659759988542646,
+          "samples": [
+            0.0031659759988542646
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 119048,
+          "median": 119048,
+          "min": 119048,
+          "samples": [
+            119048
+          ]
+        },
+        "rss_after_kib": {
+          "max": 119048,
+          "median": 119048,
+          "min": 119048,
+          "samples": [
+            119048
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117988,
+          "median": 117988,
+          "min": 117988,
+          "samples": [
+            117988
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 4.736636046525957,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "1024/zarr3_gather_read": {
+      "case": "zarr3_gather_read",
+      "classification": "python_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.74737379400176,
+          "median": 0.74737379400176,
+          "min": 0.74737379400176,
+          "samples": [
+            0.74737379400176
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.72912942,
+          "median": 0.72912942,
+          "min": 0.72912942,
+          "samples": [
+            0.72912942
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.735440021,
+          "median": 0.735440021,
+          "min": 0.735440021,
+          "samples": [
+            0.735440021
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003522859,
+          "median": 0.003522859,
+          "min": 0.003522859,
+          "samples": [
+            0.003522859
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 11836,
+          "median": 11836,
+          "min": 11836,
+          "samples": [
+            11836
+          ]
+        },
+        "rss_after_kib": {
+          "max": 11836,
+          "median": 11836,
+          "min": 11836,
+          "samples": [
+            11836
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11312,
+          "median": 11312,
+          "min": 11312,
+          "samples": [
+            11312
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 29448048,
+            "intercepted_read_calls": 16384,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1507385,
+            "malloc_requested_bytes": 1735651952
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 3437717,
+            "intercepted_read_calls": 226,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 15646,
+            "malloc_requested_bytes": 97850073
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 1.0413917179976124,
+          "median": 1.0413917179976124,
+          "min": 1.0413917179976124,
+          "samples": [
+            1.0413917179976124
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.28509509999999993,
+          "median": 0.28509509999999993,
+          "min": 0.28509509999999993,
+          "samples": [
+            0.28509509999999993
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.2854702330005239,
+          "median": 0.2854702330005239,
+          "min": 0.2854702330005239,
+          "samples": [
+            0.2854702330005239
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003163626999594271,
+          "median": 0.003163626999594271,
+          "min": 0.003163626999594271,
+          "samples": [
+            0.003163626999594271
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 119044,
+          "median": 119044,
+          "min": 119044,
+          "samples": [
+            119044
+          ]
+        },
+        "rss_after_kib": {
+          "max": 119044,
+          "median": 119044,
+          "min": 119044,
+          "samples": [
+            119044
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117848,
+          "median": 117848,
+          "min": 117848,
+          "samples": [
+            117848
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 0.3881624943559114,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "1024/zarr3_partial_write": {
+      "case": "zarr3_partial_write",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.013284789998579072,
+          "median": 0.013284789998579072,
+          "min": 0.013284789998579072,
+          "samples": [
+            0.013284789998579072
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.002490246,
+          "median": 0.002490246,
+          "min": 0.002490246,
+          "samples": [
+            0.002490246
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.002505386,
+          "median": 0.002505386,
+          "min": 0.002505386,
+          "samples": [
+            0.002505386
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003330268,
+          "median": 0.003330268,
+          "min": 0.003330268,
+          "samples": [
+            0.003330268
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 13672,
+          "median": 13672,
+          "min": 13672,
+          "samples": [
+            13672
+          ]
+        },
+        "rss_after_kib": {
+          "max": 13672,
+          "median": 13672,
+          "min": 13672,
+          "samples": [
+            13672
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11276,
+          "median": 11276,
+          "min": 11276,
+          "samples": [
+            11276
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 213821,
+            "intercepted_read_calls": 68,
+            "intercepted_write_bytes": 210143,
+            "intercepted_write_calls": 68,
+            "malloc_calls": 465,
+            "malloc_requested_bytes": 3810963
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 213821,
+            "intercepted_read_calls": 8,
+            "intercepted_write_bytes": 210143,
+            "intercepted_write_calls": 4,
+            "malloc_calls": 332,
+            "malloc_requested_bytes": 3684698
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8070297070007655,
+          "median": 0.8070297070007655,
+          "min": 0.8070297070007655,
+          "samples": [
+            0.8070297070007655
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.008901837000000024,
+          "median": 0.008901837000000024,
+          "min": 0.008901837000000024,
+          "samples": [
+            0.008901837000000024
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.009048365998751251,
+          "median": 0.009048365998751251,
+          "min": 0.009048365998751251,
+          "samples": [
+            0.009048365998751251
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003581430999474833,
+          "median": 0.003581430999474833,
+          "min": 0.003581430999474833,
+          "samples": [
+            0.003581430999474833
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 119468,
+          "median": 119468,
+          "min": 119468,
+          "samples": [
+            119468
+          ]
+        },
+        "rss_after_kib": {
+          "max": 119468,
+          "median": 119468,
+          "min": 119468,
+          "samples": [
+            119468
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118068,
+          "median": 118068,
+          "min": 118068,
+          "samples": [
+            118068
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 3.6115656424803406,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "1024/zarr3_sharded_read": {
+      "case": "zarr3_sharded_read",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.023609552001289558,
+          "median": 0.023609552001289558,
+          "min": 0.023609552001289558,
+          "samples": [
+            0.023609552001289558
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.012989961,
+          "median": 0.012989961,
+          "min": 0.012989961,
+          "samples": [
+            0.012989961
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.013047411,
+          "median": 0.013047411,
+          "min": 0.013047411,
+          "samples": [
+            0.013047411
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.002716066,
+          "median": 0.002716066,
+          "min": 0.002716066,
+          "samples": [
+            0.002716066
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 15920,
+          "median": 15920,
+          "min": 15920,
+          "samples": [
+            15920
+          ]
+        },
+        "rss_after_kib": {
+          "max": 15920,
+          "median": 15920,
+          "min": 15920,
+          "samples": [
+            15920
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11288,
+          "median": 11288,
+          "min": 11288,
+          "samples": [
+            11288
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 458071,
+            "intercepted_read_calls": 256,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 34832,
+            "malloc_requested_bytes": 27143518
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 663780,
+            "intercepted_read_calls": 66,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1506,
+            "malloc_requested_bytes": 23129403
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8146320460000425,
+          "median": 0.8146320460000425,
+          "min": 0.8146320460000425,
+          "samples": [
+            0.8146320460000425
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.058758464999999926,
+          "median": 0.058758464999999926,
+          "min": 0.058758464999999926,
+          "samples": [
+            0.058758464999999926
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.05886958900009631,
+          "median": 0.05886958900009631,
+          "min": 0.05886958900009631,
+          "samples": [
+            0.05886958900009631
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.00314078200244694,
+          "median": 0.00314078200244694,
+          "min": 0.00314078200244694,
+          "samples": [
+            0.00314078200244694
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 122748,
+          "median": 122748,
+          "min": 122748,
+          "samples": [
+            122748
+          ]
+        },
+        "rss_after_kib": {
+          "max": 122748,
+          "median": 122748,
+          "min": 122748,
+          "samples": [
+            122748
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118048,
+          "median": 118048,
+          "min": 118048,
+          "samples": [
+            118048
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 4.511974751166826,
+      "size": 1024,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/h5ad_eager_read_dense": {
+      "case": "h5ad_eager_read_dense",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.05879238199850079,
+          "median": 0.05879238199850079,
+          "min": 0.05879238199850079,
+          "samples": [
+            0.05879238199850079
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.050341836,
+          "median": 0.050341836,
+          "min": 0.050341836,
+          "samples": [
+            0.050341836
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.050389489,
+          "median": 0.050389489,
+          "min": 0.050389489,
+          "samples": [
+            0.050389489
+          ]
+        },
+        "preparation_seconds": {
+          "max": 1.6193e-05,
+          "median": 1.6193e-05,
+          "min": 1.6193e-05,
+          "samples": [
+            1.6193e-05
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 89612,
+          "median": 89612,
+          "min": 89612,
+          "samples": [
+            89612
+          ]
+        },
+        "rss_after_kib": {
+          "max": 89612,
+          "median": 89612,
+          "min": 89612,
+          "samples": [
+            89612
+          ]
+        },
+        "rss_before_kib": {
+          "max": 10048,
+          "median": 10048,
+          "min": 10048,
+          "samples": [
+            10048
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 72644152,
+            "intercepted_read_calls": 414,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 15636,
+            "malloc_requested_bytes": 79198659
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 72641088,
+            "intercepted_read_calls": 408,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 13511,
+            "malloc_requested_bytes": 9017789
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8269994139991468,
+          "median": 0.8269994139991468,
+          "min": 0.8269994139991468,
+          "samples": [
+            0.8269994139991468
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.065255917,
+          "median": 0.065255917,
+          "min": 0.065255917,
+          "samples": [
+            0.065255917
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.06547678799688583,
+          "median": 0.06547678799688583,
+          "min": 0.06547678799688583,
+          "samples": [
+            0.06547678799688583
+          ]
+        },
+        "preparation_seconds": {
+          "max": 1.2758002412738279e-05,
+          "median": 1.2758002412738279e-05,
+          "min": 1.2758002412738279e-05,
+          "samples": [
+            1.2758002412738279e-05
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 195428,
+          "median": 195428,
+          "min": 195428,
+          "samples": [
+            195428
+          ]
+        },
+        "rss_after_kib": {
+          "max": 195428,
+          "median": 195428,
+          "min": 195428,
+          "samples": [
+            195428
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117564,
+          "median": 117564,
+          "min": 117564,
+          "samples": [
+            117564
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.2994136137575403,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/h5ad_eager_write_dense": {
+      "case": "h5ad_eager_write_dense",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.1220402870021644,
+          "median": 0.1220402870021644,
+          "min": 0.1220402870021644,
+          "samples": [
+            0.1220402870021644
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.058941008,
+          "median": 0.058941008,
+          "min": 0.058941008,
+          "samples": [
+            0.058941008
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.059231421,
+          "median": 0.059231421,
+          "min": 0.059231421,
+          "samples": [
+            0.059231421
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.054696945,
+          "median": 0.054696945,
+          "min": 0.054696945,
+          "samples": [
+            0.054696945
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 91848,
+          "median": 91848,
+          "min": 91848,
+          "samples": [
+            91848
+          ]
+        },
+        "rss_after_kib": {
+          "max": 91848,
+          "median": 91848,
+          "min": 91848,
+          "samples": [
+            91848
+          ]
+        },
+        "rss_before_kib": {
+          "max": 89564,
+          "median": 89564,
+          "min": 89564,
+          "samples": [
+            89564
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 72604928,
+            "intercepted_write_calls": 42,
+            "malloc_calls": 1864,
+            "malloc_requested_bytes": 15800912
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 1308,
+            "intercepted_read_calls": 2,
+            "intercepted_write_bytes": 72625200,
+            "intercepted_write_calls": 299,
+            "malloc_calls": 11998,
+            "malloc_requested_bytes": 18440745
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8990667260004557,
+          "median": 0.8990667260004557,
+          "min": 0.8990667260004557,
+          "samples": [
+            0.8990667260004557
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.07320277900000005,
+          "median": 0.07320277900000005,
+          "min": 0.07320277900000005,
+          "samples": [
+            0.07320277900000005
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.07320044800144387,
+          "median": 0.07320044800144387,
+          "min": 0.07320044800144387,
+          "samples": [
+            0.07320044800144387
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.07394362400009413,
+          "median": 0.07394362400009413,
+          "min": 0.07394362400009413,
+          "samples": [
+            0.07394362400009413
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 195636,
+          "median": 195636,
+          "min": 195636,
+          "samples": [
+            195636
+          ]
+        },
+        "rss_after_kib": {
+          "max": 195636,
+          "median": 195636,
+          "min": 195636,
+          "samples": [
+            195636
+          ]
+        },
+        "rss_before_kib": {
+          "max": 195420,
+          "median": 195420,
+          "min": 195420,
+          "samples": [
+            195420
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.2358381204706177,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "4096/h5ad_sparse_cols_csc": {
+      "case": "h5ad_sparse_cols_csc",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.03652556899760384,
+          "median": 0.03652556899760384,
+          "min": 0.03652556899760384,
+          "samples": [
+            0.03652556899760384
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.014570455,
+          "median": 0.014570455,
+          "min": 0.014570455,
+          "samples": [
+            0.014570455
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.014567643,
+          "median": 0.014567643,
+          "min": 0.014567643,
+          "samples": [
+            0.014567643
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.014073149,
+          "median": 0.014073149,
+          "min": 0.014073149,
+          "samples": [
+            0.014073149
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 32288,
+          "median": 32288,
+          "min": 32288,
+          "samples": [
+            32288
+          ]
+        },
+        "rss_after_kib": {
+          "max": 32288,
+          "median": 32288,
+          "min": 32288,
+          "samples": [
+            32288
+          ]
+        },
+        "rss_before_kib": {
+          "max": 29976,
+          "median": 29976,
+          "min": 29976,
+          "samples": [
+            29976
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 15030272,
+            "intercepted_read_calls": 512,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1349,
+            "malloc_requested_bytes": 4332036
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 15056448,
+            "intercepted_read_calls": 526,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1579,
+            "malloc_requested_bytes": 19688321
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8191949699976249,
+          "median": 0.8191949699976249,
+          "min": 0.8191949699976249,
+          "samples": [
+            0.8191949699976249
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.025456409999999985,
+          "median": 0.025456409999999985,
+          "min": 0.025456409999999985,
+          "samples": [
+            0.025456409999999985
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.025687588000437245,
+          "median": 0.025687588000437245,
+          "min": 0.025687588000437245,
+          "samples": [
+            0.025687588000437245
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0016826970022520982,
+          "median": 0.0016826970022520982,
+          "min": 0.0016826970022520982,
+          "samples": [
+            0.0016826970022520982
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 138104,
+          "median": 138104,
+          "min": 138104,
+          "samples": [
+            138104
+          ]
+        },
+        "rss_after_kib": {
+          "max": 138104,
+          "median": 138104,
+          "min": 138104,
+          "samples": [
+            138104
+          ]
+        },
+        "rss_before_kib": {
+          "max": 119048,
+          "median": 119048,
+          "min": 119048,
+          "samples": [
+            119048
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.763331789530897,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/h5ad_sparse_rows_csr": {
+      "case": "h5ad_sparse_rows_csr",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.029532894001022214,
+          "median": 0.029532894001022214,
+          "min": 0.029532894001022214,
+          "samples": [
+            0.029532894001022214
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.010879895,
+          "median": 0.010879895,
+          "min": 0.010879895,
+          "samples": [
+            0.010879895
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.010905179,
+          "median": 0.010905179,
+          "min": 0.010905179,
+          "samples": [
+            0.010905179
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.010675655,
+          "median": 0.010675655,
+          "min": 0.010675655,
+          "samples": [
+            0.010675655
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 32176,
+          "median": 32176,
+          "min": 32176,
+          "samples": [
+            32176
+          ]
+        },
+        "rss_after_kib": {
+          "max": 32176,
+          "median": 32176,
+          "min": 32176,
+          "samples": [
+            32176
+          ]
+        },
+        "rss_before_kib": {
+          "max": 29860,
+          "median": 29860,
+          "min": 29860,
+          "samples": [
+            29860
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 15030272,
+            "intercepted_read_calls": 512,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1349,
+            "malloc_requested_bytes": 4332036
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 15056448,
+            "intercepted_read_calls": 526,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1579,
+            "malloc_requested_bytes": 19688321
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8043169089978619,
+          "median": 0.8043169089978619,
+          "min": 0.8043169089978619,
+          "samples": [
+            0.8043169089978619
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.022504097,
+          "median": 0.022504097,
+          "min": 0.022504097,
+          "samples": [
+            0.022504097
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.022503272000903962,
+          "median": 0.022503272000903962,
+          "min": 0.022503272000903962,
+          "samples": [
+            0.022503272000903962
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0015259639985742979,
+          "median": 0.0015259639985742979,
+          "min": 0.0015259639985742979,
+          "samples": [
+            0.0015259639985742979
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 138052,
+          "median": 138052,
+          "min": 138052,
+          "samples": [
+            138052
+          ]
+        },
+        "rss_after_kib": {
+          "max": 138052,
+          "median": 138052,
+          "min": 138052,
+          "samples": [
+            138052
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118948,
+          "median": 118948,
+          "min": 118948,
+          "samples": [
+            118948
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 2.063539901628755,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/h5py_dense_read_direct": {
+      "case": "h5py_dense_read_direct",
+      "classification": "python_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.04698036400077399,
+          "median": 0.04698036400077399,
+          "min": 0.04698036400077399,
+          "samples": [
+            0.04698036400077399
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.036403993,
+          "median": 0.036403993,
+          "min": 0.036403993,
+          "samples": [
+            0.036403993
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.036457156,
+          "median": 0.036457156,
+          "min": 0.036457156,
+          "samples": [
+            0.036457156
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.002219398,
+          "median": 0.002219398,
+          "min": 0.002219398,
+          "samples": [
+            0.002219398
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 80608,
+          "median": 80608,
+          "min": 80608,
+          "samples": [
+            80608
+          ]
+        },
+        "rss_after_kib": {
+          "max": 80608,
+          "median": 80608,
+          "min": 80608,
+          "samples": [
+            80608
+          ]
+        },
+        "rss_before_kib": {
+          "max": 14868,
+          "median": 14868,
+          "min": 14868,
+          "samples": [
+            14868
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 67108864,
+            "intercepted_read_calls": 32,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 298,
+            "malloc_requested_bytes": 27224
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 67108864,
+            "intercepted_read_calls": 32,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 332,
+            "malloc_requested_bytes": 65712
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.7862549690034939,
+          "median": 0.7862549690034939,
+          "min": 0.7862549690034939,
+          "samples": [
+            0.7862549690034939
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.03113482600000006,
+          "median": 0.03113482600000006,
+          "min": 0.03113482600000006,
+          "samples": [
+            0.03113482600000006
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.031133245000091847,
+          "median": 0.031133245000091847,
+          "min": 0.031133245000091847,
+          "samples": [
+            0.031133245000091847
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0007749790020170622,
+          "median": 0.0007749790020170622,
+          "min": 0.0007749790020170622,
+          "samples": [
+            0.0007749790020170622
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 184400,
+          "median": 184400,
+          "min": 184400,
+          "samples": [
+            184400
+          ]
+        },
+        "rss_after_kib": {
+          "max": 184400,
+          "median": 184400,
+          "min": 184400,
+          "samples": [
+            184400
+          ]
+        },
+        "rss_before_kib": {
+          "max": 118608,
+          "median": 118608,
+          "min": 118608,
+          "samples": [
+            118608
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 0.8539680111112301,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/numpy_fused_loop": {
+      "case": "numpy_fused_loop",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.12013944299906143,
+          "median": 0.12013944299906143,
+          "min": 0.12013944299906143,
+          "samples": [
+            0.12013944299906143
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.060796549,
+          "median": 0.060796549,
+          "min": 0.060796549,
+          "samples": [
+            0.060796549
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.061054993,
+          "median": 0.061054993,
+          "min": 0.061054993,
+          "samples": [
+            0.061054993
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.050706888,
+          "median": 0.050706888,
+          "min": 0.050706888,
+          "samples": [
+            0.050706888
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 89720,
+          "median": 89720,
+          "min": 89720,
+          "samples": [
+            89720
+          ]
+        },
+        "rss_after_kib": {
+          "max": 89720,
+          "median": 89720,
+          "min": 89720,
+          "samples": [
+            89720
+          ]
+        },
+        "rss_before_kib": {
+          "max": 89592,
+          "median": 89592,
+          "min": 89592,
+          "samples": [
+            89592
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 0,
+            "malloc_requested_bytes": 0
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 0,
+            "malloc_requested_bytes": 0
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.9418721170004574,
+          "median": 0.9418721170004574,
+          "min": 0.9418721170004574,
+          "samples": [
+            0.9418721170004574
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.11523986399999997,
+          "median": 0.11523986399999997,
+          "min": 0.11523986399999997,
+          "samples": [
+            0.11523986399999997
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.11549341699719662,
+          "median": 0.11549341699719662,
+          "min": 0.11549341699719662,
+          "samples": [
+            0.11549341699719662
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.06491684100183193,
+          "median": 0.06491684100183193,
+          "min": 0.06491684100183193,
+          "samples": [
+            0.06491684100183193
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 195268,
+          "median": 195268,
+          "min": 195268,
+          "samples": [
+            195268
+          ]
+        },
+        "rss_after_kib": {
+          "max": 195268,
+          "median": 195268,
+          "min": 195268,
+          "samples": [
+            195268
+          ]
+        },
+        "rss_before_kib": {
+          "max": 195204,
+          "median": 195204,
+          "min": 195204,
+          "samples": [
+            195204
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "python_over_cpp_median_time": 1.8916293544935239,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/zarr3_full_write": {
+      "case": "zarr3_full_write",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.012927357998705702,
+          "median": 0.012927357998705702,
+          "min": 0.012927357998705702,
+          "samples": [
+            0.012927357998705702
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.001902995,
+          "median": 0.001902995,
+          "min": 0.001902995,
+          "samples": [
+            0.001902995
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.001901039,
+          "median": 0.001901039,
+          "min": 0.001901039,
+          "samples": [
+            0.001901039
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003032578,
+          "median": 0.003032578,
+          "min": 0.003032578,
+          "samples": [
+            0.003032578
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 13772,
+          "median": 13772,
+          "min": 13772,
+          "samples": [
+            13772
+          ]
+        },
+        "rss_after_kib": {
+          "max": 13772,
+          "median": 13772,
+          "min": 13772,
+          "samples": [
+            13772
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11732,
+          "median": 11732,
+          "min": 11732,
+          "samples": [
+            11732
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 260,
+            "intercepted_read_calls": 1,
+            "intercepted_write_bytes": 612,
+            "intercepted_write_calls": 17,
+            "malloc_calls": 414,
+            "malloc_requested_bytes": 9838248
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 0,
+            "intercepted_read_calls": 0,
+            "intercepted_write_bytes": 612,
+            "intercepted_write_calls": 1,
+            "malloc_calls": 353,
+            "malloc_requested_bytes": 10807715
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.804066848999355,
+          "median": 0.804066848999355,
+          "min": 0.804066848999355,
+          "samples": [
+            0.804066848999355
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.009773526000000032,
+          "median": 0.009773526000000032,
+          "min": 0.009773526000000032,
+          "samples": [
+            0.009773526000000032
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.009774426001968095,
+          "median": 0.009774426001968095,
+          "min": 0.009774426001968095,
+          "samples": [
+            0.009774426001968095
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003421498000534484,
+          "median": 0.003421498000534484,
+          "min": 0.003421498000534484,
+          "samples": [
+            0.003421498000534484
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 119028,
+          "median": 119028,
+          "min": 119028,
+          "samples": [
+            119028
+          ]
+        },
+        "rss_after_kib": {
+          "max": 119028,
+          "median": 119028,
+          "min": 119028,
+          "samples": [
+            119028
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117968,
+          "median": 117968,
+          "min": 117968,
+          "samples": [
+            117968
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 5.141623081887376,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "4096/zarr3_gather_read": {
+      "case": "zarr3_gather_read",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.7305983669975831,
+          "median": 0.7305983669975831,
+          "min": 0.7305983669975831,
+          "samples": [
+            0.7305983669975831
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.712919464,
+          "median": 0.712919464,
+          "min": 0.712919464,
+          "samples": [
+            0.712919464
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.719213921,
+          "median": 0.719213921,
+          "min": 0.719213921,
+          "samples": [
+            0.719213921
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003183011,
+          "median": 0.003183011,
+          "min": 0.003183011,
+          "samples": [
+            0.003183011
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 11856,
+          "median": 11856,
+          "min": 11856,
+          "samples": [
+            11856
+          ]
+        },
+        "rss_after_kib": {
+          "max": 11856,
+          "median": 11856,
+          "min": 11856,
+          "samples": [
+            11856
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11356,
+          "median": 11356,
+          "min": 11356,
+          "samples": [
+            11356
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 29652152,
+            "intercepted_read_calls": 16384,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 1523769,
+            "malloc_requested_bytes": 1736731904
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 9253101,
+            "intercepted_read_calls": 738,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 35659,
+            "malloc_requested_bytes": 232968566
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 1.6413106520012661,
+          "median": 1.6413106520012661,
+          "min": 1.6413106520012661,
+          "samples": [
+            1.6413106520012661
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.7892091319999999,
+          "median": 0.7892091319999999,
+          "min": 0.7892091319999999,
+          "samples": [
+            0.7892091319999999
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.7905711749990587,
+          "median": 0.7905711749990587,
+          "min": 0.7905711749990587,
+          "samples": [
+            0.7905711749990587
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003743974000826711,
+          "median": 0.003743974000826711,
+          "min": 0.003743974000826711,
+          "samples": [
+            0.003743974000826711
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 118952,
+          "median": 118952,
+          "min": 118952,
+          "samples": [
+            118952
+          ]
+        },
+        "rss_after_kib": {
+          "max": 118952,
+          "median": 118952,
+          "min": 118952,
+          "samples": [
+            118952
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117748,
+          "median": 117748,
+          "min": 117748,
+          "samples": [
+            117748
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 1.099215618490592,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    },
+    "4096/zarr3_partial_write": {
+      "case": "zarr3_partial_write",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.013090458000078797,
+          "median": 0.013090458000078797,
+          "min": 0.013090458000078797,
+          "samples": [
+            0.013090458000078797
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.002722655,
+          "median": 0.002722655,
+          "min": 0.002722655,
+          "samples": [
+            0.002722655
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.002720643,
+          "median": 0.002720643,
+          "min": 0.002720643,
+          "samples": [
+            0.002720643
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.002732289,
+          "median": 0.002732289,
+          "min": 0.002732289,
+          "samples": [
+            0.002732289
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 13764,
+          "median": 13764,
+          "min": 13764,
+          "samples": [
+            13764
+          ]
+        },
+        "rss_after_kib": {
+          "max": 13764,
+          "median": 13764,
+          "min": 13764,
+          "samples": [
+            13764
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11376,
+          "median": 11376,
+          "min": 11376,
+          "samples": [
+            11376
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 213821,
+            "intercepted_read_calls": 68,
+            "intercepted_write_bytes": 210143,
+            "intercepted_write_calls": 68,
+            "malloc_calls": 465,
+            "malloc_requested_bytes": 3810963
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 213821,
+            "intercepted_read_calls": 8,
+            "intercepted_write_bytes": 210143,
+            "intercepted_write_calls": 4,
+            "malloc_calls": 331,
+            "malloc_requested_bytes": 3684666
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 0.8298998450009094,
+          "median": 0.8298998450009094,
+          "min": 0.8298998450009094,
+          "samples": [
+            0.8298998450009094
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.008989436000000017,
+          "median": 0.008989436000000017,
+          "min": 0.008989436000000017,
+          "samples": [
+            0.008989436000000017
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.008989974001451628,
+          "median": 0.008989974001451628,
+          "min": 0.008989974001451628,
+          "samples": [
+            0.008989974001451628
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.0035172370007785503,
+          "median": 0.0035172370007785503,
+          "min": 0.0035172370007785503,
+          "samples": [
+            0.0035172370007785503
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 119340,
+          "median": 119340,
+          "min": 119340,
+          "samples": [
+            119340
+          ]
+        },
+        "rss_after_kib": {
+          "max": 119340,
+          "median": 119340,
+          "min": 119340,
+          "samples": [
+            119340
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117968,
+          "median": 117968,
+          "min": 117968,
+          "samples": [
+            117968
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 3.3043563604087813,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": true
+      }
+    },
+    "4096/zarr3_sharded_read": {
+      "case": "zarr3_sharded_read",
+      "classification": "cpp_faster_observed",
+      "complete_paired_trials": 1,
+      "cpp": {
+        "acquisition_wall_seconds": {
+          "max": 0.2355148749993532,
+          "median": 0.2355148749993532,
+          "min": 0.2355148749993532,
+          "samples": [
+            0.2355148749993532
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.222120059,
+          "median": 0.222120059,
+          "min": 0.222120059,
+          "samples": [
+            0.222120059
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.223806163,
+          "median": 0.223806163,
+          "min": 0.223806163,
+          "samples": [
+            0.223806163
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003323697,
+          "median": 0.003323697,
+          "min": 0.003323697,
+          "samples": [
+            0.003323697
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 77244,
+          "median": 77244,
+          "min": 77244,
+          "samples": [
+            77244
+          ]
+        },
+        "rss_after_kib": {
+          "max": 77244,
+          "median": 77244,
+          "min": 77244,
+          "samples": [
+            77244
+          ]
+        },
+        "rss_before_kib": {
+          "max": 11240,
+          "median": 11240,
+          "min": 11240,
+          "samples": [
+            11240
+          ]
+        },
+        "threads_after": [
+          1
+        ],
+        "threads_before": [
+          1
+        ]
+      },
+      "pilots": {
+        "cpp": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 7334074,
+            "intercepted_read_calls": 4096,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 556608,
+            "malloc_requested_bytes": 434275380
+          },
+          "error": null,
+          "status": "complete"
+        },
+        "python": {
+          "counters": {
+            "codec_api_stream_calls": null,
+            "coverage": "libc symbols only; codec hooks disabled to avoid bundled-wheel ABI conflicts; direct syscalls and hidden APIs may bypass interception",
+            "intercepted_read_bytes": 10463982,
+            "intercepted_read_calls": 1026,
+            "intercepted_write_bytes": 0,
+            "intercepted_write_calls": 0,
+            "malloc_calls": 22357,
+            "malloc_requested_bytes": 367515431
+          },
+          "error": null,
+          "status": "complete"
+        }
+      },
+      "python": {
+        "acquisition_wall_seconds": {
+          "max": 1.7698349589991267,
+          "median": 1.7698349589991267,
+          "min": 1.7698349589991267,
+          "samples": [
+            1.7698349589991267
+          ]
+        },
+        "operation_cpu_seconds": {
+          "max": 0.948434113,
+          "median": 0.948434113,
+          "min": 0.948434113,
+          "samples": [
+            0.948434113
+          ]
+        },
+        "operation_seconds": {
+          "max": 0.9499874660032219,
+          "median": 0.9499874660032219,
+          "min": 0.9499874660032219,
+          "samples": [
+            0.9499874660032219
+          ]
+        },
+        "preparation_seconds": {
+          "max": 0.003959076999308309,
+          "median": 0.003959076999308309,
+          "min": 0.003959076999308309,
+          "samples": [
+            0.003959076999308309
+          ]
+        },
+        "process_hwm_kib": {
+          "max": 184188,
+          "median": 184188,
+          "min": 184188,
+          "samples": [
+            184188
+          ]
+        },
+        "rss_after_kib": {
+          "max": 184188,
+          "median": 184188,
+          "min": 184188,
+          "samples": [
+            184188
+          ]
+        },
+        "rss_before_kib": {
+          "max": 117948,
+          "median": 117948,
+          "min": 117948,
+          "samples": [
+            117948
+          ]
+        },
+        "threads_after": [
+          3
+        ],
+        "threads_before": [
+          3
+        ]
+      },
+      "python_over_cpp_median_time": 4.244688587968964,
+      "size": 4096,
+      "verification": {
+        "all_independent_expected_hashes_match": true,
+        "all_writes_independently_validated": null
+      }
+    }
+  },
+  "conditions": {
+    "blas_threads": 1,
+    "blosc_threads": 1,
+    "cache": "whole input files read immediately before each trial; OS cache not dropped",
+    "cpu_policy": "one CPU chosen from caller affinity",
+    "intercepted_read_cap_bytes": 536870912,
+    "intercepted_write_cap_bytes": 536870912,
+    "logical_cpu": 0,
+    "omp_threads": 1,
+    "probe_scope": "instrumented pilots only; uninstrumented timing repetitions require successful pilots",
+    "probe_timeout_seconds": 30,
+    "process_rss_limit_kib": 1048576,
+    "zarr_async_concurrency": 1,
+    "zarr_threading_max_workers": 1
+  },
+  "limitations": [
+    "1 paired observation(s) per case; no statistical confidence interval.",
+    "Process VmHWM covers imports and setup through the operation, not operation-only allocations. VmRSS snapshots reflect resident pages and allocator retention.",
+    "C++ package HDF5 1.10.10 differs from Python h5py HDF5 2.0.0; numcodecs Zstd 1.5.6 differs from native 1.5.5.",
+    "I/O and allocation counters are separately instrumented pilots, not timed repetitions; interposed symbols do not cover hidden APIs or direct syscalls.",
+    "OS file cache warm; fresh processes; ordinary Python AnnData and efficient low-level HDF5/Zarr paths are labeled separately.",
+    "Small corpus on one system; no general package-wide performance or biology claim.",
+    "Numba may specialize to the host ISA; the portable C++ Release build does not use -march=native."
+  ],
+  "numba_control": {
+    "acquisition_wall_seconds": {
+      "max": 1.3063243710021197,
+      "median": 1.3063243710021197,
+      "min": 1.3063243710021197,
+      "samples": [
+        1.3063243710021197
+      ]
+    },
+    "jit_compile_seconds": {
+      "max": 0.29192472100112354,
+      "median": 0.29192472100112354,
+      "min": 0.29192472100112354,
+      "samples": [
+        0.29192472100112354
+      ]
+    },
+    "numba_import_seconds": {
+      "max": 0.14820923399747699,
+      "median": 0.14820923399747699,
+      "min": 0.14820923399747699,
+      "samples": [
+        0.14820923399747699
+      ]
+    },
+    "operation_cpu_seconds": {
+      "max": 0.058329955999999905,
+      "median": 0.058329955999999905,
+      "min": 0.058329955999999905,
+      "samples": [
+        0.058329955999999905
+      ]
+    },
+    "operation_seconds": {
+      "max": 0.058339461000286974,
+      "median": 0.058339461000286974,
+      "min": 0.058339461000286974,
+      "samples": [
+        0.058339461000286974
+      ]
+    },
+    "preparation_seconds": {
+      "max": 0.5059942029984086,
+      "median": 0.5059942029984086,
+      "min": 0.5059942029984086,
+      "samples": [
+        0.5059942029984086
+      ]
+    },
+    "process_hwm_kib": {
+      "max": 308616,
+      "median": 308616,
+      "min": 308616,
+      "samples": [
+        308616
+      ]
+    },
+    "rss_after_kib": {
+      "max": 308616,
+      "median": 308616,
+      "min": 308616,
+      "samples": [
+        308616
+      ]
+    },
+    "rss_before_kib": {
+      "max": 308616,
+      "median": 308616,
+      "min": 308616,
+      "samples": [
+        308616
+      ]
+    },
+    "target_cpu": "broadwell",
+    "threads_after": [
+      1
+    ],
+    "threads_before": [
+      1
+    ]
+  },
+  "raw_campaign_sha256": "c1d59da73464383840eda9085305bd66357a177091c8ae6b4a4272f0c8a511b3",
+  "schema": "anndata.cppm.head-to-head.summary.v1",
+  "source_identities": {
+    "base_counters_source_sha256": "415a0d2bd1d0a14b1b69e46e313fa7c97ce4604a0aecf1478ee8eb14ae34d8e1",
+    "binary_sha256": "7958c452e616e3fb566aae557be35168382aba3c8d066a3ba8cca8bd4dd7d1f5",
+    "counters_sha256": "0feb9829853cdc35a9d684e5a9b220547b780cee3645a056601c269e4acfb703",
+    "cpp_driver_sha256": "71322dfb973140717c67fd3a7dbf90cda26c117f2318c5592f7dc2f1f17d817c",
+    "expected_1024_sha256": "94dee879d32d02bb807a112591b7bd2d008dcf17b9854956d1e32c0b5ce3bfcb",
+    "expected_4096_sha256": "909e34570e51676c545368fac8e869319bb58396057a5413bfe5ebf0714bb0c8",
+    "fixture_generator_sha256": "fcd5b58df8939167981ce6070280eed3341bcd067c6ff8958bd09bc211475207",
+    "fixture_manifest_sha256": "ece7b87fd5e62290da83e668098400d2ac16046cc2a1bd40b051ec2e73a21e40",
+    "io_counters_source_sha256": "708c41a57ce319eb5f588ee7ac9f77774545fac015e359d2a34ea5cf09e09278",
+    "python_driver_sha256": "f09e54370ec2ab95ad9bb285b0ba4a0a25164d11ac11d096561c96b23f56769e",
+    "runner_sha256": "badb2ac74e1787b44adc68a844abae9798e8c18b77ebf59075e07dda9ac277ff",
+    "write_validator_sha256": "374551612adf11a82c732be2d580c995939d8ce59f3f02acf443c1e4b98c4bc1"
+  }
+}

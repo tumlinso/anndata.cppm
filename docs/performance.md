@@ -1,5 +1,10 @@
 # Performance measurements
 
+The [Python/C++ screening comparison](head-to-head-performance.md) reports
+matched runtime and total-process memory observations, efficient Python paths,
+observed native deficits, and the limits of the comparison. The measurements
+below are historical native-loop and compilation baselines.
+
 The library exposes numerical storage through typed pointers, extents and strides. The benchmark measures the same dense kernel through a retained typed view and through its raw pointer, with access acquisition outside the timed loop. It also measures that kernel partitioned across caller-owned threads. These results describe the tested machine, compiler, build flags, array size and thread count; they do not establish a general speedup.
 
 Build and run the numerical benchmark with a Release preset:
