@@ -1,0 +1,505 @@
+{
+  "all_configs_pass": false,
+  "configs": [
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS": "OFF",
+        "ANNDATA_BUILD_EXAMPLES": "ON",
+        "ANNDATA_BUILD_TESTS": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "OFF",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
+        "CMAKE_CXX_COMPILER-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_AR": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_RANLIB": "/usr/bin/llvm-ranlib-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED": "1"
+      },
+      "gate_status": {
+        "geometry": "missing",
+        "installed_consumer": "missing",
+        "streaming": "missing",
+        "transfer_context": "missing"
+      },
+      "name": "core-only",
+      "overall_pass": false,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "core-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset core-only --parallel 2",
+          "elapsed_seconds": 40.002,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/core-only.build.log",
+          "log_sha256": "096cc9cb54edb9bea45e48092b213fd60e12452fa41d3ad3ebd273b868427d10"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "core-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset core-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/core-only.configure.log",
+          "log_sha256": "9af85d2c25724aff0d72838a5b11f64c0e53c5f5fd0a470815d3c729eb8ce589"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/core-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/core-only --output-on-failure",
+          "elapsed_seconds": 10.002,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/core-only.ctest.log",
+          "log_sha256": "81b01b737b21f00ee85576c64a24f804678c16a8cfe52dff3eacaf1ae487c976"
+        }
+      },
+      "python_interop_disabled": false,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "test_count": 11
+        },
+        "results": [],
+        "summary_line": "100% tests passed, 0 tests failed out of 11"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS": "OFF",
+        "ANNDATA_BUILD_EXAMPLES": "ON",
+        "ANNDATA_BUILD_TESTS": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "OFF",
+        "ANNDATA_HDF5_CFLAGS": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_CFLAGS_I": "",
+        "ANNDATA_HDF5_CFLAGS_OTHER": "",
+        "ANNDATA_HDF5_FOUND": "1",
+        "ANNDATA_HDF5_INCLUDEDIR": "",
+        "ANNDATA_HDF5_INCLUDE_DIRS": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_LDFLAGS": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_LDFLAGS_OTHER": "",
+        "ANNDATA_HDF5_LIBDIR": "",
+        "ANNDATA_HDF5_LIBRARIES": "hdf5",
+        "ANNDATA_HDF5_LIBRARY_DIRS": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_LIBS": "",
+        "ANNDATA_HDF5_LIBS_L": "",
+        "ANNDATA_HDF5_LIBS_OTHER": "",
+        "ANNDATA_HDF5_LIBS_PATHS": "",
+        "ANNDATA_HDF5_MODULE_NAME": "hdf5",
+        "ANNDATA_HDF5_PREFIX": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_CFLAGS_I": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_INCLUDE_DIRS": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LDFLAGS": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_STATIC_LDFLAGS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_LIBDIR": "",
+        "ANNDATA_HDF5_STATIC_LIBRARIES": "hdf5",
+        "ANNDATA_HDF5_STATIC_LIBRARY_DIRS": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LIBS": "",
+        "ANNDATA_HDF5_STATIC_LIBS_L": "",
+        "ANNDATA_HDF5_STATIC_LIBS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_LIBS_PATHS": "",
+        "ANNDATA_HDF5_VERSION": "1.10.10",
+        "ANNDATA_HDF5_hdf5_INCLUDEDIR": "",
+        "ANNDATA_HDF5_hdf5_LIBDIR": "",
+        "ANNDATA_HDF5_hdf5_PREFIX": "",
+        "ANNDATA_HDF5_hdf5_VERSION": "",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
+        "CMAKE_CXX_COMPILER-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_AR": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_RANLIB": "/usr/bin/llvm-ranlib-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED": "1",
+        "__pkg_config_arguments_ANNDATA_HDF5": "REQUIRED;IMPORTED_TARGET;hdf5>=1.10",
+        "__pkg_config_checked_ANNDATA_HDF5": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5": "/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5-ADVANCED": "1"
+      },
+      "gate_status": {
+        "geometry": "missing",
+        "installed_consumer": "missing",
+        "streaming": "missing",
+        "transfer_context": "missing"
+      },
+      "name": "hdf5-only",
+      "overall_pass": false,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "hdf5-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset hdf5-only --parallel 2",
+          "elapsed_seconds": 50.003,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/hdf5-only.build.log",
+          "log_sha256": "08bfc485279bab43cf27fdd7385adb6a260d866f6479ce6c13bcb73fd56262b1"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "hdf5-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset hdf5-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/hdf5-only.configure.log",
+          "log_sha256": "2c3994e73d796b989781a56c53f1a5b5272326fb8bfa53b586cf9b931276e46c"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/hdf5-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/hdf5-only --output-on-failure",
+          "elapsed_seconds": 15.002,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/hdf5-only.ctest.log",
+          "log_sha256": "c350a3e6475297b264359c46a8e46cce4f6d1ea560a012bfccbb1332caeab241"
+        }
+      },
+      "python_interop_disabled": false,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "test_count": 15
+        },
+        "results": [],
+        "summary_line": "100% tests passed, 0 tests failed out of 15"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS": "OFF",
+        "ANNDATA_BUILD_EXAMPLES": "ON",
+        "ANNDATA_BUILD_TESTS": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
+        "CMAKE_CXX_COMPILER-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_AR": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_RANLIB": "/usr/bin/llvm-ranlib-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED": "1"
+      },
+      "gate_status": {
+        "geometry": "missing",
+        "installed_consumer": "missing",
+        "streaming": "missing",
+        "transfer_context": "missing"
+      },
+      "name": "zarr-only",
+      "overall_pass": false,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "zarr-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset zarr-only --parallel 2",
+          "elapsed_seconds": 50.003,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/zarr-only.build.log",
+          "log_sha256": "6b30f70b07eb6a51e811ec7f6655d92215db51c96dee3d83e81b8dc391a62e5b"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "zarr-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset zarr-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/zarr-only.configure.log",
+          "log_sha256": "f8665dab1bdec379f8de6602a8014df2edd79301a5e9d4628fe6a958aa09b6f1"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/zarr-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/zarr-only --output-on-failure",
+          "elapsed_seconds": 20.002,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/zarr-only.ctest.log",
+          "log_sha256": "897b90ce906cff1d780b7d0b0a2234f8a52147d0b6fad26c533e52cea3b62afb"
+        }
+      },
+      "python_interop_disabled": false,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "test_count": 12
+        },
+        "results": [],
+        "summary_line": "100% tests passed, 0 tests failed out of 12"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS": "OFF",
+        "ANNDATA_BUILD_EXAMPLES": "ON",
+        "ANNDATA_BUILD_TESTS": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATA_ENABLE_ZARR": "ON",
+        "ANNDATA_HDF5_CFLAGS": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_CFLAGS_I": "",
+        "ANNDATA_HDF5_CFLAGS_OTHER": "",
+        "ANNDATA_HDF5_FOUND": "1",
+        "ANNDATA_HDF5_INCLUDEDIR": "",
+        "ANNDATA_HDF5_INCLUDE_DIRS": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_LDFLAGS": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_LDFLAGS_OTHER": "",
+        "ANNDATA_HDF5_LIBDIR": "",
+        "ANNDATA_HDF5_LIBRARIES": "hdf5",
+        "ANNDATA_HDF5_LIBRARY_DIRS": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_LIBS": "",
+        "ANNDATA_HDF5_LIBS_L": "",
+        "ANNDATA_HDF5_LIBS_OTHER": "",
+        "ANNDATA_HDF5_LIBS_PATHS": "",
+        "ANNDATA_HDF5_MODULE_NAME": "hdf5",
+        "ANNDATA_HDF5_PREFIX": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_CFLAGS_I": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_INCLUDE_DIRS": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LDFLAGS": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_STATIC_LDFLAGS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_LIBDIR": "",
+        "ANNDATA_HDF5_STATIC_LIBRARIES": "hdf5",
+        "ANNDATA_HDF5_STATIC_LIBRARY_DIRS": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LIBS": "",
+        "ANNDATA_HDF5_STATIC_LIBS_L": "",
+        "ANNDATA_HDF5_STATIC_LIBS_OTHER": "",
+        "ANNDATA_HDF5_STATIC_LIBS_PATHS": "",
+        "ANNDATA_HDF5_VERSION": "1.10.10",
+        "ANNDATA_HDF5_hdf5_INCLUDEDIR": "",
+        "ANNDATA_HDF5_hdf5_LIBDIR": "",
+        "ANNDATA_HDF5_hdf5_PREFIX": "",
+        "ANNDATA_HDF5_hdf5_VERSION": "",
+        "BUILD_SHARED_LIBS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-18",
+        "CMAKE_CXX_COMPILER-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_AR": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED": "1",
+        "CMAKE_CXX_COMPILER_RANLIB": "/usr/bin/llvm-ranlib-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED": "1",
+        "__pkg_config_arguments_ANNDATA_HDF5": "REQUIRED;IMPORTED_TARGET;hdf5>=1.10",
+        "__pkg_config_checked_ANNDATA_HDF5": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5": "/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5-ADVANCED": "1"
+      },
+      "gate_status": {},
+      "name": "shared",
+      "overall_pass": false,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "shared",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset shared --parallel 2",
+          "elapsed_seconds": 45.002,
+          "exit_code": 1,
+          "log": "build/streaming-matrix/shared.build.log",
+          "log_sha256": "af9463df9590f17fbec2dee15f204e96f071463b66584f18b3215bddc87b5344"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "shared",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset shared -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/shared.configure.log",
+          "log_sha256": "c7aee0f661d5f6354452c05df556ebc311d4025108ad25ee29727acb442bd2d9"
+        },
+        "ctest": {
+          "skipped": "build failed"
+        }
+      },
+      "python_interop_disabled": false
+    }
+  ],
+  "finished_utc": "2026-11-04T07:15:53+00:00",
+  "git_head_after": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "git_head_before": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "logs": [
+    {
+      "path": "build/streaming-matrix/commands.log",
+      "sha256": "ef24c2140ca1c3ac39a544f36410f06aed2621868d25f33981093260f33a6fcf"
+    },
+    {
+      "path": "build/streaming-matrix/core-only.build.log",
+      "sha256": "096cc9cb54edb9bea45e48092b213fd60e12452fa41d3ad3ebd273b868427d10"
+    },
+    {
+      "path": "build/streaming-matrix/core-only.configure.log",
+      "sha256": "9af85d2c25724aff0d72838a5b11f64c0e53c5f5fd0a470815d3c729eb8ce589"
+    },
+    {
+      "path": "build/streaming-matrix/core-only.ctest.log",
+      "sha256": "81b01b737b21f00ee85576c64a24f804678c16a8cfe52dff3eacaf1ae487c976"
+    },
+    {
+      "path": "build/streaming-matrix/hdf5-only.build.log",
+      "sha256": "08bfc485279bab43cf27fdd7385adb6a260d866f6479ce6c13bcb73fd56262b1"
+    },
+    {
+      "path": "build/streaming-matrix/hdf5-only.configure.log",
+      "sha256": "2c3994e73d796b989781a56c53f1a5b5272326fb8bfa53b586cf9b931276e46c"
+    },
+    {
+      "path": "build/streaming-matrix/hdf5-only.ctest.log",
+      "sha256": "c350a3e6475297b264359c46a8e46cce4f6d1ea560a012bfccbb1332caeab241"
+    },
+    {
+      "path": "build/streaming-matrix/shared.build.log",
+      "sha256": "af9463df9590f17fbec2dee15f204e96f071463b66584f18b3215bddc87b5344"
+    },
+    {
+      "path": "build/streaming-matrix/shared.configure.log",
+      "sha256": "c7aee0f661d5f6354452c05df556ebc311d4025108ad25ee29727acb442bd2d9"
+    },
+    {
+      "path": "build/streaming-matrix/toolchain.log",
+      "sha256": "99627ffc992db15155fe4475bf1eb265dddce3b2972a914f5fd46863ce468cbe"
+    },
+    {
+      "path": "build/streaming-matrix/zarr-only.build.log",
+      "sha256": "6b30f70b07eb6a51e811ec7f6655d92215db51c96dee3d83e81b8dc391a62e5b"
+    },
+    {
+      "path": "build/streaming-matrix/zarr-only.configure.log",
+      "sha256": "f8665dab1bdec379f8de6602a8014df2edd79301a5e9d4628fe6a958aa09b6f1"
+    },
+    {
+      "path": "build/streaming-matrix/zarr-only.ctest.log",
+      "sha256": "897b90ce906cff1d780b7d0b0a2234f8a52147d0b6fad26c533e52cea3b62afb"
+    }
+  ],
+  "repository": "/tmp/anndata-cppm-streaming",
+  "required_gates": [
+    "geometry",
+    "transfer_context",
+    "streaming",
+    "installed_consumer"
+  ],
+  "source_manifest_after": {
+    "file_count": 196,
+    "manifest_sha256": "ff19deceacab5c478fb76280eaf684f5925c2cbeb8a1e07417b91302a37993cf",
+    "path": "build/streaming-matrix/source-sha-after.json",
+    "sha256": "f7cfe921e1e4f7f44ca2ba811dbbd3f6e4191b58f2899ae488eab7d2d2d73f6f"
+  },
+  "source_manifest_before": {
+    "file_count": 196,
+    "manifest_sha256": "b62e56f07002058b3163f3f7b090cb503062bd6068db998fe10b3cd312fae611",
+    "path": "build/streaming-matrix/source-sha-before.json",
+    "sha256": "b16a8091852e5d130a264ef97b094c234c7a5bbc0248459fb1ae659ff2e966c0"
+  },
+  "source_unchanged": false,
+  "started_utc": "2026-11-04T07:11:43+00:00",
+  "toolchain": {
+    "clang": {
+      "command": [
+        "clang++-18",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "clang_scan_deps": {
+      "command": [
+        "clang-scan-deps-18",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "clang-scan-deps-18\nUbuntu LLVM version 18.1.3\n  Optimized build."
+    },
+    "cmake": {
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+    },
+    "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "dependency_prefix_exists": true,
+    "ninja": {
+      "command": [
+        "ninja",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "1.11.1"
+    }
+  }
+}

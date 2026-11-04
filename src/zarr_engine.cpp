@@ -152,6 +152,19 @@ std::string chunk_key(const ArrayMetadata& m,const Shape& coord) {
     return result;
 }
 bool sharding(const ArrayMetadata& m) { return m.format==3 && !m.codecs.empty() && m.codecs[0].value("name",std::string())=="sharding_indexed"; }
+bool raw_native(const ArrayMetadata& m) {
+    if(m.type==Type::string || m.order!='C' || !m.codecs.is_array()) return false;
+    if(m.item_size>1 && m.endian!='=' && m.endian!='|' &&
+       m.endian!=(std::endian::native==std::endian::little?'<':'>')) return false;
+    if(m.format==2) return m.codecs.empty();
+    if(m.format!=3 || m.codecs.size()!=1 || !m.codecs[0].is_object() || m.codecs[0].value("name",std::string())!="bytes") return false;
+    const auto& codec=m.codecs[0];
+    if(codec.contains("configuration") && !codec["configuration"].is_object()) return false;
+    const auto config=codec.value("configuration",Json::object());
+    if(m.item_size>1 && !config.contains("endian")) return false;
+    return !config.contains("endian") || (config["endian"].is_string() &&
+        (config["endian"]=="little" || config["endian"]=="big"));
+}
 ShardSpec shard_spec(const ArrayMetadata& m,std::size_t budget) {
     if(m.codecs.size()!=1) throw Error(Failure::codec,"","codecs after sharding_indexed are unsupported for partial access");
     const auto& config=m.codecs[0].at("configuration");
@@ -176,6 +189,22 @@ template<class T> void fill_values(Bytes& bytes,const Json& value) {
     }
     for(std::size_t i=0;i<bytes.size();i+=sizeof(T)) std::memcpy(bytes.data()+i,&scalar,sizeof(T));
 }
+void fill_numeric(Bytes& bytes,const ArrayMetadata& m) {
+    switch(m.type) {
+        case Type::boolean: std::fill(bytes.begin(),bytes.end(),std::byte(!m.fill.is_null() && (m.fill.is_boolean()?m.fill.get<bool>():m.fill.get<double>()!=0.0))); break;
+        case Type::int8: fill_values<std::int8_t>(bytes,m.fill); break;
+        case Type::uint8: fill_values<std::uint8_t>(bytes,m.fill); break;
+        case Type::int16: fill_values<std::int16_t>(bytes,m.fill); break;
+        case Type::uint16: fill_values<std::uint16_t>(bytes,m.fill); break;
+        case Type::int32: fill_values<std::int32_t>(bytes,m.fill); break;
+        case Type::uint32: fill_values<std::uint32_t>(bytes,m.fill); break;
+        case Type::int64: fill_values<std::int64_t>(bytes,m.fill); break;
+        case Type::uint64: fill_values<std::uint64_t>(bytes,m.fill); break;
+        case Type::float32: fill_values<float>(bytes,m.fill); break;
+        case Type::float64: fill_values<double>(bytes,m.fill); break;
+        case Type::string: break;
+    }
+}
 Chunk filled(const ArrayMetadata& m,const Shape& shape,std::size_t budget=64*1024*1024) {
     Chunk result; auto count=checked_product(shape);
     if(m.type==Type::string) {
@@ -184,21 +213,7 @@ Chunk filled(const ArrayMetadata& m,const Shape& shape,std::size_t budget=64*102
         result.strings.resize(count,value); return result;
     }
     if(count>std::numeric_limits<std::size_t>::max()/m.item_size) throw Error(Failure::encoding,"chunk","chunk byte size overflow");
-    result.numeric.resize(count*m.item_size);
-    switch(m.type) {
-        case Type::boolean: std::fill(result.numeric.begin(),result.numeric.end(),std::byte(!m.fill.is_null() && (m.fill.is_boolean()?m.fill.get<bool>():m.fill.get<double>()!=0.0))); break;
-        case Type::int8: fill_values<std::int8_t>(result.numeric,m.fill); break;
-        case Type::uint8: fill_values<std::uint8_t>(result.numeric,m.fill); break;
-        case Type::int16: fill_values<std::int16_t>(result.numeric,m.fill); break;
-        case Type::uint16: fill_values<std::uint16_t>(result.numeric,m.fill); break;
-        case Type::int32: fill_values<std::int32_t>(result.numeric,m.fill); break;
-        case Type::uint32: fill_values<std::uint32_t>(result.numeric,m.fill); break;
-        case Type::int64: fill_values<std::int64_t>(result.numeric,m.fill); break;
-        case Type::uint64: fill_values<std::uint64_t>(result.numeric,m.fill); break;
-        case Type::float32: fill_values<float>(result.numeric,m.fill); break;
-        case Type::float64: fill_values<double>(result.numeric,m.fill); break;
-        case Type::string: break;
-    }
+    result.numeric.resize(count*m.item_size); fill_numeric(result.numeric,m);
     return result;
 }
 std::size_t flat(const Shape& coord,const Shape& shape) {
@@ -303,7 +318,10 @@ void Store::chunk(const std::string& path,const ArrayMetadata& m,const Shape& co
 }
 void Store::transfer(const std::string& path,const Shape& start,const Shape& count,void* numeric,std::vector<std::string>* strings,bool writing) const {
     const auto node=inspect(path); if(!node.exists || node.group) throw Error(Failure::argument,path,"expected a Zarr array");
-    const auto& m=node.array; const auto rank=m.shape.size();
+    transfer(path,node.array,start,count,numeric,strings,writing);
+}
+void Store::transfer(const std::string& path,const ArrayMetadata& m,const Shape& start,const Shape& count,void* numeric,std::vector<std::string>* strings,bool writing,const NumericCodec* codec) const {
+    const auto rank=m.shape.size();
     if(start.size()!=rank || count.size()!=rank) throw Error(Failure::argument,path,"Zarr rectangle rank mismatch");
     for(std::size_t i=0;i<rank;++i) if(start[i]>m.shape[i] || count[i]>m.shape[i]-start[i]) throw Error(Failure::argument,path,"Zarr rectangle exceeds array bounds");
     if((strings!=nullptr)!=(m.type==Type::string)) throw Error(Failure::dtype,path,"numeric/string Zarr transfer mismatch");
@@ -312,9 +330,54 @@ void Store::transfer(const std::string& path,const Shape& start,const Shape& cou
     if(strings && strings->size()!=output_count) throw Error(Failure::argument,path,"string transfer size mismatch");
     if(!strings && !numeric) throw Error(Failure::argument,path,"null Zarr transfer buffer");
     const auto shape=inner_shape(m,scratch_bytes_); Shape first(rank),stop(rank);
+    const bool raw=codec && !strings && raw_native(m);
+    const bool compressed=codec && !raw && !strings && codec->kind!=NumericCodec::Kind::none;
+    // Keep only the workspaces used by this pipeline. A fallback codec uses
+    // its original bounded allocations without retained capacity alongside it.
+    if(!raw && !compressed) { Bytes().swap(numeric_scratch_); Bytes().swap(encoded_scratch_); Bytes().swap(codec_scratch_); }
+    if(raw) { Bytes().swap(encoded_scratch_); Bytes().swap(codec_scratch_); }
+    auto reserve=[&](Bytes& b,std::size_t bytes) {
+        if(bytes>scratch_bytes_/4) throw Error(Failure::argument,path,"chunk allocation exceeds bounded scratch_bytes");
+        if(bytes>b.capacity()) {
+            Bytes().swap(b);
+            Bytes fresh(bytes);
+            if(fresh.capacity()>scratch_bytes_/4) throw Error(Failure::argument,path,"chunk allocation exceeds bounded scratch_bytes");
+            b.swap(fresh); ++numeric_scratch_allocations_;
+        } else b.resize(bytes);
+    };
+    if(raw || compressed) {
+        const auto elements=checked_product(shape);
+        if(!m.item_size || elements>scratch_bytes_/(4*m.item_size))
+            throw Error(Failure::argument,path,"decoded chunk exceeds bounded scratch_bytes; increase budget or rechunk the source");
+        const auto bytes=elements*m.item_size;
+        if(bytes>std::size_t(std::numeric_limits<std::streamsize>::max()))
+            throw Error(Failure::argument,path,"chunk exceeds stream size");
+        reserve(numeric_scratch_,bytes);
+        if(compressed && reusable_needs_block(*codec,false)) reserve(codec_scratch_,std::min<std::size_t>(scratch_bytes_/4,65536));
+    }
     for(std::size_t i=0;i<rank;++i) { first[i]=start[i]/shape[i]; stop[i]=(start[i]+count[i]-1)/shape[i]+1; }
     coordinates(first,stop,[&](const Shape& coord) {
-        Chunk value=chunk(path,m,coord); Shape begin(rank),end(rank);
+        Chunk value;
+        if(raw || compressed) {
+            const auto file=node_path(path)/chunk_key(m,coord);
+            if(!std::filesystem::exists(file)) fill_numeric(numeric_scratch_,m);
+            else {
+                const auto length=std::filesystem::file_size(file);
+                if(raw && length!=numeric_scratch_.size())
+                    throw Error(Failure::encoding,file.string(),"decoded chunk has wrong byte size");
+                if(compressed && (!length || length>scratch_bytes_/4))
+                    throw Error(Failure::argument,file.string(),"encoded chunk exceeds bounded scratch_bytes or is empty");
+                if(length>std::uintmax_t(std::numeric_limits<std::streamsize>::max()))
+                    throw Error(Failure::argument,file.string(),"chunk exceeds stream size");
+                if(compressed) reserve(encoded_scratch_,std::size_t(length));
+                auto& bytes=raw?numeric_scratch_:encoded_scratch_;
+                std::ifstream stream(file,std::ios::binary);
+                if(!stream || (!bytes.empty() && !stream.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()))))
+                    throw Error(Failure::io,file.string(),"cannot read Zarr chunk");
+                if(compressed) decode_numeric_reusable(*codec,numeric_scratch_.size(),scratch_bytes_/4,encoded_scratch_,numeric_scratch_,codec_scratch_);
+            }
+        } else value=chunk(path,m,coord);
+        Shape begin(rank),end(rank);
         for(std::size_t i=0;i<rank;++i) { begin[i]=std::max(start[i],coord[i]*shape[i]); end[i]=std::min(start[i]+count[i],coord[i]*shape[i]+shape[i]); }
         // Copy contiguous rows, avoiding a per-element numeric conversion loop.
         Shape row_end=end;
@@ -326,14 +389,38 @@ void Store::transfer(const std::string& path,const Shape& start,const Shape& cou
             if(strings) {
                 for(std::size_t j=0;j<run;++j) if(writing) value.strings[source_index+j]=(*strings)[target_index+j]; else (*strings)[target_index+j]=value.strings[source_index+j];
             } else {
-                auto* output=static_cast<std::byte*>(numeric)+target_index*m.item_size; auto* input=value.numeric.data()+source_index*m.item_size;
+                auto* output=static_cast<std::byte*>(numeric)+target_index*m.item_size; auto* input=((raw||compressed)?numeric_scratch_.data():value.numeric.data())+source_index*m.item_size;
                 if(writing) std::memcpy(input,output,run*m.item_size); else std::memcpy(output,input,run*m.item_size);
             }
         });
-        if(writing) const_cast<Store*>(this)->chunk(path,m,coord,value);
+        if(writing) {
+            if(raw) save_bytes(node_path(path)/chunk_key(m,coord),numeric_scratch_);
+            else if(compressed) {
+                reserve(encoded_scratch_,reusable_encoded_bound(*codec,numeric_scratch_.size(),scratch_bytes_/4));
+                encode_numeric_reusable(*codec,scratch_bytes_/4,numeric_scratch_,encoded_scratch_,codec_scratch_);
+                save_bytes(node_path(path)/chunk_key(m,coord),encoded_scratch_);
+            }
+            else const_cast<Store*>(this)->chunk(path,m,coord,value);
+        }
     });
 }
 void Store::read_numeric(const std::string& path,const Shape& start,const Shape& count,void* out) const { transfer(path,start,count,out,nullptr,false); }
+ArrayMetadata Store::prepare_numeric(const std::string& path) {
+    auto node=inspect(path);
+    if(!node.exists || node.group || node.array.type==Type::string)
+        throw Error(Failure::dtype,path,"prepared numerical transfer requires a numeric array");
+    return std::move(node.array);
+}
+NumericCodec Store::numeric_codec(const ArrayMetadata& m) const {
+    return sharding(m) ? NumericCodec{} : prepare_numeric_codec({m,m.codecs,scratch_bytes_},m.chunks);
+}
+void Store::read_numeric(const std::string& path,const ArrayMetadata& m,const NumericCodec& codec,const Shape& start,const Shape& count,void* out) const { transfer(path,m,start,count,out,nullptr,false,&codec); }
+void Store::write_numeric(const std::string& path,const ArrayMetadata& m,const NumericCodec& codec,const Shape& start,const Shape& count,const void* input) {
+    if(!writable_) throw Error(Failure::argument,path,"Zarr store is read-only");
+    // Payload replacement changes no metadata, so consolidated metadata
+    // remains valid and independent chunk writers need not modify it.
+    transfer(path,m,start,count,const_cast<void*>(input),nullptr,true,&codec);
+}
 std::vector<std::string> Store::read_strings(const std::string& path,const Shape& start,const Shape& count) const { std::vector<std::string> result(checked_product(count)); transfer(path,start,count,nullptr,&result,false); return result; }
 std::vector<std::string> Store::read_strings_bounded(const std::string& path,const Shape& start,
                                                    const Shape& count,std::size_t byte_budget) const {

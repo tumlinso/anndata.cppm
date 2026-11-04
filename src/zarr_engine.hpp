@@ -50,6 +50,13 @@ struct PayloadMeta {
     const Json& codecs;
     std::size_t scratch_bytes;
 };
+struct NumericCodec {
+    enum class Kind { none, gzip, zlib, zstd, blosc } kind = Kind::none;
+    int level = 0;
+    bool checksum = false;
+    std::size_t item_size = 1;
+    Json configuration = Json::object();
+};
 std::size_t checked_product(const Shape& shape);
 std::size_t type_size(Type type);
 // The payload codec excludes sharding; shape describes the complete logical
@@ -57,6 +64,12 @@ std::size_t type_size(Type type);
 // contiguous and native endian.
 Chunk decode_payload(const PayloadMeta&, const Shape&, std::span<const std::byte>);
 Bytes encode_payload(const PayloadMeta&, const Shape&, const Chunk&);
+// Reuses caller-owned buffers for a single supported numerical byte codec.
+NumericCodec prepare_numeric_codec(const PayloadMeta&, const Shape&);
+std::size_t reusable_encoded_bound(const NumericCodec&, std::size_t decoded_size, std::size_t limit);
+bool reusable_needs_block(const NumericCodec&, bool writing);
+void decode_numeric_reusable(const NumericCodec&, std::size_t expected, std::size_t limit, std::span<const std::byte>, Bytes&, Bytes&);
+void encode_numeric_reusable(const NumericCodec&, std::size_t limit, std::span<const std::byte>, Bytes&, Bytes&);
 
 struct ShardSpec {
     Shape shard_shape, chunk_shape;
@@ -80,6 +93,13 @@ public:
     Store(std::filesystem::path root, bool writable, std::size_t scratch_bytes = 64 * 1024 * 1024);
     const std::filesystem::path& root() const noexcept { return root_; }
     Node inspect(const std::string&) const;
+    // Prepared metadata remains valid while callers exclude structural updates.
+    ArrayMetadata prepare_numeric(const std::string&);
+    NumericCodec numeric_codec(const ArrayMetadata&) const;
+    std::size_t retained_scratch_bytes() const noexcept { return numeric_scratch_.capacity()+encoded_scratch_.capacity()+codec_scratch_.capacity(); }
+    std::size_t scratch_allocations() const noexcept { return numeric_scratch_allocations_; }
+    void read_numeric(const std::string&, const ArrayMetadata&, const NumericCodec&, const Shape&, const Shape&, void*) const;
+    void write_numeric(const std::string&, const ArrayMetadata&, const NumericCodec&, const Shape&, const Shape&, const void*);
     std::vector<std::string> children(const std::string&) const;
     void read_numeric(const std::string&, const Shape& start, const Shape& count, void*) const;
     std::vector<std::string> read_strings(const std::string&, const Shape& start, const Shape& count) const;
@@ -100,11 +120,17 @@ private:
     std::filesystem::path root_;
     bool writable_;
     std::size_t scratch_bytes_;
+    // This stores only reusable capacity, never a cached chunk identity.
+    mutable Bytes numeric_scratch_;
+    mutable Bytes encoded_scratch_;
+    mutable Bytes codec_scratch_;
+    mutable std::size_t numeric_scratch_allocations_ = 0;
     mutable bool consolidation_v2_ = false, consolidation_v3_ = false;
     std::filesystem::path node_path(const std::string&) const;
     void mutation();
     Chunk chunk(const std::string&, const ArrayMetadata&, const Shape&) const;
     void chunk(const std::string&, const ArrayMetadata&, const Shape&, const Chunk&);
     void transfer(const std::string&, const Shape&, const Shape&, void*, std::vector<std::string>*, bool) const;
+    void transfer(const std::string&, const ArrayMetadata&, const Shape&, const Shape&, void*, std::vector<std::string>*, bool, const NumericCodec* codec = nullptr) const;
 };
 } // namespace anndata_zarr

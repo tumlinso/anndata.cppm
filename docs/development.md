@@ -56,6 +56,11 @@ On this restricted runner, Zarr's background event loop cannot wake itself throu
 
 ## Record interoperability
 
+The `python_streaming` gate uses the ordinary interoperability requirements. It
+independently checks contiguous/chunked HDF5, Zarr v2/v3 chunks and shards,
+compressed/raw reusable buffers, sparse major-axis transfers, parallel worker
+execution, and reopened metadata. Generated stores remain under the build tree.
+
 The record-array reference check additionally uses Scanpy 1.11.5. Keep its
 development dependencies separate from application environments:
 

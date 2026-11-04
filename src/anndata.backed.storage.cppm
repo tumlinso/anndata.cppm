@@ -25,6 +25,8 @@ struct RecordFieldInfo {
     ByteOrder byte_order = ByteOrder::native;
 };
 struct NodeInfo {
+    PhysicalArrayGeometry physical;
+    bool parallel_reads = false, parallel_writes = false;
     bool exists = false;
     bool group = false;
     bool strings = false;
@@ -40,6 +42,19 @@ struct NodeInfo {
     std::vector<std::size_t> codec_tile_shape;
     bool sharded_payload = false;
 };
+struct NumericTransferStats {
+    std::size_t read_calls = 0, write_calls = 0, read_bytes = 0, write_bytes = 0;
+    std::size_t scratch_allocations = 0, scratch_bytes = 0;
+};
+// One worker owns each prepared transfer. Its backend must outlive it.
+class NumericTransfer {
+public:
+    virtual ~NumericTransfer() = default;
+    virtual void read(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, void*) = 0;
+    virtual void write(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const void*) = 0;
+    virtual NumericTransferStats stats() const = 0;
+    virtual std::size_t scratch_capacity() const = 0;
+};
 // Native-endian packed rectangles. start/count have the array rank; scalar
 // transfers use empty vectors. The caller supplies sufficient final storage.
 // Backends do no application caching and introduce no threads or locks.
@@ -49,6 +64,16 @@ public:
     virtual std::string location() const = 0;
     // Stable per-open-store identity for control-plane alias checks.
     virtual std::string identity() const { return location(); }
+    // Worker-private backend and pre-inspected array; owner serializes context
+    // preparation with structural mutation, and destroys transfers first.
+    virtual std::unique_ptr<Backend> fork(std::size_t) {
+        throw Error(ErrorCode::unsupported_layout, location(), "backend cannot create transfer context");
+    }
+    virtual std::unique_ptr<NumericTransfer> prepare_numeric(std::string_view path) {
+        throw Error(ErrorCode::unsupported_layout, std::string(path), "backend cannot prepare numerical transfer");
+    }
+    virtual std::size_t retained_scratch_bytes() const { return 0; }
+    virtual std::size_t scratch_allocations() const { return 0; }
     virtual NodeInfo inspect(std::string_view path) = 0;
     // Conservative payload workspace retained during one numeric operation.
     // Read and write calls are serial; a copying caller reserves their maximum.

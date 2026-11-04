@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "milestone": "adaptive reusable backed block I/O",
+  "baseline_commit": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "recorded_utc": "2026-11-04T07:30:09.138106+00:00",
+  "source_hashes": {
+    "src/anndata.arrays.cppm": "ef06a38c2fe93176ed684e8636b058c3a13f2ae4d7b48bd555bedd621dd1bd1c",
+    "src/anndata.backed.cppm": "3f2f37cfaa4c1244c8a1b3ef53f9dff95913ded2ba594b99e4122b4d2d57f0d3",
+    "src/anndata.backed.storage.cppm": "cea1e1019e8b15e97a37816cd61ad6c814f4f7e1f56a2bfefd03d53e0b34bae3",
+    "src/anndata.core.cppm": "84d83471d19cb26bc4b32c38ac2e2f4f1b08e16113ec367a92114edab23bd000",
+    "src/anndata.cppm": "991a9e1f5fd8e51c4affc061e7a49751ccaeb3d0feda0a2e173db84b843a6490",
+    "src/anndata.data.cppm": "0a67211ab96517562af525cf29b605ee11bb25b10fd1714456ae653a7f381ba3",
+    "src/anndata.h5ad.cppm": "a94b7e21dda6041ad3c8a69f409943f18c44d78156c84f3146d684f6e0df0895",
+    "src/anndata.records.cppm": "80830a9f59adff0127506dde9f19f759b65879902cdf0524bbf948d87d285f51",
+    "src/anndata.streaming.cppm": "d2f81863fa54139930e486d32f348508d05725c97433d1da3350d6c2fbedfe2f",
+    "src/anndata.strings.cppm": "1dfefcb0741a8cf1cfa994963aafa5e39c253d67ca0e5091622a81895dd82db8",
+    "src/anndata.zarr.cppm": "dab66c15f3a7c528b0e2ae9f150a22d79aebbce70eb6165979cf7cfeb181bda6",
+    "src/arrays.cpp": "078fb177efae1b238015b06d508d2aa9a8c42cc40c821050f98e0858a1c72ee6",
+    "src/backed.cpp": "04fddb3d2b0ff61e238ce5f06dde7c761c645c4d99d4287eb25589b6cdef92dd",
+    "src/backed_array.cpp": "e20412947cb5ca5e6cccaa7e40bbb20788adda2d03d49c29e8d150c8c0c581d2",
+    "src/backed_category.cpp": "dac5f71d7f9a041d1f567e946184c290b0b16b6558bb3866407476dd66a37d15",
+    "src/backed_codec.cpp": "ba6cc272d8265edd53ff38150d341edeb6f34c631f687dc1602fd07c3db53a19",
+    "src/backed_colors.cpp": "23dcc7ac1fb95e2e1962d94be7046d55141ced3dcf6b5ceafc6ecde0d6f855b8",
+    "src/backed_copy.cpp": "eda0d532c747d47f5cc081e2f6db430856e1d671d1ad74c2665362d042da05df",
+    "src/backed_geometry.cpp": "b6d17961d7e25c124c64e408b56dcb110687c631aafd45208efb34bec0511d3f",
+    "src/backed_hdf5.cpp": "9aabe1d6c4f5c8266f3999871bd634b7c61296230e3c24d4b9256ae74bafbf07",
+    "src/backed_index.cpp": "f1b1edfc18e8d88df8e8c94078d2be99bb5d613b7b6ed8de791edbcce88a221d",
+    "src/backed_records.cpp": "6da86a5ecbf38e25c42a9186758b64fc3dcc644668ed33edac8f88692e38613f",
+    "src/backed_structure.cpp": "29d84942b772cbf1dc16f87ef3259458a2cc4b6c4ad31bcb7d30469cad5a61bb",
+    "src/backed_writer.cpp": "d23615645a0fb845f2a5a1982ec04d46465ad2dccf9d1a1696f100cc9339124b",
+    "src/backed_zarr.cpp": "2eba20f711fc8fa9ab47627d8f15d3b9a77c44e715508b29b55644ae5767d365",
+    "src/data.cpp": "235339e3b46073190500eebd49842bff7475f6ce21adf31dd86eb6e55559f1e6",
+    "src/h5ad.cpp": "b27c8d92165cef3eeb61c6c5d63de544b18ac4e83d7f9c72c4197310f6798a67",
+    "src/h5ad_record_scratch.hpp": "0732c8d1a8c7149668b2b0176afe0c6adb878cef08b514493faf1751b6cfaf89",
+    "src/records.cpp": "60f42220c30546cad189a5783c2fd619fb62ff6338bda75ce2de4a98b8d610e7",
+    "src/streaming.cpp": "16f199292ffa06c0a9c0b61cd91d153c81b09d140db26ac604d6464905786246",
+    "src/strings.cpp": "2e113cd18f11c3ca56f2c0f1bddce8c49f44f86d275b3003f0f92e1da6527aeb",
+    "src/zarr.cpp": "eb73e023eb96a54e88a0c22db2912f00bfad8542ddb8b2eac61a18ff371a725f",
+    "src/zarr_codecs.cpp": "ded5001571ab6b55af4630b8bfafd85e96ea29180339aee0a04abe1acf779fa3",
+    "src/zarr_engine.cpp": "d0886995864fb088b6664b1d204364e5067373bd7737caf0b65a142c2d01561f",
+    "src/zarr_engine.hpp": "3cd3756ba1e5ae5a3452e60caa82a4b967b27255b2405a2b171804f88d9c3feb",
+    "src/zarr_sharding.cpp": "1cc4e90b57d69ac458f8ec140037526d9cbf68474729bc72e3024adba1597265",
+    "CMakeLists.txt": "afa274f7f2f1f210d9cd1f5b3ccfda46cee22171f6a0635afa093a8b3b9da775",
+    "cmake/anndataConfig.cmake.in": "8b6592873e0926d82b1da42fc0dab457483d045d47f5c405b74192c73a29b288",
+    "cmake/test-installed-consumer.cmake": "72d19e3fa88b4ebb5eaf7c0b860313482c9cf5c793563068801494764cf3f2fa"
+  },
+  "source_manifest_sha256": "8d1830fd1b4630277ce3823bc8d16ab020b1d18d538bb159ecb70bc23e263dee",
+  "gates": {
+    "debug": {
+      "tests_passed": 21,
+      "log": "build/debug-combined-final.log",
+      "log_sha256": "9921747b8feb5c7911f10b19bc140d64363b4fd3406d17778842c56e16f09cd7"
+    },
+    "release": {
+      "tests_passed": 16,
+      "log": "build/release-combined-final.log",
+      "log_sha256": "93596ae680b9da98dd4edc834baca5525ad3b767928917e09695969597cdc88a"
+    },
+    "asan_ubsan": {
+      "tests_passed": 17,
+      "log": "build/sanitizers-combined-final.log",
+      "log_sha256": "9cd58438f4a405583f9dfd5c8fe428d03741e9de4e15f3deb115f9bef99a3f32"
+    },
+    "configuration_matrix": {
+      "receipt": "tests/results/streaming-matrix.final.json",
+      "sha256": "0cfb95880e9ea67affa9521ea71ab9a9c1b56509bad191a6c8196db52257f9a4",
+      "core_only": 11,
+      "hdf5_only": 15,
+      "zarr_only": 12,
+      "shared": 16
+    },
+    "thread_sanitizer": {
+      "scenarios": 2,
+      "backends": [
+        "zarr2",
+        "zarr3-sharded"
+      ],
+      "log": "build/tsan-combined-final.log",
+      "log_sha256": "8afe633c3adb1de33c0c57c56fb87df8f0aa5630ac39f9d3892df0ad537c42a8",
+      "compiler_flags": "-fsanitize=thread -fno-omit-frame-pointer",
+      "environment": "TSAN_OPTIONS=halt_on_error=1",
+      "procedure": "Use tests/python_streaming.py fixture(), write_fixture(), metadata_hashes() and check_output(); execute instrumented streaming_interop_driver for each backend with 30-second timeout."
+    }
+  },
+  "private_rebuild": {
+    "unit": "src/streaming.cpp",
+    "public_bmis_unchanged": 10,
+    "consumer_objects_unchanged": 2,
+    "restored_binary_hashes_match": true,
+    "receipt_sha256": "e5e192c7f23588826730d6fa3d91b49e911639531f390a2646add81847c38bb3"
+  },
+  "performance": {
+    "report": "benchmarks/results/streaming-summary.json",
+    "sha256": "e5b408672c2c6a45a6329b3e26177234be9e2c40b8ef3d6afa0551dc31c10d1a",
+    "observations_per_case": 1,
+    "timeout_seconds": 30,
+    "intercepted_byte_cap_each_direction": 536870912,
+    "final_source_difference": "After measurement, private <map> and <variant> includes were added to src/backed_geometry.cpp to fix shared linking. No numerical or tuning algorithm changed."
+  },
+  "preserved_evidence": {
+    "directory": "/home/tumlinson/anndata.cppm/build/evidence/streaming-20261104",
+    "manifest_sha256": "19acd680fa166d159bf5cfa28374089a1b9949b696a77785160917b3982059e1",
+    "ignored": true
+  },
+  "sanitizer_environment": {
+    "ASAN_OPTIONS": "detect_leaks=0",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "note": "LeakSanitizer excluded for runner restrictions. Native and independent Python streaming checks passed with ASan/UBSan."
+  },
+  "reference_environment": {
+    "directory": "build/reference",
+    "anndata": "0.13.4",
+    "scanpy": "1.11.5",
+    "original_environment_modified": false,
+    "native_packages_installed": []
+  },
+  "limitations": [
+    "Sharded payload/index staging and complex codec pipelines retain bounded fallback allocations.",
+    "Shard rewriting still causes substantial I/O amplification.",
+    "Serial HDF5 cannot supply scalable concurrent calls; write streams clamp to one.",
+    "Single warm instrumented observations do not establish general speedups or disk-type rankings.",
+    "Project Control next_task returned workflow_task_already_active with no handle; no native workflow acceptance claimed."
+  ]
+}

@@ -1,6 +1,7 @@
 export module anndata;
 export import anndata.core;
 export import anndata.backed;
+export import anndata.streaming;
 #if ANNDATA_HAS_HDF5
 export import anndata.h5ad;
 #endif

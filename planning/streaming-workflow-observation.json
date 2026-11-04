@@ -1,0 +1,12 @@
+{
+  "project": "anndata-cppm",
+  "task": "adaptive-block-io",
+  "baseline": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "route": "next_task",
+  "status": "attention_required",
+  "reason": "workflow_task_already_active",
+  "allowed_actions": [],
+  "workflow_handle_returned": false,
+  "authority_modified": false,
+  "note": "Source work proceeds under explicit user authorization. No native Todo acceptance or workflow readiness is claimed."
+}

@@ -1,5 +1,32 @@
 # Validation
 
+## Adaptive backed block I/O
+
+The [validation receipt](../tests/results/streaming-validation.json) records final
+source hashes, commands and raw log identities. Debug passed 21/21 groups,
+including all five independent Python gates; Release passed 16/16. ASan/UBSan
+passed 17/17, including the expanded Python streaming gate. Focused
+ThreadSanitizer runs passed parallel Zarr v2 and sharded v3 reads/writes with
+independent Python readback. LeakSanitizer was excluded for runner restrictions.
+
+The [final package matrix](../tests/results/streaming-matrix.final.json) passed
+core-only 11/11, HDF5-only 15/15, Zarr-only 12/12, and shared 16/16. Each includes
+an independently installed streaming consumer. The earlier shared-link failure
+is preserved; adding private map/variant headers fixed template emission without
+changing data algorithms or public interfaces.
+
+A private edit to `streaming.cpp` preserved all ten public BMIs and two actual
+consumer objects by hash and timestamp. Exact source, object, library and tested
+executable hashes were restored afterward. [Performance evidence](streaming-performance.md)
+separates measured call/byte reductions from persistent shard-write amplification
+and single-observation timing limits. Raw evidence is ignored and preserved under
+`build/evidence/streaming-20261104` in the primary checkout.
+
+Qualification remains Linux/Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1 and the pinned
+reference environment. This is source and package qualification; Project Control
+returned an active-task conflict without a workflow handle, so no native Todo
+acceptance is claimed.
+
 ## Native records and refactor integration
 
 The record implementation and compact-selection refactor were combined in

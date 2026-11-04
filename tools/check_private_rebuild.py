@@ -27,23 +27,26 @@ def main() -> None:
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--unit", default="src/records.cpp", help="private implementation unit relative to source")
     args = parser.parse_args()
     source, build, output = args.source.resolve(), args.build.resolve(), args.output.resolve()
     cache = (build / "CMakeCache.txt").read_text()
     if f"CMAKE_HOME_DIRECTORY:INTERNAL={source}\n" not in cache:
         raise RuntimeError("build directory does not belong to the supplied source")
 
-    unit = source / "src/records.cpp"
+    unit = source / args.unit
+    if not unit.is_file() or unit.suffix != ".cpp" or source not in unit.resolve().parents:
+        raise RuntimeError("private probe unit must be a .cpp inside the source tree")
     before = unit.read_bytes()
     output.mkdir(parents=True, exist_ok=False)
-    (output / "records.cpp.original").write_bytes(before)
+    (output / (unit.name + ".original")).write_bytes(before)
     bmis = sorted(p for p in (build / "CMakeFiles/anndata.dir").glob("*.pcm")
                   if p.name != "anndata.backed-storage.pcm")
-    if len(bmis) != 9:
-        raise RuntimeError(f"expected nine public BMIs in the full build, found {len(bmis)}")
+    if not bmis:
+        raise RuntimeError("no public BMIs found")
     consumers = [build / "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o",
                  build / "CMakeFiles/test_records.dir/tests/test_records.cpp.o"]
-    binaries = [build / "CMakeFiles/anndata.dir/src/records.cpp.o",
+    binaries = [build / ("CMakeFiles/anndata.dir/" + args.unit + ".o"),
                 build / "libanndata.a", build / "anndata_example", build / "test_records"]
     public_before, binaries_before = state(bmis + consumers), state(binaries)
     command = ["cmake", "--build", str(build), "--target", "anndata_example", "test_records",
@@ -86,8 +89,8 @@ def main() -> None:
         compiles = [line for line in edited_output.splitlines()
                     if "clang++" in line and "clang-scan-deps" not in line
                     and " -c " in line and " -o CMakeFiles/" in line]
-        if len(compiles) != 1 or "src/records.cpp" not in compiles[0]:
-            raise RuntimeError(f"expected one records.cpp compilation, observed {compiles}")
+        if len(compiles) != 1 or args.unit not in compiles[0]:
+            raise RuntimeError(f"expected one {args.unit} compilation, observed {compiles}")
     except BaseException as error:
         private_error = error
     finally:

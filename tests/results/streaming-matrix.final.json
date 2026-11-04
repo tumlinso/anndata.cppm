@@ -1,0 +1,925 @@
+{
+  "all_configs_pass": true,
+  "configs": [
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS:BOOL": "OFF",
+        "ANNDATA_BUILD_EXAMPLES:BOOL": "ON",
+        "ANNDATA_BUILD_TESTS:BOOL": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX:PATH": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5:BOOL": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_ZARR:BOOL": "OFF",
+        "CMAKE_BUILD_TYPE:STRING": "Debug",
+        "CMAKE_CXX_COMPILER-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER:UNINITIALIZED": "clang++-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_AR:FILEPATH": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:FILEPATH": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_RANLIB:FILEPATH": "/usr/bin/llvm-ranlib-18"
+      },
+      "gate_status": {
+        "geometry": "Passed",
+        "installed_consumer": "Passed",
+        "streaming": "Passed",
+        "transfer_context": "Passed"
+      },
+      "name": "core-only",
+      "overall_pass": true,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "core-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset core-only --parallel 2",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/core-only.build.log",
+          "log_sha256": "7b0635dbac2be484927e5242370ddc46b6ffd191dd64bf3a6eaeba5c1cfd68a8"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "core-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset core-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/core-only.configure.log",
+          "log_sha256": "4ded2956f9a8872324c83c86fcf9ac548c3f17a2eab1159c2b8e472018c8b5f7"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/core-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/core-only --output-on-failure",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/core-only.ctest.log",
+          "log_sha256": "ee90fcb1ad6d59bff9b48813a0764740f3c270c77e83cc3955f56277ea364b4e"
+        }
+      },
+      "python_interop_disabled": true,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 11,
+          "skipped": 0,
+          "test_count": 11
+        },
+        "results": [
+          {
+            "detail": "0.00 sec",
+            "index": 1,
+            "name": "arrays",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 2,
+            "name": "data",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 3,
+            "name": "strings",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 4,
+            "name": "records",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 5,
+            "name": "geometry",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 6,
+            "name": "transfer_context",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 7,
+            "name": "streaming",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 8,
+            "name": "backed",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 9,
+            "name": "backed_categories",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 10,
+            "name": "import_only_example",
+            "status": "Passed",
+            "total": 11
+          },
+          {
+            "detail": "0.65 sec",
+            "index": 11,
+            "name": "installed_consumer",
+            "status": "Passed",
+            "total": 11
+          }
+        ],
+        "summary_line": "100% tests passed, 0 tests failed out of 11"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS:BOOL": "OFF",
+        "ANNDATA_BUILD_EXAMPLES:BOOL": "ON",
+        "ANNDATA_BUILD_TESTS:BOOL": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX:PATH": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5:BOOL": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_ZARR:BOOL": "OFF",
+        "ANNDATA_HDF5_CFLAGS:INTERNAL": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_CFLAGS_I:INTERNAL": "",
+        "ANNDATA_HDF5_CFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_FOUND:INTERNAL": "1",
+        "ANNDATA_HDF5_INCLUDEDIR:INTERNAL": "",
+        "ANNDATA_HDF5_INCLUDE_DIRS:INTERNAL": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_LDFLAGS:INTERNAL": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_LDFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_LIBRARIES:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_LIBRARY_DIRS:INTERNAL": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_LIBS:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_L:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_PATHS:INTERNAL": "",
+        "ANNDATA_HDF5_MODULE_NAME:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_PREFIX:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS:INTERNAL": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_CFLAGS_I:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_INCLUDE_DIRS:INTERNAL": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LDFLAGS:INTERNAL": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_STATIC_LDFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBRARIES:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_STATIC_LIBRARY_DIRS:INTERNAL": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LIBS:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_L:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_PATHS:INTERNAL": "",
+        "ANNDATA_HDF5_VERSION:INTERNAL": "1.10.10",
+        "ANNDATA_HDF5_hdf5_INCLUDEDIR:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_PREFIX:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_VERSION:INTERNAL": "",
+        "CMAKE_BUILD_TYPE:STRING": "Debug",
+        "CMAKE_CXX_COMPILER-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER:UNINITIALIZED": "clang++-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_AR:FILEPATH": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:FILEPATH": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_RANLIB:FILEPATH": "/usr/bin/llvm-ranlib-18",
+        "__pkg_config_arguments_ANNDATA_HDF5:INTERNAL": "REQUIRED;IMPORTED_TARGET;hdf5>=1.10",
+        "__pkg_config_checked_ANNDATA_HDF5:INTERNAL": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5-ADVANCED:INTERNAL": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5:FILEPATH": "/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
+      },
+      "gate_status": {
+        "geometry": "Passed",
+        "installed_consumer": "Passed",
+        "streaming": "Passed",
+        "transfer_context": "Passed"
+      },
+      "name": "hdf5-only",
+      "overall_pass": true,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "hdf5-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset hdf5-only --parallel 2",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/hdf5-only.build.log",
+          "log_sha256": "08f68d0f8f8a719752d37fdd047df4bad8a85b4d4b345346b27efcfbdd70820e"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "hdf5-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset hdf5-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/hdf5-only.configure.log",
+          "log_sha256": "6d103f7f2c14890e09da438b71a57acc6a490d13401b1747fb0c66fa6538b6e7"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/hdf5-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/hdf5-only --output-on-failure",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/hdf5-only.ctest.log",
+          "log_sha256": "04c42ecdcb6c0843f730c7fee826f1f9c1c41087af25fe2f2cb6785d044b965c"
+        }
+      },
+      "python_interop_disabled": true,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 15,
+          "skipped": 0,
+          "test_count": 15
+        },
+        "results": [
+          {
+            "detail": "0.01 sec",
+            "index": 1,
+            "name": "arrays",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 2,
+            "name": "data",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 3,
+            "name": "strings",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 4,
+            "name": "records",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 5,
+            "name": "geometry",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.03 sec",
+            "index": 6,
+            "name": "transfer_context",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 7,
+            "name": "streaming",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.31 sec",
+            "index": 8,
+            "name": "backed",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.68 sec",
+            "index": 9,
+            "name": "backed_categories",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.19 sec",
+            "index": 10,
+            "name": "records_h5ad",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.06 sec",
+            "index": 11,
+            "name": "backed_records",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.06 sec",
+            "index": 12,
+            "name": "h5ad",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.06 sec",
+            "index": 13,
+            "name": "backed_h5ad",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 14,
+            "name": "import_only_example",
+            "status": "Passed",
+            "total": 15
+          },
+          {
+            "detail": "1.20 sec",
+            "index": 15,
+            "name": "installed_consumer",
+            "status": "Passed",
+            "total": 15
+          }
+        ],
+        "summary_line": "100% tests passed, 0 tests failed out of 15"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS:BOOL": "OFF",
+        "ANNDATA_BUILD_EXAMPLES:BOOL": "ON",
+        "ANNDATA_BUILD_TESTS:BOOL": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX:PATH": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5:BOOL": "OFF",
+        "ANNDATA_ENABLE_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_ZARR:BOOL": "ON",
+        "CMAKE_BUILD_TYPE:STRING": "Debug",
+        "CMAKE_CXX_COMPILER-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER:UNINITIALIZED": "clang++-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_AR:FILEPATH": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:FILEPATH": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_RANLIB:FILEPATH": "/usr/bin/llvm-ranlib-18"
+      },
+      "gate_status": {
+        "geometry": "Passed",
+        "installed_consumer": "Passed",
+        "streaming": "Passed",
+        "transfer_context": "Passed"
+      },
+      "name": "zarr-only",
+      "overall_pass": true,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "zarr-only",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset zarr-only --parallel 2",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/zarr-only.build.log",
+          "log_sha256": "d00069e136af47dee32c953013cdbb65e8152295892a9bfd4130f357a85b2e6b"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "zarr-only",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset zarr-only -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/zarr-only.configure.log",
+          "log_sha256": "e43ff2185d6b013890f0fc434c6e07c779977ade38297a56460cf6bb0bf1ac58"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/zarr-only",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/zarr-only --output-on-failure",
+          "elapsed_seconds": 10.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/zarr-only.ctest.log",
+          "log_sha256": "71595434a83dea874a81ab2ba90ffc141a3abeb186a6458158e3e25bf15def61"
+        }
+      },
+      "python_interop_disabled": true,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 12,
+          "skipped": 0,
+          "test_count": 12
+        },
+        "results": [
+          {
+            "detail": "0.00 sec",
+            "index": 1,
+            "name": "arrays",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 2,
+            "name": "data",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 3,
+            "name": "strings",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 4,
+            "name": "records",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.04 sec",
+            "index": 5,
+            "name": "geometry",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.14 sec",
+            "index": 6,
+            "name": "transfer_context",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 7,
+            "name": "streaming",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.75 sec",
+            "index": 8,
+            "name": "backed",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "4.41 sec",
+            "index": 9,
+            "name": "backed_categories",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 10,
+            "name": "record_zarr_rejection",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "0.00 sec",
+            "index": 11,
+            "name": "import_only_example",
+            "status": "Passed",
+            "total": 12
+          },
+          {
+            "detail": "1.28 sec",
+            "index": 12,
+            "name": "installed_consumer",
+            "status": "Passed",
+            "total": 12
+          }
+        ],
+        "summary_line": "100% tests passed, 0 tests failed out of 12"
+      }
+    },
+    {
+      "effective_options": {
+        "ANNDATA_BUILD_BENCHMARKS:BOOL": "OFF",
+        "ANNDATA_BUILD_EXAMPLES:BOOL": "ON",
+        "ANNDATA_BUILD_TESTS:BOOL": "ON",
+        "ANNDATA_DEPENDENCY_PREFIX:PATH": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+        "ANNDATA_ENABLE_HDF5:BOOL": "ON",
+        "ANNDATA_ENABLE_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS:BOOL": "OFF",
+        "ANNDATA_ENABLE_ZARR:BOOL": "ON",
+        "ANNDATA_HDF5_CFLAGS:INTERNAL": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_CFLAGS_I:INTERNAL": "",
+        "ANNDATA_HDF5_CFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_FOUND:INTERNAL": "1",
+        "ANNDATA_HDF5_INCLUDEDIR:INTERNAL": "",
+        "ANNDATA_HDF5_INCLUDE_DIRS:INTERNAL": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_LDFLAGS:INTERNAL": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_LDFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_LIBRARIES:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_LIBRARY_DIRS:INTERNAL": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_LIBS:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_L:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_LIBS_PATHS:INTERNAL": "",
+        "ANNDATA_HDF5_MODULE_NAME:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_PREFIX:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS:INTERNAL": "-I/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_CFLAGS_I:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_CFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_INCLUDE_DIRS:INTERNAL": "/usr/include/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LDFLAGS:INTERNAL": "-L/usr/lib/x86_64-linux-gnu/hdf5/serial;-lhdf5",
+        "ANNDATA_HDF5_STATIC_LDFLAGS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBRARIES:INTERNAL": "hdf5",
+        "ANNDATA_HDF5_STATIC_LIBRARY_DIRS:INTERNAL": "/usr/lib/x86_64-linux-gnu/hdf5/serial",
+        "ANNDATA_HDF5_STATIC_LIBS:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_L:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_OTHER:INTERNAL": "",
+        "ANNDATA_HDF5_STATIC_LIBS_PATHS:INTERNAL": "",
+        "ANNDATA_HDF5_VERSION:INTERNAL": "1.10.10",
+        "ANNDATA_HDF5_hdf5_INCLUDEDIR:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_LIBDIR:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_PREFIX:INTERNAL": "",
+        "ANNDATA_HDF5_hdf5_VERSION:INTERNAL": "",
+        "BUILD_SHARED_LIBS:UNINITIALIZED": "ON",
+        "CMAKE_BUILD_TYPE:STRING": "Debug",
+        "CMAKE_CXX_COMPILER-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER:UNINITIALIZED": "clang++-18",
+        "CMAKE_CXX_COMPILER_AR-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_AR:FILEPATH": "/usr/bin/llvm-ar-18",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS:FILEPATH": "/usr/bin/clang-scan-deps-18",
+        "CMAKE_CXX_COMPILER_RANLIB-ADVANCED:INTERNAL": "1",
+        "CMAKE_CXX_COMPILER_RANLIB:FILEPATH": "/usr/bin/llvm-ranlib-18",
+        "__pkg_config_arguments_ANNDATA_HDF5:INTERNAL": "REQUIRED;IMPORTED_TARGET;hdf5>=1.10",
+        "__pkg_config_checked_ANNDATA_HDF5:INTERNAL": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5-ADVANCED:INTERNAL": "1",
+        "pkgcfg_lib_ANNDATA_HDF5_hdf5:FILEPATH": "/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so"
+      },
+      "gate_status": {
+        "geometry": "Passed",
+        "installed_consumer": "Passed",
+        "streaming": "Passed",
+        "transfer_context": "Passed"
+      },
+      "name": "shared",
+      "overall_pass": true,
+      "phases": {
+        "build": {
+          "command": [
+            "cmake",
+            "--build",
+            "--preset",
+            "shared",
+            "--parallel",
+            "2"
+          ],
+          "command_shell": "cmake --build --preset shared --parallel 2",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/shared.build.log",
+          "log_sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+        },
+        "configure": {
+          "command": [
+            "cmake",
+            "--preset",
+            "shared",
+            "-DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr"
+          ],
+          "command_shell": "cmake --preset shared -DANNDATA_DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr",
+          "elapsed_seconds": 5.001,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/shared.configure.log",
+          "log_sha256": "dc1cd45f1e2d7b202a80a64426240db605737bcce3787bb0ad57de1d204aeffa"
+        },
+        "ctest": {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "build/shared",
+            "--output-on-failure"
+          ],
+          "command_shell": "ctest --test-dir build/shared --output-on-failure",
+          "elapsed_seconds": 20.002,
+          "exit_code": 0,
+          "log": "build/streaming-matrix/final/shared.ctest.log",
+          "log_sha256": "82947f69a2ffa1367fbf74a474ef90a52201855a6c54f7a9a758f4371171a879"
+        }
+      },
+      "python_interop_disabled": true,
+      "tests": {
+        "counts": {
+          "failed": 0,
+          "passed": 16,
+          "skipped": 0,
+          "test_count": 16
+        },
+        "results": [
+          {
+            "detail": "0.01 sec",
+            "index": 1,
+            "name": "arrays",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 2,
+            "name": "data",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 3,
+            "name": "strings",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 4,
+            "name": "records",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.07 sec",
+            "index": 5,
+            "name": "geometry",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.21 sec",
+            "index": 6,
+            "name": "transfer_context",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 7,
+            "name": "streaming",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "1.91 sec",
+            "index": 8,
+            "name": "backed",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "6.97 sec",
+            "index": 9,
+            "name": "backed_categories",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.02 sec",
+            "index": 10,
+            "name": "record_zarr_rejection",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.18 sec",
+            "index": 11,
+            "name": "records_h5ad",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.06 sec",
+            "index": 12,
+            "name": "backed_records",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.07 sec",
+            "index": 13,
+            "name": "h5ad",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.07 sec",
+            "index": 14,
+            "name": "backed_h5ad",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "0.01 sec",
+            "index": 15,
+            "name": "import_only_example",
+            "status": "Passed",
+            "total": 16
+          },
+          {
+            "detail": "10.18 sec",
+            "index": 16,
+            "name": "installed_consumer",
+            "status": "Passed",
+            "total": 16
+          }
+        ],
+        "summary_line": "100% tests passed, 0 tests failed out of 16"
+      }
+    }
+  ],
+  "finished_utc": "2026-11-04T07:21:27+00:00",
+  "git_head_after": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "git_head_before": "d9869da416ca36571421241fb10821d4c0acd19a",
+  "history": {
+    "note": "The prior shared link failure and provisional first-pass receipt are retained unchanged.",
+    "prior_provisional_receipt": "tests/results/streaming-matrix.json",
+    "prior_provisional_receipt_sha256": "00d50798b4c882776d9f028d75ab7ba8e960812e203c2e4b1b23a3d3d100542a",
+    "prior_shared_build_failure_log": "build/streaming-matrix/shared.build.log",
+    "prior_shared_build_failure_log_sha256": "af9463df9590f17fbec2dee15f204e96f071463b66584f18b3215bddc87b5344"
+  },
+  "logs": [
+    {
+      "path": "build/streaming-matrix/final/commands.log",
+      "sha256": "99af9a3c75d2d6318bfbfa2659530df4b8bf3de9cbe945ec94d79522c5c7b6b3"
+    },
+    {
+      "path": "build/streaming-matrix/final/core-only.build.log",
+      "sha256": "7b0635dbac2be484927e5242370ddc46b6ffd191dd64bf3a6eaeba5c1cfd68a8"
+    },
+    {
+      "path": "build/streaming-matrix/final/core-only.configure.log",
+      "sha256": "4ded2956f9a8872324c83c86fcf9ac548c3f17a2eab1159c2b8e472018c8b5f7"
+    },
+    {
+      "path": "build/streaming-matrix/final/core-only.ctest.log",
+      "sha256": "ee90fcb1ad6d59bff9b48813a0764740f3c270c77e83cc3955f56277ea364b4e"
+    },
+    {
+      "path": "build/streaming-matrix/final/hdf5-only.build.log",
+      "sha256": "08f68d0f8f8a719752d37fdd047df4bad8a85b4d4b345346b27efcfbdd70820e"
+    },
+    {
+      "path": "build/streaming-matrix/final/hdf5-only.configure.log",
+      "sha256": "6d103f7f2c14890e09da438b71a57acc6a490d13401b1747fb0c66fa6538b6e7"
+    },
+    {
+      "path": "build/streaming-matrix/final/hdf5-only.ctest.log",
+      "sha256": "04c42ecdcb6c0843f730c7fee826f1f9c1c41087af25fe2f2cb6785d044b965c"
+    },
+    {
+      "path": "build/streaming-matrix/final/shared.build.log",
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    {
+      "path": "build/streaming-matrix/final/shared.configure.log",
+      "sha256": "dc1cd45f1e2d7b202a80a64426240db605737bcce3787bb0ad57de1d204aeffa"
+    },
+    {
+      "path": "build/streaming-matrix/final/shared.ctest.log",
+      "sha256": "82947f69a2ffa1367fbf74a474ef90a52201855a6c54f7a9a758f4371171a879"
+    },
+    {
+      "path": "build/streaming-matrix/final/toolchain.log",
+      "sha256": "99627ffc992db15155fe4475bf1eb265dddce3b2972a914f5fd46863ce468cbe"
+    },
+    {
+      "path": "build/streaming-matrix/final/zarr-only.build.log",
+      "sha256": "d00069e136af47dee32c953013cdbb65e8152295892a9bfd4130f357a85b2e6b"
+    },
+    {
+      "path": "build/streaming-matrix/final/zarr-only.configure.log",
+      "sha256": "e43ff2185d6b013890f0fc434c6e07c779977ade38297a56460cf6bb0bf1ac58"
+    },
+    {
+      "path": "build/streaming-matrix/final/zarr-only.ctest.log",
+      "sha256": "71595434a83dea874a81ab2ba90ffc141a3abeb186a6458158e3e25bf15def61"
+    }
+  ],
+  "repository": "/tmp/anndata-cppm-streaming",
+  "required_gates": [
+    "geometry",
+    "transfer_context",
+    "streaming",
+    "installed_consumer"
+  ],
+  "run_kind": "final_source_incremental_matrix",
+  "source_diff_paths": [],
+  "source_manifest_after": {
+    "file_count": 196,
+    "manifest_sha256": "29c762f4561ba33b4becba3e08d403646ccb560c22cc240b9edfa6b2f944a31b",
+    "path": "build/streaming-matrix/final/source-sha-after.json",
+    "sha256": "8719d6f65b2b29855dc8a66763f899a1b535dd2d2b92b7817198f3c34643a772"
+  },
+  "source_manifest_before": {
+    "file_count": 196,
+    "manifest_sha256": "29c762f4561ba33b4becba3e08d403646ccb560c22cc240b9edfa6b2f944a31b",
+    "path": "build/streaming-matrix/final/source-sha-before.json",
+    "sha256": "7455bc2ced4bd547f2f0f416d917b5f1a1ecb0c29c930a6d1f7d59feca4ac706"
+  },
+  "source_unchanged": true,
+  "started_utc": "2026-11-04T07:20:06+00:00",
+  "toolchain": {
+    "clang": {
+      "command": [
+        "clang++-18",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin"
+    },
+    "clang_scan_deps": {
+      "command": [
+        "clang-scan-deps-18",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "clang-scan-deps-18\nUbuntu LLVM version 18.1.3\n  Optimized build."
+    },
+    "cmake": {
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+    },
+    "dependency_prefix": "/home/tumlinson/anndata.cppm/build/dependencies/usr",
+    "dependency_prefix_exists": true,
+    "ninja": {
+      "command": [
+        "ninja",
+        "--version"
+      ],
+      "exit_code": 0,
+      "version": "1.11.1"
+    }
+  }
+}

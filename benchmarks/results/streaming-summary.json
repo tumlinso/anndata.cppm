@@ -1,0 +1,797 @@
+{
+  "schema": "anndata.streaming_measurement.v1",
+  "conditions": {
+    "cpu": "Intel Xeon E5-2698 v4",
+    "os": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
+    "compiler": "Clang 18.1.3",
+    "flags": "-O3 -DNDEBUG -std=c++20",
+    "storage": "buffered local files; cache state not controlled",
+    "trials_per_case": 1,
+    "limit_seconds": 30,
+    "intercepted_io_limit_each_direction": 536870912,
+    "counter_scope": "armed operation only; preparation, verification and fixture creation excluded unless explicitly timed inside driver",
+    "nonclaims": [
+      "Instrumented single observations; host activity and cache state uncontrolled.",
+      "Intercepted libc I/O and allocator calls are not total physical bytes, total allocations, nor peak memory.",
+      "Dense verification and hashing are included in total_seconds but not transfer_seconds.",
+      "Parallel write setup, metadata deconsolidation, final flush, fixture copy, and independent Python validation are outside the timed/capped region.",
+      "Parallel writes are buffered-completion timing, not durable-media throughput.",
+      "Adaptive and manual boundary cases use different tile partitions and are not matched timing comparisons."
+    ]
+  },
+  "baseline": {
+    "commit": "d9869da416ca36571421241fb10821d4c0acd19a",
+    "source_archive_sha256": "1adb4deca023bbddbd5c982ae87bd74a286871dcd7e334648d62041ebd49485b",
+    "library_sha256": "258d16272c8c628b9b11e7c024415dad66e7a44f135fe8047cf8812bffd982dd",
+    "release_link_issue": "Pristine baseline Release O3 and O2 storage_benchmark links fail with unresolved std::shared_ptr<const vector<size_t>> move assignment. Both measured probe binaries link the same separate explicit standard-library instantiation shim; baseline source remains unchanged. Candidate standard Release target links without shim.",
+    "link_failure_logs_sha256": {
+      "baseline-link-failure-O3.log": "926da61f51bd784fe6b58b2e65e77a8ee114a4529eaa3fa5cc33f293abb1efa4",
+      "baseline-link-failure-O2.log": "40e8840f6eef9e8c44828f9d41d05dadd5df9cd87c330c561421b14664a0ff9d"
+    }
+  },
+  "candidate": {
+    "library_sha256": "a9053e9b98049bec0ff159f2e37976184868be50b415b81c0b2aff80cd99655e",
+    "source_hashes": {
+      "CMakeLists.txt": "afa274f7f2f1f210d9cd1f5b3ccfda46cee22171f6a0635afa093a8b3b9da775",
+      "src/anndata.backed.cppm": "3f2f37cfaa4c1244c8a1b3ef53f9dff95913ded2ba594b99e4122b4d2d57f0d3",
+      "src/anndata.backed.storage.cppm": "cea1e1019e8b15e97a37816cd61ad6c814f4f7e1f56a2bfefd03d53e0b34bae3",
+      "src/anndata.streaming.cppm": "d2f81863fa54139930e486d32f348508d05725c97433d1da3350d6c2fbedfe2f",
+      "src/anndata.cppm": "991a9e1f5fd8e51c4affc061e7a49751ccaeb3d0feda0a2e173db84b843a6490",
+      "src/backed_array.cpp": "e20412947cb5ca5e6cccaa7e40bbb20788adda2d03d49c29e8d150c8c0c581d2",
+      "src/backed_geometry.cpp": "94651ae95385abe9ec0f1d9fa0bd9d48b915fc785843a58102cbc2bc8bd9c9d2",
+      "src/backed_hdf5.cpp": "9aabe1d6c4f5c8266f3999871bd634b7c61296230e3c24d4b9256ae74bafbf07",
+      "src/backed_writer.cpp": "d23615645a0fb845f2a5a1982ec04d46465ad2dccf9d1a1696f100cc9339124b",
+      "src/backed_zarr.cpp": "2eba20f711fc8fa9ab47627d8f15d3b9a77c44e715508b29b55644ae5767d365",
+      "src/streaming.cpp": "16f199292ffa06c0a9c0b61cd91d153c81b09d140db26ac604d6464905786246",
+      "src/zarr_engine.cpp": "d0886995864fb088b6664b1d204364e5067373bd7737caf0b65a142c2d01561f",
+      "src/zarr_engine.hpp": "3cd3756ba1e5ae5a3452e60caa82a4b967b27255b2405a2b171804f88d9c3feb",
+      "src/zarr_sharding.cpp": "1cc4e90b57d69ac458f8ec140037526d9cbf68474729bc72e3024adba1597265",
+      "src/zarr_codecs.cpp": "ded5001571ab6b55af4630b8bfafd85e96ea29180339aee0a04abe1acf779fa3",
+      "benchmarks/streaming.cpp": "946a71ee178432fa211091e20f0da934b3066f026078d4048d1a0c7b16d0f7c3",
+      "benchmarks/streaming_parallel.cpp": "1b91eb6ef4c0a1b9bca00868a59f967323e5a289daacaa8ed76ae3d86ff3fe56",
+      "benchmarks/streaming_probe/counters.c": "a92f6d8d5142ba3ea246d367046a6d5664a1000ae53d3f3c930f2674de84e734",
+      "benchmarks/streaming_probe/link_shim.cpp": "b58a3e7028b2ea07dd8620eef8029d34ce9138b10dd4e435545e76c12db46542"
+    }
+  },
+  "fixture_manifest_sha256": "a0db8a376c375923873b74b61c30d4af0eb16b12cc830f2c4aa21027061d56d4",
+  "raw_baseline_sha256": "fd671600b0180d60b82d9f15f8594ba1a22063a6998dc99b3575cd8dcec64d3f",
+  "raw_candidate_sha256": "79c2510090561702be0341722fd5d58715ae6a99fcddb9701e0ca6585047b952",
+  "counter_binary_sha256": "69358f2628740e0cb1e427b4810a1717204223633c80698b96adfacce8cc6486",
+  "driver_binary_sha256": {
+    "baseline": "8c4ff11595847af67e732c62ba23b167087ab2a2e59733874493526662a1cd0b",
+    "candidate": "4774174a0c3246d84c7fb8507127ef7bcd957f0940b701e60315d0add853fa2b",
+    "baseline_parallel": "12855c97586c5d3a204e030242dbb107a4171126bb3c8429808aca9b43cd984f",
+    "candidate_parallel": "abf2869178bfca0bda83843c2db46b773eb32c887afa829c492a1fb4b5863fdb"
+  },
+  "compilation": {
+    "method": "one import-only compile each with prebuilt BMIs, -std=c++20 -O3, /usr/bin/time; not a cold build; peak RSS is process total",
+    "baseline": {
+      "core": {
+        "wall_s": 0.04,
+        "rss_kib": 96000
+      },
+      "backed": {
+        "wall_s": 0.03,
+        "rss_kib": 96640
+      },
+      "facade": {
+        "wall_s": 0.04,
+        "rss_kib": 97280
+      }
+    },
+    "candidate": {
+      "core": {
+        "wall_s": 0.03,
+        "rss_kib": 96000
+      },
+      "backed": {
+        "wall_s": 0.03,
+        "rss_kib": 96640
+      },
+      "facade": {
+        "wall_s": 0.03,
+        "rss_kib": 99200
+      },
+      "streaming": {
+        "wall_s": 0.03,
+        "rss_kib": 97280
+      }
+    },
+    "public_bmi_bytes": {
+      "baseline": {
+        "anndata": 17784,
+        "anndata.backed": 6837960,
+        "anndata.core": 17636,
+        "anndata.core:arrays": 6673028,
+        "anndata.core:data": 7471548,
+        "anndata.core:records": 6168668,
+        "anndata.core:strings": 5873196,
+        "anndata.h5ad": 2331008,
+        "anndata.zarr": 2350832
+      },
+      "candidate": {
+        "anndata": 17880,
+        "anndata.backed": 7054780,
+        "anndata.core": 17612,
+        "anndata.core:arrays": 6673004,
+        "anndata.core:data": 7471524,
+        "anndata.core:records": 6168644,
+        "anndata.core:strings": 5873172,
+        "anndata.h5ad": 2331676,
+        "anndata.streaming": 6745236,
+        "anndata.zarr": 2351504
+      }
+    }
+  },
+  "cases": {
+    "dense_sequential": {
+      "candidate": {
+        "result": {
+          "calls": 256,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.0507771,
+          "prepare_seconds": 0.000242891,
+          "transfer_seconds": 0.0190713,
+          "hash": 6377155918592978731,
+          "backend_reads": 256,
+          "backend_read_bytes": 16777216,
+          "scratch_allocations": 9,
+          "scratch_bytes": 122767,
+          "adaptation_trials": 0,
+          "adaptations": 0
+        },
+        "read_intercepted_bytes": 13541842,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 74308,
+        "malloc_requested_bytes": 4397829,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 256,
+            "decode_bytes_in": 13540629,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 256,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.142848,
+          "prepare_seconds": 0.0618439,
+          "transfer_seconds": 0.0503989,
+          "hash": 6377155918592978731
+        },
+        "read_intercepted_bytes": 14293781,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 392960,
+        "malloc_requested_bytes": 112638762,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 256,
+            "decode_bytes_in": 13540629,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "dense_boundary": {
+      "candidate": {
+        "result": {
+          "calls": 704,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.197539,
+          "prepare_seconds": 0.000749589,
+          "transfer_seconds": 0.164696,
+          "hash": 11543436991577464735,
+          "backend_reads": 704,
+          "backend_read_bytes": 16777216,
+          "scratch_allocations": 1,
+          "scratch_bytes": 4096,
+          "adaptation_trials": 0,
+          "adaptations": 0
+        },
+        "read_intercepted_bytes": 21679086,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 313370,
+        "malloc_requested_bytes": 253773150,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 1024,
+            "decode_bytes_in": 21392238,
+            "decode_bytes_out": 33554432,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 704,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.481338,
+          "prepare_seconds": 0.213745,
+          "transfer_seconds": 0.236088,
+          "hash": 11543436991577464735
+        },
+        "read_intercepted_bytes": 27807214,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 1884800,
+        "malloc_requested_bytes": 401047964,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 1024,
+            "decode_bytes_in": 21392238,
+            "decode_bytes_out": 33554432,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "sparse_csr": {
+      "candidate": {
+        "result": {
+          "calls": 64,
+          "payload_bytes": 1065216,
+          "total_seconds": 0.00825433,
+          "prepare_seconds": 0.00123011,
+          "transfer_seconds": 0.00558332,
+          "hash": 14977799672703642419,
+          "backend_reads": 320,
+          "backend_read_bytes": 1065728,
+          "scratch_allocations": 0,
+          "scratch_bytes": 0,
+          "adaptation_trials": 0,
+          "adaptations": 0
+        },
+        "read_intercepted_bytes": 223406,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 320,
+        "hdf5_read_native_logical_bytes": 1065728,
+        "malloc_calls": 2166,
+        "malloc_requested_bytes": 3327092,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 264,
+            "decode_bytes_in": 223406,
+            "decode_bytes_out": 1064968,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": true,
+        "matches_independent_zarr": null,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 64,
+          "payload_bytes": 1065216,
+          "total_seconds": 2.01064,
+          "prepare_seconds": 0.851953,
+          "transfer_seconds": 1.15743,
+          "hash": 14977799672703642419
+        },
+        "read_intercepted_bytes": 67798876,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 20480,
+        "hdf5_read_native_logical_bytes": 1638400,
+        "malloc_calls": 1102329,
+        "malloc_requested_bytes": 1203762976,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 77832,
+            "decode_bytes_in": 67798876,
+            "decode_bytes_out": 268484616,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": true,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "sparse_csc": {
+      "candidate": {
+        "result": {
+          "calls": 16,
+          "payload_bytes": 1052736,
+          "total_seconds": 0.00604339,
+          "prepare_seconds": 0.000720876,
+          "transfer_seconds": 0.00409123,
+          "hash": 11039571602159804835,
+          "backend_reads": 80,
+          "backend_read_bytes": 1052864,
+          "scratch_allocations": 0,
+          "scratch_bytes": 0,
+          "adaptation_trials": 0,
+          "adaptations": 0
+        },
+        "read_intercepted_bytes": 213912,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 80,
+        "hdf5_read_native_logical_bytes": 1052864,
+        "malloc_calls": 1393,
+        "malloc_requested_bytes": 3260144,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 355,
+            "decode_bytes_in": 213912,
+            "decode_bytes_out": 1052676,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": true,
+        "matches_independent_zarr": null,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 16,
+          "payload_bytes": 1052736,
+          "total_seconds": 0.424817,
+          "prepare_seconds": 0.182761,
+          "transfer_seconds": 0.240857,
+          "hash": 11039571602159804835
+        },
+        "read_intercepted_bytes": 15899904,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 5120,
+        "hdf5_read_native_logical_bytes": 1589248,
+        "malloc_calls": 275605,
+        "malloc_requested_bytes": 298860784,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 20480,
+            "decode_bytes_in": 15899904,
+            "decode_bytes_out": 58728448,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": true,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "adaptive_boundary": {
+      "candidate": {
+        "result": {
+          "calls": 1036,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.199464,
+          "prepare_seconds": 0.000787665,
+          "transfer_seconds": 0.16544,
+          "hash": 18227616820364803355,
+          "backend_reads": 1036,
+          "backend_read_bytes": 16777216,
+          "scratch_allocations": 1,
+          "scratch_bytes": 4096,
+          "adaptation_trials": 2,
+          "adaptations": 1
+        },
+        "read_intercepted_bytes": 21933248,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 268550,
+        "malloc_requested_bytes": 256383650,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 1036,
+            "decode_bytes_in": 21643280,
+            "decode_bytes_out": 33947648,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "parallel_read": {
+      "candidate": {
+        "result": {
+          "calls": 32,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.0365416,
+          "summed_io_seconds": 0.106373,
+          "workers": 4,
+          "hash": 5672438200482865005,
+          "backend_calls": 32,
+          "backend_bytes": 16777216,
+          "scratch_allocations": 4,
+          "scratch_bytes": 16384
+        },
+        "read_intercepted_bytes": 10829239,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 139328,
+        "malloc_requested_bytes": 126135854,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 512,
+            "decode_bytes_in": 10696119,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 32,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.0422606,
+          "summed_io_seconds": 0.125728,
+          "workers": 4,
+          "hash": 5672438200482865005
+        },
+        "read_intercepted_bytes": 11108727,
+        "write_intercepted_bytes": 0,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 210752,
+        "malloc_requested_bytes": 132821646,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 512,
+            "decode_bytes_in": 10696119,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": null,
+        "matches_baseline": null
+      }
+    },
+    "parallel_write": {
+      "candidate": {
+        "result": {
+          "calls": 32,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.823178,
+          "summed_io_seconds": 3.15568,
+          "workers": 4,
+          "hash": 6742338738024551687,
+          "backend_calls": 32,
+          "backend_bytes": 16777216,
+          "scratch_allocations": 4,
+          "scratch_bytes": 16384
+        },
+        "read_intercepted_bytes": 168771306,
+        "write_intercepted_bytes": 168286998,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 225856,
+        "malloc_requested_bytes": 980234990,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 512,
+            "decode_bytes_in": 10696119,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 512,
+            "encode_bytes_in": 16777216,
+            "encode_bytes_out": 10344931
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": true,
+        "matches_baseline": true
+      },
+      "baseline": {
+        "result": {
+          "calls": 32,
+          "payload_bytes": 16777216,
+          "total_seconds": 0.842919,
+          "summed_io_seconds": 3.22687,
+          "workers": 4,
+          "hash": 6742338738024551687
+        },
+        "read_intercepted_bytes": 169016138,
+        "write_intercepted_bytes": 168286998,
+        "read_rejections": 0,
+        "write_rejections": 0,
+        "hdf5_read_calls": 0,
+        "hdf5_read_native_logical_bytes": 0,
+        "malloc_calls": 293152,
+        "malloc_requested_bytes": 986823278,
+        "codecs": {
+          "blosc": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          },
+          "zstd": {
+            "decode_calls": 512,
+            "decode_bytes_in": 10696119,
+            "decode_bytes_out": 16777216,
+            "encode_calls": 512,
+            "encode_bytes_in": 16777216,
+            "encode_bytes_out": 10344931
+          },
+          "zlib": {
+            "decode_calls": 0,
+            "decode_bytes_in": 0,
+            "decode_bytes_out": 0,
+            "encode_calls": 0,
+            "encode_bytes_in": 0,
+            "encode_bytes_out": 0
+          }
+        },
+        "matches_independent_scipy": null,
+        "matches_independent_zarr": true,
+        "matches_baseline": null
+      }
+    }
+  },
+  "fixture_generator_note": "The fixture was generated from this generator before its optional restricted-runner wakeup bootstrap was added. That small bootstrap was supplied by the calling wrapper instead. The pre-bootstrap source was not independently hashed; exact generated file identities are retained in the fixture manifest.",
+  "runner_note": "The baseline read cases were run before the runner gained checkpoint-before-write-validation and explicit budget-failure exit handling. The baseline write case and all candidate cases used checkpoint-before-validation; budget-failure exit handling was added after measurement. Raw result files and their hashes identify observations.",
+  "current_reproduction_tool_sha256": {
+    "tools/streaming_probe.py": "1c5a39e3686d4185537061dc223b1d689cd2b2f9983170e15578be71a81df167",
+    "benchmarks/streaming_probe/make_fixture.py": "b3fe85c16a2a99d6a404a71ebf483a6532027f90b54512e1be39defbcb8241a1"
+  }
+}

@@ -5,6 +5,7 @@ module;
 #include <cstring>
 #include <fcntl.h>
 #include <functional>
+#include <limits>
 #include <map>
 #include <memory>
 #include <optional>
@@ -75,15 +76,45 @@ struct Mapping {
     std::size_t size=0;
     ~Mapping() { if(data!=MAP_FAILED) ::munmap(data,size); }
 };
+class ZarrNumeric final:public backed_detail::NumericTransfer {
+    ze::Store& store_;
+    std::string path_;
+    ze::ArrayMetadata metadata_;
+    ze::NumericCodec codec_;
+    bool writable_;
+    backed_detail::NumericTransferStats stats_;
+    std::size_t bytes(const std::vector<std::size_t>& count) const {
+        auto n=ze::checked_product(count);
+        if(metadata_.item_size && n>std::numeric_limits<std::size_t>::max()/metadata_.item_size)
+            throw Error(ErrorCode::invalid_argument,path_,"transfer byte size overflows size_t");
+        return n*metadata_.item_size;
+    }
+public:
+    ZarrNumeric(ze::Store& store,std::string path,bool writing):store_(store),path_(std::move(path)),
+        metadata_(zarr_call([&] { return store_.prepare_numeric(path_); })),
+        codec_(zarr_call([&] { return store_.numeric_codec(metadata_); })),writable_(writing) {}
+    void read(const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,void* out) override {
+        zarr_call([&] { store_.read_numeric(path_,metadata_,codec_,start,count,out); });
+        const auto n=bytes(count); if(n) { ++stats_.read_calls; stats_.read_bytes+=n; }
+    }
+    void write(const std::vector<std::size_t>& start,const std::vector<std::size_t>& count,const void* in) override {
+        if(!writable_) throw Error(ErrorCode::invalid_argument,path_,"transfer was not prepared for writing");
+        zarr_call([&] { store_.write_numeric(path_,metadata_,codec_,start,count,in); });
+        const auto n=bytes(count); if(n) { ++stats_.write_calls; stats_.write_bytes+=n; }
+    }
+    backed_detail::NumericTransferStats stats() const override { return stats_; }
+    std::size_t scratch_capacity() const override { return 0; }
+};
 class ZarrBackend final:public backed_detail::Backend {
     std::unique_ptr<ze::Store> store_;
     std::string location_;
     std::string identity_;
     std::size_t scratch_bytes_;
+    bool writable_;
     ze::CreateOptions create_;
     ze::Store& store() { if(!store_) throw Error(ErrorCode::invalid_argument,location_,"Zarr session is closed"); return *store_; }
 public:
-    ZarrBackend(std::string path,bool writable,std::size_t scratch,ze::CreateOptions create={}):location_(std::move(path)),scratch_bytes_(scratch),create_(std::move(create)) {
+    ZarrBackend(std::string path,bool writable,std::size_t scratch,ze::CreateOptions create={}):location_(std::move(path)),scratch_bytes_(scratch),writable_(writable),create_(std::move(create)) {
         struct stat directory{};
         if(::stat(location_.c_str(),&directory)!=0 || !S_ISDIR(directory.st_mode))
             throw Error(ErrorCode::io_error,location_,"cannot identify the Zarr store directory");
@@ -97,6 +128,14 @@ public:
     }
     std::string location() const override { return location_; }
     std::string identity() const override { return identity_; }
+    std::size_t retained_scratch_bytes() const override { return store_ ? store_->retained_scratch_bytes() : 0; }
+    std::size_t scratch_allocations() const override { return store_ ? store_->scratch_allocations() : 0; }
+    std::unique_ptr<backed_detail::Backend> fork(std::size_t scratch) override {
+        return zarr_call([&] { return std::make_unique<ZarrBackend>(location_,writable_,scratch,create_); });
+    }
+    std::unique_ptr<backed_detail::NumericTransfer> prepare_numeric(std::string_view path) override {
+        return zarr_call([&] { return std::make_unique<ZarrNumeric>(store(),std::string(path),writable_); });
+    }
     std::size_t numeric_workspace_bytes(const backed_detail::NodeInfo& info, bool writing) override {
         // The codec keeps at most three quarter-budget payload buffers live:
         // original encoded/decoded data, its pipeline input, and its output.
@@ -107,6 +146,7 @@ public:
     backed_detail::NodeInfo inspect(std::string_view path) override { return zarr_call([&] {
         const auto node=store().inspect(std::string(path)); backed_detail::NodeInfo info;
         info.exists=node.exists; info.group=node.group;
+        info.parallel_reads=true; info.parallel_writes=true;
         if(!node.exists) return info;
         info.attrs=from_json(node.attributes);
         for(const auto& [name,value]:node.attributes.items()) { (void)value; if(!semantic_attribute(name)) info.has_opaque_attrs=true; }
@@ -114,6 +154,11 @@ public:
             info.strings=node.array.type==ze::Type::string;
             if(!info.strings) info.dtype=static_cast<DType>(node.array.type);
             info.shape=node.array.shape;
+            info.physical.shape=node.array.shape;
+            info.physical.organization=StorageOrganization::chunked;
+            info.physical.chunks=node.array.chunks;
+            info.physical.inner_chunks=node.array.chunks;
+            info.physical.write_unit=node.array.chunks;
             info.byte_order=node.array.endian=='<'?ByteOrder::little:node.array.endian=='>'?ByteOrder::big:ByteOrder::native;
             if(!info.strings) {
                 info.codec_tile_shape=node.array.chunks;
@@ -121,7 +166,9 @@ public:
                 if(codecs.is_array() && !codecs.empty() && codecs.front().is_object() &&
                    codecs.front().value("name",std::string())=="sharding_indexed") {
                     info.sharded_payload=true;
+                    info.physical.organization=StorageOrganization::sharded;
                     info.codec_tile_shape=codecs.front().at("configuration").at("chunk_shape").get<std::vector<std::size_t>>();
+                    info.physical.inner_chunks=info.codec_tile_shape;
                     if(info.codec_tile_shape.size()!=node.array.chunks.size())
                         throw Error(ErrorCode::unsupported_encoding,std::string(path),"shard and inner chunk ranks differ");
                     for(std::size_t axis=0;axis<info.codec_tile_shape.size();++axis)

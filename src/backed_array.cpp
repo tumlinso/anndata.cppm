@@ -950,4 +950,222 @@ void BackedArray::write(const ArrayView& source) const {
     DenseBuffer b{const_cast<std::byte*>(bytes->data()), d.data.dtype, d.shape, std::move(strides)};
     dense_transfer(node_, d, b, true);
 }
+namespace detail {
+struct TransferContextImpl {
+    NodePtr node;
+    Descriptor descriptor;
+    StorageGeometry geometry;
+    std::unique_ptr<Backend> backend;
+    std::unique_ptr<backed_detail::NumericTransfer> data, indices, offsets;
+    std::vector<std::byte> tile;
+    std::size_t budget = 0;
+    bool sparse_prepared = false;
+    std::vector<std::size_t> sparse_start, sparse_count;
+    std::size_t sparse_begin = 0, sparse_end = 0;
+
+    void check() const { backed_detail::check_node(node); }
+    void block(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count) const {
+        check();
+        const auto& shape = descriptor.shape;
+        if (start.size() != shape.size() || count.size() != shape.size())
+            fail(ErrorCode::shape_mismatch, node, "transfer block rank differs from array rank");
+        for (std::size_t i = 0; i < shape.size(); ++i)
+            if (start[i] > shape[i] || count[i] > shape[i] - start[i])
+                fail(ErrorCode::out_of_bounds, node, "transfer block exceeds selected array");
+    }
+    ReadRequirements requirements(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count) {
+        block(start, count);
+        const auto& d = descriptor;
+        ReadRequirements r;
+        r.layout = d.layout; r.dtype = d.data.dtype; r.shape = count;
+        if (d.layout == Layout::dense) return r;
+        const auto major = d.layout == Layout::csr ? 0u : 1u, minor = 1u - major;
+        if (start[minor] != 0 || count[minor] != d.shape[minor])
+            fail(ErrorCode::unsupported_layout, node, "sparse transfer requires the complete minor axis");
+        r.index_dtype = d.indices.dtype; r.offset_dtype = d.offsets.dtype;
+        if (sparse_prepared && start == sparse_start && count == sparse_count) {
+            r.nnz = sparse_end - sparse_begin;
+            return r;
+        }
+        sparse_prepared = false;
+        std::array<std::byte, 16> pair{};
+        const auto first = static_cast<std::size_t>(d.axes[major].start) + start[major];
+        const auto osz = dtype_size(d.offsets.dtype);
+        offsets->read({first}, {1}, pair.data());
+        offsets->read({first + count[major]}, {1}, pair.data() + osz);
+        const auto begin = read_index(pair.data(), d.offsets.dtype, node);
+        const auto end = read_index(pair.data() + osz, d.offsets.dtype, node);
+        if (end < begin || end > d.data.shape[0])
+            fail(ErrorCode::invalid_sparse_structure, node, "sparse block offsets are invalid");
+        if (node->session->options.validation == Validation::full &&
+            ((first == 0 && begin != 0) || (first + count[major] == d.source_shape[major] && end != d.data.shape[0])))
+            fail(ErrorCode::invalid_sparse_structure, node, "sparse boundary offset differs from nnz");
+        sparse_start = start; sparse_count = count; sparse_begin = begin; sparse_end = end; sparse_prepared = true;
+        r.nnz = end - begin;
+        return r;
+    }
+    void dense(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count,
+               const DenseBuffer& b, bool writing) {
+        block(start, count);
+        const auto& d = descriptor;
+        if (d.layout != Layout::dense) fail(ErrorCode::unsupported_layout, node, "dense buffer supplied for sparse transfer");
+        Descriptor selected; selected.layout = Layout::dense; selected.data.dtype = d.data.dtype; selected.shape = count;
+        validate_buffer(selected, b, node);
+        if (writing) {
+            node->session->check_writable();
+            if (!node->writable) fail(ErrorCode::invalid_argument, node, "backed view is read-only");
+        }
+        const auto n = elements(count, node), width = dtype_size(d.data.dtype), rank = count.size();
+        if (!n) return;
+        auto strides = b.strides.empty() ? contiguous_strides(count, width, node) : b.strides;
+        auto* p = static_cast<std::byte*>(b.data);
+        const bool canonical = !writing && d.data.dtype == DType::boolean && node->session->options.validation == Validation::full;
+        auto transfer = [&](const std::vector<std::size_t>& source, const std::vector<std::size_t>& ext, std::byte* q) {
+            if (writing) data->write(source, ext, q); else data->read(source, ext, q);
+            if (canonical) for (std::size_t j = 0, m = elements(ext, node); j < m; ++j)
+                q[j] = q[j] == std::byte{0} ? std::byte{0} : std::byte{1};
+        };
+        if (!rank) { transfer({}, {}, p); return; }
+        std::vector<std::size_t> source(rank), ext(rank, 1);
+        if (forward_rectangle(d) && strides == contiguous_strides(count, width, node)) {
+            for (std::size_t i = 0; i < rank; ++i) source[i] = d.axes[i].at(start[i]);
+            transfer(source, count, p);
+            return;
+        }
+        const auto last = rank - 1;
+        const bool packed = strides[last] == static_cast<std::ptrdiff_t>(width);
+        const auto maximum = packed ? std::numeric_limits<std::size_t>::max() : tile.size() / width;
+        if (!maximum) fail(ErrorCode::invalid_argument, node, "scratch budget cannot stage one numerical value");
+        const auto outer = n / count[last];
+        for (std::size_t row = 0; row < outer; ++row) {
+            auto rem = row;
+            std::ptrdiff_t off = 0;
+            for (std::size_t i = last; i-- > 0;) {
+                const auto j = rem % count[i]; rem /= count[i];
+                source[i] = d.axes[i].at(start[i] + j);
+                off = add_stride(off, mul_stride(strides[i], j, node), node);
+            }
+            for (std::size_t col = 0; col < count[last];) {
+                source[last] = d.axes[last].at(start[last] + col);
+                std::size_t run = 1;
+                const auto limit = std::min(maximum, count[last] - col);
+                while (run < limit && d.axes[last].at(start[last] + col + run) == source[last] + run) ++run;
+                ext[last] = run;
+                auto* q = p + add_stride(off, mul_stride(strides[last], col, node), node);
+                if (packed) transfer(source, ext, q);
+                else {
+                    if (writing) for (std::size_t j = 0; j < run; ++j)
+                        std::memcpy(tile.data() + j*width, q + mul_stride(strides[last], j, node), width);
+                    transfer(source, ext, tile.data());
+                    if (!writing) for (std::size_t j = 0; j < run; ++j)
+                        std::memcpy(q + mul_stride(strides[last], j, node), tile.data() + j*width, width);
+                }
+                col += run;
+            }
+        }
+    }
+};
+}
+TransferContext::TransferContext() = default;
+TransferContext::~TransferContext() = default;
+TransferContext::TransferContext(TransferContext&&) noexcept = default;
+TransferContext& TransferContext::operator=(TransferContext&&) noexcept = default;
+TransferContext::TransferContext(std::unique_ptr<detail::TransferContextImpl> p) : impl_(std::move(p)) {}
+namespace {
+detail::TransferContextImpl& transfer_context(const std::unique_ptr<detail::TransferContextImpl>& p) {
+    if (!p) throw Error(ErrorCode::invalid_argument, "transfer context", "empty transfer context");
+    p->check(); return *p;
+}
+}
+StorageGeometry TransferContext::geometry() const { return transfer_context(impl_).geometry; }
+std::size_t TransferContext::scratch_capacity() const { return transfer_context(impl_).budget; }
+ReadRequirements TransferContext::requirements(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count) {
+    return transfer_context(impl_).requirements(start, count);
+}
+void TransferContext::read_into(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const DenseBuffer& b) {
+    transfer_context(impl_).dense(start, count, b, false);
+}
+void TransferContext::write_from(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const DenseBuffer& b) {
+    transfer_context(impl_).dense(start, count, b, true);
+}
+void TransferContext::read_into(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const SparseBuffer& b) {
+    auto& p = transfer_context(impl_);
+    const auto r = p.requirements(start, count);
+    if (r.layout == Layout::dense) fail(ErrorCode::unsupported_layout, p.node, "sparse buffer supplied for dense transfer");
+    if (b.dtype != r.dtype || b.index_dtype != r.index_dtype || b.offset_dtype != r.offset_dtype)
+        fail(ErrorCode::dtype_mismatch, p.node, "sparse transfer requires the stored numerical widths");
+    const auto major = r.layout == Layout::csr ? 0u : 1u, minor = 1u - major;
+    const auto m = count[major], vsz = dtype_size(r.dtype), isz = dtype_size(r.index_dtype), osz = dtype_size(r.offset_dtype);
+    if (m == std::numeric_limits<std::size_t>::max() || b.values_capacity < r.nnz || b.indices_capacity < r.nnz || b.offsets_capacity < m + 1)
+        fail(ErrorCode::shape_mismatch, p.node, "sparse destination capacities are insufficient");
+    if (!b.offsets || (r.nnz && (!b.values || !b.indices))) fail(ErrorCode::invalid_argument, p.node, "sparse destination buffer is null");
+    const auto limit = static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max());
+    if (multiply(r.nnz, vsz, p.node) > limit || multiply(r.nnz, isz, p.node) > limit || multiply(m + 1, osz, p.node) > limit)
+        fail(ErrorCode::invalid_argument, p.node, "sparse destination byte span exceeds ptrdiff_t");
+    const auto first = static_cast<std::size_t>(p.descriptor.axes[major].start) + start[major];
+    auto* out = static_cast<std::byte*>(b.offsets);
+    p.offsets->read({first}, {m + 1}, out);
+    std::size_t previous = p.sparse_begin;
+    for (std::size_t j = 0; j <= m; ++j) {
+        const auto v = read_index(out + j*osz, r.offset_dtype, p.node);
+        if (v < previous || v > p.sparse_end || (j == 0 && v != p.sparse_begin) || (j == m && v != p.sparse_end))
+            fail(ErrorCode::invalid_sparse_structure, p.node, "sparse structure changed after block preparation");
+        write_index(out + j*osz, r.offset_dtype, v - p.sparse_begin, p.node); previous = v;
+    }
+    if (!r.nnz) return;
+    p.indices->read({p.sparse_begin}, {r.nnz}, b.indices);
+    if (p.node->session->options.validation == Validation::full)
+        for (std::size_t j = 0; j < r.nnz; ++j)
+            if (read_index(static_cast<const std::byte*>(b.indices) + j*isz, r.index_dtype, p.node) >= r.shape[minor])
+                fail(ErrorCode::invalid_sparse_structure, p.node, "sparse index exceeds minor dimension");
+    p.data->read({p.sparse_begin}, {r.nnz}, b.values);
+    if (r.dtype == DType::boolean && p.node->session->options.validation == Validation::full)
+        for (std::size_t j = 0; j < r.nnz; ++j) {
+            auto& v = static_cast<std::byte*>(b.values)[j]; v = v == std::byte{0} ? std::byte{0} : std::byte{1};
+        }
+}
+TransferStats TransferContext::stats() const {
+    const auto& p = transfer_context(impl_);
+    TransferStats out;
+    for (const auto* resource : {p.data.get(), p.indices.get(), p.offsets.get()}) if (resource) {
+        const auto s = resource->stats();
+        out.read_calls += s.read_calls; out.write_calls += s.write_calls;
+        out.read_bytes += s.read_bytes; out.write_bytes += s.write_bytes;
+        out.scratch_allocations += s.scratch_allocations; out.scratch_bytes += s.scratch_bytes;
+    }
+    out.scratch_allocations += p.backend->scratch_allocations() + !p.tile.empty();
+    out.scratch_bytes += p.backend->retained_scratch_bytes() + p.tile.capacity();
+    return out;
+}
+TransferContext BackedArray::prepare_transfer(std::size_t scratch_bytes) const {
+    auto d = describe(node_);
+    if (node_->code_recode || node_->color_override)
+        fail(ErrorCode::unsupported_layout, node_, "transformed annotation buffers cannot prepare a native transfer");
+    if (d.layout != Layout::dense) {
+        const auto major = d.layout == Layout::csr ? 0u : 1u, minor = 1u - major;
+        if (d.axes[major].has_positions() || d.axes[major].step != 1 || !d.axes[minor].all(d.source_shape[minor]))
+            fail(ErrorCode::unsupported_layout, node_, "sparse transfers require consecutive native major-axis blocks and a complete minor axis");
+    }
+    auto p = std::make_unique<detail::TransferContextImpl>();
+    p->node = node_; p->geometry = storage_geometry(); p->descriptor = std::move(d);
+    p->budget = scratch_bytes ? scratch_bytes : backed_detail::scratch_remaining(node_);
+    if (p->budget < 1024) fail(ErrorCode::invalid_argument, node_, "transfer scratch budget must be at least 1024 bytes");
+    p->backend = node_->session->backend->fork(p->budget);
+    if (p->backend->identity() != node_->session->backend->identity())
+        fail(ErrorCode::invalid_argument, node_, "store identity changed before transfer preparation");
+    const auto& desc = p->descriptor;
+    const auto path = desc.layout == Layout::dense ? node_->path : backed_detail::child(node_->path, "data");
+    p->data = p->backend->prepare_numeric(path);
+    if (desc.layout != Layout::dense) {
+        p->indices = p->backend->prepare_numeric(backed_detail::child(node_->path, "indices"));
+        p->offsets = p->backend->prepare_numeric(backed_detail::child(node_->path, "indptr"));
+    } else if (!desc.shape.empty()) {
+        const auto workspace = std::max(p->backend->numeric_workspace_bytes(desc.data, false),
+                                       node_->writable ? p->backend->numeric_workspace_bytes(desc.data, true) : std::size_t{0});
+        const auto available = staging_budget(p->budget, workspace, node_);
+        const auto required = multiply(desc.shape.back(), dtype_size(desc.data.dtype), node_);
+        p->tile.resize(std::min({available, required, std::size_t{1024*1024}}));
+    }
+    return TransferContext(std::move(p));
+}
 } // namespace anndata

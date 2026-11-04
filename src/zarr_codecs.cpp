@@ -54,16 +54,17 @@ std::uint32_t crc32c(std::span<const std::byte> input) {
     return ~v;
 }
 
-Bytes zlib_transform(std::span<const std::byte> input, bool encode, bool gzip, int level, std::size_t limit) {
+Bytes zlib_transform(std::span<const std::byte> input, bool encode, bool gzip, int level, std::size_t limit, Bytes result = {}, Bytes* reusable_block = nullptr) {
     if (input.size() > std::numeric_limits<uInt>::max()) fail("zlib chunk exceeds supported size");
-    Bytes block(std::min<std::size_t>(limit, 65536));
+    Bytes block=reusable_block?std::move(*reusable_block):Bytes{};
+    block.resize(std::min<std::size_t>(limit, 65536));
     z_stream s{};
     int status = encode ? deflateInit2(&s, level, Z_DEFLATED, gzip ? 31 : 15, 8, Z_DEFAULT_STRATEGY)
                         : inflateInit2(&s, 47);
     if (status != Z_OK) fail("cannot initialize zlib codec");
     s.next_in = reinterpret_cast<Bytef*>(const_cast<std::byte*>(input.data()));
     s.avail_in = static_cast<uInt>(input.size());
-    Bytes result;
+    result.clear();
     do {
         s.next_out = reinterpret_cast<Bytef*>(block.data());
         s.avail_out = static_cast<uInt>(block.size());
@@ -78,15 +79,16 @@ Bytes zlib_transform(std::span<const std::byte> input, bool encode, bool gzip, i
     const bool trailing = s.avail_in != 0;
     if (encode) deflateEnd(&s); else inflateEnd(&s);
     if (trailing) fail("trailing data in zlib/gzip payload");
+    if (reusable_block) *reusable_block=std::move(block);
     return result;
 }
-Bytes zstd_transform(std::span<const std::byte> input, bool encode, int level, bool checksum, std::size_t limit) {
+Bytes zstd_transform(std::span<const std::byte> input, bool encode, int level, bool checksum, std::size_t limit, Bytes out = {}, Bytes* reusable_block = nullptr) {
     if (encode) {
         std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)> ctx(ZSTD_createCCtx(), &ZSTD_freeCCtx);
         if (!ctx) fail("cannot initialize Zstd codec");
         auto p = ZSTD_CCtx_setParameter(ctx.get(), ZSTD_c_compressionLevel, level);
         if (!ZSTD_isError(p)) p = ZSTD_CCtx_setParameter(ctx.get(), ZSTD_c_checksumFlag, checksum ? 1 : 0);
-        Bytes out(std::min(limit, ZSTD_compressBound(input.size())));
+        out.resize(std::min(limit, ZSTD_compressBound(input.size())));
         if (!ZSTD_isError(p)) p = ZSTD_compress2(ctx.get(), out.data(), out.size(), input.data(), input.size());
         if (ZSTD_isError(p)) fail(std::string("Zstd compression failed: ") + ZSTD_getErrorName(p));
         out.resize(p);
@@ -95,8 +97,9 @@ Bytes zstd_transform(std::span<const std::byte> input, bool encode, int level, b
     std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)> ctx(ZSTD_createDCtx(), &ZSTD_freeDCtx);
     if (!ctx) fail("cannot initialize Zstd codec");
     ZSTD_inBuffer in{input.data(), input.size(), 0};
-    Bytes out;
-    Bytes block(std::min<std::size_t>(limit, 65536));
+    out.clear();
+    Bytes block=reusable_block?std::move(*reusable_block):Bytes{};
+    block.resize(std::min<std::size_t>(limit, 65536));
     std::size_t remaining = 1;
     while (in.pos < in.size || remaining != 0) {
         ZSTD_outBuffer ob{block.data(), block.size(), 0};
@@ -108,9 +111,10 @@ Bytes zstd_transform(std::span<const std::byte> input, bool encode, int level, b
         append(out, block.data(), ob.pos, limit);
         if (remaining == 0 && in.pos != in.size) fail("trailing data in Zstd payload");
     }
+    if (reusable_block) *reusable_block=std::move(block);
     return out;
 }
-Bytes blosc_transform(std::span<const std::byte> input, const Json& cfg, bool encode, std::size_t item_size, std::size_t limit) {
+Bytes blosc_transform(std::span<const std::byte> input, const Json& cfg, bool encode, std::size_t item_size, std::size_t limit, Bytes out = {}) {
     if (encode) {
         if (input.size() > BLOSC_MAX_BUFFERSIZE) fail("Blosc chunk exceeds supported size");
         int shuffle = 1;
@@ -128,7 +132,7 @@ Bytes blosc_transform(std::span<const std::byte> input, const Json& cfg, bool en
         const auto cname = cfg.value("cname", std::string("lz4"));
         auto typesize = cfg.value("typesize", std::max<std::size_t>(item_size, 1));
         if (typesize == 0 || typesize > 255) fail("invalid Blosc type size");
-        Bytes out(std::min(limit, input.size() + BLOSC_MAX_OVERHEAD));
+        out.resize(std::min(limit, input.size() + BLOSC_MAX_OVERHEAD));
         int n = blosc_compress_ctx(clevel, shuffle, typesize, input.size(), input.data(), out.data(), out.size(), cname.c_str(), cfg.value("blocksize", 0), 1);
         if (n <= 0) fail("Blosc compression failed (unsupported compressor or invalid configuration)");
         out.resize(static_cast<std::size_t>(n));
@@ -139,7 +143,7 @@ Bytes blosc_transform(std::span<const std::byte> input, const Json& cfg, bool en
     if (blosc_cbuffer_validate(input.data(), input.size(), &nbytes) != 0 || nbytes > BLOSC_MAX_BUFFERSIZE)
         fail("invalid Blosc payload size");
     bounded(nbytes, limit);
-    Bytes out(nbytes);
+    out.resize(nbytes);
     const int n = blosc_decompress_ctx(input.data(), out.data(), out.size(), 1);
     if (n < 0 || static_cast<std::size_t>(n) != nbytes) fail("Blosc decompression failed");
     return out;
@@ -331,6 +335,49 @@ std::size_t type_size(Type type) {
     case Type::string: return 0;
     }
     fail("unknown scalar type");
+}
+NumericCodec prepare_numeric_codec(const PayloadMeta& meta,const Shape& shape) {
+    NumericCodec result;
+    if(meta.array.type==Type::string) return result;
+    const auto p=pipeline(meta,shape);
+    if(!p.transposes.empty() || p.byte_codecs.size()!=1) return result;
+    if(meta.array.item_size>1 && p.endian!='=' && p.endian!='|' &&
+       p.endian!=(std::endian::native==std::endian::little?'<':'>')) return result;
+    const auto n=name(p.byte_codecs[0]);
+    using Kind=NumericCodec::Kind;
+    result.kind=n=="gzip"?Kind::gzip:n=="zlib"?Kind::zlib:n=="zstd"?Kind::zstd:n=="blosc"?Kind::blosc:Kind::none;
+    if(result.kind==Kind::none) return result;
+    result.configuration=config(p.byte_codecs[0]);
+    result.item_size=meta.array.item_size;
+    if(result.kind==Kind::gzip || result.kind==Kind::zlib) result.level=result.configuration.value("level",n=="gzip"?5:1);
+    if(result.kind==Kind::zstd) { result.level=result.configuration.value("level",0); result.checksum=result.configuration.value("checksum",false); }
+    return result;
+}
+std::size_t reusable_encoded_bound(const NumericCodec& codec,std::size_t size,std::size_t limit) {
+    if(codec.kind==NumericCodec::Kind::zstd) return std::min(limit,ZSTD_compressBound(size));
+    if(codec.kind==NumericCodec::Kind::blosc) return std::min(limit,size>std::numeric_limits<std::size_t>::max()-BLOSC_MAX_OVERHEAD?limit:size+BLOSC_MAX_OVERHEAD);
+    if(size>std::numeric_limits<uLong>::max()) fail("zlib chunk exceeds supported size");
+    const auto bound=compressBound(static_cast<uLong>(size));
+    return bound>std::numeric_limits<std::size_t>::max()-64?limit:std::min(limit,std::size_t(bound)+64);
+}
+bool reusable_needs_block(const NumericCodec& codec,bool writing) {
+    return codec.kind==NumericCodec::Kind::gzip || codec.kind==NumericCodec::Kind::zlib || (codec.kind==NumericCodec::Kind::zstd && !writing);
+}
+Bytes reusable_transform(const NumericCodec& codec,std::span<const std::byte> input,bool encode,std::size_t item_size,std::size_t limit,Bytes out,Bytes& block) {
+    using Kind=NumericCodec::Kind;
+    if(codec.kind==Kind::gzip || codec.kind==Kind::zlib) return zlib_transform(input,encode,codec.kind==Kind::gzip,codec.level,limit,std::move(out),&block);
+    if(codec.kind==Kind::zstd) return zstd_transform(input,encode,codec.level,codec.checksum,limit,std::move(out),&block);
+    if(codec.kind==Kind::blosc) return blosc_transform(input,codec.configuration,encode,item_size,limit,std::move(out));
+    fail("unsupported reusable numeric codec");
+}
+void decode_numeric_reusable(const NumericCodec& codec,std::size_t expected,std::size_t limit,std::span<const std::byte> input,Bytes& output,Bytes& block) {
+    bounded(input.size(),limit); bounded(expected,limit);
+    output=reusable_transform(codec,input,false,0,expected,std::move(output),block);
+    if(output.size()!=expected) fail("decoded chunk has wrong byte size");
+}
+void encode_numeric_reusable(const NumericCodec& codec,std::size_t limit,std::span<const std::byte> input,Bytes& output,Bytes& block) {
+    bounded(input.size(),limit);
+    output=reusable_transform(codec,input,true,codec.item_size,limit,std::move(output),block);
 }
 Chunk decode_payload(const PayloadMeta& meta, const Shape& shape, std::span<const std::byte> encoded) {
     const auto& m = meta.array;

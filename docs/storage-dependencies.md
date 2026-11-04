@@ -2,6 +2,20 @@
 
 The C++ core requires no storage library or Python runtime. Default builds enable HDF5 and Zarr. Storage headers, JSON and codecs remain private to implementation units.
 
+The adaptive-transfer milestone installed no native packages. Its isolated
+reference environment was created from the existing workspace interpreter with:
+
+```sh
+uv venv --python /home/tumlinson/anndata.cppm/.venv/bin/python3 \
+  --cache-dir /tmp/anndata-stream-uv-cache build/reference
+uv pip install --python build/reference/bin/python \
+  --cache-dir /tmp/anndata-stream-uv-cache -r tests/requirements-records.txt
+```
+
+These commands ran in the implementation worktree. The original `.venv` was
+unchanged. Scanpy remains a development-only dependency of the record regression
+gate; the new transfer gate uses `requirements-interop.txt`.
+
 | Dependency | Purpose | Version available for this milestone |
 |---|---|---|
 | HDF5 C | H5AD storage | 1.10.10 |

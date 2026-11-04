@@ -30,6 +30,11 @@ Public owners use erased out-of-line implementation. Small templates provide typ
 
 ## Reuse decisions
 
+`anndata.streaming` imports the backed API and adds caller-executed block plans
+and runtime adaptation. Geometry and worker-local `TransferContext` resources
+belong to `anndata.backed`. Tuning implementation stays out of the core module;
+neither module owns an execution pool. See [the transfer contract](streaming.md).
+
 - [HDF5](https://github.com/HDFGroup/hdf5): its C library sits behind the private H5AD adapter. AnnData element codecs are separate from generic HDF5 mechanics.
 - [tatami](https://github.com/tatami-inc/tatami), [tatami_hdf5](https://github.com/tatami-inc/tatami_hdf5): optional matrix-access adapters/reference. Their matrix abstractions do not supply the complete annotated data or serialization model.
 - [anndata-rs](https://github.com/scverse/anndata-rs): architectural reference for backed access and collections, not a runtime dependency or proof of complete AnnData compatibility.

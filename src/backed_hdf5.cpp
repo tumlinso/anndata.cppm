@@ -689,6 +689,67 @@ std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
     return result;
 }
 
+class Hdf5Numeric final : public NumericTransfer {
+public:
+    Hdf5Numeric(H5Context c, std::string path, H5Handle dataset, bool writable)
+        : c_(std::move(c)), path_(std::move(path)), dataset_(std::move(dataset)), writable_(writable) {
+        type_ = H5Handle(c_.id(H5Dget_type(dataset_), path_, "inspect numerical datatype"), H5Tclose);
+        dtype_ = dtype_of_h5(c_, type_, path_);
+        file_space_ = H5Handle(c_.id(H5Dget_space(dataset_), path_, "inspect transfer dataspace"), H5Sclose);
+        if (H5Sget_simple_extent_type(file_space_) == H5S_NULL)
+            c_.fail(ErrorCode::unsupported_encoding, path_, "null dataspace has no transferable values");
+        shape_ = shape_of(c_, file_space_, path_);
+        begin_.resize(shape_.size()); size_.resize(shape_.size());
+        check_filters(c_, dataset_, path_);
+    }
+    void read(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, void* out) override {
+        const auto n = select(start, count);
+        if (!n) return;
+        if (!out) c_.fail(ErrorCode::invalid_argument, path_, "null numerical destination");
+        const auto memory = dtype_ == DType::boolean ? static_cast<hid_t>(type_) : native_type(dtype_);
+        c_.check(H5Dread(dataset_, memory, memory_space_, file_space_, H5P_DEFAULT, out), path_, "read numerical rectangle");
+        ++stats_.read_calls; stats_.read_bytes += n * dtype_size(dtype_);
+    }
+    void write(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count, const void* in) override {
+        if (!writable_) c_.fail(ErrorCode::invalid_argument, path_, "H5AD session is read-only");
+        const auto n = select(start, count);
+        if (!n) return;
+        if (!in) c_.fail(ErrorCode::invalid_argument, path_, "null numerical source");
+        if (!write_checked_) { check_filters(c_, dataset_, path_, true); write_checked_ = true; }
+        const auto memory = dtype_ == DType::boolean ? static_cast<hid_t>(type_) : native_type(dtype_);
+        c_.check(H5Dwrite(dataset_, memory, memory_space_, file_space_, H5P_DEFAULT, in), path_, "write numerical rectangle");
+        ++stats_.write_calls; stats_.write_bytes += n * dtype_size(dtype_);
+    }
+    NumericTransferStats stats() const override { return stats_; }
+    std::size_t scratch_capacity() const override { return 0; }
+private:
+    std::size_t select(const std::vector<std::size_t>& start, const std::vector<std::size_t>& count) {
+        if (start.size() != shape_.size() || count.size() != shape_.size())
+            c_.fail(ErrorCode::shape_mismatch, path_, "rectangle rank does not match dataset");
+        for (std::size_t i = 0; i < shape_.size(); ++i) {
+            if (start[i] > shape_[i] || count[i] > shape_[i] - start[i])
+                c_.fail(ErrorCode::out_of_bounds, path_, "rectangle exceeds dataset");
+            begin_[i] = start[i]; size_[i] = count[i];
+        }
+        const auto n = product(c_, count, path_);
+        if (!n) return 0;
+        if (!memory_space_.valid() || memory_shape_ != count) {
+            memory_space_ = space_for(c_, count, path_); memory_shape_ = count;
+        }
+        if (!shape_.empty())
+            c_.check(H5Sselect_hyperslab(file_space_, H5S_SELECT_SET, begin_.data(), nullptr, size_.data(), nullptr), path_, "select rectangle");
+        return n;
+    }
+    H5Context c_;
+    std::string path_;
+    H5Handle dataset_, type_, file_space_, memory_space_;
+    std::vector<std::size_t> shape_, memory_shape_;
+    std::vector<hsize_t> begin_, size_;
+    DType dtype_ = DType::float64;
+    bool writable_ = false, write_checked_ = false;
+    NumericTransferStats stats_;
+};
+
 class Hdf5Backend final : public Backend {
 public:
     Hdf5Backend(std::string_view path, BackedOptions options, bool create = false,
@@ -719,6 +780,18 @@ public:
 
     std::string location() const override { return c_.filename; }
     std::string identity() const override { return identity_; }
+    std::unique_ptr<Backend> fork(std::size_t scratch) override {
+        ensure_open();
+        // HDF5 cannot reopen an existing writable file with a read-only access
+        // flag in the same process; preserve the original file access flags.
+        BackedOptions options; options.mode = writable_ ? AccessMode::read_write : AccessMode::read_only;
+        options.validation = c_.validation; options.scratch_bytes = scratch;
+        return std::make_unique<Hdf5Backend>(c_.filename, options);
+    }
+    std::unique_ptr<NumericTransfer> prepare_numeric(std::string_view path) override {
+        ensure_open();
+        return std::make_unique<Hdf5Numeric>(c_, std::string(path), numeric_dataset(path), writable_);
+    }
     bool same_file(std::string_view path) {
         ensure_open();
         if (path.empty() || path.find('\0') != std::string_view::npos) c_.fail(ErrorCode::invalid_argument, "/", "filename must be nonempty and NUL-free");
@@ -740,6 +813,9 @@ public:
         if (!object.valid()) return {};
         NodeInfo result;
         result.exists = true;
+        hbool_t threadsafe = 0;
+        c_.check(H5is_library_threadsafe(&threadsafe), path, "inspect HDF5 threading capability");
+        result.parallel_reads = threadsafe != 0;
         result.group = H5Iget_type(object) == H5I_GROUP;
         result.attrs = read_attributes(c_, object, path, result.has_opaque_attrs);
         const auto encoding = result.attrs.find("encoding-type");
@@ -749,6 +825,20 @@ public:
             if (H5Iget_type(object) != H5I_DATASET) c_.fail(ErrorCode::unsupported_encoding, path, "only groups and datasets are supported");
             H5Handle space(c_.id(H5Dget_space(object), path, "inspect dataspace"), H5Sclose);
             result.shape = shape_of(c_, space, path);
+            result.physical.shape = result.shape;
+            H5Handle creation(c_.id(H5Dget_create_plist(object), path, "inspect dataset layout"), H5Pclose);
+            const auto layout = H5Pget_layout(creation);
+            result.physical.organization = layout == H5D_CHUNKED ? StorageOrganization::chunked :
+                layout == H5D_CONTIGUOUS || layout == H5D_COMPACT ? StorageOrganization::contiguous : StorageOrganization::unknown;
+            if (layout == H5D_CHUNKED) {
+                std::vector<hsize_t> chunks(result.shape.size());
+                if (H5Pget_chunk(creation, int(chunks.size()), chunks.data()) < 0)
+                    c_.fail(ErrorCode::io_error, path, "inspect HDF5 chunks failed");
+                result.physical.chunks.assign(chunks.begin(), chunks.end());
+                result.physical.inner_chunks = result.physical.chunks;
+                result.codec_tile_shape = result.physical.chunks;
+            }
+            result.physical.write_unit = result.physical.chunks.empty() ? result.shape : result.physical.chunks;
             if (null_encoding && H5Sget_simple_extent_type(space) != H5S_NULL) c_.fail(ErrorCode::unsupported_encoding, path, "null encoding requires an HDF5 null dataspace");
             if (!null_encoding && H5Sget_simple_extent_type(space) == H5S_NULL) c_.fail(ErrorCode::unsupported_encoding, path, "non-null encoding cannot use an HDF5 null dataspace");
             if (H5Sget_simple_extent_type(space) != H5S_NULL) {

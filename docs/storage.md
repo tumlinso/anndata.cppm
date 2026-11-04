@@ -37,9 +37,14 @@ The initial Zarr codec engine uses complete inner-chunk decode buffers, with con
 
 Forward dense copies use destination codec geometry and one reusable bounded rectangle buffer. Packed forward reads/writes can use the caller's buffer directly; arbitrary gathers retain the bounded fallback. Scratch controls transfer payload/staging, rather than total process RSS; metadata, fixed stack storage and third-party internal allocations are reported separately where measured.
 
-Callers synchronize access and choose parallel execution. HDF5's installed thread-safety capability can be queried. Zarr chunks within one shard share a write-conflict unit. Array shapes and explicit selections let callers partition work; physical chunk/shard geometry is not yet a public descriptor. The library launches no execution pool, and numerical buffers can be processed independently using ordinary C++ concurrency rules.
+Callers synchronize access and choose parallel execution. HDF5's installed thread-safety capability can be queried. Zarr chunks within one shard share a write-conflict unit. Array shapes, selections, and public source geometry let callers partition work; block streams retain ownership of conflict units across bounded fragments. The library launches no execution pool, and numerical buffers can be processed independently using ordinary C++ concurrency rules.
 
 ## Structural updates
+
+For source geometry, reusable worker resources, and caller-controlled adaptive
+or manual block execution, see [streaming](streaming.md). Physical geometry is
+now public through `storage_geometry()`; it describes source coordinates rather
+than promising contiguous memory for a selection.
 
 `edit_structure()` collects replacements/deletions and validates the final axis relationships before applying changes. It supports slots, nested metadata, table columns, sparse replacements and coordinated observation/variable changes. Axis growth requires explicit replacement data for affected aligned slots; no biological fill values are invented. Reindexing transforms layers, multidimensional annotations, both pairwise dimensions and raw observation alignment; raw keeps its independent variable axis.
 

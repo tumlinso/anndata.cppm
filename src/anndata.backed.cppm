@@ -50,13 +50,65 @@ struct ReadRequirements {
     std::vector<std::size_t> shape;
     std::size_t nnz = 0;
 };
+enum class StorageOrganization { unknown, contiguous, chunked, sharded };
+struct PhysicalArrayGeometry {
+    StorageOrganization organization = StorageOrganization::unknown;
+    std::vector<std::size_t> shape, chunks, inner_chunks, write_unit;
+};
+// Physical coordinates never change with selection. Non-affine selections
+// have affine=false; start/step describe only affine source mappings.
+struct StorageAxis {
+    bool affine = true;
+    std::ptrdiff_t start = 0, step = 1;
+};
+struct StorageGeometry {
+    Layout layout = Layout::dense;
+    DType dtype = DType::float64;
+    std::vector<std::size_t> shape, source_shape;
+    std::vector<StorageAxis> axes;
+    PhysicalArrayGeometry data, indices, offsets;
+    bool parallel_reads = false, parallel_writes = false;
+    bool writable = false;
+};
+struct TransferStats {
+    std::size_t read_calls = 0, write_calls = 0;
+    std::size_t read_bytes = 0, write_bytes = 0;
+    std::size_t scratch_allocations = 0, scratch_bytes = 0;
+};
 namespace detail {
 struct BackedNode;
 struct BackedDataset;
 struct PreparedReadImpl;
 struct StructureEditImpl;
 struct BackedAccess;
+struct TransferContextImpl;
 }
+// One context per worker. Numerical buffers remain caller-owned. Structural
+// edits and explicit close invalidate it; numerical payload edits do not.
+class TransferContext {
+public:
+    TransferContext();
+    ~TransferContext();
+    TransferContext(TransferContext&&) noexcept;
+    TransferContext& operator=(TransferContext&&) noexcept;
+    TransferContext(const TransferContext&) = delete;
+    TransferContext& operator=(const TransferContext&) = delete;
+    StorageGeometry geometry() const;
+    ReadRequirements requirements(const std::vector<std::size_t>& start,
+                                  const std::vector<std::size_t>& count);
+    void read_into(const std::vector<std::size_t>& start,
+                   const std::vector<std::size_t>& count, const DenseBuffer&);
+    void read_into(const std::vector<std::size_t>& start,
+                   const std::vector<std::size_t>& count, const SparseBuffer&);
+    void write_from(const std::vector<std::size_t>& start,
+                    const std::vector<std::size_t>& count, const DenseBuffer&);
+    TransferStats stats() const;
+    std::size_t scratch_capacity() const;
+private:
+    std::unique_ptr<detail::TransferContextImpl> impl_;
+    explicit TransferContext(std::unique_ptr<detail::TransferContextImpl>);
+    friend class BackedArray;
+};
 // Retained read-only file bytes. Typed interpretation is an explicit Linux/Clang
 // extension contract; it does not establish C++ object lifetime in file storage.
 class MappedArray {
@@ -106,6 +158,8 @@ public:
     BackedArray select(std::vector<Selection> axes) const;
     Array read() const;
     PreparedRead prepare_read() const;
+    StorageGeometry storage_geometry() const;
+    TransferContext prepare_transfer(std::size_t scratch_bytes = 0) const;
     void read_into(const DenseBuffer&) const;
     void read_into(const SparseBuffer&) const;
     // Only an eligible full array can map. Failure is explicit and never falls

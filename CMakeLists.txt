@@ -65,10 +65,11 @@ target_sources(anndata
     src/anndata.records.cppm
     src/anndata.data.cppm
     src/anndata.backed.cppm
+    src/anndata.streaming.cppm
   PRIVATE src/arrays.cpp src/strings.cpp src/records.cpp src/data.cpp src/backed.cpp
     src/backed_array.cpp src/backed_codec.cpp src/backed_structure.cpp src/backed_writer.cpp
     src/backed_index.cpp src/backed_copy.cpp src/backed_category.cpp src/backed_colors.cpp
-    src/backed_records.cpp)
+    src/backed_records.cpp src/backed_geometry.cpp src/streaming.cpp)
 target_sources(anndata PRIVATE FILE_SET backed_internal TYPE CXX_MODULES
   BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES src/anndata.backed.storage.cppm)
 if(ANNDATA_ENABLE_HDF5)
@@ -112,10 +113,16 @@ if(ANNDATA_BUILD_EXAMPLES)
 endif()
 if(ANNDATA_BUILD_TESTS)
   enable_testing()
+  find_package(Threads REQUIRED)
   foreach(_suite arrays data strings records)
     add_executable(test_${_suite} tests/test_${_suite}.cpp)
     target_link_libraries(test_${_suite} PRIVATE anndata::anndata)
     add_test(NAME ${_suite} COMMAND test_${_suite})
+  endforeach()
+  foreach(_suite geometry transfer_context streaming)
+    add_executable(test_${_suite} tests/test_${_suite}.cpp)
+    target_link_libraries(test_${_suite} PRIVATE anndata::anndata Threads::Threads)
+    add_test(NAME ${_suite} COMMAND test_${_suite} "${CMAKE_CURRENT_BINARY_DIR}/${_suite}-tests")
   endforeach()
   add_executable(test_backed tests/test_backed.cpp)
   target_link_libraries(test_backed PRIVATE anndata::anndata)
@@ -180,6 +187,12 @@ if(ANNDATA_ENABLE_INTEROP_TESTS)
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_h5ad.py $<TARGET_FILE:h5ad_interop_driver>)
   endif()
   if(ANNDATA_ENABLE_HDF5 AND ANNDATA_ENABLE_ZARR)
+    find_package(Threads REQUIRED)
+    add_executable(streaming_interop_driver tests/streaming_interop_driver.cpp)
+    target_link_libraries(streaming_interop_driver PRIVATE anndata::anndata Threads::Threads)
+    add_test(NAME python_streaming COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_streaming.py $<TARGET_FILE:streaming_interop_driver>
+      "${CMAKE_CURRENT_BINARY_DIR}/streaming-interop-artifacts")
     add_executable(storage_interop_driver tests/storage_interop_driver.cpp)
     target_link_libraries(storage_interop_driver PRIVATE anndata::anndata)
     add_test(NAME python_storage COMMAND ${Python3_EXECUTABLE}
@@ -188,6 +201,9 @@ if(ANNDATA_ENABLE_INTEROP_TESTS)
 endif()
 if(ANNDATA_BUILD_BENCHMARKS)
   find_package(Threads REQUIRED)
+  add_executable(streaming_benchmark benchmarks/streaming.cpp)
+  target_compile_definitions(streaming_benchmark PRIVATE ANNDATA_STREAM_CANDIDATE=1)
+  target_link_libraries(streaming_benchmark PRIVATE anndata::anndata Threads::Threads)
   add_executable(records_benchmark benchmarks/records.cpp)
   target_link_libraries(records_benchmark PRIVATE anndata::anndata)
   add_executable(anndata_selection_probe benchmarks/selection.cpp)
