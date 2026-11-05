@@ -1,6 +1,6 @@
 # Package and build dispositions
 
-The package version remains 0.1 until the release qualification is complete.
+The package version is 1.0.0. The cleanup measurements below retain their original candidate scopes; final release qualification is recorded separately.
 The initial qualified pairing is Clang 18 and matching clang-scan-deps on Linux;
 CMake rejects a scanner whose reported major does not match the compiler. Other
 compiler and platform combinations need their own qualification.

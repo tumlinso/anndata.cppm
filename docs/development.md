@@ -146,7 +146,7 @@ The Project Control workspace entry is `anndatapp`. Its immutable native reposit
 
 ## Cleanup candidate qualification
 
-The [current cleanup status](v1-status.md), [migration guide](migration-1.0.md), and [support contract](support.md) define the candidate boundary. The package remains pre-1.0 until additional-device qualification, including AArch64, is complete. Core-only installed consumption uses `find_package(anndatapp CONFIG REQUIRED COMPONENTS core)` and `anndatapp::core`.
+The [current cleanup status](v1-status.md), [migration guide](migration-1.0.md), and [support contract](support.md) define the 1.0 boundary. Release qualification uses Linux x86-64 checks and the disclosed native AArch64 results under the user-approved two-machine policy. Core-only installed consumption uses `find_package(anndatapp CONFIG REQUIRED COMPONENTS core)` and `anndatapp::core`.
 
 Use the existing native, backend, shared and sanitizer presets above. For the full independent reference gate, provide an isolated environment with `tests/requirements-records.txt`, enable both interoperability options, and run CTest:
 

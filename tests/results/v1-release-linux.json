@@ -1,0 +1,174 @@
+{
+  "schema": "anndatapp.release-qualification/1",
+  "version": "1.0.0",
+  "date_utc": "2026-11-05",
+  "status": "linux_qualified_with_accepted_arm_limits",
+  "upstream_commit": "c8d1c6c8378e3d17b4d7e3a50f2275f238f1c88a",
+  "previous_linux_candidate": "96272ff5f1bbb6abd3b2133e6c07f68b56a57fbb",
+  "production_source_sha256": "bc6ceab1c711a597b3eea107d7b5640215fb2ab6b4e4ad306a4834cae5d9f96b",
+  "host": {
+    "hostname": "testlsserver",
+    "architecture": "x86_64",
+    "kernel": "6.8.0-147-generic",
+    "toolchain": {
+      "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+      "scanner": "clang-scan-deps-18",
+      "cmake": "cmake version 3.28.3",
+      "ninja": "1.11.1",
+      "hdf5": "1.10.10"
+    }
+  },
+  "native_passed": {
+    "debug": 20,
+    "release": 20,
+    "sanitizers": 20,
+    "core-only": 12,
+    "hdf5-only": 16,
+    "zarr-only": 16,
+    "shared": 20,
+    "shared-release": 20
+  },
+  "interop": {
+    "initial_full_passed": 30,
+    "initial_full_total": 31,
+    "failed_check": "installed_consumer requested package0.1",
+    "post_fixture_migration_rerun_passed": 1,
+    "post_fixture_migration_rerun_total": 1,
+    "all_11_python_scanpy_checks_passed": true
+  },
+  "focused_tsan_passed": 4,
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=0",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "ANNDATAPP_INTEROP_ZARR_WAKEUP": "1",
+    "ANNDATAPP_COMPLETENESS_NO_AS_LIMIT": null,
+    "note": "Leak detection disabled; normal completeness address-space limit and Linux fault injection retained."
+  },
+  "private_edits": {
+    "strings": {
+      "receipt": "build/release-1.0/private-strings/result.json",
+      "sha256": "f9856042bdc9b6fefbb1df66e672ba31c898ad03ef84a97da86f93317d76e487",
+      "public_bmis_unchanged": 10,
+      "consumer_objects_unchanged": 2,
+      "restored_binary_hashes_match": true
+    },
+    "backed_hdf5": {
+      "receipt": "build/release-1.0/private-hdf5/result.json",
+      "sha256": "88d427943560bc3119093b35ab03e46b3ea2ced5ae12b9f83bcf65e0797d5f47",
+      "public_bmis_unchanged": 10,
+      "consumer_objects_unchanged": 2,
+      "restored_binary_hashes_match": true
+    }
+  },
+  "installed_consumer_fixture_sha256": {
+    "tests/consumer/CMakeLists.txt": "c11811456dd6d39e62b88e372c6bb3121ca08772d88898191c1495c4e48ea601",
+    "tests/consumer/core/first/CMakeLists.txt": "7a6635f64088c5d6caf99a8dec6fec16c91f01abddfef2a5c010864f6b1f432b",
+    "tests/consumer/core/records/CMakeLists.txt": "2019c4a3886cd8ac2fa111eed5bfab2da83618d36b8b8b8693a2c977a271bc97",
+    "tests/consumer/core-export/CMakeLists.txt": "6f2871d7af76437f2eb405278bdb7324707903d35d2e6ce5f188c50c8f8be561",
+    "tests/consumer/export/CMakeLists.txt": "64a9872b95e962924157400433987926865c5755692d0203593072d3db853636"
+  },
+  "hdf5_links": {
+    "status": "passed",
+    "rejection_checks": 6,
+    "cases": [
+      "hard-link cycle",
+      "nested soft link",
+      "external link"
+    ],
+    "modes": [
+      "eager",
+      "backed materialization"
+    ],
+    "noncyclic_hard_alias_roundtrip": true,
+    "python_environment": {
+      "anndata": "0.13.4",
+      "driver_hdf5_pkg_config": "1.10.10",
+      "eager_driver_hdf5_linkage": [
+        "libhdf5_serial.so.103 => /lib/x86_64-linux-gnu/libhdf5_serial.so.103 (0x00007cb1a4e00000)"
+      ],
+      "h5py": "3.16.0",
+      "platform": "linux",
+      "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+      "python_hdf5": "2.0.0"
+    },
+    "probe_source": "tests/hdf5_link_probe.py",
+    "probe_sha256": "2e5c9fc1934fa0e92a45a346fa57bc8ee20533a677e102f08f1102489c3b4fb0"
+  },
+  "downstream": {
+    "ctests_passed": 9,
+    "additional_cellshard_consumers_passed": 4,
+    "version_requests_migrated_in_isolated_copies": [
+      "preprocess.cppm",
+      "velocity"
+    ],
+    "business_module_test_sources_unchanged": true,
+    "original_external_sources_unchanged": true,
+    "original_0_x_version_requests_correctly_rejected": true
+  },
+  "performance": {
+    "summary": "benchmarks/results/v1-release-linux-summary.json",
+    "scenarios": 10,
+    "operations": 38,
+    "alternating_pairs_per_scenario": 5,
+    "timing_processes": 100,
+    "diagnostic_processes": 20,
+    "regression_flags": 0,
+    "charged_seconds": {
+      "baseline": 5.455682360989158,
+      "candidate": 5.491726617037784
+    },
+    "consumer_observations_per_revision": 4,
+    "consumer_budget_seconds_per_revision": 60,
+    "codegen_scope": "Primary .text identical for four changed production units; other sections/relocations not asserted identical"
+  },
+  "release_policy": {
+    "machines": 2,
+    "arm_report": "docs/v1-arm-qualification.md",
+    "accepted_by_user": true,
+    "arm_limits": [
+      "ASan/TSan runtime unavailable",
+      "three unresolved performance flags under contention",
+      "consumer-build comparison incomplete",
+      "macOS address-space limit unavailable",
+      "Linux-specific fault/mmap coverage unavailable",
+      "incomplete restored-binary reproducibility and downstream coverage"
+    ],
+    "binary_abi_promised": false,
+    "compiler_specific_bmis_distributed": false
+  },
+  "evidence_sha256": {
+    "build/release-1.0/frozen-source.json": "3f0153215cc2b34f6277165847c4078ec5e61a6c34e0358b8474fe7705bd47f4",
+    "build/release-1.0/native-result.json": "1b71c0fb634cddfaedab767e70005c1eb05cf5fe096ca399a14fd67c68730627",
+    "build/release-1.0/components/result.json": "e665fccccfa7bdc618dd1d07181b490f5990c8f1b679c253aea0785274fd4f26",
+    "build/release-1.0/private-strings/result.json": "f9856042bdc9b6fefbb1df66e672ba31c898ad03ef84a97da86f93317d76e487",
+    "build/release-1.0/private-hdf5/result.json": "88d427943560bc3119093b35ab03e46b3ea2ced5ae12b9f83bcf65e0797d5f47",
+    "build/release-1.0/hdf5-links-pinned/receipt.json": "4c418687b6aaa7c62520211a6944cd7c4e67ef2a086578b43b7cc66c5be60cbb",
+    "build/release-1.0/downstream/migration-sources.json": "da504bb30c15e9b405ba533a71f57cfcc1c24226035296fcfa7d91fbb4ba5deb",
+    "build/release-1.0/downstream/version-only.patch": "9fe4e599a8664d7d8f1f4c13b280fadcff58b63b997b35d48794f0712fbb8ff9",
+    "build/release-1.0/performance/result.json": "559c7c4c4d072c6359daa9ed87ee164da53970d47c12ed3e4831656b900dd0b3",
+    "benchmarks/results/v1-release-linux-summary.json": "f6c659b33c51c38e7e89a50112584f4a05815a2d60c225a3896c000faafa0972",
+    "tests/results/v1-arm.json": "24da54862ab241b36ab9dd11325f1d87325efd55569f4fba5b592b93dc1dcb20",
+    "benchmarks/results/v1-arm-summary.json": "b27382136181cbdebcf602c55e604f1b22983840f6f64340a412a2ce6d2ac10b",
+    "build/release-1.0/downstream/cellerator-host-build.log": "8627ce935e13df3b9ea905d1ef272243b9710cdb7e3298eec9f6274b8843f9cb",
+    "build/release-1.0/downstream/cellerator-host-test.log": "30cd58c903a4786ebef0fe40db9f7db13e57095361cc15ab9d0e202ba76b6368",
+    "build/release-1.0/downstream/cellerator-installed-consumer-build.log": "9e5d1e9abbe32e37c83f90022f891374ce12d5f3c8e9da3d12c9c5053f8383f0",
+    "build/release-1.0/downstream/cellerator-installed-consumer-test.log": "4f46f538d560e8dc151d3fedb50cae666649635277ae28fbaa14a7ed59f07ff8",
+    "build/release-1.0/downstream/cellerator-substrate-build.log": "983a1d18487a7af593a0e01de91c2b033699bbc3a9efde7d42b255a470c07bdd",
+    "build/release-1.0/downstream/cellerator-substrate-install.log": "29b1548c044051266d8a1b5cf7b09d4259882a0e662bdc3f7ab8d42c8598c1ca",
+    "build/release-1.0/downstream/cellshard-ingest-build.log": "5aaaaa2b6227acac99b3ef44676a8c9773f2601c198844c65dfc4d77ff4c480e",
+    "build/release-1.0/downstream/cellshard-ingest-test.log": "91887a494659177b852bdc511de73ce9b6b5577f7cb665dedcf93e613c543121",
+    "build/release-1.0/downstream/cellshard-inspect-consumer.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/release-1.0/downstream/cellshard-installed-ingest-consumer.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/release-1.0/downstream/cellshard-module-importer-one.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/release-1.0/downstream/cellshard-module-importer-two.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/release-1.0/downstream/cellshard-package-consumer-build.log": "5ce243df441c31c1e90ce8f703be6c3645f86fe56e3f380de6b44fb4c2246665",
+    "build/release-1.0/downstream/migrated-preprocess-configure.log": "3403db0608acfdbabeebf92d989c531ed3c1700b389c118bb025b17eb7782bcd",
+    "build/release-1.0/downstream/migrated-velocity-configure.log": "08525852f3ee562005344512c3ced680aed057bab3f2734b93fc8c1fdf5a5669",
+    "build/release-1.0/downstream/original-preprocess-build-rejection.log": "8f4d57a4224bc44cb07057aa37bc90668a44c472c68144d3f6b31b2778c37bce",
+    "build/release-1.0/downstream/original-velocity-build-rejection.log": "d156b5b0fdd7e775dee3925d23849fa521840261045b36a43fb232d09a5d935f",
+    "build/release-1.0/downstream/preprocess-build.log": "75e59e5e99d59939f3c1ae112318f91a0491b8ed6d38f1b448886e1dab41de55",
+    "build/release-1.0/downstream/preprocess-test.log": "ffccbe213a49c36980117a02796bc08f337298e336761542b8d5b8f803ec694f",
+    "build/release-1.0/downstream/velocity-build.log": "eea86dc7e3b8447e55b848c56f85afeb87383b64a38112ac2c7b7fb0cd350b41",
+    "build/release-1.0/downstream/velocity-installed-consumer-test.log": "c6f3d0bf7844c0eca613100a87c1944c32ab479de0429d4122555a7a1998a7ed"
+  }
+}

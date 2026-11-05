@@ -1,6 +1,6 @@
-# 1.0 preparation notes
+# AnnData++ 1.0.0
 
-The package remains pre-1.0. The user-approved release plan covers the AArch64 host and the user's other machine. The user will requalify the pushed candidate on that other machine before the release decision.
+The release uses the user-approved two-machine qualification policy: Linux x86-64 requalification of the compatibility changes, together with the disclosed native Apple AArch64 results. The ARM limitations below are accepted release limitations, not passing qualification gates.
 
 ## Changes
 
@@ -15,10 +15,14 @@ The [49-finding disposition table](v1-status.md) records fixes and evidence-back
 
 ## Compatibility and support
 
-See [migration-1.0.md](migration-1.0.md) for pre-1.0 source changes and [support.md](support.md) for the capability and platform boundaries. The intended 1.x promise covers documented source APIs and data contracts. Consumers rebuild compatible module interfaces; binary ABI and cross-toolchain BMI compatibility are not promised.
+See [migration-1.0.md](migration-1.0.md) for pre-1.0 source changes and [support.md](support.md) for the capability and platform boundaries. The 1.x promise covers documented source APIs and data contracts. Consumers rebuild compatible module interfaces; binary ABI and cross-toolchain BMI compatibility are not promised.
 
 The existing core/H5AD/Zarr/streaming capability boundary is retained. Extra formats, encoding families, GPU execution and FP16 storage are outside this cleanup. The package remains independently usable without Python or downstream application runtimes.
 
 ## Qualification
 
-The build and private-edit matrix is recorded in [v1-build.md](v1-build.md). Final local provenance, downstream checks and remaining release gates are summarized in [v1-qualification.md](v1-qualification.md). ASan/UBSan, ThreadSanitizer and independent Python/Scanpy checks have distinct scopes; local ASan runs do not claim leak qualification.
+The historical cleanup build and private-edit matrix is recorded in [v1-build.md](v1-build.md). Final Linux requalification is recorded in [v1-release-linux.md](v1-release-linux.md); the [qualification index](v1-qualification.md) preserves source-specific scopes. ASan/UBSan, ThreadSanitizer and independent Python/Scanpy checks have distinct scopes; local ASan runs do not claim leak qualification.
+
+The [native ARM qualification](v1-arm-qualification.md) is conditional: ASan and TSan could not execute reliably; three performance cases flagged regressions under host contention; the consumer-build comparison is incomplete. The functional completeness follow-up omitted macOS's unavailable address-space limit. Linux-only mmap/fault-injection checks, some downstream consumers, and complete restored-binary reproducibility were unavailable on ARM. These limitations remain visible in the release support contract and receipts.
+
+Portability fixes split mixed native integer declarations, explicitly select the address-bearing HDF5 object-info API, and adapt test/benchmark observers to Darwin. They introduce no public module interface changes.

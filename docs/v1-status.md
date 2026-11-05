@@ -1,6 +1,6 @@
 # 1.0 cleanup status
 
-The target is a locally qualified candidate. The user-approved release plan covers the AArch64 host and the user's other machine. The next qualification gate is the user's requalification of the pushed candidate on that other machine. Source compatibility applies to the documented 1.x API. Binary ABI compatibility is not promised. Adaptive streaming remains the default.
+The 1.0.0 release uses the user-approved two-machine policy: final Linux x86-64 requalification and the disclosed native Apple AArch64 results. The ARM sanitizer, timing, consumer-build and coverage limitations were explicitly accepted for release and remain documented. Source compatibility applies to the documented 1.x API. Binary ABI compatibility is not promised. Adaptive streaming remains the default.
 
 All 49 review findings close through a fix, a tested API decision, or evidence supporting retention. Historical review documents remain unchanged as baseline observations. Generated inventories and raw campaigns stay ignored. See the [qualification record](v1-qualification.md) for exact test scopes and the remaining release gates.
 

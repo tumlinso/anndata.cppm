@@ -60,6 +60,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndatap
 - [Architecture and compatibility matrix](docs/architecture.md)
 - [Thin-library review and implementation backlog](docs/review/README.md)
 - [1.0 cleanup status](docs/v1-status.md), [support contract](docs/support.md), and [migration notes](docs/migration-1.0.md)
+- [1.0.0 release notes](docs/release-notes-1.0.md) and [final Linux qualification](docs/v1-release-linux.md)
 - [Bounded standard performance suite](docs/v1-performance.md)
 - [Extension contracts and qualification requirements](docs/extension-contract.md)
 - [Development, installation, and validation](docs/development.md)

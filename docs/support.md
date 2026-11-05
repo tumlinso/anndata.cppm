@@ -1,6 +1,6 @@
-# Candidate support contract
+# AnnData++ 1.0 support contract
 
-This describes the intended 1.0 capability boundary. Qualification results and open gates are tracked in [v1-status.md](v1-status.md); this document is not a declaration that 1.0 has been released.
+This describes the 1.0 capability boundary. Qualification scopes and evidence are tracked in [v1-status.md](v1-status.md).
 
 ## Data and storage
 
@@ -34,6 +34,6 @@ A failed transfer is not successful completion. Retry only when replay is safe, 
 
 ## Toolchains and compatibility
 
-C++20 named modules, CMake >=3.28, Ninja >=1.11 and a matching Clang/dependency scanner are required by the initial toolchain. The initial qualified platform is Linux x86-64 with Clang 18. The user-approved release plan covers the AArch64 host and the user's other machine, with requalification of the pushed candidate on that other machine pending. POSIX file/mapping/spill mechanics and storage dependencies remain explicit platform boundaries.
+C++20 named modules, CMake >=3.28, Ninja >=1.11 and a matching Clang/dependency scanner are required by the initial toolchain. Linux x86-64 uses Clang 18. Native Apple AArch64 was checked with Clang/scanner 20.1.3 on macOS; its unavailable sanitizers, contended timing flags, incomplete consumer comparison, and resource-limit/reproducibility coverage limits are documented in the [ARM report](v1-arm-qualification.md). Those gaps were accepted under the two-machine release policy; they are not passing checks. POSIX file/mapping/spill mechanics and storage dependencies remain explicit platform boundaries.
 
 The 1.x promise covers documented public source APIs and data contracts. Consumers build module interfaces for their compatible compiler, standard library and flags; precompiled BMIs and a stable binary ABI are not promised. Names in `detail` namespaces, private partitions and implementation headers are internal facilities. Pre-1.0 source changes and replacement spellings are documented in [migration notes](migration-1.0.md).

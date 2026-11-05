@@ -1,6 +1,6 @@
 # Cleanup migration notes
 
-These changes prepare the documented source API for 1.x. The package remains pre-1.0 until local and additional-device qualification is complete.
+These changes define the documented source API for 1.x. They describe source changes made before 1.0; the compatibility fixes made during qualification add no further public API changes.
 
 ## Direct borrowed dense descriptors
 
@@ -30,6 +30,8 @@ target_link_libraries(my_target PRIVATE anndatapp::core)
 ```
 
 Consumers still build their own compatible BMIs. Keep `CMAKE_CXX_EXTENSIONS OFF` to match the module toolchain. Internal dataset-state constructors and `detail` facade bridges are not part of the documented source-compatibility promise.
+
+Change explicit package version requests from `find_package(anndatapp 0.1 ...)` to `find_package(anndatapp 1.0 ...)`. The package uses CMake's `SameMajorVersion` policy; an explicit 0.x requirement does not admit 1.0. Unversioned requests remain available.
 
 ## Explicit contracts
 
