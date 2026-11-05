@@ -20,14 +20,9 @@ namespace {
 bool observe_record_reads = false;
 std::size_t successful_record_reads = 0, failed_record_reads = 0;
 std::size_t largest_record_prefix = 0, peak_record_staging = 0;
-}
 // Test-only observation of actual HDF5 requests and the registered allocator.
 // Public numerical loops contain no instrumentation.
-extern "C" herr_t H5Dread(hid_t dataset,hid_t type,hid_t memory,hid_t file,hid_t transfer,void* data) {
-    using Read = herr_t (*)(hid_t,hid_t,hid_t,hid_t,hid_t,void*);
-    static auto read = reinterpret_cast<Read>(dlsym(RTLD_NEXT,"H5Dread"));
-    if (!read) std::abort();
-    const auto status = read(dataset,type,memory,file,transfer,data);
+void observe_record_read(hid_t dataset,hid_t memory,hid_t transfer,herr_t status) {
     char path[64]{};
     if (observe_record_reads && H5Iget_name(dataset,path,sizeof(path)) >= 0 && std::string_view(path) == "/uns/budget") {
         const auto n = std::size_t(H5Sget_select_npoints(memory));
@@ -43,8 +38,17 @@ extern "C" herr_t H5Dread(hid_t dataset,hid_t type,hid_t memory,hid_t file,hid_t
             if (a.peak > a.limit || metadata+a.limit > anndatapp_h5ad_detail::record_cap) std::abort();
         }
     }
-    return status;
 }
+}
+#ifndef __APPLE__
+extern "C" herr_t H5Dread(hid_t dataset,hid_t type,hid_t memory,hid_t file,hid_t transfer,void* data) {
+    using Read = herr_t (*)(hid_t,hid_t,hid_t,hid_t,hid_t,void*);
+    static auto read = reinterpret_cast<Read>(dlsym(RTLD_NEXT,"H5Dread"));
+    if (!read) std::abort();
+    const auto status = read(dataset,type,memory,file,transfer,data);
+    observe_record_read(dataset,memory,transfer,status); return status;
+}
+#endif
 
 namespace {
 using namespace anndatapp;
@@ -201,6 +205,12 @@ void run(const std::filesystem::path& root) {
 }
 int main(int argc,char** argv) {
     try {
+#ifdef __APPLE__
+        using SetObserver = void (*)(void (*)(hid_t,hid_t,hid_t,herr_t));
+        const auto set = reinterpret_cast<SetObserver>(dlsym(RTLD_DEFAULT,"anndatapp_test_observe_h5dread"));
+        if (!set) throw std::runtime_error("HDF5 read observer is required");
+        set(&observe_record_read);
+#endif
         const auto root=std::filesystem::path(argc>1?argv[1]:"records-h5ad-tests");
         std::filesystem::create_directories(root); run(root);
         if (argc > 2) padding_fixture(argv[2]);
