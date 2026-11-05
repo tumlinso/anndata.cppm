@@ -17,6 +17,18 @@ BMIs and two measured consumer objects retained their hashes and timestamps.
 The production change is confined to `backed_array.cpp` in an isolated worktree;
 concurrent uncommitted fp16 work was preserved and is outside these results.
 
+## Package boundary
+
+The [current package-boundary validation](package-boundary-validation.md)
+records the removal, Python dtype rejection, installed consumers and downstream
+CPU checks against the migrated source.
+
+The unpublished FP16 storage and CUDA implementations, together with their exact
+source snapshots and historical receipts, are preserved in Cellerator's
+`quarantine/anndatapp-extensions/`. Those receipts describe earlier source and
+are not qualification of the current AnnData++ package. Portable binary16
+conversion and velocity's FP16 inputs and outputs are owned by Cellerator.
+
 ## Storage completeness
 
 The [completeness receipt](../tests/results/completeness-validation.json) records

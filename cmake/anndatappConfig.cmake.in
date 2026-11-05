@@ -1,91 +1,21 @@
 @PACKAGE_INIT@
 set(ANNDATAPP_HAS_HDF5 @ANNDATAPP_ENABLE_HDF5@)
 set(ANNDATAPP_HAS_ZARR @ANNDATAPP_ENABLE_ZARR@)
-if(TARGET anndatapp::anndatapp)
-  check_required_components(anndatapp)
-  return()
-endif()
-if(@ANNDATAPP_ENABLE_HDF5@)
+include("${CMAKE_CURRENT_LIST_DIR}/anndatappModuleProvider.cmake")
+if(NOT TARGET anndatapp::anndatapp)
   include(CMakeFindDependencyMacro)
-  find_dependency(PkgConfig)
-  pkg_check_modules(ANNDATAPP_HDF5 REQUIRED IMPORTED_TARGET GLOBAL hdf5>=1.10)
-endif()
-if(@ANNDATAPP_ENABLE_ZARR@)
-  include(CMakeFindDependencyMacro)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-  find_dependency(PkgConfig)
-  pkg_check_modules(ANNDATAPP_ZLIB REQUIRED IMPORTED_TARGET GLOBAL zlib)
-  pkg_check_modules(ANNDATAPP_ZSTD REQUIRED IMPORTED_TARGET GLOBAL libzstd)
-  find_dependency(Blosc)
-endif()
-include("${CMAKE_CURRENT_LIST_DIR}/anndatappTargets.cmake")
-
-# CMake 3.28's Ninja generator emits duplicate synthetic module targets when
-# two consumers link the same installed target with CXX_MODULES directly.
-# Build the installed interfaces once in a normal target, which CMake can
-# share across consumers, and expose a regular imported package target.
-# The proxy copies only the binary/link properties; linking the original
-# exported target here would reintroduce its imported module file set.
-get_target_property(_anndatapp_binary_type anndatapp::anndatapp_binary TYPE)
-if(_anndatapp_binary_type STREQUAL "STATIC_LIBRARY")
-  add_library(anndatapp_binary_proxy STATIC IMPORTED GLOBAL)
-elseif(_anndatapp_binary_type STREQUAL "SHARED_LIBRARY")
-  add_library(anndatapp_binary_proxy SHARED IMPORTED GLOBAL)
-else()
-  message(FATAL_ERROR "Unsupported installed anndatapp binary type: ${_anndatapp_binary_type}")
-endif()
-
-get_target_property(_anndatapp_configurations anndatapp::anndatapp_binary IMPORTED_CONFIGURATIONS)
-if(_anndatapp_configurations)
-  set_property(TARGET anndatapp_binary_proxy PROPERTY IMPORTED_CONFIGURATIONS "${_anndatapp_configurations}")
-endif()
-foreach(_anndatapp_property IN ITEMS IMPORTED_LOCATION IMPORTED_IMPLIB IMPORTED_SONAME
-    IMPORTED_NO_SONAME INTERFACE_LINK_LIBRARIES INTERFACE_LINK_OPTIONS)
-  get_property(_anndatapp_is_set TARGET anndatapp::anndatapp_binary PROPERTY "${_anndatapp_property}" SET)
-  if(_anndatapp_is_set)
-    get_target_property(_anndatapp_value anndatapp::anndatapp_binary "${_anndatapp_property}")
-    set_property(TARGET anndatapp_binary_proxy PROPERTY "${_anndatapp_property}" "${_anndatapp_value}")
+  if(ANNDATAPP_HAS_HDF5)
+    find_dependency(PkgConfig)
+    pkg_check_modules(ANNDATAPP_HDF5 REQUIRED IMPORTED_TARGET GLOBAL hdf5>=1.10)
   endif()
-endforeach()
-foreach(_anndatapp_configuration IN LISTS _anndatapp_configurations)
-  foreach(_anndatapp_property IN ITEMS IMPORTED_LOCATION IMPORTED_IMPLIB IMPORTED_SONAME
-      IMPORTED_NO_SONAME IMPORTED_LINK_DEPENDENT_LIBRARIES IMPORTED_LINK_INTERFACE_LANGUAGES)
-    set(_anndatapp_configured_property "${_anndatapp_property}_${_anndatapp_configuration}")
-    get_property(_anndatapp_is_set TARGET anndatapp::anndatapp_binary PROPERTY "${_anndatapp_configured_property}" SET)
-    if(_anndatapp_is_set)
-      get_target_property(_anndatapp_value anndatapp::anndatapp_binary "${_anndatapp_configured_property}")
-      set_property(TARGET anndatapp_binary_proxy PROPERTY "${_anndatapp_configured_property}" "${_anndatapp_value}")
-    endif()
-  endforeach()
-endforeach()
-
-get_target_property(_anndatapp_module_files anndatapp::anndatapp_binary CXX_MODULE_SET)
-get_target_property(_anndatapp_module_dirs anndatapp::anndatapp_binary CXX_MODULE_DIRS)
-add_library(anndatapp_module_interfaces STATIC EXCLUDE_FROM_ALL)
-set_target_properties(anndatapp_module_interfaces PROPERTIES
-  CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
-target_sources(anndatapp_module_interfaces PUBLIC FILE_SET CXX_MODULES
-  BASE_DIRS ${_anndatapp_module_dirs} FILES ${_anndatapp_module_files})
-target_link_libraries(anndatapp_module_interfaces PUBLIC anndatapp_binary_proxy)
-
-# Reuse the exported usage requirements rather than reconstructing flags.
-foreach(_anndatapp_property IN ITEMS COMPILE_DEFINITIONS COMPILE_FEATURES COMPILE_OPTIONS)
-  get_property(_anndatapp_is_set TARGET anndatapp::anndatapp_binary
-    PROPERTY "IMPORTED_CXX_MODULES_${_anndatapp_property}" SET)
-  if(_anndatapp_is_set)
-    get_target_property(_anndatapp_value anndatapp::anndatapp_binary "IMPORTED_CXX_MODULES_${_anndatapp_property}")
-    set_property(TARGET anndatapp_module_interfaces APPEND PROPERTY "${_anndatapp_property}" "${_anndatapp_value}")
+  if(ANNDATAPP_HAS_ZARR)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+    find_dependency(PkgConfig)
+    pkg_check_modules(ANNDATAPP_ZLIB REQUIRED IMPORTED_TARGET GLOBAL zlib)
+    pkg_check_modules(ANNDATAPP_ZSTD REQUIRED IMPORTED_TARGET GLOBAL libzstd)
+    find_dependency(Blosc)
   endif()
-  get_property(_anndatapp_is_set TARGET anndatapp::anndatapp_binary
-    PROPERTY "INTERFACE_${_anndatapp_property}" SET)
-  if(_anndatapp_is_set)
-    get_target_property(_anndatapp_value anndatapp::anndatapp_binary "INTERFACE_${_anndatapp_property}")
-    set_property(TARGET anndatapp_module_interfaces APPEND PROPERTY "INTERFACE_${_anndatapp_property}" "${_anndatapp_value}")
-  endif()
-endforeach()
-
-# An imported interface target keeps downstream install(EXPORT) dependencies
-# expressed as anndatapp::anndatapp while using the shared local interface build.
-add_library(anndatapp::anndatapp INTERFACE IMPORTED GLOBAL)
-set_property(TARGET anndatapp::anndatapp PROPERTY INTERFACE_LINK_LIBRARIES anndatapp_module_interfaces)
+  include("${CMAKE_CURRENT_LIST_DIR}/anndatappTargets.cmake")
+  _anndatapp_module_provider(anndatapp::anndatapp anndatapp::anndatapp_binary anndatapp_module_interfaces)
+endif()
 check_required_components(anndatapp)

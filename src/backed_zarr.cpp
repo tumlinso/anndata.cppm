@@ -223,7 +223,7 @@ public:
     std::optional<MappedArray> map_numeric(std::string_view path) override { return zarr_call([&]() -> std::optional<MappedArray> {
         const auto node=store().inspect(std::string(path));
         // Canonical bool representation requires conversion and validation.
-        if(!node.exists || node.group || node.array.type==ze::Type::boolean) return std::nullopt;
+        if(!node.exists || node.group || node.array.type==ze::Type::boolean || node.array.type==ze::Type::string) return std::nullopt;
         auto file=store().mapping_file(std::string(path)); if(file.empty()) return std::nullopt;
         auto bytes=ze::checked_product(node.array.shape)*node.array.item_size; if(!bytes) return std::nullopt;
         const int fd=::open(file.c_str(),O_RDONLY|O_CLOEXEC);

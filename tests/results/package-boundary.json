@@ -1,0 +1,171 @@
+{
+  "schema": "anndatapp.package_boundary.validation.v1",
+  "recorded_at_utc": "2026-11-05T14:43:30.267633+00:00",
+  "base_commit": "d2260c2abb37e9028fa42c95d1712ffcaa282b0e",
+  "working_tree_dirty": true,
+  "source_sha256": {
+    "CMakeLists.txt": "765c6766574b14034ab8c1951e8588c0050c77f76ffbbdeda0b2ff0af5967ab1",
+    "CMakePresets.json": "7a3b00685c3b68591ad924d197ee5408559cd9804b6cf3c3b338fb4cdd554a89",
+    "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+    "cmake/anndatappConfig.cmake.in": "77abac3aec47310276a14afdb2d73147cc31aad9284eea3ee7772688fe98f3bb",
+    "cmake/anndatappModuleProvider.cmake": "ba5eaca7a19f18e4c6d162edfbf4953cd23551e7bba4a8104af4d2d258a65651",
+    "cmake/test-installed-consumer.cmake": "305a050378fbdb5526316841b68f3afceab28dd2213f9bc2e85c5b2db625fcea",
+    "src/anndatapp.arrays.cppm": "d195c337f7663b72f8d24452e6238510e805d992a9b709a490a3d311e888b14b",
+    "src/anndatapp.backed.cppm": "ceb07418fd4dffe6e5868d34d7b7ae916c303697aec0db3bbb9bc53108d70343",
+    "src/anndatapp.backed.storage.cppm": "4f9d715c704d63e4dfc0313ef6942d19c8c239b6bd15163651961b12b6ac5777",
+    "src/anndatapp.core.cppm": "715a25b39c33254135c710035e9c3aad4a524da543618904c454e485972e934d",
+    "src/anndatapp.cppm": "2d3c13ff9e4fcad2b4f10f347b12246039d062590f72d1596d817b51938231d1",
+    "src/anndatapp.data.cppm": "887693cc4a7a2e7cd17cf39baefa90af741d4ee2da90ec512334e1881dcb82a9",
+    "src/anndatapp.h5ad.cppm": "af949c9a288e1fd3e54dbe7b8a7ab380d2bc19014483ac5a87caa388a9665c52",
+    "src/anndatapp.records.cppm": "ba76263f4e0d035f31e35f376b9e0f84f21c194c9a710f0709a9d842aad6ca33",
+    "src/anndatapp.streaming.cppm": "98e3858290f38ecfa8f4463be09082fba193adb6407382741b92e754336f5d05",
+    "src/anndatapp.strings.cppm": "67547dbdf3865596acc8702daee20fb16c552fd74916b1517a30b849b8fb79e3",
+    "src/anndatapp.zarr.cppm": "9f5dfe216bb87a989e6b78c6af4a1fbf6a05bbb52d9b982eab495181430035f6",
+    "src/arrays.cpp": "11c16b4f62b2655e63a4d962b932487b1cc04cc9cb727b5f99d389f2041dde54",
+    "src/backed.cpp": "2bbf70ebeddb2af38b6194b6d1d1a85463f944b0d518d46d6081fb03b2456294",
+    "src/backed_array.cpp": "ec8cf5b0438bfe772cdcc2d8900bc2bf826f89d59b75ac29477707ae8d5438e2",
+    "src/backed_category.cpp": "a6cf70e2db14b000d1091d191353671591ccb32c82fbb438c0dda8298d2708ad",
+    "src/backed_codec.cpp": "4800820289c0c1a2dbd17ec6f7faf4d893d5340d4ac8b02abfeae1aee00fc98f",
+    "src/backed_colors.cpp": "f8b44101b3ec6f554ba138723c784b6d860312fc6be32512885277040289772e",
+    "src/backed_copy.cpp": "99415247cbe7150f416b84ee6a76fb10218f7208ff2a33323796a7c3d3500383",
+    "src/backed_geometry.cpp": "53d8d3e6f1a7644b63c1b0d1ed93e3ae120c46f83fcff857d70dd0f76326a162",
+    "src/backed_hdf5.cpp": "bcd5ddc65c049b5852a5f5e0cb54721588b16484ed7615bc6c82b02acef2581d",
+    "src/backed_index.cpp": "c33d7b3cb94ad329c9eef81081f53252377156af9b9b4c481e37e06015bf46cb",
+    "src/backed_records.cpp": "7b77a6f1abbf0d1eeb49047bbcef60c412a2522a63b0e90d5070609b96d6e728",
+    "src/backed_structure.cpp": "33bf6f915bf974d401d2dc4d33a72672d494f03405148cd910a5a09a5dd58e32",
+    "src/backed_writer.cpp": "50b4706ebeb489b4e14a91c0cf9db0c4587308af08f7dd2aceededc80acd577a",
+    "src/backed_zarr.cpp": "6a550afe0b30846b876667c1fd5f7d7cfdea215816cce92e075cba0f84a836a4",
+    "src/data.cpp": "c6870730ed08a4855b2da9dda3fa07ecaa3ed5f299f223534fc896807703fe88",
+    "src/h5ad.cpp": "bd1a4001dc0bdfa702d0c6e3748d8612b34af062996210aa566c366e0442e153",
+    "src/h5ad_record_scratch.hpp": "b429a1f1de2d68f025ffc4097185900e190ab084e6be86f35b5426c10149c993",
+    "src/records.cpp": "3ff7ee989966834441eeb8a48464ed8fde19bcb822e38284276c39cb43e21768",
+    "src/streaming.cpp": "226b0be8bae084b87b524bdcd35cdc59920969d679c91245750d03c0a617fec9",
+    "src/strings.cpp": "d7b1f3daef46d8906ff21f7a8423384d57b669e8d299baf40974f4cec7507e98",
+    "src/zarr.cpp": "922f8269c2532fc9c7aefcb580100aa5f3d7e5ab6fe9a73c8020592840da809b",
+    "src/zarr_codecs.cpp": "89f1cea389139e3a14ea511d260eef91f49a5b51152ab65d1bbc84df11783994",
+    "src/zarr_engine.cpp": "855deef15b4f225c1513c40eef8497158083ff9d3c4fb1887eab44cdf0261eae",
+    "src/zarr_engine.hpp": "b39b738da4ad05b1e62da35b8185d4937ea0bebde4fafaa5d4b716c530d2c9e7",
+    "src/zarr_sharding.cpp": "b7789cbcb6de093fd2ad6bd9fd8e0d002fc8ef96eff3d0a7693ad1894022fb47",
+    "tests/dtype_rejection_driver.cpp": "ee19262d669f2be629631fbbf606256e4539165817b2733dbb1ff6c10d9aa194",
+    "tests/python_unsupported_dtype.py": "664daece8b9661e471197cc1a539d2b8e7737612c9063d66f20fc4a2c154bd36"
+  },
+  "changes": {
+    "fp16_storage": "removed from active package; explicit unsupported_dtype on upstream FP16 files",
+    "cuda": "removed from build, package discovery, modules, targets and installation",
+    "retained": "generic module provider and independent Zarr string mapping guard",
+    "velocity": "FP16 retained through explicit numeric views and Cellerator-owned portable load/round"
+  },
+  "checks": {
+    "debug": {
+      "passed": 20,
+      "failed": 0
+    },
+    "asan_ubsan": {
+      "passed": 20,
+      "failed": 0,
+      "leak_qualification": false
+    },
+    "core_only": {
+      "passed": 12,
+      "failed": 0
+    },
+    "hdf5_only": {
+      "passed": 16,
+      "failed": 0
+    },
+    "zarr_only": {
+      "passed": 16,
+      "failed": 0
+    },
+    "shared": {
+      "passed": 20,
+      "failed": 0
+    },
+    "full_interoperability": {
+      "passed": 30,
+      "failed": 0,
+      "native": 20,
+      "ordinary_python": 7,
+      "upstream_fp16_rejection": 3
+    },
+    "single_backend_fp16_rejection": {
+      "hdf5_only": 1,
+      "zarr_only": 2
+    },
+    "installed_cuda_component": "find_package request rejected as expected",
+    "installed_api_audit": "full/HDF5-only module/config and static-library symbols contain no CUDA/FP16 API"
+  },
+  "downstream": {
+    "preprocess_ctest_passed": 4,
+    "cellerator_host_module_passed": 1,
+    "cellerator_installed_module_consumers_passed": 2,
+    "cellshard_h5ad_ingest_passed": 1,
+    "cellshard_installed_consumers_passed": 4
+  },
+  "cellerator_binary16": {
+    "exhaustive_encodings": 65536,
+    "numpy_conversion_oracle_cases": 390465,
+    "installed_helper_consumer": "passed"
+  },
+  "velocity": {
+    "debug_passed": 12,
+    "asan_ubsan_passed": 12,
+    "installed_fp16_consumers_passed": 2,
+    "integrated_cellerator_fp16_consumer": "passed",
+    "qualification_targets_compile_only": 7,
+    "receipt": "Cellerator/src/velocity/tests/results/fp16-ownership.json"
+  },
+  "preservation": {
+    "quarantined_source_files": 51,
+    "historical_velocity_records": 16,
+    "staging_and_unrelated_source": "preserved",
+    "authority_state": "unchanged"
+  },
+  "log_sha256": {
+    "core-only-workflow.log": "972da9ccf0cdb78e628ebb9fd698246ed9d87714c0a8b68c057b49ff703ae060",
+    "debug-build.log": "aa3db61eee3ac697f442f531f7918b67afe84f28978ae3c3b200ccac58e667c6",
+    "debug-configure.log": "0abfa844d1a4f0956f50498b6776de906b5463363ada8411000e6460a4ee9542",
+    "debug-ctest.log": "d3189a52857ef1b2d18a0f4a11f32f0847828d147133a0fde7c8dac239993250",
+    "find-cuda-component-negative.log": "a1dd75a642338078dd14022e969af9a02f183b7cd84b390760d8bab68b41e859",
+    "hdf5-only-interop-build.log": "f8a3ccac8fee74416b93f6c084ed63e93b11b487309f754440171e6aa3947b56",
+    "hdf5-only-interop-configure.log": "1f14c5911d7746e1433ed6bcf80379e8f233acb9d1e458ed9da74111cd737197",
+    "hdf5-only-interop-ctest.log": "95c7de6e8ce2785447f2289cc257bd6ce0362a92299fea35e04a8c6e71a7197b",
+    "hdf5-only-workflow.log": "8d80e78091b88f0fde069dcddb0b16d8a8e173910f67ed344ac44c51745b54a2",
+    "installed-prefix-audit.log": "a4867ea9a0adbefbd60c01fd34655dc6f2669b4f2a7138738113d5f60f3947cb",
+    "interop-full-build.log": "25dd7edf062a3ea5d3e9b0cc228d0060ce26c01cb50a57080b4255679a578f37",
+    "interop-full-configure.log": "0ae95570e5a233928434f29ee3c812a442e3045854c603e79345b144d633f555",
+    "interop-full-ctest.log": "f3f7da1b6494eae6b89a86ffd6d2dac42c471045723089933e2a45ae40dc1f28",
+    "sanitizers-build.log": "090b7290103a22a163671d0b189e763b44af1dc8a9e992aa905b203cd2263fdf",
+    "sanitizers-configure.log": "3e69fce7ec4150c52c356cf3bb60ab91928716dc95112518611f8c7697f466c1",
+    "sanitizers-ctest.log": "a9a802443ab66ce2d2998f29992e6e75c513a80282258472e2cfb7496dfe54c1",
+    "shared-workflow.log": "b7dfde8b03b5bfb99838c141bee25edb5d151953d736b928c9c9a2a3c48b6c28",
+    "unsupported-dtype-interop-rerun.log": "ad6f1eb6244d25f16cbc32cbb4e706a8087072652d9adf4fd04a35aab14941f7",
+    "zarr-only-interop-build.log": "b127e6d260b97f9bc425d3e8ab96fa9675436b3f811d6594acb2024115e0843b",
+    "zarr-only-interop-configure.log": "e2c0c5e8e5632d1549d02f561c1ac5b2c601034baf9e82860d15246a3397103f",
+    "zarr-only-interop-ctest-rerun.log": "775f72d31fb2b65a1543c29c296fc0b1c6490bc3228f66987fa04c1fefbaeab5",
+    "zarr-only-interop-ctest.log": "1383f97e2896b10825dfae663b36a2e11a4c69f2a9f924ab3ccb1871b8a99926",
+    "zarr-only-workflow.log": "c199e160632d5490e9bf84b4262d8f9781d02b3e520bd8ee06ab5757ada0a563"
+  },
+  "limits": [
+    "No GPU execution, hardware probing or benchmarks.",
+    "No CellShard format implementation.",
+    "Optional Scanpy records gate was outside ordinary Python interoperability scope.",
+    "No native Todo outcome acceptance, commits or pushes."
+  ],
+  "reproduction": {
+    "toolchain": "Clang 18.1.3, matching clang-scan-deps, CMake 3.28.3, Ninja 1.11.1, C++20",
+    "native": [
+      "cmake --preset debug",
+      "cmake --build --preset debug --parallel 2",
+      "ctest --preset debug"
+    ],
+    "matrix": [
+      "cmake --workflow --preset core-only",
+      "cmake --workflow --preset hdf5-only",
+      "cmake --workflow --preset zarr-only",
+      "cmake --workflow --preset shared"
+    ],
+    "python": "ANNDATAPP_ENABLE_INTEROP_TESTS=ON, .venv/bin/python3; ANNDATAPP_INTEROP_ZARR_WAKEUP=1 for restricted runner",
+    "evidence_root": "/tmp/fp16-ownership-20261105T140415Z"
+  }
+}

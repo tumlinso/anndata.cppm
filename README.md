@@ -30,6 +30,8 @@ int main() {
 }
 ```
 
+Numerical storage supports booleans, fixed-width integers, FP32, and FP64. Binary16 conversion and velocity's FP16 input/output belong to Cellerator; FP16 storage and CUDA are outside this package.
+
 Owners are move-only. `copy()` creates independent data. Typed memory views retain storage by default and expose pointers, dimensions, and strides. Borrowed and unchecked paths give callers explicit control over lifetimes and validation. Parallel execution and synchronization belong to the caller.
 
 [Reusable block I/O](docs/streaming.md) exposes physical chunk/shard geometry,
@@ -60,6 +62,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndatap
 - [Extension contracts and qualification requirements](docs/extension-contract.md)
 - [Development, installation, and validation](docs/development.md)
 - [Naming cutover validation](docs/rename-validation.md)
+- [Package boundary validation](docs/package-boundary-validation.md)
 - [Memory access and ownership](docs/memory.md)
 - [Native records and compound H5AD elements](docs/records.md)
 - [Compact selection and direct metadata validation](docs/selection-validation.md)

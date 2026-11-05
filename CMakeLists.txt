@@ -104,6 +104,7 @@ write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/anndatappConfigVer
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/anndatappConfig.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/anndatappConfigVersion.cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindBlosc.cmake"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/anndatappModuleProvider.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/anndatapp)
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/anndatapp)
 
@@ -224,6 +225,24 @@ if(ANNDATAPP_ENABLE_INTEROP_TESTS)
     target_link_libraries(storage_interop_driver PRIVATE anndatapp::anndatapp)
     add_test(NAME python_storage COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_storage.py $<TARGET_FILE:storage_interop_driver>)
+  endif()
+  if(ANNDATAPP_ENABLE_HDF5 OR ANNDATAPP_ENABLE_ZARR)
+    add_executable(dtype_rejection_driver tests/dtype_rejection_driver.cpp)
+    target_link_libraries(dtype_rejection_driver PRIVATE anndatapp::anndatapp)
+    if(ANNDATAPP_ENABLE_HDF5)
+      add_test(NAME python_unsupported_dtype_h5ad COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_unsupported_dtype.py
+        $<TARGET_FILE:dtype_rejection_driver> h5ad
+        "${CMAKE_CURRENT_BINARY_DIR}/unsupported-dtype-h5ad")
+    endif()
+    if(ANNDATAPP_ENABLE_ZARR)
+      foreach(_format zarr2 zarr3)
+        add_test(NAME python_unsupported_dtype_${_format} COMMAND ${Python3_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/tests/python_unsupported_dtype.py
+          $<TARGET_FILE:dtype_rejection_driver> ${_format}
+          "${CMAKE_CURRENT_BINARY_DIR}/unsupported-dtype-${_format}")
+      endforeach()
+    endif()
   endif()
 endif()
 if(ANNDATAPP_BUILD_BENCHMARKS)
