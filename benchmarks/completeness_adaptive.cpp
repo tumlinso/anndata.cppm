@@ -19,12 +19,15 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#ifdef __APPLE__
+#include <dlfcn.h>
+#endif
 
 import anndatapp;
 
 #ifdef __APPLE__
-extern "C" int anndatapp_completeness_probe_begin(std::uint64_t,std::uint64_t,const char*,std::size_t,int) __attribute__((weak_import));
-extern "C" void anndatapp_completeness_probe_end() __attribute__((weak_import));
+static int (*anndatapp_completeness_probe_begin)(std::uint64_t,std::uint64_t,const char*,std::size_t,int) = nullptr;
+static void (*anndatapp_completeness_probe_end)() = nullptr;
 #else
 extern "C" int anndatapp_completeness_probe_begin(std::uint64_t,std::uint64_t,const char*,std::size_t,int) __attribute__((weak));
 extern "C" void anndatapp_completeness_probe_end() __attribute__((weak));
@@ -52,6 +55,12 @@ struct Snapshot { std::size_t completed, limit, target; StreamPhase phase; };
 int main(int argc,char** argv) {
     if(argc!=3) { std::cerr << "usage: completeness_adaptive adaptive|1|2|4|8 STORE\n"; return 2; }
     try {
+#ifdef __APPLE__
+        anndatapp_completeness_probe_begin = reinterpret_cast<decltype(anndatapp_completeness_probe_begin)>(
+            dlsym(RTLD_DEFAULT,"anndatapp_completeness_probe_begin"));
+        anndatapp_completeness_probe_end = reinterpret_cast<decltype(anndatapp_completeness_probe_end)>(
+            dlsym(RTLD_DEFAULT,"anndatapp_completeness_probe_end"));
+#endif
         const std::string mode=argv[1],path=argv[2],xdir=path+"/X";
         const bool adaptive=mode=="adaptive";
         const std::size_t limit=adaptive?8:std::stoull(mode);

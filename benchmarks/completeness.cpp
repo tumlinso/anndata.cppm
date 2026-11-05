@@ -8,13 +8,15 @@
 #include <string>
 #include <sys/resource.h>
 #include <vector>
+#ifdef __APPLE__
+#include <dlfcn.h>
+#endif
 
 import anndatapp;
 
 #ifdef __APPLE__
-extern "C" int anndatapp_completeness_probe_begin(std::uint64_t, std::uint64_t,
-                                                const char*, std::size_t, int) __attribute__((weak_import));
-extern "C" void anndatapp_completeness_probe_end() __attribute__((weak_import));
+static int (*anndatapp_completeness_probe_begin)(std::uint64_t,std::uint64_t,const char*,std::size_t,int) = nullptr;
+static void (*anndatapp_completeness_probe_end)() = nullptr;
 #else
 extern "C" int anndatapp_completeness_probe_begin(std::uint64_t, std::uint64_t,
                                                 const char*, std::size_t, int) __attribute__((weak));
@@ -28,6 +30,12 @@ static float value(std::size_t i, std::size_t j) { return float(10000 + 131*i + 
 int main(int argc, char** argv) {
     if (argc != 5) { std::cerr << "usage: completeness CASE STORE INDEX_BYTES INDEX_AT_START\n"; return 2; }
     try {
+#ifdef __APPLE__
+        anndatapp_completeness_probe_begin = reinterpret_cast<decltype(anndatapp_completeness_probe_begin)>(
+            dlsym(RTLD_DEFAULT,"anndatapp_completeness_probe_begin"));
+        anndatapp_completeness_probe_end = reinterpret_cast<decltype(anndatapp_completeness_probe_end)>(
+            dlsym(RTLD_DEFAULT,"anndatapp_completeness_probe_end"));
+#endif
         const std::string test = argv[1], path = argv[2], xdir = path + "/X";
         const auto index_bytes = std::stoull(argv[3]);
         const int index_at_start = std::stoi(argv[4]);

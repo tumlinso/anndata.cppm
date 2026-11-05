@@ -12,12 +12,15 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#ifdef __APPLE__
+#include <dlfcn.h>
+#endif
 
 import anndatapp;
 
 #ifdef __APPLE__
-extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak_import));
-extern "C" void anndatapp_probe_end() __attribute__((weak_import));
+static int (*anndatapp_probe_begin)(std::uint64_t,std::uint64_t) = nullptr;
+static void (*anndatapp_probe_end)() = nullptr;
 #else
 extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
 extern "C" void anndatapp_probe_end() __attribute__((weak));
@@ -48,6 +51,10 @@ static std::vector<Selection> selection(const std::vector<std::size_t>& start,
 }
 int main(int argc, char** argv) {
     try {
+#ifdef __APPLE__
+        anndatapp_probe_begin = reinterpret_cast<decltype(anndatapp_probe_begin)>(dlsym(RTLD_DEFAULT,"anndatapp_probe_begin"));
+        anndatapp_probe_end = reinterpret_cast<decltype(anndatapp_probe_end)>(dlsym(RTLD_DEFAULT,"anndatapp_probe_end"));
+#endif
         if (argc != 6) throw std::runtime_error("usage: streaming_probe dense|adaptive|sparse FORMAT PATH ROW_BLOCK COLUMN_BLOCK");
         const std::string action = argv[1], format = argv[2], path = argv[3];
         const auto br = std::stoul(argv[4]), bc = std::stoul(argv[5]);
