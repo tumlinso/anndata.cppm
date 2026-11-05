@@ -9,19 +9,22 @@ The baseline is the preserved working tree under
 `build/v1-cleanup/baseline-source`. Review findings remain historical in
 `docs/review/core.md`; this document records their implementation disposition.
 Runtime and build claims require the separately coordinated paired campaign.
+Checked arithmetic keeps optimized compiler intrinsics behind feature detection;
+portability does not require replacing them with recurring division on supported
+compilers. Both paths preserve the same overflow diagnostics.
 
 | Finding | Disposition |
 |---|---|
 | C01 | Selected strings and string-view initializer lists pack directly into final byte/offset buffers; record text copies also size and fill final buffers. Internal selected traversal no longer recomputes shape products through checked scalar access. Final selected-copy UTF-8 validation remains. |
 | C02 | Owning dense copies allocate their result then use the same `copy_into` traversal. The existing trusted owning-copy contract is preserved by omitting whole-source validation on that route, including huge zero-stride source geometries. |
-| C03 | Selected sparse copies use typed count/fill traversal. All-minor selections copy complete stored runs; affine filters use arithmetic; gathers use one sorted duplicate-aware vector. Output-sized source-position/index staging and hash-node vectors are removed. |
+| C03 | Selected sparse copies use typed count/fill traversal. All-minor selections copy complete stored runs; affine filters use arithmetic; gathers use bounded direct duplicate chains for compact axes and a sorted duplicate-aware vector for large/gapped axes. Output-sized source-position/index staging and hash-node vectors are removed. |
 | C04 | `borrowed_dense` accepts pointer/rank/shape/signed element strides, copies metadata inline through rank four and owns larger metadata, and exposes checked/trusted validation. Internal descriptor constructors are private. |
 | C05 | All-selector composition returns the existing array/string binding before allocating selection state, including rank zero and already selected views. |
 | C06 | `RecordArray` has focused const `array`, `string_array`, `member<T>` and `text` access. Mutable member acquisition also avoids a full-schema snapshot. Numerical member metadata uses inline dimensions without a temporary stride vector. |
 | C07 | Record schema has one ordered field list. Item size/alignment are scalar state; interleaved records do not allocate fieldwise payload vectors. `record_layout()` constructs its explicit returned metadata. |
 | C08 | One private allocation owner retains the native record buffer and stable copied text arena. Copies create no extra text-owner/owner-pair layer, including numeric-only and fixed-text records. |
 | C09 | Native member construction dispatches per field. Record copies use a cached byte stride at rank zero/one and an incremental coordinate walk at higher rank. |
-| C10 | Core overflow arithmetic uses standard limit tests instead of compiler builtins. Compile-time checks declare the supported eight-bit-byte, one-byte-bool, IEEE binary32/binary64 scalar representation. Additional compiler/platform qualification remains explicit. |
+| C10 | Checked array add/multiply use compile-time feature-detected overflow intrinsics with standard limit-test fallbacks; other range checks remain standard arithmetic. Compile-time checks declare the supported eight-bit-byte, one-byte-bool, IEEE binary32/binary64 scalar representation. Additional compiler/platform qualification remains explicit. |
 
 ## Public acquisition and migration
 
@@ -63,11 +66,17 @@ to zero so that valid unused element strides need not fit after scaling.
 
 Selected string copy has no intermediate `vector<string>` or individually
 owned string payloads. Sparse selected copy retains one major-offset vector and,
-only for gathers, one `(source, output)` coordinate vector; it no longer retains
+only for gathers, either bounded `head`/`next` arrays or one `(source, output)`
+coordinate vector; it no longer retains
 two `size_t` staging arrays per emitted nonzero. Typed structural specialization
 is private and excludes the numerical-value dtype cross product. The deliberate
 tradeoff is a count/fill source scan for filtered sparse copies and private code
-growth, to be judged by paired measurements rather than assumed faster.
+growth, to be judged by paired measurements rather than assumed faster. Direct
+lookup is limited to at most 1,048,576 source coordinates and a source extent
+no greater than four times the requested gather count; the comparison avoids
+multiplication overflow. Reverse chain construction preserves output order
+within repeated source coordinates. Large/gapped sources do not allocate that
+source-sized table.
 
 Interleaved schema names are stored once instead of both a layout list and
 field list. Numerical/fixed-text copies retain one allocation owner instead of

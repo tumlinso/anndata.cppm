@@ -10,6 +10,15 @@ module;
 #include <utility>
 #include <vector>
 
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_mul_overflow) && __has_builtin(__builtin_add_overflow)
+#define ANNDATAPP_CHECKED_INTRINSICS 1
+#endif
+#endif
+#ifndef ANNDATAPP_CHECKED_INTRINSICS
+#define ANNDATAPP_CHECKED_INTRINSICS 0
+#endif
+
 module anndatapp.core;
 import :arrays;
 
@@ -268,6 +277,11 @@ bool is_contiguous(const detail::DenseDimensions& dimensions) {
     return true;
 }
 std::ptrdiff_t checked_signed_mul(std::ptrdiff_t a, std::ptrdiff_t b) {
+#if ANNDATAPP_CHECKED_INTRINSICS
+    std::ptrdiff_t result;
+    if (__builtin_mul_overflow(a, b, &result)) fail(ErrorCode::invalid_argument, "stride or offset overflow");
+    return result;
+#else
     const bool negative = (a < 0) != (b < 0);
     const auto x = a < 0 ? std::uintmax_t(-(a + 1)) + 1 : std::uintmax_t(a);
     const auto y = b < 0 ? std::uintmax_t(-(b + 1)) + 1 : std::uintmax_t(b);
@@ -276,12 +290,19 @@ std::ptrdiff_t checked_signed_mul(std::ptrdiff_t a, std::ptrdiff_t b) {
     const auto n = x*y;
     if (negative && n == limit) return std::numeric_limits<std::ptrdiff_t>::min();
     return negative ? -std::ptrdiff_t(n) : std::ptrdiff_t(n);
+#endif
 }
 std::ptrdiff_t checked_signed_add(std::ptrdiff_t a, std::ptrdiff_t b) {
+#if ANNDATAPP_CHECKED_INTRINSICS
+    std::ptrdiff_t result;
+    if (__builtin_add_overflow(a, b, &result)) fail(ErrorCode::invalid_argument, "stride or offset overflow");
+    return result;
+#else
     if ((b > 0 && a > std::numeric_limits<std::ptrdiff_t>::max() - b) ||
         (b < 0 && a < std::numeric_limits<std::ptrdiff_t>::min() - b))
         fail(ErrorCode::invalid_argument, "stride or offset overflow");
     return a + b;
+#endif
 }
 std::ptrdiff_t signed_index(std::size_t i) {
     if (i > static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max())) fail(ErrorCode::invalid_argument, "index exceeds addressable range");
@@ -775,6 +796,22 @@ Array ArrayView::copy(Validation validation) const {
         const auto d = minor.reverse() ? first - i : i - first;
         if (d % step == 0 && d/step < out_minor) emit(d/step);
     });
+    // A compact source axis earns a direct table; cap its size and keep the
+    // scratch proportional to the requested gather, including repetitions.
+    const auto source_minor = state_->shape[minor_axis];
+    if (source_minor <= (std::size_t{1} << 20) &&
+        out_minor >= source_minor/4 + (source_minor % 4 != 0)) {
+        checked_byte_span(out_minor, sizeof(std::size_t));
+        const auto none = std::numeric_limits<std::size_t>::max();
+        std::vector<std::size_t> head(source_minor, none), next(out_minor);
+        for (std::size_t j = out_minor; j > 0; --j) {
+            const auto i = minor.index(j - 1);
+            next[j - 1] = head[i]; head[i] = j - 1;
+        }
+        return selected([&](std::size_t i, auto emit) {
+            for (auto j = head[i]; j != none; j = next[j]) emit(j);
+        });
+    }
     std::vector<std::pair<std::size_t, std::size_t>> lookup;
     lookup.reserve(out_minor);
     for (std::size_t j = 0; j < out_minor; ++j) lookup.emplace_back(minor.index(j), j);

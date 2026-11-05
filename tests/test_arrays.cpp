@@ -1017,26 +1017,30 @@ void sparse_copy_major_preflight() {
 
 void sparse_repeated_minor_gather() {
     using namespace anndatapp;
-    std::array<float, 5> values{0, 4, 5, 6, 7};
-    std::array<std::int16_t, 5> indices{2, 0, 2, 1, 2};
-    std::array<std::uint32_t, 3> offsets{0, 3, 5};
-    const std::array<std::int16_t, 9> expected_indices{0, 2, 0, 2, 1, 0, 2, 0, 2};
-    const std::array<float, 9> expected_values{7, 7, 0, 0, 4, 5, 5, 7, 7};
-    for (auto layout : {Layout::csr, Layout::csc}) {
-        auto source = Array::borrow_sparse(layout, layout == Layout::csr ? 2 : 3,
-            layout == Layout::csr ? 3 : 2, values.size(), values.data(), indices.data(), offsets.data());
-        const auto major = Axis::gather({1, 0, 1}), minor = Axis::gather({2, 0, 2});
-        auto copy = source.view().select({layout == Layout::csr ? major : minor,
-                                         layout == Layout::csr ? minor : major}).copy();
-        copy.validate();
-        auto out = layout == Layout::csr ? copy.view().csr<float, std::int16_t, std::uint32_t>()
-                                         : copy.view().csc<float, std::int16_t, std::uint32_t>();
-        bool equal = out.nnz() == expected_values.size() && out.offsets()[0] == 0 &&
-            out.offsets()[1] == 2 && out.offsets()[2] == 7 && out.offsets()[3] == 9;
-        for (std::size_t i = 0; equal && i < expected_values.size(); ++i)
-            equal = out.indices()[i] == expected_indices[i] && out.values()[i] == expected_values[i];
-        expect(equal, "minor gathers preserve stored order, duplicate entries and explicit zeros in CSR/CSC");
-    }
+    auto check = []<class Index>(std::size_t minor_extent) {
+        std::array<float, 5> values{0, 4, 5, 6, 7};
+        std::array<Index, 5> indices{Index(minor_extent - 1), 0, Index(minor_extent - 1), 1, Index(minor_extent - 1)};
+        std::array<std::uint32_t, 3> offsets{0, 3, 5};
+        const std::array<Index, 9> expected_indices{0, 2, 0, 2, 1, 0, 2, 0, 2};
+        const std::array<float, 9> expected_values{7, 7, 0, 0, 4, 5, 5, 7, 7};
+        for (auto layout : {Layout::csr, Layout::csc}) {
+            auto source = Array::borrow_sparse(layout, layout == Layout::csr ? 2 : minor_extent,
+                layout == Layout::csr ? minor_extent : 2, values.size(), values.data(), indices.data(), offsets.data());
+            const auto major = Axis::gather({1, 0, 1}), minor = Axis::gather({minor_extent - 1, 0, minor_extent - 1});
+            auto copy = source.view().select({layout == Layout::csr ? major : minor,
+                                             layout == Layout::csr ? minor : major}).copy();
+            copy.validate();
+            auto out = layout == Layout::csr ? copy.view().template csr<float, Index, std::uint32_t>()
+                                             : copy.view().template csc<float, Index, std::uint32_t>();
+            bool equal = out.nnz() == expected_values.size() && out.offsets()[0] == 0 &&
+                out.offsets()[1] == 2 && out.offsets()[2] == 7 && out.offsets()[3] == 9;
+            for (std::size_t i = 0; equal && i < expected_values.size(); ++i)
+                equal = out.indices()[i] == expected_indices[i] && out.values()[i] == expected_values[i];
+            expect(equal, "minor gathers preserve stored order, duplicate entries and explicit zeros in CSR/CSC");
+        }
+    };
+    check.template operator()<std::int16_t>(3);       // Compact direct lookup.
+    check.template operator()<std::int64_t>(1000003); // Gapped sorted lookup.
 }
 
 int main() {
