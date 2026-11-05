@@ -1,5 +1,6 @@
 module;
 #include <hdf5.h>
+#include "h5ad_object.hpp"
 #include "h5ad_text.hpp"
 #include "utf8.hpp"
 #include <algorithm>
@@ -32,6 +33,8 @@ namespace anndatapp::backed_detail {
 namespace {
 using ::anndatapp::detail::Utf8Error;
 using ::anndatapp::detail::utf8_error;
+using ::anndatapp_h5ad_detail::ObjectInfo;
+using ::anndatapp_h5ad_detail::object_info;
 
 class H5Handle {
 public:
@@ -229,8 +232,8 @@ std::vector<std::string> read_text(const H5Context& c, hid_t type, hid_t space, 
 }
 
 Attributes read_attributes(const H5Context& c, hid_t object, std::string_view path, bool& opaque) {
-    H5O_info_t info{};
-    c.check(H5Oget_info(object, &info), path, "inspect attributes");
+    ObjectInfo info{};
+    c.check(object_info(object, &info), path, "inspect attributes");
     std::string encoding;
     const auto has_encoding = H5Aexists(object, "encoding-type");
     if (has_encoding < 0) c.fail(ErrorCode::io_error, path, "inspect encoding attribute failed");
@@ -493,8 +496,8 @@ H5Handle open_object(const H5Context& c, hid_t file, std::string_view path, bool
     H5Handle current(c.id(H5Gopen2(file, "/", H5P_DEFAULT), path, "open root"), H5Oclose);
     if (path == "/") return current;
     std::vector<haddr_t> ancestors;
-    H5O_info_t identity{};
-    c.check(H5Oget_info(current, &identity), path, "inspect root identity");
+    ObjectInfo identity{};
+    c.check(object_info(current, &identity), path, "inspect root identity");
     ancestors.push_back(identity.addr);
     std::size_t first = 1;
     while (first < path.size()) {
@@ -512,7 +515,7 @@ H5Handle open_object(const H5Context& c, hid_t file, std::string_view path, bool
         c.check(H5Lget_info(current, key.c_str(), &link, H5P_DEFAULT), path, "inspect link");
         if (link.type != H5L_TYPE_HARD) c.fail(ErrorCode::unsupported_encoding, path, "soft and external HDF5 links are unsupported");
         H5Handle next(c.id(H5Oopen(current, key.c_str(), H5P_DEFAULT), path, "open element"), H5Oclose);
-        c.check(H5Oget_info(next, &identity), path, "inspect element identity");
+        c.check(object_info(next, &identity), path, "inspect element identity");
         if (std::find(ancestors.begin(), ancestors.end(), identity.addr) != ancestors.end()) c.fail(ErrorCode::unsupported_encoding, path, "cyclic HDF5 links are unsupported");
         ancestors.push_back(identity.addr);
         current = std::move(next);
@@ -1151,8 +1154,8 @@ public:
         ensure_writable();
         auto original = open_object(c_, file_, source);
         auto replacement = open_object(c_, file_, target);
-        H5O_info_t info{};
-        c_.check(H5Oget_info(original, &info), source, "inspect source attributes");
+        ObjectInfo info{};
+        c_.check(object_info(original, &info), source, "inspect source attributes");
         for (hsize_t i = 0; i < info.num_attrs; ++i) {
             H5Handle attr(c_.id(H5Aopen_by_idx(original, ".", H5_INDEX_NAME, H5_ITER_INC, i, H5P_DEFAULT, H5P_DEFAULT), source, "open preserved attribute"), H5Aclose);
             const auto length = H5Aget_name(attr, 0, nullptr);

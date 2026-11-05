@@ -1,5 +1,6 @@
 module;
 #include <hdf5.h>
+#include "h5ad_object.hpp"
 #include "h5ad_record_scratch.hpp"
 #include "h5ad_text.hpp"
 #include "utf8.hpp"
@@ -27,6 +28,8 @@ namespace anndatapp {
 namespace {
 using ::anndatapp::detail::Utf8Error;
 using ::anndatapp::detail::utf8_error;
+using ::anndatapp_h5ad_detail::ObjectInfo;
+using ::anndatapp_h5ad_detail::object_info;
 
 // No backend object is retained by an eager read. These handles, datatypes,
 // conversion buffers and diagnostics stay out of all public module interfaces.
@@ -156,8 +159,8 @@ struct Ancestor {
     Context& context;
     haddr_t address;
     Ancestor(Context& c, hid_t object, std::string_view path) : context(c), address(0) {
-        H5O_info_t info{};
-        c.check(H5Oget_info(object, &info), path, "inspect object identity");
+        ObjectInfo info{};
+        c.check(object_info(object, &info), path, "inspect object identity");
         address = info.addr;
         if (!c.ancestors.insert(address).second)
             c.fail(ErrorCode::unsupported_encoding, path, "cyclic HDF5 group links are not supported");
