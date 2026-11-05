@@ -1,4 +1,5 @@
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -112,6 +113,79 @@ void dense_storage_and_mutation() {
            nonowning_high_rank.data() == high_rank.data() &&
            nonowning_high_rank.data()[31] == 29,
            "borrowed high-rank view exposes pointer and shared shape metadata");
+}
+
+void direct_borrowed_dense_views() {
+    using namespace anndatapp;
+    std::array<float, 4> values{1, 2, 3, 4};
+    const std::size_t rank2_shape[]{2, 2};
+    const std::ptrdiff_t rank2_strides[]{2, 1};
+    auto direct = borrowed_dense(values.data(), 2, rank2_shape, rank2_strides);
+    expect(direct.data() == values.data() && direct.rank() == 2 &&
+           direct.extent(0) == 2 && direct.extent(1) == 2 &&
+           direct.stride(0) == 2 && direct.stride(1) == 1 && direct.contiguous(),
+           "direct borrowed dense descriptor copies shape and signed strides");
+    auto read_only = borrowed_dense(static_cast<const float*>(values.data()),
+                                    2, rank2_shape, rank2_strides);
+    static_assert(std::is_same_v<decltype(read_only.data()), const float*>);
+    expect(read_only.data() == values.data() && read_only.contiguous(),
+           "direct borrowed descriptor preserves pointer constness");
+
+    auto high_rank = [&] {
+        const std::size_t high_shape[]{2, 1, 1, 1, 2};
+        const std::ptrdiff_t high_strides[]{2, 73, -19, 8, 1};
+        return borrowed_dense(values.data(), 5, high_shape, high_strides);
+    }();
+    expect(high_rank.rank() == 5 && high_rank.extent(0) == 2 &&
+           high_rank.extent(1) == 1 && high_rank.extent(4) == 2 &&
+           high_rank.stride(1) == 73 && high_rank.stride(2) == -19 &&
+           high_rank.data()[0] == 1 && high_rank.data()[3] == 4,
+           "high-rank borrowed descriptor owns copied metadata after stack arrays expire");
+
+    float scalar = 17;
+    auto rank_zero = borrowed_dense(&scalar, 0, nullptr, nullptr);
+    expect(rank_zero.rank() == 0 && rank_zero.data() == &scalar &&
+           rank_zero.contiguous_data() == &scalar,
+           "rank-zero direct borrowed descriptor accepts null metadata");
+
+    const std::size_t reverse_shape[]{2};
+    const std::ptrdiff_t reverse_stride[]{-2};
+    auto reverse = borrowed_dense(values.data() + 3, 1, reverse_shape, reverse_stride);
+    expect(reverse.stride(0) == -2 && reverse.data()[0] == 4 &&
+           reverse.data()[reverse.stride(0)] == 2,
+           "direct borrowed descriptor retains negative element strides");
+    const std::size_t broadcast_shape[]{3};
+    const std::ptrdiff_t broadcast_stride[]{0};
+    auto repeated = borrowed_dense(values.data() + 1, 1, broadcast_shape, broadcast_stride);
+    expect(repeated.stride(0) == 0 && repeated.data()[0] == 2 &&
+           repeated.data()[repeated.stride(0)] == 2,
+           "direct borrowed descriptor retains zero-stride broadcast metadata");
+
+    const std::size_t one_shape[]{1};
+    const std::ptrdiff_t one_stride[]{1};
+    expect_error(ErrorCode::invalid_argument,
+        [&] { (void)borrowed_dense<float>(nullptr, 1, one_shape, one_stride); },
+        "full direct borrowing rejects null nonempty storage");
+    expect_error(ErrorCode::invalid_argument,
+        [&] { (void)borrowed_dense(values.data(), 1, nullptr, one_stride); },
+        "direct borrowing rejects missing positive-rank shape metadata");
+    expect_error(ErrorCode::invalid_argument,
+        [&] { (void)borrowed_dense(values.data(), 1, one_shape, nullptr); },
+        "direct borrowing rejects missing positive-rank stride metadata");
+    const std::size_t overflow_shape[]{std::numeric_limits<std::size_t>::max(), 2};
+    const std::ptrdiff_t overflow_strides[]{2, 1};
+    expect_error(ErrorCode::invalid_argument,
+        [&] { (void)borrowed_dense(values.data(), 2, overflow_shape, overflow_strides); },
+        "full direct borrowing rejects an unaddressable dense shape");
+    alignas(float) std::array<std::byte, sizeof(float) + 1> misaligned_storage{};
+    auto* misaligned = reinterpret_cast<float*>(misaligned_storage.data() + 1);
+    expect_error(ErrorCode::invalid_argument,
+        [&] { (void)borrowed_dense(misaligned, 1, one_shape, one_stride); },
+        "full direct borrowing rejects a misaligned typed pointer");
+
+    const auto trusted_null = borrowed_dense<float>(nullptr, 1, one_shape, one_stride, Validation::none);
+    expect(trusted_null.data() == nullptr && trusted_null.extent(0) == 1,
+           "trusted direct borrowing skips buffer-content validation");
 }
 
 void native_type_identity_and_bytes() {
@@ -941,8 +1015,34 @@ void sparse_copy_major_preflight() {
 
 } // namespace
 
+void sparse_repeated_minor_gather() {
+    using namespace anndatapp;
+    std::array<float, 5> values{0, 4, 5, 6, 7};
+    std::array<std::int16_t, 5> indices{2, 0, 2, 1, 2};
+    std::array<std::uint32_t, 3> offsets{0, 3, 5};
+    const std::array<std::int16_t, 9> expected_indices{0, 2, 0, 2, 1, 0, 2, 0, 2};
+    const std::array<float, 9> expected_values{7, 7, 0, 0, 4, 5, 5, 7, 7};
+    for (auto layout : {Layout::csr, Layout::csc}) {
+        auto source = Array::borrow_sparse(layout, layout == Layout::csr ? 2 : 3,
+            layout == Layout::csr ? 3 : 2, values.size(), values.data(), indices.data(), offsets.data());
+        const auto major = Axis::gather({1, 0, 1}), minor = Axis::gather({2, 0, 2});
+        auto copy = source.view().select({layout == Layout::csr ? major : minor,
+                                         layout == Layout::csr ? minor : major}).copy();
+        copy.validate();
+        auto out = layout == Layout::csr ? copy.view().csr<float, std::int16_t, std::uint32_t>()
+                                         : copy.view().csc<float, std::int16_t, std::uint32_t>();
+        bool equal = out.nnz() == expected_values.size() && out.offsets()[0] == 0 &&
+            out.offsets()[1] == 2 && out.offsets()[2] == 7 && out.offsets()[3] == 9;
+        for (std::size_t i = 0; equal && i < expected_values.size(); ++i)
+            equal = out.indices()[i] == expected_indices[i] && out.values()[i] == expected_values[i];
+        expect(equal, "minor gathers preserve stored order, duplicate entries and explicit zeros in CSR/CSC");
+    }
+}
+
 int main() {
+    sparse_repeated_minor_gather();
     dense_storage_and_mutation();
+    direct_borrowed_dense_views();
     native_type_identity_and_bytes();
     checked_ranges_and_shared_owners();
     empty_and_broadcast_extreme_dimensions();

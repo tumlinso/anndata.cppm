@@ -49,7 +49,11 @@ void gathered_and_strided() {
     auto b = Array::borrow_dense(out.data()+9, {3, 3}, {-3, -1});
     view.copy_into(b.edit());
     const float expected[]{19, 16, 19, 4, 1, 4, 19, 16, 19};
-    for (int i = 0; i < 9; ++i) check(out[9-i] == expected[i], "gather or destination stride changed values");
+    auto owned = view.copy();
+    const auto* owned_values = owned.view().dense<float>().data();
+    for (int i = 0; i < 9; ++i)
+        check(out[9-i] == expected[i] && owned_values[i] == expected[i],
+              "owning and caller-buffer copies preserve gathered values and order");
     check(out.front() == -99 && out.back() == -99, "copy escaped destination span");
     auto reverse = Array::borrow_dense(x.data()+19, {4, 5}, {-5, -1});
     auto selected = reverse.view().select({Axis::gather({0, 3, 1}), Axis::gather({4, 0})});

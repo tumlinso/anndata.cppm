@@ -110,20 +110,18 @@ std::size_t view_size(const detail::StringArrayImpl& impl,
     return count;
 }
 
-std::size_t source_index(const std::shared_ptr<detail::StringArrayImpl>& impl,
+std::size_t source_index(const detail::StringArrayImpl& impl,
                          const std::shared_ptr<const std::vector<Axis>>& selection,
                          std::size_t flat_index) {
-    const auto count = view_size(*impl, selection);
-    if (flat_index >= count) string_fail(ErrorCode::out_of_bounds, "string index is out of bounds");
     if (!selection) return flat_index;
     std::size_t result = 0, stride = 1;
-    for (std::size_t a = impl->shape.size(); a > 0; --a) {
+    for (std::size_t a = impl.shape.size(); a > 0; --a) {
         const auto axis = a - 1;
-        const auto n = selected_extent(*impl, selection, axis);
+        const auto n = selected_extent(impl, selection, axis);
         const auto coordinate = flat_index % n;
         flat_index /= n;
         result += (*selection)[axis].index(coordinate) * stride;
-        stride *= impl->shape[axis];
+        stride *= impl.shape[axis];
     }
     return result;
 }
@@ -148,6 +146,23 @@ void validate_impl(const detail::StringArrayImpl& impl) {
         previous = next;
     }
     if (previous != impl.byte_size) string_fail(ErrorCode::invalid_argument, "final offset differs from byte buffer size");
+}
+
+template<class F> StringArray pack_strings(std::vector<std::size_t> shape, std::size_t n, F get) {
+    std::vector<std::uint64_t> offsets(n + 1, 0);
+    std::size_t bytes = 0;
+    for (std::size_t i = 0; i < n; ++i) {
+        const auto k = get(i).size();
+        if (k > std::size_t(PTRDIFF_MAX) - bytes)
+            string_fail(ErrorCode::invalid_argument, "packed UTF-8 byte size exceeds addressable range");
+        bytes += k; offsets[i + 1] = bytes;
+    }
+    std::vector<char> data(bytes);
+    for (std::size_t i = 0; i < n; ++i) {
+        const auto text = get(i);
+        if (!text.empty()) std::memcpy(data.data() + offsets[i], text.data(), text.size());
+    }
+    return StringArray::from_packed(std::move(shape), std::move(data), std::move(offsets));
 }
 
 struct PackedBuffers {
@@ -186,7 +201,8 @@ std::size_t StringArrayView::byte_size() const {
     if (!selection_) return impl_->byte_size;
     std::size_t result = 0;
     for (std::size_t i = 0, n = size(); i < n; ++i) {
-        const auto length = string(i).size();
+        const auto j = source_index(*impl_, selection_, i);
+        const auto length = impl_->offsets[j + 1] - impl_->offsets[j];
         if (length > std::numeric_limits<std::size_t>::max() - result)
             string_fail(ErrorCode::invalid_argument, "selected byte size overflows");
         result += length;
@@ -199,7 +215,8 @@ std::size_t StringArrayView::storage_byte_size() const {
 }
 std::string_view StringArrayView::string(std::size_t flat_index) const {
     if (!impl_) string_fail(ErrorCode::invalid_argument, "view is empty or moved from");
-    const auto original = source_index(impl_, selection_, flat_index);
+    if (flat_index >= size()) string_fail(ErrorCode::out_of_bounds, "string index is out of bounds");
+    const auto original = source_index(*impl_, selection_, flat_index);
     const auto begin = impl_->offsets[original];
     const auto end = impl_->offsets[original + 1];
     if (end == begin) return {};
@@ -225,6 +242,9 @@ StringArrayView StringArrayView::select(const Axis* axes, std::size_t n) const {
     if (!impl_) string_fail(ErrorCode::invalid_argument, "view is empty or moved from");
     if (n != rank()) string_fail(ErrorCode::shape_mismatch, "selector count differs from rank");
     if (n && !axes) string_fail(ErrorCode::invalid_argument, "selector pointer is null");
+    bool same = true;
+    for (std::size_t a = 0; a < n; ++a) same = same && axes[a].is_all();
+    if (same) return *this;
     bool any = false;
     auto out = std::make_shared<std::vector<Axis>>(n);
     for (std::size_t a = 0; a < n; ++a) {
@@ -252,10 +272,11 @@ StringArray StringArrayView::copy() const {
         std::memcpy(offsets.data(), impl_->offsets, offsets.size() * sizeof(std::uint64_t));
         return StringArray::from_packed(impl_->shape, std::move(bytes), std::move(offsets), Validation::none);
     }
-    std::vector<std::string> values;
-    values.reserve(size());
-    for (std::size_t i = 0; i < size(); ++i) values.emplace_back(string(i));
-    return StringArray::from_strings(shape(), std::move(values));
+    const auto n = size();
+    return pack_strings(shape(), n, [&](std::size_t i) -> std::string_view {
+        const auto j = source_index(*impl_, selection_, i), a = impl_->offsets[j], b = impl_->offsets[j + 1];
+        return a == b ? std::string_view{} : std::string_view(impl_->bytes + a, b - a);
+    });
 }
 void StringArrayView::validate() const {
     if (!impl_) string_fail(ErrorCode::invalid_argument, "view is empty or moved from");
@@ -296,31 +317,14 @@ StringArray StringArray::from_strings(std::vector<std::size_t> shape,
     const auto count = element_count(shape);
     if (values.size() != count)
         string_fail(ErrorCode::shape_mismatch, "string count differs from shape product");
-    std::size_t total = 0;
-    for (const auto& value : values) {
-        if (value.size() > std::numeric_limits<std::size_t>::max() - total)
-            string_fail(ErrorCode::invalid_argument, "packed UTF-8 byte size overflows size_t");
-        total += value.size();
-    }
-    std::vector<char> bytes;
-    bytes.reserve(total);
-    std::vector<std::uint64_t> offsets;
-    offsets.reserve(count + 1);
-    offsets.push_back(0);
-    for (const auto& value : values) {
-        bytes.insert(bytes.end(), value.begin(), value.end());
-        if (bytes.size() > std::numeric_limits<std::uint64_t>::max())
-            string_fail(ErrorCode::invalid_argument, "UTF-8 byte size exceeds uint64 offsets");
-        offsets.push_back(static_cast<std::uint64_t>(bytes.size()));
-    }
-    return from_packed(std::move(shape), std::move(bytes), std::move(offsets));
+    return pack_strings(std::move(shape), count, [&](std::size_t i) -> std::string_view { return values[i]; });
 }
 StringArray StringArray::from_strings(std::initializer_list<std::size_t> shape,
                                       std::initializer_list<std::string_view> values) {
-    std::vector<std::string> copied;
-    copied.reserve(values.size());
-    for (const auto value : values) copied.emplace_back(value);
-    return from_strings(std::vector<std::size_t>(shape), std::move(copied));
+    std::vector<std::size_t> dimensions(shape);
+    if (element_count(dimensions) != values.size())
+        string_fail(ErrorCode::shape_mismatch, "string count differs from shape product");
+    return pack_strings(std::move(dimensions), values.size(), [&](std::size_t i) { return values.begin()[i]; });
 }
 StringArray StringArray::from_packed(std::vector<std::size_t> shape,
                                      std::vector<char> bytes,

@@ -182,6 +182,76 @@ void fieldwise_shape_order_and_copies() {
            "Element stores and exposes record arrays");
 }
 
+void focused_owner_accessors() {
+    RecordArray records = RecordArray::with_shape({2});
+    auto ids = Array::empty<std::int32_t>({2});
+    auto* id_data = ids.edit().dense<std::int32_t>().data();
+    id_data[0] = 11; id_data[1] = 22;
+    records.set("id", std::move(ids));
+    auto labels = StringArray::from_strings({2}, {"alpha", "β"});
+    const char* label_data = labels.view().storage_bytes();
+    records.set("label", std::move(labels));
+
+    const RecordArray& read_only = records;
+    auto member = read_only.member<std::int32_t>("id");
+    auto array = read_only.array("id");
+    auto strings = read_only.string_array("label");
+    auto text = read_only.text("label");
+    static_assert(std::is_same_v<decltype(member), RecordMemberView<const std::int32_t>>);
+    expect(member.data() == id_data && member[0] == 11 && member[1] == 22 &&
+           array.dense<std::int32_t>().data() == id_data,
+           "const owner acquires a typed or array view of one field directly");
+    expect(strings.storage_bytes() == label_data && text.string(0) == "alpha" &&
+           text.string(1) == "β",
+           "const owner acquires packed and scalar text access directly");
+    expect_error(ErrorCode::dtype_mismatch,
+        [&] { (void)read_only.member<double>("id"); },
+        "focused typed owner access checks the requested member type");
+
+    auto replacement = Array::empty<std::int32_t>({2});
+    auto* replacement_data = replacement.edit().dense<std::int32_t>().data();
+    replacement_data[0] = 31; replacement_data[1] = 42;
+    records.set("id", std::move(replacement));
+    records.erase("label");
+    expect(records.member<std::int32_t>("id")[0] == 31 &&
+           member.data() == id_data && member[0] == 11 && member[1] == 22 &&
+           array.dense<std::int32_t>().data() == id_data &&
+           strings.string(1) == "β" && text.string(0) == "alpha",
+           "focused retained fields survive replacement, erase, and owner structure changes");
+
+    RecordMemberView<const std::int32_t> retained_member;
+    ArrayView retained_array;
+    StringArrayView retained_strings;
+    RecordTextView retained_text;
+    {
+        auto owner = RecordArray::with_shape({1});
+        auto number = Array::empty<std::int32_t>({1});
+        number.edit().dense<std::int32_t>().data()[0] = 53;
+        owner.set("number", std::move(number));
+        owner.set("label", StringArray::from_strings({1}, {"held"}));
+        retained_member = owner.member<std::int32_t>("number");
+        retained_array = owner.array("number");
+        retained_strings = owner.string_array("label");
+        retained_text = owner.text("label");
+    }
+    expect(retained_member[0] == 53 &&
+           retained_array.dense<std::int32_t>().data()[0] == 53 &&
+           retained_strings.string(0) == "held" && retained_text.string(0) == "held",
+           "focused member, array, and text views retain selected fields after owner destruction");
+
+    std::array<Row, 2> rows{};
+    rows[0].id = 7; rows[1].id = 9;
+    rows[0].label[0] = 'x'; rows[1].label[0] = 'y';
+    auto interleaved = RecordArray::borrow_interleaved(
+        rows.data(), {2}, row_layout(), {std::ptrdiff_t(sizeof(Row))});
+    const RecordArray& interleaved_read_only = interleaved;
+    auto interleaved_ids = interleaved_read_only.member<std::int32_t>("id");
+    auto interleaved_text = interleaved_read_only.text("label");
+    expect(interleaved_ids[0] == 7 && interleaved_ids[1] == 9 &&
+           interleaved_text.string(0) == "x" && interleaved_text.string(1) == "y",
+           "focused owner access also addresses interleaved native members and text");
+}
+
 void interleaved_layout_and_strides() {
     std::array<Row, 4> rows{};
     const char* labels[]{"abcdefgh", "ijklmnop", "QRSTUVWX", "12345678"};
@@ -499,8 +569,32 @@ void uns_slices_keep_records() {
 
 } // namespace
 
+void unused_field_strides() {
+    using namespace anndatapp;
+    const auto large = std::numeric_limits<std::ptrdiff_t>::max();
+    std::int32_t value = 37;
+    auto records = RecordArray::with_shape({1});
+    records.set("value", Array::borrow_dense(&value, {1}, {large}));
+    expect(records.member<std::int32_t>("value")[0] == value &&
+           records.view().member<std::int32_t>("value")[0] == value,
+           "singleton fields do not scale unused element strides");
+    const RecordLayout layout{sizeof(std::int32_t), alignof(std::int32_t), {
+        {"value", RecordFieldKind::numeric, DType::int32, 0, sizeof(std::int32_t)}}};
+    auto packed = records.copy_interleaved(layout);
+    expect(packed.member<std::int32_t>("value")[0] == value,
+           "interleaving copies a singleton with an unused huge source stride");
+    auto empty = RecordArray::with_shape({0, 2});
+    empty.set("value", Array::borrow_dense(static_cast<std::int32_t*>(nullptr), {0, 2}, {0, large}));
+    expect(empty.member<std::int32_t>("value").extent(0) == 0 &&
+           empty.view().numeric_bytes("value").extent(0) == 0 &&
+           empty.copy_interleaved(layout).view().size() == 0,
+           "empty fields ignore every unused byte-stride conversion");
+}
+
 int main() {
+    unused_field_strides();
     fieldwise_shape_order_and_copies();
+    focused_owner_accessors();
     interleaved_layout_and_strides();
     interleaved_lifetimes_and_permissions();
     fixed_utf8_and_owned_utf8_refs();

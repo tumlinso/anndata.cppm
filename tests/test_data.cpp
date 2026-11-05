@@ -982,6 +982,77 @@ void nested_dataset_gathers() {
            "nested raw follows observations and retains its independent variable axis");
 }
 
+void data_cleanup_regressions() {
+    using namespace anndatapp;
+    expect_error(ErrorCode::invalid_argument, "index", [] {
+        (void)Selection(static_cast<const char*>(nullptr));
+    }, "null label selection is rejected without dereference");
+    auto names = Table::with_index({"", "x", ""});
+    auto empty_label = Selection("").resolve(names.view(), "index");
+    expect(empty_label.extent(3) == 2 && empty_label.index(0) == 0 && empty_label.index(1) == 2,
+           "empty and duplicate labels remain valid after null checking");
+
+    const auto check_codes = []<class T>() {
+        T source[]{T(2), T(1), T(2), T(0)};
+        auto codes = Array::borrow_dense(source + 3, {4}, {-1});
+        codes.set_serialization_byte_order(ByteOrder::big);
+        auto native = codes.native_type();
+        auto col = Column::categorical(std::move(codes), Column::strings({"a", "b", "c"}), true);
+        auto view = col.view().select(Axis::gather({1, 2, 1}));
+        auto materialized = view.codes();
+        auto copy = view.copy();
+        expect(materialized.dtype() == dtype_of<T>() && materialized.native_type() == native &&
+               materialized.serialization_byte_order() == ByteOrder::big &&
+               flattened<T>(materialized) == std::vector<T>({T(1), T(0), T(1)}) &&
+               copy.view().codes().native_type() == native &&
+               copy.view().codes().serialization_byte_order() == ByteOrder::big &&
+               copy.view().ordered() && copy.view().categories().string(0) == "b",
+               "recoded borrowed strided categories preserve native type, byte order, order and values");
+    };
+    check_codes.template operator()<std::int8_t>(); check_codes.template operator()<std::uint8_t>();
+    check_codes.template operator()<std::int16_t>(); check_codes.template operator()<std::uint16_t>();
+    check_codes.template operator()<std::int32_t>(); check_codes.template operator()<std::uint32_t>();
+    check_codes.template operator()<long long>(); check_codes.template operator()<unsigned long long>();
+
+    auto codes = array_of<std::int8_t>({2, -1, 1, 2}, {4});
+    auto c = Column::categorical(std::move(codes), Column::strings({"a", "b", "c"}));
+    auto parent = c.view().select(Axis::gather({0, 1, 3}));
+    auto nested = parent.select(Axis::gather({2, 1, 0}));
+    expect(nested.categories().size() == 1 && nested.code(0) == 0 && !nested.valid(1) && nested.code(2) == 0,
+           "nested pruning preserves missing codes and dictionary-relative recoding");
+    c.unsafe_edit_codes().dense<std::int8_t>().data()[3] = 1;
+    expect_error(ErrorCode::invalid_argument, "categorical/codes", [&] { (void)parent.select_all(); },
+                 "rebuilding a shared plan detects stale original codes");
+    expect_error(ErrorCode::invalid_argument, "categorical/codes", [&] { (void)nested.copy(); },
+                 "direct materialization detects stale shared plans");
+    auto safe = parent.select(Axis::gather({0, 1}));
+    expect(safe.code(0) == 0 && !safe.valid(1), "selecting away a stale row remains valid");
+
+    ColumnView retained;
+    {
+        auto strings = Column::nullable_strings({"café", "", "β", "missing"}, {1, 1, 1, 0}, StringMissingValue::NaN);
+        retained = strings.view().select(Axis::gather({3, 0, 1, 0}));
+    }
+    auto copied = retained.copy();
+    auto text = copied.view();
+    expect(text.size() == 4 && text.string(0) == "missing" && !text.valid(0) &&
+           text.string(1) == "café" && text.string(2).empty() && text.valid(2) &&
+           text.string(3) == "café" && text.string_missing_value() == StringMissingValue::NaN,
+           "direct packed copy retains selection, validity, empty values and sentinel after owner destruction");
+    auto invalid = Column::from_packed_strings({'\xff'}, {0, 1}, {}, Validation::none);
+    auto invalid_copy = invalid.copy();
+    expect_error(ErrorCode::invalid_argument, "column/strings", [&] { invalid_copy.validate(); },
+                 "copy retains trusted string bytes and explicit validation still detects invalid UTF-8");
+
+    auto table = Table::with_index({"a", "b"});
+    table.set("x", Column::from_values<int>({1, 2}));
+    auto snapshot = table.view().select_all(false);
+    table.set("x", Column::from_values<int>({3, 4}));
+    table.set_names({"c", "d"});
+    expect(snapshot.name(0) == "a" && snapshot.column("x").values().dense<int>().data()[0] == 1,
+           "identity table selection retains bindings across structural replacement");
+}
+
 } // namespace
 
 int main() {
@@ -1000,6 +1071,7 @@ int main() {
     direct_metadata_columns();
     scalar_copy_metadata();
     nested_dataset_gathers();
+    data_cleanup_regressions();
     if (failures != 0) {
         std::cerr << failures << " data test(s) failed\n";
         return 1;

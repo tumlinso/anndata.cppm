@@ -59,7 +59,6 @@ template<class T> constexpr DType record_dtype() {
 template<class T> class RecordMemberView {
 public:
     RecordMemberView() = default;
-    explicit RecordMemberView(detail::RecordDescriptor d) : d_(std::move(d)) {}
     [[nodiscard]] T* data() const noexcept { return static_cast<T*>(d_.data); }
     [[nodiscard]] std::size_t rank() const noexcept { return d_.dimensions.size; }
     [[nodiscard]] std::size_t item_size() const noexcept { return d_.width; }
@@ -84,6 +83,9 @@ public:
     }
     [[nodiscard]] T& operator[](std::size_t i) const noexcept { return *ptr(i); }
 private:
+    explicit RecordMemberView(detail::RecordDescriptor d) : d_(std::move(d)) {}
+    friend class RecordArray;
+    friend class RecordArrayView;
     detail::RecordDescriptor d_;
 };
 
@@ -98,6 +100,7 @@ private:
     std::size_t field_ = 0;
     RecordTextView(std::shared_ptr<detail::RecordViewImpl>, std::size_t);
     friend class RecordArrayView;
+    friend class RecordArray;
 };
 class RecordArrayView {
 public:
@@ -172,6 +175,17 @@ public:
     void erase(std::string_view name);
     void set_field_serialization_byte_order(std::string_view name, ByteOrder order);
     [[nodiscard]] RecordArrayView view() const;
+    // Focused acquisitions retain only the selected binding; replacing or
+    // erasing another field does not construct or retarget these descriptors.
+    [[nodiscard]] ArrayView array(std::string_view name) const;
+    [[nodiscard]] StringArrayView string_array(std::string_view name) const;
+    [[nodiscard]] RecordTextView text(std::string_view name) const;
+    template<class T> [[nodiscard]] RecordMemberView<const T> member(std::string_view name) const {
+        static_assert(!std::is_volatile_v<T>);
+        if constexpr (std::is_same_v<std::remove_cv_t<T>, Utf8Ref>)
+            return RecordMemberView<const T>(member_descriptor(name, DType::uint8, true));
+        else return RecordMemberView<const T>(member_descriptor(name, detail::record_dtype<T>(), false));
+    }
     [[nodiscard]] RecordArray copy() const;
     [[nodiscard]] RecordArray copy_fields() const;
     [[nodiscard]] RecordArray copy_interleaved(RecordLayout layout) const;
@@ -191,6 +205,7 @@ private:
     explicit RecordArray(std::shared_ptr<detail::RecordImpl>);
     static RecordArray wrap(void*, std::vector<std::size_t>, RecordLayout,
         std::vector<std::ptrdiff_t>, std::shared_ptr<const void>, bool, Validation);
+    detail::RecordDescriptor member_descriptor(std::string_view, DType, bool) const;
     detail::RecordDescriptor edit_descriptor(std::string_view, DType, bool);
     friend class RecordArrayView;
 };

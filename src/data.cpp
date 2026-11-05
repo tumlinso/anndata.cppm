@@ -13,6 +13,7 @@ module;
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 module anndatapp.core;
@@ -35,12 +36,15 @@ struct ColumnImpl {
     }
 };
 
+struct CategoryPlan {
+    std::vector<std::size_t> rows;
+    std::vector<std::int64_t> recode;
+};
+
 struct ColumnViewImpl {
     std::shared_ptr<ColumnImpl> source;
     Axis rows;
-    std::vector<std::size_t> category_rows;
-    std::vector<std::int64_t> recode;
-    bool pruned{false};
+    std::shared_ptr<const CategoryPlan> categories;
     std::size_t size() const { return rows.extent(source->size()); }
     std::size_t row(std::size_t i) const {
         if (i >= size()) throw Error(ErrorCode::out_of_bounds, "column", "row is out of bounds");
@@ -61,25 +65,16 @@ struct TableViewImpl {
     std::vector<std::pair<std::string, ColumnView>> columns;
 };
 
+using ElementMapping = std::vector<std::pair<std::string, Element>>;
+using ElementPayload = std::variant<std::monostate, bool, std::int64_t, std::uint64_t, double,
+    std::string, Array, ArrayView, StringArray, StringArrayView, RecordArray,
+    Column, ColumnView, Table, TableView, ElementMapping>;
+
 struct ElementImpl {
     ElementKind kind{ElementKind::null};
     DType scalar_dtype{DType::boolean};
     ByteOrder scalar_byte_order{ByteOrder::native};
-    bool boolean{};
-    std::int64_t signed_integer{};
-    std::uint64_t unsigned_integer{};
-    double floating{};
-    std::string string;
-    std::optional<Array> array;
-    std::optional<ArrayView> view_array;
-    std::optional<StringArray> string_array;
-    std::optional<StringArrayView> view_string_array;
-    std::optional<RecordArray> record_array;
-    std::optional<Column> column;
-    std::optional<ColumnView> view_column;
-    std::optional<Table> table;
-    std::optional<TableView> view_table;
-    std::vector<std::pair<std::string, Element>> mapping;
+    ElementPayload value;
 };
 
 struct RawData {
@@ -205,23 +200,49 @@ std::int64_t read_code(const ArrayView& a, std::size_t i) {
     }
 }
 
-Array make_codes(const ArrayView& selected, const std::vector<std::int64_t>& values) {
-    auto out = selected.copy();
+template<class T>
+std::int64_t load_code(const std::byte* p) {
+    T value;
+    std::memcpy(&value, p, sizeof value);
+    if constexpr (std::is_unsigned_v<T> && sizeof(T) == sizeof(std::uint64_t))
+        if (value > std::uint64_t(std::numeric_limits<std::int64_t>::max()))
+            fail(ErrorCode::out_of_bounds, "categorical/codes", "unsigned category code exceeds the supported dictionary index range");
+    return static_cast<std::int64_t>(value);
+}
+
+bool identity_categories(const detail::CategoryPlan* plan) {
+    if (!plan) return true;
+    for (std::size_t i = 0; i < plan->rows.size(); ++i) if (plan->rows[i] != i) return false;
+    return true;
+}
+
+// Materialize directly into the final native-typed array, retaining serialization metadata.
+Array make_codes(const detail::ColumnViewImpl& column) {
+    auto source = column.source->values->view();
+    auto out = detail::empty_like(source, column.size());
     auto bytes = out.edit().bytes();
-    visit_numeric(selected.dtype(), [&]<class T>() {
+    auto input = source.bytes();
+    visit_numeric(source.dtype(), [&]<class T>() {
         if constexpr (!std::is_integral_v<T> || std::is_same_v<T, bool>) {
             fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed or unsigned integers");
         } else {
-            for (std::size_t i = 0; i < values.size(); ++i) {
-                if constexpr (std::is_unsigned_v<T>) {
-                    if (values[i] < 0 || static_cast<std::uint64_t>(values[i]) > std::numeric_limits<T>::max())
-                        fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original unsigned dtype");
-                } else {
-                    if (values[i] < -1 || values[i] > std::numeric_limits<T>::max())
-                        fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original signed dtype");
+            for (std::size_t i = 0; i < column.size(); ++i) {
+                const auto row = column.row(i);
+                auto value = load_code<T>(input.data() + static_cast<std::ptrdiff_t>(row) * input.stride_bytes(0));
+                if (value < -1 || (value >= 0 && static_cast<std::uint64_t>(value) >= column.source->categories->size()))
+                    fail(ErrorCode::out_of_bounds, "categorical/codes", "category code is outside dictionary bounds");
+                if (value >= 0 && column.categories) {
+                    value = column.categories->recode[static_cast<std::size_t>(value)];
+                    if (value < 0) fail(ErrorCode::invalid_argument, "categorical/codes", "source code changed outside the selected dictionary; create a fresh view");
                 }
-                const auto value = static_cast<T>(values[i]);
-                std::memcpy(bytes.data() + static_cast<std::ptrdiff_t>(i) * bytes.stride_bytes(0), &value, sizeof value);
+                if constexpr (std::is_unsigned_v<T>) {
+                    if (value < 0 || static_cast<std::uint64_t>(value) > std::numeric_limits<T>::max())
+                        fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original unsigned dtype");
+                } else if (value < -1 || value > std::numeric_limits<T>::max()) {
+                    fail(ErrorCode::out_of_bounds, "categorical/codes", "recoded category value does not fit the original signed dtype");
+                }
+                const auto mapped = static_cast<T>(value);
+                std::memcpy(bytes.data() + static_cast<std::ptrdiff_t>(i) * bytes.stride_bytes(0), &mapped, sizeof mapped);
             }
         }
     });
@@ -351,7 +372,10 @@ Selection::Selection(mask v) : kind_(Kind::mask), mask_(std::move(v.values)) {}
 Selection::Selection(labels v) : kind_(Kind::labels), labels_(std::move(v.values)) {}
 Selection::Selection(std::ptrdiff_t v) : kind_(Kind::indices), indices_{v} {}
 Selection::Selection(std::string_view v) : kind_(Kind::label), labels_{std::string(v)} {}
-Selection::Selection(const char* v) : Selection(std::string_view(v)) {}
+Selection::Selection(const char* v) : Selection() {
+    if (!v) fail(ErrorCode::invalid_argument, "index", "label pointer is null");
+    kind_ = Kind::label; labels_.emplace_back(v);
+}
 bool Selection::is_all() const noexcept { return kind_ == Kind::all; }
 
 Axis Selection::resolve(const std::vector<std::string>& names,
@@ -468,10 +492,15 @@ Column Column::strings(std::vector<std::string> values, std::vector<std::uint8_t
 }
 
 Column Column::strings(std::initializer_list<std::string_view> values, std::vector<std::uint8_t> validity) {
-    std::vector<std::string> copied;
-    copied.reserve(values.size());
-    for (auto value : values) copied.emplace_back(value);
-    return strings(std::move(copied), std::move(validity));
+    check_validity(values.size(), validity);
+    std::vector<char> bytes;
+    std::vector<std::size_t> offsets;
+    offsets.reserve(values.size() + 1); offsets.push_back(0);
+    for (auto value : values) {
+        if (!value.empty()) bytes.insert(bytes.end(), value.begin(), value.end());
+        offsets.push_back(bytes.size());
+    }
+    return from_packed_strings(std::move(bytes), std::move(offsets), std::move(validity), Validation::none);
 }
 Column Column::nullable_strings(std::vector<std::string> values, std::vector<std::uint8_t> validity,
                                 StringMissingValue missing) {
@@ -485,10 +514,12 @@ Column Column::nullable_strings(std::vector<std::string> values, std::vector<std
 Column Column::nullable_strings(std::initializer_list<std::string_view> values,
                                 std::vector<std::uint8_t> validity,
                                 StringMissingValue missing) {
-    std::vector<std::string> copied;
-    copied.reserve(values.size());
-    for (auto value : values) copied.emplace_back(value);
-    return nullable_strings(std::move(copied), std::move(validity), missing);
+    if (validity.size() != values.size())
+        fail(ErrorCode::shape_mismatch, "column/validity", "nullable validity length differs from column length");
+    auto c = strings(values, std::move(validity));
+    c.impl_->nullable = true;
+    c.impl_->string_missing_value = missing;
+    return c;
 }
 
 Column Column::from_packed_strings(std::vector<char> bytes, std::vector<std::size_t> offsets,
@@ -564,8 +595,8 @@ bool ColumnView::nullable() const {
 }
 bool ColumnView::valid(std::size_t row) const {
     if (!impl_) fail(ErrorCode::out_of_bounds, "column", "row is out of bounds");
-    auto r = impl_->row(row);
     if (kind() == ColumnKind::categorical) return code(row) != -1;
+    auto r = impl_->row(row);
     return impl_->source->validity.empty() || impl_->source->validity[r] != 0;
 }
 ArrayView ColumnView::values() const {
@@ -593,7 +624,7 @@ ColumnView ColumnView::categories() const {
     if (kind() != ColumnKind::categorical) fail(ErrorCode::invalid_argument, "column", "column is not categorical");
     auto p = std::make_shared<detail::ColumnViewImpl>();
     p->source = impl_->source->categories;
-    if (impl_->pruned) p->rows = Axis::gather(impl_->category_rows.data(), impl_->category_rows.size());
+    if (impl_->categories) p->rows = Axis::gather(impl_->categories->rows.data(), impl_->categories->rows.size());
     return ColumnView(std::move(p));
 }
 std::int64_t ColumnView::code(std::size_t row) const {
@@ -601,8 +632,8 @@ std::int64_t ColumnView::code(std::size_t row) const {
     auto value = read_code(impl_->source->values->view(), impl_->row(row));
     if (value < -1 || (value >= 0 && static_cast<std::uint64_t>(value) >= impl_->source->categories->size()))
         fail(ErrorCode::out_of_bounds, "categorical/codes", "category code is outside dictionary bounds");
-    if (value >= 0 && impl_->pruned) {
-        const auto mapped = impl_->recode[static_cast<std::size_t>(value)];
+    if (value >= 0 && impl_->categories) {
+        const auto mapped = impl_->categories->recode[static_cast<std::size_t>(value)];
         if (mapped < 0)
             fail(ErrorCode::invalid_argument, "categorical/codes", "source code changed outside the selected dictionary; create a fresh view");
         return mapped;
@@ -611,21 +642,47 @@ std::int64_t ColumnView::code(std::size_t row) const {
 }
 ArrayView ColumnView::codes() const {
     if (kind() != ColumnKind::categorical) fail(ErrorCode::invalid_argument, "column", "column is not categorical");
-    bool identity_recode = true;
-    for (std::size_t i = 0; i < impl_->category_rows.size(); ++i)
-        if (impl_->category_rows[i] != i) { identity_recode = false; break; }
-    if (!impl_->pruned || identity_recode) {
-        if (impl_->pruned && impl_->category_rows.size() != impl_->source->categories->size())
+    if (identity_categories(impl_->categories.get())) {
+        if (impl_->categories && impl_->categories->rows.size() != impl_->source->categories->size())
             for (std::size_t i = 0; i < size(); ++i) (void)code(i);
         auto a = impl_->source->values->view();
         return impl_->rows.is_all() ? a : a.select({impl_->rows});
     }
-    std::vector<std::int64_t> values(size());
-    for (std::size_t i = 0; i < size(); ++i) values[i] = code(i);
-    auto selected = impl_->source->values->view();
-    if (!impl_->rows.is_all()) selected = selected.select({impl_->rows});
-    return make_codes(selected, values).view();
+    return make_codes(*impl_).view();
 }
+namespace {
+void prune_column(detail::ColumnViewImpl& column) {
+    const auto ncats = column.source->categories->size();
+    std::vector<bool> used(ncats, false);
+    auto codes = column.source->values->view();
+    auto input = codes.bytes();
+    visit_numeric(codes.dtype(), [&]<class T>() {
+        if constexpr (!std::is_integral_v<T> || std::is_same_v<T, bool>) {
+            fail(ErrorCode::dtype_mismatch, "categorical/codes", "categorical codes must be signed or unsigned integers");
+        } else {
+            for (std::size_t i = 0; i < column.size(); ++i) {
+                const auto row = column.row(i);
+                const auto original = load_code<T>(input.data() + static_cast<std::ptrdiff_t>(row) * input.stride_bytes(0));
+                if (original < -1 || (original >= 0 && static_cast<std::uint64_t>(original) >= ncats))
+                    fail(ErrorCode::out_of_bounds, "categorical/codes", "category code is outside dictionary bounds");
+                if (original < 0) continue;
+                const auto j = static_cast<std::size_t>(original);
+                if (column.categories && column.categories->recode[j] < 0)
+                    fail(ErrorCode::invalid_argument, "categorical/codes", "source code changed outside the selected dictionary; create a fresh view");
+                used[j] = true;
+            }
+        }
+    });
+    auto plan = std::make_shared<detail::CategoryPlan>();
+    plan->recode.assign(ncats, -1);
+    for (std::size_t i = 0; i < ncats; ++i) if (used[i]) {
+        plan->recode[i] = static_cast<std::int64_t>(plan->rows.size());
+        plan->rows.push_back(i);
+    }
+    column.categories = std::move(plan);
+}
+}
+
 ColumnView ColumnView::select(const Axis& rows, bool prune_categories) const {
     auto x = compose_rows(impl_ ? impl_->rows : Axis::all(), rows,
                           impl_ ? impl_->source->size() : 0, "column");
@@ -633,32 +690,22 @@ ColumnView ColumnView::select(const Axis& rows, bool prune_categories) const {
     if (rows.is_all()) return select_all(prune_categories);
     auto p = std::make_shared<detail::ColumnViewImpl>(*impl_);
     p->rows = std::move(x);
-    return ColumnView(std::move(p)).select_all(prune_categories);
+    if (prune_categories && kind() == ColumnKind::categorical) prune_column(*p);
+    return ColumnView(std::move(p));
 }
 ColumnView ColumnView::select_all(bool prune_categories) const {
     if (!impl_ || kind() != ColumnKind::categorical || !prune_categories) return *this;
     auto p = std::make_shared<detail::ColumnViewImpl>(*impl_);
-    const auto ncats = p->source->categories->size();
-    std::vector<bool> used(ncats, false);
-    auto codes = p->source->values->view();
-    for (std::size_t i = 0; i < size(); ++i) {
-        (void)code(i); // Detect invalid or stale source codes before remapping.
-        const auto original = read_code(codes, impl_->row(i));
-        if (original >= 0) used[static_cast<std::size_t>(original)] = true;
-    }
-    p->pruned = true;
-    p->recode.assign(ncats, -1);
-    p->category_rows.clear();
-    for (std::size_t i = 0; i < ncats; ++i) if (used[i]) {
-        p->recode[i] = static_cast<std::int64_t>(p->category_rows.size());
-        p->category_rows.push_back(i);
-    }
+    prune_column(*p);
     return ColumnView(std::move(p));
 }
 Column ColumnView::copy() const {
     if (!impl_) return Column{};
-    if (kind() == ColumnKind::categorical)
-        return Column::categorical(codes().copy(), categories().copy(), ordered());
+    if (kind() == ColumnKind::categorical) {
+        // codes() can return a borrowed identity view or a new recoded buffer.
+        auto values = identity_categories(impl_->categories.get()) ? codes().copy() : make_codes(*impl_);
+        return Column::categorical(std::move(values), categories().copy(), ordered());
+    }
     std::vector<std::uint8_t> validity;
     if (impl_->source->nullable) {
         validity.reserve(size());
@@ -667,11 +714,16 @@ Column ColumnView::copy() const {
     if (kind() == ColumnKind::numeric)
         return nullable() ? Column::nullable_numeric(values().copy(), std::move(validity))
                           : Column::numeric(values().copy());
-    std::vector<std::string> strings;
-    strings.reserve(size());
-    for (std::size_t i = 0; i < size(); ++i) strings.emplace_back(string(i));
-    return nullable() ? Column::nullable_strings(std::move(strings), std::move(validity), string_missing_value())
-                      : Column::strings(std::move(strings));
+    std::vector<char> bytes;
+    std::vector<std::size_t> offsets;
+    offsets.reserve(size() + 1); offsets.push_back(0);
+    for (std::size_t i = 0; i < size(); ++i) {
+        auto value = string(i);
+        if (!value.empty()) bytes.insert(bytes.end(), value.begin(), value.end());
+        offsets.push_back(bytes.size());
+    }
+    return nullable() ? Column::from_nullable_packed_strings(std::move(bytes), std::move(offsets), std::move(validity), string_missing_value(), Validation::none)
+                      : Column::from_packed_strings(std::move(bytes), std::move(offsets), {}, Validation::none);
 }
 ArrayEdit Column::edit_values() {
     if (kind() != ColumnKind::numeric) fail(ErrorCode::invalid_argument, "column", "column is not numeric");
@@ -716,7 +768,7 @@ Table::Table(Table&&) noexcept = default;
 Table& Table::operator=(Table&&) noexcept = default;
 Table Table::with_index(std::vector<std::string> names, std::string index_name) {
     Table t;
-    t.impl_->names = std::make_shared<std::vector<std::string>>(std::move(names));
+    *t.impl_->names = std::move(names);
     t.impl_->index_name = std::move(index_name);
     return t;
 }
@@ -798,12 +850,17 @@ TableView TableView::with_rows(const Axis& rows, bool prune_categories) const {
     for (const auto& [name, col] : impl_->columns) {
         auto c = std::make_shared<detail::ColumnViewImpl>(*col.impl_);
         c->rows = p->rows;
-        p->columns.emplace_back(name, ColumnView(std::move(c)).select_all(prune_categories));
+        if (prune_categories && c->source->kind == ColumnKind::categorical) prune_column(*c);
+        p->columns.emplace_back(name, ColumnView(std::move(c)));
     }
     return TableView(std::move(p));
 }
 TableView TableView::select_all(bool prune_categories) const {
-    if (!impl_) return *this;
+    if (!impl_ || !prune_categories) return *this;
+    bool categorical = false;
+    for (const auto& [name, col] : impl_->columns)
+        if (col.kind() == ColumnKind::categorical) { categorical = true; break; }
+    if (!categorical) return *this;
     auto p = std::make_shared<detail::TableViewImpl>();
     p->names = impl_->names; p->index_name = impl_->index_name; p->rows = impl_->rows;
     for (const auto& [name, col] : impl_->columns)
@@ -822,21 +879,21 @@ Element::~Element() = default;
 Element::Element(Element&&) noexcept = default;
 Element& Element::operator=(Element&&) noexcept = default;
 Element::Element(std::shared_ptr<detail::ElementImpl> p) : impl_(std::move(p)) {}
-Element::Element(bool v) : Element() { impl_->kind = ElementKind::boolean; impl_->boolean = v; impl_->scalar_dtype = DType::boolean; }
-Element::Element(std::int64_t v) : Element() { impl_->kind = ElementKind::signed_integer; impl_->signed_integer = v; impl_->scalar_dtype = DType::int64; }
-Element::Element(std::uint64_t v) : Element() { impl_->kind = ElementKind::unsigned_integer; impl_->unsigned_integer = v; impl_->scalar_dtype = DType::uint64; }
-Element::Element(double v) : Element() { impl_->kind = ElementKind::floating; impl_->floating = v; impl_->scalar_dtype = DType::float64; }
-Element::Element(std::string v) : Element() { impl_->kind = ElementKind::string; impl_->string = std::move(v); }
+Element::Element(bool v) : Element() { impl_->kind = ElementKind::boolean; impl_->value = v; impl_->scalar_dtype = DType::boolean; }
+Element::Element(std::int64_t v) : Element() { impl_->kind = ElementKind::signed_integer; impl_->value = v; impl_->scalar_dtype = DType::int64; }
+Element::Element(std::uint64_t v) : Element() { impl_->kind = ElementKind::unsigned_integer; impl_->value = v; impl_->scalar_dtype = DType::uint64; }
+Element::Element(double v) : Element() { impl_->kind = ElementKind::floating; impl_->value = v; impl_->scalar_dtype = DType::float64; }
+Element::Element(std::string v) : Element() { impl_->kind = ElementKind::string; impl_->value = std::move(v); }
 Element::Element(const char* v) : Element() {
     if (!v) fail(ErrorCode::invalid_argument, "element", "string pointer is null");
-    impl_->kind = ElementKind::string; impl_->string = v;
+    impl_->kind = ElementKind::string; impl_->value = std::string(v);
 }
-Element::Element(Array v) : Element() { impl_->kind = ElementKind::array; impl_->array.emplace(std::move(v)); }
-Element::Element(StringArray v) : Element() { impl_->kind = ElementKind::string_array; impl_->string_array.emplace(std::move(v)); }
-Element::Element(RecordArray v) : Element() { impl_->kind = ElementKind::record_array; impl_->record_array.emplace(std::move(v)); }
-Element::Element(Column v) : Element() { impl_->kind = ElementKind::column; impl_->column.emplace(std::move(v)); }
-Element::Element(Table v) : Element() { impl_->kind = ElementKind::table; impl_->table.emplace(std::move(v)); }
-Element Element::mapping() { Element e; e.impl_->kind = ElementKind::mapping; return e; }
+Element::Element(Array v) : Element() { impl_->kind = ElementKind::array; impl_->value = std::move(v); }
+Element::Element(StringArray v) : Element() { impl_->kind = ElementKind::string_array; impl_->value = std::move(v); }
+Element::Element(RecordArray v) : Element() { impl_->kind = ElementKind::record_array; impl_->value = std::move(v); }
+Element::Element(Column v) : Element() { impl_->kind = ElementKind::column; impl_->value = std::move(v); }
+Element::Element(Table v) : Element() { impl_->kind = ElementKind::table; impl_->value = std::move(v); }
+Element Element::mapping() { Element e; e.impl_->kind = ElementKind::mapping; e.impl_->value = detail::ElementMapping{}; return e; }
 Element Element::scalar_from_bytes(DType dtype, const void* bytes) {
     return visit_numeric(dtype, [&]<class T>() {
         T value;
@@ -844,13 +901,13 @@ Element Element::scalar_from_bytes(DType dtype, const void* bytes) {
         Element e;
         e.impl_->scalar_dtype = dtype;
         if constexpr (std::is_same_v<T, bool>) {
-            e.impl_->kind = ElementKind::boolean; e.impl_->boolean = value;
+            e.impl_->kind = ElementKind::boolean; e.impl_->value = value;
         } else if constexpr (std::is_floating_point_v<T>) {
-            e.impl_->kind = ElementKind::floating; e.impl_->floating = value;
+            e.impl_->kind = ElementKind::floating; e.impl_->value = static_cast<double>(value);
         } else if constexpr (std::is_signed_v<T>) {
-            e.impl_->kind = ElementKind::signed_integer; e.impl_->signed_integer = value;
+            e.impl_->kind = ElementKind::signed_integer; e.impl_->value = static_cast<std::int64_t>(value);
         } else {
-            e.impl_->kind = ElementKind::unsigned_integer; e.impl_->unsigned_integer = value;
+            e.impl_->kind = ElementKind::unsigned_integer; e.impl_->value = static_cast<std::uint64_t>(value);
         }
         return e;
     });
@@ -861,11 +918,11 @@ ElementView Element::view() const { return ElementView(impl_); }
 Element Element::copy() const { return view().copy(); }
 void Element::set(std::string key, Element value) {
     check_kind(impl_->kind, ElementKind::mapping);
-    put(impl_->mapping, std::move(key), std::move(value));
+    put(std::get<detail::ElementMapping>(impl_->value), std::move(key), std::move(value));
 }
 void Element::set_serialization_byte_order(ByteOrder byte_order) {
     if (impl_->kind == ElementKind::array) {
-        impl_->array->set_serialization_byte_order(byte_order);
+        std::get<Array>(impl_->value).set_serialization_byte_order(byte_order);
         return;
     }
     if (impl_->kind != ElementKind::boolean && impl_->kind != ElementKind::signed_integer &&
@@ -875,17 +932,19 @@ void Element::set_serialization_byte_order(ByteOrder byte_order) {
 }
 void Element::erase(std::string_view key) {
     check_kind(impl_->kind, ElementKind::mapping);
-    auto it = find_key(impl_->mapping, key);
-    if (it != impl_->mapping.end()) impl_->mapping.erase(it);
+    auto& mapping = std::get<detail::ElementMapping>(impl_->value);
+    auto it = find_key(mapping, key);
+    if (it != mapping.end()) mapping.erase(it);
 }
 ElementView Element::at(std::string_view key) const { return view().at(key); }
 void Element::validate() const {
-    if (impl_->array) impl_->array->validate();
-    if (impl_->string_array) impl_->string_array->validate();
-    if (impl_->record_array) impl_->record_array->validate();
-    if (impl_->column) impl_->column->validate();
-    if (impl_->table) impl_->table->validate();
-    for (const auto& [name, value] : impl_->mapping) validate_at(value, name);
+    if (auto p = std::get_if<Array>(&impl_->value)) p->validate();
+    else if (auto p = std::get_if<StringArray>(&impl_->value)) p->validate();
+    else if (auto p = std::get_if<RecordArray>(&impl_->value)) p->validate();
+    else if (auto p = std::get_if<Column>(&impl_->value)) p->validate();
+    else if (auto p = std::get_if<Table>(&impl_->value)) p->validate();
+    else if (auto p = std::get_if<detail::ElementMapping>(&impl_->value))
+        for (const auto& [name, value] : *p) validate_at(value, name);
 }
 ElementKind ElementView::kind() const { return impl_ ? impl_->kind : ElementKind::null; }
 DType ElementView::dtype() const {
@@ -894,11 +953,11 @@ DType ElementView::dtype() const {
         fail(ErrorCode::dtype_mismatch, "element", "element is not a numerical scalar");
     return impl_->scalar_dtype;
 }
-bool ElementView::boolean() const { check_kind(kind(), ElementKind::boolean); return impl_->boolean; }
-std::int64_t ElementView::signed_integer() const { check_kind(kind(), ElementKind::signed_integer); return impl_->signed_integer; }
-std::uint64_t ElementView::unsigned_integer() const { check_kind(kind(), ElementKind::unsigned_integer); return impl_->unsigned_integer; }
-double ElementView::floating() const { check_kind(kind(), ElementKind::floating); return impl_->floating; }
-std::string_view ElementView::string() const { check_kind(kind(), ElementKind::string); return impl_->string; }
+bool ElementView::boolean() const { check_kind(kind(), ElementKind::boolean); return std::get<bool>(impl_->value); }
+std::int64_t ElementView::signed_integer() const { check_kind(kind(), ElementKind::signed_integer); return std::get<std::int64_t>(impl_->value); }
+std::uint64_t ElementView::unsigned_integer() const { check_kind(kind(), ElementKind::unsigned_integer); return std::get<std::uint64_t>(impl_->value); }
+double ElementView::floating() const { check_kind(kind(), ElementKind::floating); return std::get<double>(impl_->value); }
+std::string_view ElementView::string() const { check_kind(kind(), ElementKind::string); return std::get<std::string>(impl_->value); }
 ByteOrder ElementView::serialization_byte_order() const {
     if (kind() == ElementKind::array) return array().serialization_byte_order();
     if (kind() != ElementKind::boolean && kind() != ElementKind::signed_integer &&
@@ -908,50 +967,54 @@ ByteOrder ElementView::serialization_byte_order() const {
 }
 ArrayView ElementView::array() const {
     check_kind(kind(), ElementKind::array);
-    return impl_->view_array ? *impl_->view_array : impl_->array->view();
+    if (auto p = std::get_if<ArrayView>(&impl_->value)) return *p;
+    return std::get<Array>(impl_->value).view();
 }
 StringArrayView ElementView::string_array() const {
     check_kind(kind(), ElementKind::string_array);
-    return impl_->view_string_array ? *impl_->view_string_array : impl_->string_array->view();
+    if (auto p = std::get_if<StringArrayView>(&impl_->value)) return *p;
+    return std::get<StringArray>(impl_->value).view();
 }
 RecordArrayView ElementView::record_array() const {
     check_kind(kind(), ElementKind::record_array);
-    return impl_->record_array->view();
+    return std::get<RecordArray>(impl_->value).view();
 }
 ColumnView ElementView::column() const {
     check_kind(kind(), ElementKind::column);
-    return impl_->view_column ? *impl_->view_column : impl_->column->view();
+    if (auto p = std::get_if<ColumnView>(&impl_->value)) return *p;
+    return std::get<Column>(impl_->value).view();
 }
 TableView ElementView::table() const {
     check_kind(kind(), ElementKind::table);
-    return impl_->view_table ? *impl_->view_table : impl_->table->view();
+    if (auto p = std::get_if<TableView>(&impl_->value)) return *p;
+    return std::get<Table>(impl_->value).view();
 }
 std::vector<std::string> ElementView::keys() const {
     check_kind(kind(), ElementKind::mapping);
-    return anndatapp::keys(impl_->mapping);
+    return anndatapp::keys(std::get<detail::ElementMapping>(impl_->value));
 }
 bool ElementView::contains(std::string_view key) const {
     check_kind(kind(), ElementKind::mapping);
-    return find_key(impl_->mapping, key) != impl_->mapping.end();
+    const auto& mapping = std::get<detail::ElementMapping>(impl_->value);
+    return find_key(mapping, key) != mapping.end();
 }
 ElementView ElementView::at(std::string_view key) const {
     check_kind(kind(), ElementKind::mapping);
-    return require_key(impl_->mapping, key, "element").view();
+    return require_key(std::get<detail::ElementMapping>(impl_->value), key, "element").view();
 }
 Element ElementView::copy() const {
-    switch (kind()) {
-    case ElementKind::null: return Element{};
-    case ElementKind::boolean:
-    case ElementKind::signed_integer:
-    case ElementKind::unsigned_integer:
-    case ElementKind::floating: {
+    auto scalar = [&](auto value) {
         Element e;
         e.impl_->kind = kind(); e.impl_->scalar_dtype = impl_->scalar_dtype;
-        e.impl_->scalar_byte_order = impl_->scalar_byte_order;
-        e.impl_->boolean = impl_->boolean; e.impl_->signed_integer = impl_->signed_integer;
-        e.impl_->unsigned_integer = impl_->unsigned_integer; e.impl_->floating = impl_->floating;
+        e.impl_->scalar_byte_order = impl_->scalar_byte_order; e.impl_->value = value;
         return e;
-    }
+    };
+    switch (kind()) {
+    case ElementKind::null: return Element{};
+    case ElementKind::boolean: return scalar(std::get<bool>(impl_->value));
+    case ElementKind::signed_integer: return scalar(std::get<std::int64_t>(impl_->value));
+    case ElementKind::unsigned_integer: return scalar(std::get<std::uint64_t>(impl_->value));
+    case ElementKind::floating: return scalar(std::get<double>(impl_->value));
     case ElementKind::string: return Element(std::string(string()));
     case ElementKind::array: return Element(array().copy());
     case ElementKind::string_array: return Element(string_array().copy());
@@ -960,7 +1023,7 @@ Element ElementView::copy() const {
     case ElementKind::table: return Element(table().copy());
     case ElementKind::mapping: {
         auto e = Element::mapping();
-        for (const auto& [name, value] : impl_->mapping) e.set(name, value.copy());
+        for (const auto& [name, value] : std::get<detail::ElementMapping>(impl_->value)) e.set(name, value.copy());
         return e;
     }
     }
@@ -997,13 +1060,13 @@ ColumnView AnnData::var_column(std::string_view name) const { return impl_->var.
 void AnnData::set_obs(Table t) {
     if (t.size() != n_obs()) fail(ErrorCode::shape_mismatch, "obs", "table length differs from observation axis");
     for (auto& [name, e] : impl_->obsm) if (e.impl_->kind == ElementKind::table)
-        { e.impl_->table->impl_->names = t.impl_->names; e.impl_->table->impl_->index_name = t.impl_->index_name; }
+        { std::get<Table>(e.impl_->value).impl_->names = t.impl_->names; std::get<Table>(e.impl_->value).impl_->index_name = t.impl_->index_name; }
     impl_->obs = std::move(t);
 }
 void AnnData::set_var(Table t) {
     if (t.size() != n_vars()) fail(ErrorCode::shape_mismatch, "var", "table length differs from variable axis");
     for (auto& [name, e] : impl_->varm) if (e.impl_->kind == ElementKind::table)
-        { e.impl_->table->impl_->names = t.impl_->names; e.impl_->table->impl_->index_name = t.impl_->index_name; }
+        { std::get<Table>(e.impl_->value).impl_->names = t.impl_->names; std::get<Table>(e.impl_->value).impl_->index_name = t.impl_->index_name; }
     impl_->var = std::move(t);
 }
 void AnnData::set_obs_column(std::string name, Column c) {
@@ -1052,20 +1115,20 @@ ArrayEdit AnnData::edit_layer(std::string_view name) { return require_key(impl_-
 ElementView AnnData::obsm(std::string_view name) const { return require_key(impl_->obsm, name, "obsm").view(); }
 ElementView AnnData::varm(std::string_view name) const { return require_key(impl_->varm, name, "varm").view(); }
 ArrayEdit AnnData::edit_obsm_array(std::string_view name) {
-    auto& e = require_key(impl_->obsm, name, "obsm"); check_kind(e.impl_->kind, ElementKind::array); return e.impl_->array->edit();
+    auto& e = require_key(impl_->obsm, name, "obsm"); check_kind(e.impl_->kind, ElementKind::array); return std::get<Array>(e.impl_->value).edit();
 }
 ArrayEdit AnnData::edit_varm_array(std::string_view name) {
-    auto& e = require_key(impl_->varm, name, "varm"); check_kind(e.impl_->kind, ElementKind::array); return e.impl_->array->edit();
+    auto& e = require_key(impl_->varm, name, "varm"); check_kind(e.impl_->kind, ElementKind::array); return std::get<Array>(e.impl_->value).edit();
 }
 StringArrayEdit AnnData::edit_obsm_string_array(std::string_view name) {
     auto& e = require_key(impl_->obsm, name, "obsm");
     check_kind(e.impl_->kind, ElementKind::string_array);
-    return e.impl_->string_array->edit();
+    return std::get<StringArray>(e.impl_->value).edit();
 }
 StringArrayEdit AnnData::edit_varm_string_array(std::string_view name) {
     auto& e = require_key(impl_->varm, name, "varm");
     check_kind(e.impl_->kind, ElementKind::string_array);
-    return e.impl_->string_array->edit();
+    return std::get<StringArray>(e.impl_->value).edit();
 }
 ArrayView AnnData::obsp(std::string_view name) const { return require_key(impl_->obsp, name, "obsp").view(); }
 ArrayView AnnData::varp(std::string_view name) const { return require_key(impl_->varp, name, "varp").view(); }
@@ -1131,8 +1194,9 @@ AnnDataView AnnData::view() const {
     p->obs = obs(); p->var = var();
     auto uns_snapshot = std::make_shared<detail::ElementImpl>();
     uns_snapshot->kind = ElementKind::mapping;
-    for (const auto& [name, value] : impl_->uns.impl_->mapping)
-        uns_snapshot->mapping.emplace_back(name, Element(value.impl_));
+    uns_snapshot->value = detail::ElementMapping{};
+    for (const auto& [name, value] : std::get<detail::ElementMapping>(impl_->uns.impl_->value))
+        std::get<detail::ElementMapping>(uns_snapshot->value).emplace_back(name, Element(value.impl_));
     p->uns = ElementView(std::move(uns_snapshot));
     for (const auto& [name, a] : impl_->layers) p->layers.emplace_back(name, a.view());
     for (const auto& [name, a] : impl_->obsp) p->obsp.emplace_back(name, a.view());
@@ -1141,9 +1205,9 @@ AnnDataView AnnData::view() const {
         for (const auto& [name, e] : source) {
             auto snapshot = std::make_shared<detail::ElementImpl>();
             snapshot->kind = e.view().kind();
-            if (snapshot->kind == ElementKind::array) snapshot->view_array = e.view().array();
-            else if (snapshot->kind == ElementKind::string_array) snapshot->view_string_array = e.view().string_array();
-            else snapshot->view_table = e.view().table();
+            if (snapshot->kind == ElementKind::array) snapshot->value = e.view().array();
+            else if (snapshot->kind == ElementKind::string_array) snapshot->value = e.view().string_array();
+            else snapshot->value = e.view().table();
             dest.emplace_back(name, ElementView(std::move(snapshot)));
         }
     };
@@ -1236,9 +1300,9 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                 const auto& [name, e] = source[i];
                 auto ep = std::make_shared<detail::ElementImpl>();
                 ep->kind = e.kind();
-                if (ep->kind == ElementKind::array) ep->view_array = select_first(e.array(), selected);
-                else if (ep->kind == ElementKind::string_array) ep->view_string_array = select_first(e.string_array(), selected);
-                else ep->view_table = current[i].second.table().with_rows(selected, true);
+                if (ep->kind == ElementKind::array) ep->value = select_first(e.array(), selected);
+                else if (ep->kind == ElementKind::string_array) ep->value = select_first(e.string_array(), selected);
+                else ep->value = current[i].second.table().with_rows(selected, true);
                 dest.emplace_back(name, ElementView(std::move(ep)));
             }
         };
@@ -1248,17 +1312,19 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
         // and categorical color arrays need adjusted bindings for this slice.
         auto uns_impl = std::make_shared<detail::ElementImpl>();
         uns_impl->kind = ElementKind::mapping;
+        uns_impl->value = detail::ElementMapping{};
+        auto& uns_mapping = std::get<detail::ElementMapping>(uns_impl->value);
         for (const auto& key : impl_->uns.keys()) {
             auto e = impl_->uns.at(key);
-            uns_impl->mapping.emplace_back(key, Element(e.impl_));
+            uns_mapping.emplace_back(key, Element(e.impl_));
         }
         auto fix_colors = [&](const TableView& before, const Axis& selected) {
             for (const auto& name : before.column_names()) {
                 auto column = before.column(name);
                 if (column.kind() != ColumnKind::categorical) continue;
                 const auto color_key = name + "_colors";
-                auto it = find_key(uns_impl->mapping, color_key);
-                if (it == uns_impl->mapping.end()) continue;
+                auto it = find_key(uns_mapping, color_key);
+                if (it == uns_mapping.end()) continue;
                 auto color = it->second.view();
                 // Upstream's scalar branch promotes to one dimension and skips
                 // the length/pruning branches, even for an empty selection.
@@ -1297,7 +1363,7 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                 const bool string_array_colors = color.kind() == ElementKind::string_array && color.string_array().rank() >= 1 &&
                     color.string_array().extent(0) == column.categories().size();
                 if (!array_colors && !column_colors && !string_array_colors) {
-                    uns_impl->mapping.erase(it);
+                    uns_mapping.erase(it);
                     continue;
                 }
                 // Derive positions in the current category dictionary using codes.
@@ -1312,13 +1378,13 @@ AnnDataView AnnDataView::slice(Selection obs_selection, Selection var_selection)
                 auto ep = std::make_shared<detail::ElementImpl>();
                 if (array_colors) {
                     ep->kind = ElementKind::array;
-                    ep->view_array = select_first(color.array(), categories);
+                    ep->value = select_first(color.array(), categories);
                 } else if (string_array_colors) {
                     ep->kind = ElementKind::string_array;
-                    ep->view_string_array = select_first(color.string_array(), categories);
+                    ep->value = select_first(color.string_array(), categories);
                 } else {
                     ep->kind = ElementKind::column;
-                    ep->view_column = color.column().select(categories, false);
+                    ep->value = color.column().select(categories, false);
                 }
                 it->second = Element(std::move(ep));
             }
@@ -1379,13 +1445,13 @@ void AnnData::validate() const {
         validate_at(e, "obsm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_obs(), "obsm/" + name);
         else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_obs(), "obsm/" + name);
-        else if (!same_index(*e.impl_->table->impl_->names, *impl_->obs.impl_->names)) fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
+        else if (!same_index(*std::get<Table>(e.impl_->value).impl_->names, *impl_->obs.impl_->names)) fail(ErrorCode::shape_mismatch, "obsm/" + name, "table index differs from observation index");
     }
     for (const auto& [name, e] : impl_->varm) {
         validate_at(e, "varm/" + name);
         if (e.view().kind() == ElementKind::array) check_first(e.view().array(), n_vars(), "varm/" + name);
         else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), n_vars(), "varm/" + name);
-        else if (!same_index(*e.impl_->table->impl_->names, *impl_->var.impl_->names)) fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
+        else if (!same_index(*std::get<Table>(e.impl_->value).impl_->names, *impl_->var.impl_->names)) fail(ErrorCode::shape_mismatch, "varm/" + name, "table index differs from variable index");
     }
     if (has_raw()) {
         validate_at(impl_->raw->var, "raw/var");
@@ -1397,7 +1463,7 @@ void AnnData::validate() const {
             validate_at(e, "raw/varm/" + name);
             if (e.view().kind() == ElementKind::array) check_first(e.view().array(), raw_var().size(), "raw/varm/" + name);
             else if (e.view().kind() == ElementKind::string_array) check_first(e.view().string_array(), raw_var().size(), "raw/varm/" + name);
-            else if (!same_index(*e.impl_->table->impl_->names, *impl_->raw->var.impl_->names))
+            else if (!same_index(*std::get<Table>(e.impl_->value).impl_->names, *impl_->raw->var.impl_->names))
                 fail(ErrorCode::shape_mismatch, "raw/varm/" + name, "table index differs from raw variable index");
         }
     }

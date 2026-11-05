@@ -111,6 +111,9 @@ class Column;
 class Table;
 class TableView;
 
+// Views retain their bindings, not immutable copies of their payloads. The
+// caller must synchronize shared mutation and overlapping access. String views
+// borrow bytes and require the retaining view or owner to remain alive.
 class ColumnView {
 public:
     ColumnView();
@@ -124,7 +127,8 @@ public:
     bool ordered() const;
     ColumnView categories() const;
     std::int64_t code(std::size_t row) const;
-    // Codes may be recoded for the selected category dictionary.
+    // Pruning may scan codes and allocate recoding maps; codes() may scan and
+    // materialize a recoded buffer, otherwise it retains the original values.
     ArrayView codes() const;
     Column copy() const;
     ColumnView select(const Axis& rows,
@@ -200,6 +204,7 @@ public:
     std::size_t n_columns() const;
     std::string_view index_name() const;
     std::string_view name(std::size_t row) const;
+    // These lists allocate and copy names. name() borrows the retained index.
     std::vector<std::string> names() const;
     std::vector<std::string> column_names() const;
     bool contains(std::string_view column) const;
@@ -230,6 +235,7 @@ public:
                             std::string index_name = {});
     static Table numbered(std::size_t rows);
     std::size_t size() const;
+    // Captures column bindings and names; work and allocations scale with columns.
     TableView view() const;
     Table copy() const;
     void set(std::string name, Column column);
@@ -316,6 +322,7 @@ public:
     RecordArrayView record_array() const;
     ColumnView column() const;
     TableView table() const;
+    // Allocates a copy of the mapping keys.
     std::vector<std::string> keys() const;
     bool contains(std::string_view key) const;
     ElementView at(std::string_view key) const;
@@ -398,6 +405,8 @@ public:
     ElementView raw_varm(std::string_view) const;
     std::vector<std::string> raw_varm_names() const;
     void clear_raw();
+    // Captures aligned bindings and table snapshots, without copying payloads.
+    // Slicing additionally selects rows and can prune categorical metadata.
     AnnDataView view() const;
     AnnDataView slice(Selection obs = all, Selection var = all) const;
     AnnData copy() const;

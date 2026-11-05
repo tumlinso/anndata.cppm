@@ -36,7 +36,12 @@ private:
 };
 
 class Axis;
+class Array;
+class ArrayView;
+class ArrayEdit;
+class RecordArray;
 namespace detail {
+Array empty_like(const ArrayView&, std::size_t length);
 Axis compose_axis(const Axis& parent, const Axis& child, std::size_t source_extent);
 Axis gather_axis(std::vector<std::size_t>&& positions);
 }
@@ -110,6 +115,8 @@ struct SparseDescriptor {
     bool indices_writable = false, offsets_writable = false;
 };
 [[nodiscard]] std::ptrdiff_t checked_byte_stride(std::ptrdiff_t stride, std::size_t element_size);
+DenseDescriptor borrowed_dense_descriptor(const void*, std::size_t rank, const std::size_t*,
+    const std::ptrdiff_t*, std::size_t width, Validation);
 template<class> inline constexpr bool unsupported_dtype = false;
 template<class T> constexpr NativeType native_type_of() {
     using U = std::remove_cv_t<T>;
@@ -153,11 +160,13 @@ template<class T> constexpr DType dtype_of() {
 
 [[nodiscard]] std::size_t dtype_size(DType type) noexcept;
 
+template<class T> class BorrowedDenseView;
+template<class T> [[nodiscard]] BorrowedDenseView<T> borrowed_dense(T*, std::size_t rank,
+    const std::size_t* shape, const std::ptrdiff_t* element_strides, Validation = Validation::full);
+
 template<class T> class BorrowedDenseView {
 public:
     BorrowedDenseView() = default;
-    BorrowedDenseView(T* data, detail::DenseDimensions dimensions, bool contiguous)
-        : data_(data), dimensions_(std::move(dimensions)), contiguous_(contiguous) {}
     [[nodiscard]] T* data() const noexcept { return data_; }
     [[nodiscard]] std::size_t rank() const noexcept { return dimensions_.size; }
     [[nodiscard]] std::size_t extent(std::size_t axis) const {
@@ -174,15 +183,29 @@ public:
         return data_;
     }
 private:
+    BorrowedDenseView(T* data, detail::DenseDimensions dimensions, bool contiguous)
+        : data_(data), dimensions_(std::move(dimensions)), contiguous_(contiguous) {}
+    template<class> friend class DenseView;
+    template<class U> friend BorrowedDenseView<U> borrowed_dense(U*, std::size_t,
+        const std::size_t*, const std::ptrdiff_t*, Validation);
     T* data_ = nullptr;
     detail::DenseDimensions dimensions_;
     bool contiguous_ = false;
 };
 
+// Metadata is copied; only numerical storage is borrowed. Strides are signed
+// element counts. Trusted callers supply valid shape, alignment and storage.
+template<class T> BorrowedDenseView<T> borrowed_dense(T* data, std::size_t rank,
+    const std::size_t* shape, const std::ptrdiff_t* element_strides, Validation validation) {
+    static_assert(!std::is_volatile_v<T>, "volatile buffers are not supported");
+    (void)dtype_of<T>();
+    auto d = detail::borrowed_dense_descriptor(data, rank, shape, element_strides, sizeof(T), validation);
+    return {data, std::move(d.dimensions), d.contiguous};
+}
+
 template<class T> class DenseView {
 public:
     DenseView() = default;
-    explicit DenseView(detail::DenseDescriptor descriptor) : descriptor_(std::move(descriptor)) {}
     [[nodiscard]] T* data() const noexcept { return static_cast<T*>(descriptor_.data); }
     [[nodiscard]] std::size_t rank() const noexcept { return descriptor_.dimensions.size; }
     [[nodiscard]] std::size_t extent(std::size_t axis) const {
@@ -203,6 +226,9 @@ public:
         return {data(), descriptor_.dimensions, descriptor_.contiguous};
     }
 private:
+    explicit DenseView(detail::DenseDescriptor descriptor) : descriptor_(std::move(descriptor)) {}
+    friend class ArrayView;
+    friend class ArrayEdit;
     detail::DenseDescriptor descriptor_;
 };
 
@@ -211,8 +237,6 @@ private:
 template<class Byte> class DenseBytesView {
 public:
     DenseBytesView() = default;
-    DenseBytesView(detail::DenseDescriptor descriptor, std::size_t width)
-        : descriptor_(std::move(descriptor)), width_(width) {}
     [[nodiscard]] Byte* data() const noexcept { return static_cast<Byte*>(descriptor_.data); }
     [[nodiscard]] std::size_t rank() const noexcept { return descriptor_.dimensions.size; }
     [[nodiscard]] std::size_t extent(std::size_t axis) const {
@@ -226,6 +250,10 @@ public:
     [[nodiscard]] std::size_t element_size() const noexcept { return width_; }
     [[nodiscard]] bool contiguous() const noexcept { return descriptor_.contiguous; }
 private:
+    DenseBytesView(detail::DenseDescriptor descriptor, std::size_t width)
+        : descriptor_(std::move(descriptor)), width_(width) {}
+    friend class ArrayView;
+    friend class ArrayEdit;
     detail::DenseDescriptor descriptor_;
     std::size_t width_ = 0;
 };
@@ -263,7 +291,6 @@ private:
 template<class T, class Index, class Offset> class SparseView {
 public:
     SparseView() = default;
-    explicit SparseView(detail::SparseDescriptor descriptor) : descriptor_(std::move(descriptor)) {}
     [[nodiscard]] T* values() const noexcept { return static_cast<T*>(descriptor_.values); }
     [[nodiscard]] const Index* indices() const noexcept { return static_cast<const Index*>(descriptor_.indices); }
     [[nodiscard]] const Offset* offsets() const noexcept { return static_cast<const Offset*>(descriptor_.offsets); }
@@ -283,6 +310,9 @@ public:
                 descriptor_.indices_writable, descriptor_.offsets_writable};
     }
 private:
+    explicit SparseView(detail::SparseDescriptor descriptor) : descriptor_(std::move(descriptor)) {}
+    friend class ArrayView;
+    friend class ArrayEdit;
     detail::SparseDescriptor descriptor_;
 };
 
@@ -360,6 +390,7 @@ public:
 private:
     friend class Array;
     friend class ArrayEdit;
+    friend class RecordArray;
     ArrayView(std::shared_ptr<detail::State> state, std::shared_ptr<const detail::Selection> selection = {});
     [[nodiscard]] detail::DenseDescriptor dense_descriptor(DType type, detail::NativeType native, bool checked) const;
     [[nodiscard]] detail::SparseDescriptor sparse_descriptor(Layout layout, DType type, DType index, DType offset, detail::NativeType native, detail::NativeType native_index, detail::NativeType native_offset) const;
@@ -486,6 +517,7 @@ public:
     void validate() const;
 private:
     friend class ArrayView;
+    friend Array detail::empty_like(const ArrayView&, std::size_t);
     explicit Array(std::shared_ptr<detail::State> state);
     static Array allocate_dense(DType type, detail::NativeType native, std::vector<std::size_t> shape, bool zero);
     static Array allocate_sparse(Layout layout, DType type, DType index, DType offset, detail::NativeType native, detail::NativeType native_index, detail::NativeType native_offset, std::size_t rows, std::size_t columns, std::size_t nnz);

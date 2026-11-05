@@ -7,7 +7,6 @@ module;
 #include <memory>
 #include <new>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -15,6 +14,9 @@ module anndatapp.core;
 import :arrays;
 
 namespace anndatapp {
+static_assert(std::numeric_limits<unsigned char>::digits == 8 && sizeof(bool) == 1 &&
+    sizeof(float) == 4 && sizeof(double) == 8 && std::numeric_limits<float>::is_iec559 &&
+    std::numeric_limits<double>::is_iec559, "anndatapp requires 8-bit bytes and IEEE binary32/binary64 scalars");
 namespace detail {
 struct State {
     DType type = DType::float32;
@@ -92,8 +94,11 @@ Axis detail::compose_axis(const Axis& parent, const Axis& child, std::size_t sou
     if (!parent.is_gather() && !child.is_gather()) {
         const auto first = parent.index(child.first());
         std::size_t step = 1;
-        if (count > 1 && __builtin_mul_overflow(parent.step(), child.step(), &step))
-            throw Error(ErrorCode::out_of_bounds, "selection", "selection step overflows");
+        if (count > 1) {
+            if (child.step() && parent.step() > std::numeric_limits<std::size_t>::max()/child.step())
+                throw Error(ErrorCode::out_of_bounds, "selection", "selection step overflows");
+            step = parent.step()*child.step();
+        }
         return Axis::stride(first, count, step, parent.reverse() != child.reverse());
     }
     std::vector<std::size_t> positions;
@@ -178,36 +183,23 @@ template<class T> std::size_t read_nonnegative(const void* p, std::size_t i) {
     if (v > std::numeric_limits<std::size_t>::max()) fail(ErrorCode::invalid_sparse_structure, "sparse index overflows size_t");
     return static_cast<std::size_t>(v);
 }
-std::size_t read_index(const void* p, DType t, std::size_t i) {
-    switch (t) {
-    case DType::int8: return read_nonnegative<std::int8_t>(p, i);
-    case DType::uint8: return read_nonnegative<std::uint8_t>(p, i);
-    case DType::int16: return read_nonnegative<std::int16_t>(p, i);
-    case DType::uint16: return read_nonnegative<std::uint16_t>(p, i);
-    case DType::int32: return read_nonnegative<std::int32_t>(p, i);
-    case DType::uint32: return read_nonnegative<std::uint32_t>(p, i);
-    case DType::int64: return read_nonnegative<std::int64_t>(p, i);
-    case DType::uint64: return read_nonnegative<std::uint64_t>(p, i);
-    default: fail(ErrorCode::invalid_argument, "sparse indices and offsets must be 8-bit to 64-bit integers");
+template<class F> decltype(auto) visit_index(DType type, F&& f) {
+    switch (type) {
+    case DType::int8: return f.template operator()<std::int8_t>();
+    case DType::uint8: return f.template operator()<std::uint8_t>();
+    case DType::int16: return f.template operator()<std::int16_t>();
+    case DType::uint16: return f.template operator()<std::uint16_t>();
+    case DType::int32: return f.template operator()<std::int32_t>();
+    case DType::uint32: return f.template operator()<std::uint32_t>();
+    case DType::int64: return f.template operator()<std::int64_t>();
+    case DType::uint64: return f.template operator()<std::uint64_t>();
+    default: fail(ErrorCode::invalid_argument, "sparse indices and offsets must be integers");
     }
 }
 template<class T> void write_checked(void* p, std::size_t i, std::size_t value) {
     if (value > static_cast<std::uint64_t>(std::numeric_limits<T>::max())) fail(ErrorCode::invalid_sparse_structure, "sparse index does not fit original dtype");
     const auto converted = static_cast<T>(value);
     std::memcpy(static_cast<std::byte*>(p) + i * sizeof(T), &converted, sizeof(T));
-}
-void write_index(void* p, DType t, std::size_t i, std::size_t value) {
-    switch (t) {
-    case DType::int8: write_checked<std::int8_t>(p, i, value); break;
-    case DType::uint8: write_checked<std::uint8_t>(p, i, value); break;
-    case DType::int16: write_checked<std::int16_t>(p, i, value); break;
-    case DType::uint16: write_checked<std::uint16_t>(p, i, value); break;
-    case DType::int32: write_checked<std::int32_t>(p, i, value); break;
-    case DType::uint32: write_checked<std::uint32_t>(p, i, value); break;
-    case DType::int64: write_checked<std::int64_t>(p, i, value); break;
-    case DType::uint64: write_checked<std::uint64_t>(p, i, value); break;
-    default: fail(ErrorCode::invalid_argument, "unsupported sparse index dtype");
-    }
 }
 void validate_dense_address_range(const State& s, std::size_t element_count);
 void validate_state(const State& s) {
@@ -235,15 +227,22 @@ void validate_state(const State& s) {
     if ((s.data && reinterpret_cast<std::uintptr_t>(s.data) % dtype_size(s.type)) ||
         (s.indices && reinterpret_cast<std::uintptr_t>(s.indices) % dtype_size(s.index_type)) ||
         reinterpret_cast<std::uintptr_t>(s.offsets) % dtype_size(s.offset_type)) fail(ErrorCode::invalid_argument, "sparse buffer alignment does not match dtype");
-    if (read_index(s.offsets, s.offset_type, 0) != 0) fail(ErrorCode::invalid_sparse_structure, "sparse first offset must be zero");
-    std::size_t last = 0;
-    for (std::size_t i = 1; i <= major; ++i) {
-        auto next = read_index(s.offsets, s.offset_type, i);
-        if (next < last || next > s.nnz) fail(ErrorCode::invalid_sparse_structure, "sparse offsets must be monotone and within nnz");
-        last = next;
-    }
-    if (last != s.nnz) fail(ErrorCode::invalid_sparse_structure, "sparse final offset differs from nnz");
-    for (std::size_t i = 0; i < s.nnz; ++i) if (read_index(s.indices, s.index_type, i) >= minor) fail(ErrorCode::invalid_sparse_structure, "sparse index exceeds minor dimension");
+    visit_index(s.offset_type, [&]<class Offset> {
+        if (read_nonnegative<Offset>(s.offsets, 0) != 0)
+            fail(ErrorCode::invalid_sparse_structure, "sparse first offset must be zero");
+        std::size_t last = 0;
+        for (std::size_t i = 1; i <= major; ++i) {
+            const auto next = read_nonnegative<Offset>(s.offsets, i);
+            if (next < last || next > s.nnz) fail(ErrorCode::invalid_sparse_structure, "sparse offsets must be monotone and within nnz");
+            last = next;
+        }
+        if (last != s.nnz) fail(ErrorCode::invalid_sparse_structure, "sparse final offset differs from nnz");
+    });
+    visit_index(s.index_type, [&]<class Index> {
+        for (std::size_t i = 0; i < s.nnz; ++i)
+            if (read_nonnegative<Index>(s.indices, i) >= minor)
+                fail(ErrorCode::invalid_sparse_structure, "sparse index exceeds minor dimension");
+    });
 }
 std::size_t view_extent(const State& s, const std::shared_ptr<const ArraySelection>& sel, std::size_t axis) {
     if (axis >= s.shape.size()) fail(ErrorCode::out_of_bounds, "axis out of bounds");
@@ -269,14 +268,20 @@ bool is_contiguous(const detail::DenseDimensions& dimensions) {
     return true;
 }
 std::ptrdiff_t checked_signed_mul(std::ptrdiff_t a, std::ptrdiff_t b) {
-    std::ptrdiff_t result;
-    if (__builtin_mul_overflow(a, b, &result)) fail(ErrorCode::invalid_argument, "stride or offset overflow");
-    return result;
+    const bool negative = (a < 0) != (b < 0);
+    const auto x = a < 0 ? std::uintmax_t(-(a + 1)) + 1 : std::uintmax_t(a);
+    const auto y = b < 0 ? std::uintmax_t(-(b + 1)) + 1 : std::uintmax_t(b);
+    const auto limit = std::uintmax_t(std::numeric_limits<std::ptrdiff_t>::max()) + negative;
+    if (y && x > limit/y) fail(ErrorCode::invalid_argument, "stride or offset overflow");
+    const auto n = x*y;
+    if (negative && n == limit) return std::numeric_limits<std::ptrdiff_t>::min();
+    return negative ? -std::ptrdiff_t(n) : std::ptrdiff_t(n);
 }
 std::ptrdiff_t checked_signed_add(std::ptrdiff_t a, std::ptrdiff_t b) {
-    std::ptrdiff_t result;
-    if (__builtin_add_overflow(a, b, &result)) fail(ErrorCode::invalid_argument, "stride or offset overflow");
-    return result;
+    if ((b > 0 && a > std::numeric_limits<std::ptrdiff_t>::max() - b) ||
+        (b < 0 && a < std::numeric_limits<std::ptrdiff_t>::min() - b))
+        fail(ErrorCode::invalid_argument, "stride or offset overflow");
+    return a + b;
 }
 std::ptrdiff_t signed_index(std::size_t i) {
     if (i > static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max())) fail(ErrorCode::invalid_argument, "index exceeds addressable range");
@@ -328,6 +333,47 @@ std::ptrdiff_t detail::checked_byte_stride(std::ptrdiff_t stride, std::size_t el
     if (element_size > static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()))
         fail(ErrorCode::invalid_argument, "element size exceeds addressable range");
     return checked_signed_mul(stride, static_cast<std::ptrdiff_t>(element_size));
+}
+
+detail::DenseDescriptor detail::borrowed_dense_descriptor(const void* data, std::size_t rank,
+    const std::size_t* shape, const std::ptrdiff_t* strides, std::size_t width, Validation validation) {
+    if (rank && (!shape || !strides)) fail(ErrorCode::invalid_argument, "null dimension metadata");
+    DenseDescriptor d; d.data = const_cast<void*>(data); d.dimensions.size = rank;
+    if (rank > DenseDimensions::inline_rank) {
+        d.dimensions.large = std::make_shared<LargeDimensions>();
+        d.dimensions.large->shape.assign(shape, shape + rank);
+        d.dimensions.large->strides.assign(strides, strides + rank);
+    } else for (std::size_t a = 0; a < rank; ++a) {
+        d.dimensions.shape[a] = shape[a]; d.dimensions.strides[a] = strides[a];
+    }
+    bool empty = false;
+    for (std::size_t a = 0; a < rank; ++a) empty = empty || shape[a] == 0;
+    std::size_t n = empty ? 0 : 1;
+    if (!empty) for (std::size_t a = 0; a < rank; ++a) n = checked_mul(n, shape[a]);
+    if (validation == Validation::full) checked_mul(n, width);
+    if (validation == Validation::full && n) {
+        if (!data || reinterpret_cast<std::uintptr_t>(data) % width)
+            fail(ErrorCode::invalid_argument, "dense pointer is null or misaligned");
+        std::ptrdiff_t lo = 0, hi = 0;
+        for (std::size_t a = 0; a < rank; ++a) {
+            const auto k = extent_stride(shape[a] - 1, strides[a]);
+            if (k < 0) lo = checked_signed_add(lo, k);
+            else hi = checked_signed_add(hi, k);
+        }
+        const auto low = checked_signed_mul(lo, std::ptrdiff_t(width));
+        const auto high = checked_signed_add(checked_signed_mul(hi, std::ptrdiff_t(width)), std::ptrdiff_t(width) - 1);
+        const auto left = low < 0 ? std::uintmax_t(-(low + 1)) + 1 : std::uintmax_t{0};
+        if (left >= std::uintmax_t(PTRDIFF_MAX) || std::uintmax_t(high) >= std::uintmax_t(PTRDIFF_MAX) - left)
+            fail(ErrorCode::invalid_argument, "dense byte span exceeds addressable range");
+    }
+    d.contiguous = is_contiguous(d.dimensions);
+    return d;
+}
+
+Array detail::empty_like(const ArrayView& source, std::size_t length) {
+    auto out = Array::allocate_dense(source.dtype(), source.native_type(), {length}, false);
+    out.set_serialization_byte_order(source.serialization_byte_order());
+    return out;
 }
 
 Array::Array(std::shared_ptr<State> state) : state_(std::move(state)) {}
@@ -468,6 +514,9 @@ ArrayView ArrayView::select(const Axis* axes, std::size_t count) const {
     require_state(state_);
     if (count != rank()) fail(ErrorCode::shape_mismatch, "number of selectors differs from array rank");
     if (count && !axes) fail(ErrorCode::invalid_argument, "null axis selectors");
+    bool same = true;
+    for (std::size_t a = 0; a < count; ++a) same = same && axes[a].is_all();
+    if (same) return *this;
     auto result = std::make_shared<ArraySelection>();
     result->axes.resize(rank());
     for (std::size_t a = 0; a < rank(); ++a) {
@@ -625,31 +674,10 @@ Array ArrayView::copy(Validation validation) const {
         for (std::size_t a = 0; a < rank(); ++a) shape.push_back(extent(a));
         auto result = Array::allocate_dense(state_->type, state_->native, shape, false);
         result.state_->value_byte_order = state_->value_byte_order;
-        const auto n = element_count(shape), width = dtype_size(state_->type);
-        auto* output = static_cast<std::byte*>(result.state_->data);
-        auto* input = static_cast<const std::byte*>(state_->data);
-        if (!n) return result;
-        // Preserve zero-copy view acquisition, and copy an already-contiguous
-        // memory interval as one transfer instead of walking its elements.
-        try {
-            auto direct = dense_descriptor(state_->type, state_->native, true);
-            if (direct.contiguous) {
-                std::memcpy(output, direct.data, checked_mul(n, width));
-                return result;
-            }
-        } catch (const Error& e) {
-            if (e.code() != ErrorCode::non_contiguous) throw;
-        }
-        std::vector<std::size_t> coordinate(rank(), 0);
-        for (std::size_t pos = 0; pos < n; ++pos) {
-            std::ptrdiff_t offset = 0;
-            for (std::size_t a = 0; a < rank(); ++a) {
-                if (state_->strides[a] != 0)
-                    offset = checked_signed_add(offset, checked_signed_mul(signed_index(original_index(selection_, a, coordinate[a])), state_->strides[a]));
-            }
-            std::memcpy(output + pos * width, input + checked_signed_mul(offset, static_cast<std::ptrdiff_t>(width)), width);
-            for (std::size_t a = rank(); a > 0; --a) { if (++coordinate[a-1] < shape[a-1]) break; coordinate[a-1] = 0; }
-        }
+        // Owning dense copy historically trusts the source storage. Reuse the
+        // caller-buffer walker without adding whole-source validation (notably
+        // for trusted zero-stride broadcasts with enormous logical extents).
+        copy_into(result.edit(), Validation::none);
         return result;
     }
     const std::size_t major_axis = state_->format == Layout::csr ? 0 : 1, minor_axis = 1 - major_axis;
@@ -676,38 +704,84 @@ Array ArrayView::copy(Validation validation) const {
     checked_byte_span(out_major + 1, dtype_size(state_->offset_type));
     checked_byte_span(out_major + 1, sizeof(std::size_t));
     if (validation == Validation::full) validate_state(*state_);
-    std::unordered_map<std::size_t, std::vector<std::size_t>> selected_minor;
-    const bool filtered_minor = selection_ && !selection_->axes[minor_axis].is_all();
-    if (filtered_minor) for (std::size_t i = 0; i < out_minor; ++i) selected_minor[original_index(selection_, minor_axis, i)].push_back(i);
-    std::vector<std::size_t> source_positions, output_indices, output_offsets;
-    output_offsets.reserve(out_major + 1);
-    output_offsets.push_back(0);
-    for (std::size_t major = 0; major < out_major; ++major) {
-        const auto source_major = original_index(selection_, major_axis, major);
-        const auto begin = read_index(state_->offsets, state_->offset_type, source_major);
-        const auto end = read_index(state_->offsets, state_->offset_type, source_major + 1);
-        for (auto p = begin; p < end; ++p) {
-            auto minor = read_index(state_->indices, state_->index_type, p);
-            if (!filtered_minor) { source_positions.push_back(p); output_indices.push_back(minor); }
-            else if (auto it = selected_minor.find(minor); it != selected_minor.end()) {
-                for (auto selected : it->second) { source_positions.push_back(p); output_indices.push_back(selected); }
+    const auto width = dtype_size(state_->type), index_width = dtype_size(state_->index_type);
+    const auto minor = selection_->axes[minor_axis];
+    std::vector<std::size_t> offsets(out_major + 1, 0);
+    auto allocate = [&](std::size_t nnz) {
+        auto out = Array::allocate_sparse(state_->format, state_->type, state_->index_type, state_->offset_type,
+            state_->native, state_->native_index, state_->native_offset, extent(0), extent(1), nnz);
+        out.state_->value_byte_order = state_->value_byte_order;
+        out.state_->indices_byte_order = state_->indices_byte_order;
+        out.state_->offsets_byte_order = state_->offsets_byte_order;
+        return out;
+    };
+    auto add_entries = [](std::size_t& total, std::size_t n) {
+        if (n > std::numeric_limits<std::size_t>::max() - total)
+            fail(ErrorCode::invalid_sparse_structure, "selected sparse entry count overflows");
+        total += n;
+    };
+    if (minor.is_all()) return visit_index(state_->offset_type, [&]<class Offset> {
+        for (std::size_t m = 0; m < out_major; ++m) {
+            const auto i = original_index(selection_, major_axis, m);
+            auto n = offsets[m];
+            add_entries(n, read_nonnegative<Offset>(state_->offsets, i + 1) - read_nonnegative<Offset>(state_->offsets, i));
+            offsets[m + 1] = n;
+        }
+        auto out = allocate(offsets.back());
+        for (std::size_t m = 0; m < out_major; ++m) {
+            const auto i = original_index(selection_, major_axis, m);
+            const auto from = read_nonnegative<Offset>(state_->offsets, i), to = offsets[m], n = offsets[m + 1] - to;
+            if (n) {
+                std::memcpy(static_cast<std::byte*>(out.state_->data) + to*width,
+                    static_cast<const std::byte*>(state_->data) + from*width, n*width);
+                std::memcpy(static_cast<std::byte*>(out.state_->indices) + to*index_width,
+                    static_cast<const std::byte*>(state_->indices) + from*index_width, n*index_width);
             }
         }
-        output_offsets.push_back(source_positions.size());
-    }
-    auto result = Array::allocate_sparse(state_->format, state_->type, state_->index_type, state_->offset_type,
-                                         state_->native, state_->native_index, state_->native_offset,
-                                         extent(0), extent(1), source_positions.size());
-    result.state_->value_byte_order = state_->value_byte_order;
-    result.state_->indices_byte_order = state_->indices_byte_order;
-    result.state_->offsets_byte_order = state_->offsets_byte_order;
-    const auto width = dtype_size(state_->type);
-    for (std::size_t i = 0; i < source_positions.size(); ++i) {
-        std::memcpy(static_cast<std::byte*>(result.state_->data) + i * width,
-                    static_cast<const std::byte*>(state_->data) + source_positions[i] * width, width);
-        write_index(result.state_->indices, state_->index_type, i, output_indices[i]);
-    }
-    for (std::size_t i = 0; i < output_offsets.size(); ++i) write_index(result.state_->offsets, state_->offset_type, i, output_offsets[i]);
-    return result;
+        for (std::size_t m = 0; m <= out_major; ++m) write_checked<Offset>(out.state_->offsets, m, offsets[m]);
+        return out;
+    });
+    auto selected = [&]<class Match>(Match match) {
+        return visit_index(state_->offset_type, [&]<class Offset> {
+            return visit_index(state_->index_type, [&]<class Index> {
+                for (std::size_t m = 0; m < out_major; ++m) {
+                    const auto i = original_index(selection_, major_axis, m);
+                    const auto a = read_nonnegative<Offset>(state_->offsets, i), b = read_nonnegative<Offset>(state_->offsets, i + 1);
+                    auto n = offsets[m];
+                    for (auto k = a; k < b; ++k)
+                        match(read_nonnegative<Index>(state_->indices, k), [&](std::size_t) { add_entries(n, 1); });
+                    offsets[m + 1] = n;
+                }
+                auto out = allocate(offsets.back());
+                for (std::size_t m = 0; m < out_major; ++m) {
+                    const auto i = original_index(selection_, major_axis, m);
+                    const auto a = read_nonnegative<Offset>(state_->offsets, i), b = read_nonnegative<Offset>(state_->offsets, i + 1);
+                    auto n = offsets[m];
+                    for (auto k = a; k < b; ++k) match(read_nonnegative<Index>(state_->indices, k), [&](std::size_t j) {
+                        std::memcpy(static_cast<std::byte*>(out.state_->data) + n*width,
+                            static_cast<const std::byte*>(state_->data) + k*width, width);
+                        write_checked<Index>(out.state_->indices, n++, j);
+                    });
+                }
+                for (std::size_t m = 0; m <= out_major; ++m) write_checked<Offset>(out.state_->offsets, m, offsets[m]);
+                return out;
+            });
+        });
+    };
+    if (!minor.is_gather()) return selected([&](std::size_t i, auto emit) {
+        const auto first = minor.first(), step = minor.step();
+        if (!step) { if (i == first) for (std::size_t j = 0; j < out_minor; ++j) emit(j); return; }
+        if (minor.reverse() ? i > first : i < first) return;
+        const auto d = minor.reverse() ? first - i : i - first;
+        if (d % step == 0 && d/step < out_minor) emit(d/step);
+    });
+    std::vector<std::pair<std::size_t, std::size_t>> lookup;
+    lookup.reserve(out_minor);
+    for (std::size_t j = 0; j < out_minor; ++j) lookup.emplace_back(minor.index(j), j);
+    std::sort(lookup.begin(), lookup.end());
+    return selected([&](std::size_t i, auto emit) {
+        auto p = std::lower_bound(lookup.begin(), lookup.end(), i, [](const auto& x, std::size_t j) { return x.first < j; });
+        for (; p != lookup.end() && p->first == i; ++p) emit(p->second);
+    });
 }
 } // namespace anndatapp

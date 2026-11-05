@@ -6,7 +6,6 @@ module;
 #include <limits>
 #include <memory>
 #include <new>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -18,20 +17,12 @@ import :records;
 
 namespace anndatapp {
 namespace detail {
-struct RecordFieldOwner {
-    RecordField info;
-    std::optional<Array> numeric;
-    std::optional<StringArray> strings;
-};
-struct RecordFieldView {
-    RecordField info;
-    ArrayView numeric;
-    StringArrayView strings;
-};
 struct RecordImpl {
     std::vector<std::size_t> shape;
-    std::vector<RecordFieldOwner> fields;
-    RecordLayout layout;
+    std::vector<RecordField> fields;
+    std::vector<Array> numeric;
+    std::vector<StringArray> strings;
+    std::size_t item_size = 0, alignment = 1;
     std::vector<std::ptrdiff_t> strides;
     void* data = nullptr;
     bool interleaved = false, writable = true;
@@ -39,8 +30,10 @@ struct RecordImpl {
 };
 struct RecordViewImpl {
     std::vector<std::size_t> shape;
-    std::vector<RecordFieldView> fields;
-    RecordLayout layout;
+    std::vector<RecordField> fields;
+    std::vector<ArrayView> numeric;
+    std::vector<StringArrayView> strings;
+    std::size_t item_size = 0, alignment = 1;
     std::vector<std::ptrdiff_t> strides;
     void* data = nullptr;
     bool interleaved = false;
@@ -54,6 +47,13 @@ using Strides = std::vector<std::ptrdiff_t>;
 using View = detail::RecordViewImpl;
 using Descriptor = detail::RecordDescriptor;
 
+void reserve_field(detail::RecordImpl& p) {
+    const auto n = p.fields.size() + 1;
+    if (p.fields.capacity() >= n && p.numeric.capacity() >= n && p.strings.capacity() >= n) return;
+    const auto limit = p.fields.max_size();
+    const auto capacity = p.fields.capacity() > limit/2 ? limit : std::max(n, 2*p.fields.capacity());
+    p.fields.reserve(capacity); p.numeric.reserve(capacity); p.strings.reserve(capacity);
+}
 [[noreturn]] void fail(ErrorCode code, std::string_view path, std::string message) {
     throw Error(code, "record-array" + (path.empty() ? std::string{} : "/" + std::string(path)), std::move(message));
 }
@@ -113,7 +113,7 @@ void check_name(std::string_view name) {
         fail(ErrorCode::invalid_argument, name, "field names must be nonempty UTF-8 without NUL");
 }
 template<class Fields> std::size_t find(const Fields& fields, std::string_view name) {
-    for (std::size_t i = 0; i < fields.size(); ++i) if (fields[i].info.name == name) return i;
+    for (std::size_t i = 0; i < fields.size(); ++i) if (fields[i].name == name) return i;
     fail(ErrorCode::out_of_bounds, name, "field does not exist");
 }
 void require(const std::shared_ptr<View>& p) {
@@ -159,24 +159,34 @@ Strides contiguous_strides(const Shape& shape, std::size_t item_size) {
     }
     return strides;
 }
-void check_buffer(const Shape& shape, const RecordLayout& layout, const Strides& strides, const void* data) {
+void check_buffer(const Shape& shape, std::size_t item_size, std::size_t alignment, const Strides& strides, const void* data) {
     const auto n = count(shape);
     if (strides.size() != shape.size()) fail(ErrorCode::shape_mismatch, {}, "record strides do not cover the outer rank");
     if (!n) return;
-    if (!data || reinterpret_cast<std::uintptr_t>(data) % layout.alignment)
+    if (!data || reinterpret_cast<std::uintptr_t>(data) % alignment)
         fail(ErrorCode::invalid_argument, {}, "record pointer is null or misaligned");
     std::ptrdiff_t low = 0, high = 0;
     for (std::size_t a = 0; a < shape.size(); ++a) {
         if (shape[a] <= 1) continue;
-        if (strides[a] % std::ptrdiff_t(layout.alignment))
+        if (strides[a] % std::ptrdiff_t(alignment))
             fail(ErrorCode::invalid_argument, {}, "record stride does not preserve alignment");
-        std::ptrdiff_t k;
-        if (__builtin_mul_overflow(std::ptrdiff_t(shape[a] - 1), strides[a], &k) ||
-            (k < 0 ? __builtin_add_overflow(low, k, &low) : __builtin_add_overflow(high, k, &high)))
+        const auto stride = strides[a];
+        const auto magnitude = stride < 0 ? std::uintmax_t(-(stride + 1)) + 1 : std::uintmax_t(stride);
+        const auto limit = std::uintmax_t(PTRDIFF_MAX) + (stride < 0);
+        if (magnitude && shape[a] - 1 > limit/magnitude)
             fail(ErrorCode::invalid_argument, {}, "record address range overflows");
+        const auto n = std::uintmax_t(shape[a] - 1)*magnitude;
+        const auto k = stride < 0 ? n == limit ? PTRDIFF_MIN : -std::ptrdiff_t(n) : std::ptrdiff_t(n);
+        if (k < 0) {
+            if (low < PTRDIFF_MIN - k) fail(ErrorCode::invalid_argument, {}, "record address range overflows");
+            low += k;
+        } else {
+            if (high > PTRDIFF_MAX - k) fail(ErrorCode::invalid_argument, {}, "record address range overflows");
+            high += k;
+        }
     }
-    if (high > PTRDIFF_MAX - std::ptrdiff_t(layout.item_size) ||
-        (low < 0 && high > PTRDIFF_MAX + low - std::ptrdiff_t(layout.item_size)))
+    if (high > PTRDIFF_MAX - std::ptrdiff_t(item_size) ||
+        (low < 0 && high > PTRDIFF_MAX + low - std::ptrdiff_t(item_size)))
         fail(ErrorCode::invalid_argument, {}, "record address span overflows");
 }
 Descriptor descriptor(std::shared_ptr<const void> owner, void* data, const Shape& shape,
@@ -193,14 +203,29 @@ Descriptor descriptor(std::shared_ptr<const void> owner, void* data, const Shape
 }
 Descriptor numeric_descriptor(const std::shared_ptr<View>& p, std::size_t j) {
     const auto& f = p->fields[j];
-    if (f.info.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, f.info.name, "field is not numerical");
+    if (f.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, f.name, "field is not numerical");
     if (p->interleaved) {
         auto* b = static_cast<std::byte*>(p->data);
-        return descriptor(p, b ? b + f.info.offset : nullptr, p->shape, p->strides, width(f.info));
+        return descriptor(p, b ? b + f.offset : nullptr, p->shape, p->strides, width(f));
     }
-    auto b = f.numeric.bytes(); Strides strides(b.rank());
-    for (std::size_t a = 0; a < b.rank(); ++a) strides[a] = b.stride_bytes(a);
-    return descriptor(p, const_cast<std::byte*>(b.data()), p->shape, strides, b.element_size());
+    auto b = p->numeric[j].bytes(); Descriptor d;
+    d.owner = p; d.data = const_cast<std::byte*>(b.data()); d.width = b.element_size();
+    d.dimensions.size = b.rank();
+    bool empty = false;
+    for (std::size_t a = 0; a < b.rank(); ++a) empty = empty || b.extent(a) == 0;
+    d.first_stride = b.rank() && !empty && b.extent(0) > 1 ? b.stride_bytes(0) : 0;
+    if (b.rank() > detail::DenseDimensions::inline_rank) {
+        d.dimensions.large = std::make_shared<detail::LargeDimensions>();
+        d.dimensions.large->shape.resize(b.rank()); d.dimensions.large->strides.resize(b.rank());
+        for (std::size_t a = 0; a < b.rank(); ++a) {
+            d.dimensions.large->shape[a] = b.extent(a);
+            d.dimensions.large->strides[a] = !empty && b.extent(a) > 1 ? b.stride_bytes(a) : 0;
+        }
+    } else for (std::size_t a = 0; a < b.rank(); ++a) {
+        d.dimensions.shape[a] = b.extent(a);
+        d.dimensions.strides[a] = !empty && b.extent(a) > 1 ? b.stride_bytes(a) : 0;
+    }
+    return d;
 }
 std::ptrdiff_t offset(const Shape& shape, const Strides& strides, std::size_t i) {
     std::ptrdiff_t k = 0;
@@ -211,47 +236,54 @@ std::ptrdiff_t offset(const Shape& shape, const Strides& strides, std::size_t i)
 }
 std::string_view text_at(const View& p, std::size_t j, std::size_t i) {
     const auto& f = p.fields[j];
-    if (!p.interleaved) return f.strings.string(i);
-    auto* b = static_cast<const std::byte*>(p.data) + offset(p.shape, p.strides, i) + f.info.offset;
-    if (f.info.kind == RecordFieldKind::utf8_ref) {
+    if (!p.interleaved) return p.strings[j].string(i);
+    auto* b = static_cast<const std::byte*>(p.data) + offset(p.shape, p.strides, i) + f.offset;
+    if (f.kind == RecordFieldKind::utf8_ref) {
         Utf8Ref s; std::memcpy(&s, b, sizeof s);
         if ((!s.data && s.size) || s.size > std::size_t(PTRDIFF_MAX))
-            fail(ErrorCode::invalid_argument, f.info.name, "invalid text pointer/length");
+            fail(ErrorCode::invalid_argument, f.name, "invalid text pointer/length");
         return s.size ? std::string_view(s.data, s.size) : std::string_view{};
     }
-    auto* s = reinterpret_cast<const char*>(b); auto n = f.info.width;
+    auto* s = reinterpret_cast<const char*>(b); auto n = f.width;
     while (n && !s[n - 1]) --n;
     return {s, n};
 }
 void validate_view(const std::shared_ptr<View>& p, bool content) {
     require(p); const auto n = count(p->shape);
     if (p->interleaved) {
-        auto layout = p->layout; check_layout(layout); check_buffer(p->shape, layout, p->strides, p->data);
+        check_buffer(p->shape, p->item_size, p->alignment, p->strides, p->data);
     }
     for (std::size_t j = 0; j < p->fields.size(); ++j) {
-        const auto& f = p->fields[j]; check_name(f.info.name);
-        for (std::size_t k = 0; k < j; ++k) if (p->fields[k].info.name == f.info.name)
-            fail(ErrorCode::invalid_argument, f.info.name, "duplicate field name");
-        if (f.info.kind == RecordFieldKind::numeric) {
+        const auto& f = p->fields[j]; check_name(f.name);
+        for (std::size_t k = 0; k < j; ++k) if (p->fields[k].name == f.name)
+            fail(ErrorCode::invalid_argument, f.name, "duplicate field name");
+        if (f.kind == RecordFieldKind::numeric) {
             if (!p->interleaved) {
-                if (f.numeric.layout() != Layout::dense || f.numeric.rank() != p->shape.size())
-                    fail(ErrorCode::shape_mismatch, f.info.name, "numeric field must be dense with the record outer shape");
-                for (std::size_t a = 0; a < p->shape.size(); ++a) if (f.numeric.extent(a) != p->shape[a])
-                    fail(ErrorCode::shape_mismatch, f.info.name, "numeric field outer shape differs");
-                if (f.numeric.native_type() != visit_numeric(f.info.dtype, []<class T> { return detail::native_type_of<T>(); }))
-                    fail(ErrorCode::dtype_mismatch, f.info.name, "numeric field requires its canonical fixed-width native type");
-                if (content) f.numeric.validate();
+                if (p->numeric[j].layout() != Layout::dense || p->numeric[j].rank() != p->shape.size())
+                    fail(ErrorCode::shape_mismatch, f.name, "numeric field must be dense with the record outer shape");
+                for (std::size_t a = 0; a < p->shape.size(); ++a) if (p->numeric[j].extent(a) != p->shape[a])
+                    fail(ErrorCode::shape_mismatch, f.name, "numeric field outer shape differs");
+                if (p->numeric[j].native_type() != visit_numeric(f.dtype, []<class T> { return detail::native_type_of<T>(); }))
+                    fail(ErrorCode::dtype_mismatch, f.name, "numeric field requires its canonical fixed-width native type");
+                if (content) p->numeric[j].validate();
             }
-            if (content && f.info.dtype == DType::boolean) {
-                RecordMemberView<const std::byte> b(numeric_descriptor(p, j));
-                for (std::size_t i = 0; i < n; ++i) if (std::to_integer<unsigned>(*b.flat_ptr(i)) > 1)
-                    fail(ErrorCode::invalid_argument, f.info.name, "boolean members require canonical zero/one bytes");
+            if (content && f.dtype == DType::boolean) {
+                auto b = numeric_descriptor(p, j);
+                for (std::size_t i = 0; i < n; ++i) {
+                    auto q = i; std::ptrdiff_t k = 0;
+                    for (std::size_t a = b.dimensions.size; a > 0; --a) {
+                        const auto m = b.dimensions.extent(a - 1);
+                        k += std::ptrdiff_t(q % m)*b.dimensions.stride(a - 1); q /= m;
+                    }
+                    if (std::to_integer<unsigned>(*(static_cast<const std::byte*>(b.data) + k)) > 1)
+                        fail(ErrorCode::invalid_argument, f.name, "boolean members require canonical zero/one bytes");
+                }
             }
         } else if (!p->interleaved) {
-            if (f.strings.shape() != p->shape) fail(ErrorCode::shape_mismatch, f.info.name, "text field outer shape differs");
-            if (content) f.strings.validate();
+            if (p->strings[j].shape() != p->shape) fail(ErrorCode::shape_mismatch, f.name, "text field outer shape differs");
+            if (content) p->strings[j].validate();
         } else if (content) for (std::size_t i = 0; i < n; ++i)
-            if (!utf8(text_at(*p, j, i))) fail(ErrorCode::invalid_argument, f.info.name, "text field is not valid UTF-8");
+            if (!utf8(text_at(*p, j, i))) fail(ErrorCode::invalid_argument, f.name, "text field is not valid UTF-8");
     }
 }
 struct Allocation {
@@ -260,6 +292,47 @@ struct Allocation {
     std::vector<char> text;
     ~Allocation() { if (data) ::operator delete(data, std::align_val_t(alignment)); }
 };
+std::shared_ptr<Allocation> allocate_records(const Shape& shape, const RecordLayout& layout, std::size_t text_bytes) {
+    const auto n = count(shape), bytes = mul(n, layout.item_size);
+    auto out = std::make_shared<Allocation>();
+    out->alignment = std::max(layout.alignment, alignof(std::max_align_t)); out->text.resize(text_bytes);
+    if (!bytes) return out;
+    out->data = ::new(::operator new(bytes, std::align_val_t(out->alignment))) std::byte[bytes];
+    for (const auto& f : layout.fields) {
+        if (f.kind == RecordFieldKind::numeric) visit_numeric(f.dtype, [&]<class T> {
+            for (std::size_t i = 0; i < n; ++i)
+                ::new(static_cast<void*>(out->data + i*layout.item_size + f.offset)) T;
+        });
+        else if (f.kind == RecordFieldKind::utf8_ref)
+            for (std::size_t i = 0; i < n; ++i)
+                ::new(static_cast<void*>(out->data + i*layout.item_size + f.offset)) Utf8Ref{};
+        else for (std::size_t i = 0; i < n; ++i) std::memset(out->data + i*layout.item_size + f.offset, 0, f.width);
+    }
+    return out;
+}
+void copy_members(const Descriptor& source, std::byte* destination, std::size_t destination_stride, std::size_t n) {
+    if (!n) return;
+    const auto* data = static_cast<const std::byte*>(source.data);
+    const auto rank = source.dimensions.size;
+    if (rank <= 1) {
+        for (std::size_t i = 0; i < n; ++i)
+            std::memcpy(destination + i*destination_stride, data + std::ptrdiff_t(i)*source.first_stride, source.width);
+        return;
+    }
+    const auto* shape = source.dimensions.large ? source.dimensions.large->shape.data() : source.dimensions.shape;
+    const auto* strides = source.dimensions.large ? source.dimensions.large->strides.data() : source.dimensions.strides;
+    std::vector<std::size_t> coordinate(rank, 0);
+    std::ptrdiff_t from = 0;
+    for (std::size_t i = 0; i < n; ++i) {
+        std::memcpy(destination + i*destination_stride, data + from, source.width);
+        if (i + 1 == n) break;
+        for (std::size_t a = rank; a > 0; --a) {
+            if (++coordinate[a - 1] < shape[a - 1]) { from += strides[a - 1]; break; }
+            from -= std::ptrdiff_t(shape[a - 1] - 1)*strides[a - 1]; coordinate[a - 1] = 0;
+        }
+    }
+}
+
 }
 
 RecordArray::RecordArray() = default;
@@ -276,11 +349,63 @@ RecordArrayView::RecordArrayView(std::shared_ptr<View> p) : impl_(std::move(p)) 
 RecordArrayView RecordArray::view() const {
     if (!impl_) return {};
     auto p = std::make_shared<View>();
-    p->shape = impl_->shape; p->layout = impl_->layout; p->strides = impl_->strides;
+    p->shape = impl_->shape; p->item_size = impl_->item_size; p->alignment = impl_->alignment; p->strides = impl_->strides;
     p->data = impl_->data; p->interleaved = impl_->interleaved; p->owner = impl_->owner;
-    for (const auto& f : impl_->fields) p->fields.push_back({f.info, f.numeric ? f.numeric->view() : ArrayView{},
-                                                           f.strings ? f.strings->view() : StringArrayView{}});
+    p->fields = impl_->fields;
+    if (!impl_->interleaved) {
+        p->numeric.resize(p->fields.size()); p->strings.resize(p->fields.size());
+        for (std::size_t j = 0; j < p->fields.size(); ++j)
+            if (p->fields[j].kind == RecordFieldKind::numeric) p->numeric[j] = impl_->numeric[j].view();
+            else p->strings[j] = impl_->strings[j].view();
+    }
     return RecordArrayView(std::move(p));
+}
+ArrayView RecordArray::array(std::string_view name) const {
+    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "array requires fieldwise records");
+    const auto j = find(impl_->fields, name);
+    if (impl_->fields[j].kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numerical");
+    return impl_->numeric[j].view();
+}
+StringArrayView RecordArray::string_array(std::string_view name) const {
+    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "string_array requires fieldwise records");
+    const auto j = find(impl_->fields, name);
+    if (impl_->fields[j].kind != RecordFieldKind::string) fail(ErrorCode::dtype_mismatch, name, "field is not packed text");
+    return impl_->strings[j].view();
+}
+RecordTextView RecordArray::text(std::string_view name) const {
+    if (!impl_) fail(ErrorCode::invalid_argument, {}, "empty record owner");
+    const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
+    if (f.kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
+    auto p = std::make_shared<View>();
+    p->shape = impl_->shape; p->strides = impl_->strides; p->data = impl_->data;
+    p->item_size = impl_->item_size; p->alignment = impl_->alignment;
+    p->interleaved = impl_->interleaved; p->owner = impl_->owner; p->fields.push_back(f);
+    if (!p->interleaved) p->strings.push_back(impl_->strings[j].view());
+    return RecordTextView(std::move(p), 0);
+}
+Descriptor RecordArray::member_descriptor(std::string_view name, DType type, bool ref) const {
+    if (!impl_) fail(ErrorCode::invalid_argument, {}, "empty record owner");
+    const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
+    if (ref ? f.kind != RecordFieldKind::utf8_ref : f.kind != RecordFieldKind::numeric || f.dtype != type)
+        fail(ErrorCode::dtype_mismatch, name, "member dtype differs from requested canonical type");
+    if (impl_->interleaved) {
+        auto* b = static_cast<std::byte*>(impl_->data);
+        return descriptor(impl_->owner, b ? b + f.offset : nullptr, impl_->shape, impl_->strides, width(f));
+    }
+    auto v = impl_->numeric[j].view();
+    auto b = v.dense_descriptor(v.dtype(), v.native_type(), true);
+    Descriptor d; d.owner = std::move(b.owner); d.data = b.data; d.width = dtype_size(type);
+    d.dimensions = std::move(b.dimensions);
+    bool empty = false;
+    for (std::size_t a = 0; a < d.dimensions.size; ++a) empty = empty || d.dimensions.extent(a) == 0;
+    for (std::size_t a = 0; a < d.dimensions.size; ++a) {
+        const auto stride = !empty && d.dimensions.extent(a) > 1
+            ? detail::checked_byte_stride(d.dimensions.stride(a), d.width) : 0;
+        if (d.dimensions.large) d.dimensions.large->strides[a] = stride;
+        else d.dimensions.strides[a] = stride;
+    }
+    d.first_stride = d.dimensions.size ? d.dimensions.stride(0) : 0;
+    return d;
 }
 bool RecordArrayView::interleaved() const { require(impl_); return impl_->interleaved; }
 std::size_t RecordArrayView::rank() const noexcept { return impl_ ? impl_->shape.size() : 0; }
@@ -292,37 +417,37 @@ Shape RecordArrayView::shape() const { require(impl_); return impl_->shape; }
 std::size_t RecordArrayView::n_fields() const { require(impl_); return impl_->fields.size(); }
 std::vector<std::string> RecordArrayView::field_names() const {
     require(impl_); std::vector<std::string> names; names.reserve(impl_->fields.size());
-    for (const auto& f : impl_->fields) names.push_back(f.info.name);
+    for (const auto& f : impl_->fields) names.push_back(f.name);
     return names;
 }
 RecordField RecordArrayView::field(std::string_view name) const {
-    require(impl_); return impl_->fields[find(impl_->fields, name)].info;
+    require(impl_); return impl_->fields[find(impl_->fields, name)];
 }
 RecordLayout RecordArrayView::record_layout() const {
     require(impl_); if (!impl_->interleaved) fail(ErrorCode::unsupported_layout, {}, "fieldwise records have no interleaved layout");
-    return impl_->layout;
+    return {impl_->item_size, impl_->alignment, impl_->fields};
 }
 ArrayView RecordArrayView::array(std::string_view name) const {
-    require(impl_); const auto& f = impl_->fields[find(impl_->fields, name)];
-    if (f.info.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numerical");
+    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
+    if (f.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numerical");
     if (impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "interleaved members require a byte-strided member view or explicit copy_array");
-    return f.numeric;
+    return impl_->numeric[j];
 }
 StringArrayView RecordArrayView::string_array(std::string_view name) const {
-    require(impl_); const auto& f = impl_->fields[find(impl_->fields, name)];
-    if (f.info.kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
+    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
+    if (f.kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
     if (impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "interleaved text requires explicit copy_strings");
-    return f.strings;
+    return impl_->strings[j];
 }
 RecordMemberView<const std::byte> RecordArrayView::numeric_bytes(std::string_view name) const {
     require(impl_); return RecordMemberView<const std::byte>(numeric_descriptor(impl_, find(impl_->fields, name)));
 }
 RecordMemberView<const std::byte> RecordArrayView::record_bytes() const {
     require(impl_); if (!impl_->interleaved) fail(ErrorCode::unsupported_layout, {}, "fieldwise records have no record bytes");
-    return RecordMemberView<const std::byte>(descriptor(impl_, impl_->data, impl_->shape, impl_->strides, impl_->layout.item_size));
+    return RecordMemberView<const std::byte>(descriptor(impl_, impl_->data, impl_->shape, impl_->strides, impl_->item_size));
 }
 Descriptor RecordArrayView::member_descriptor(std::string_view name, DType type, bool ref) const {
-    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j].info;
+    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
     if (ref) {
         if (f.kind != RecordFieldKind::utf8_ref) fail(ErrorCode::dtype_mismatch, name, "field is not an interleaved Utf8Ref");
         auto* b = static_cast<std::byte*>(impl_->data);
@@ -337,12 +462,12 @@ Descriptor RecordArrayView::member_descriptor(std::string_view name, DType type,
 RecordTextView::RecordTextView(std::shared_ptr<View> p, std::size_t j) : impl_(std::move(p)), field_(j) {}
 std::size_t RecordTextView::size() const { require(impl_); return count(impl_->shape); }
 std::string_view RecordTextView::string(std::size_t i) const {
-    require(impl_); if (i >= count(impl_->shape)) fail(ErrorCode::out_of_bounds, impl_->fields[field_].info.name, "text index out of bounds");
+    require(impl_); if (i >= count(impl_->shape)) fail(ErrorCode::out_of_bounds, impl_->fields[field_].name, "text index out of bounds");
     return text_at(*impl_, field_, i);
 }
 RecordTextView RecordArrayView::text(std::string_view name) const {
     require(impl_); const auto j = find(impl_->fields, name);
-    if (impl_->fields[j].info.kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
+    if (impl_->fields[j].kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
     return RecordTextView(impl_, j);
 }
 std::string_view RecordArrayView::string(std::string_view name, std::size_t i) const { return text(name).string(i); }
@@ -350,53 +475,63 @@ void RecordArrayView::validate() const { validate_view(impl_, true); }
 void RecordArray::validate() const { view().validate(); }
 
 void RecordArray::set(std::string name, Array value, Validation validation) {
-    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "set requires a fieldwise record owner");
+    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "set requires fieldwise records");
     check_name(name);
-    detail::RecordFieldOwner f; f.info = {std::move(name), RecordFieldKind::numeric, value.dtype(), 0,
-                                        dtype_size(value.dtype()), value.serialization_byte_order()};
-    f.numeric.emplace(std::move(value));
-    auto p = std::make_shared<View>(); p->shape = impl_->shape; p->fields.push_back({f.info, f.numeric->view(), {}});
+    RecordField f{std::move(name), RecordFieldKind::numeric, value.dtype(), 0, dtype_size(value.dtype()), value.serialization_byte_order()};
+    auto p = std::make_shared<View>(); p->shape = impl_->shape;
+    p->fields.push_back(f); p->numeric.push_back(value.view()); p->strings.emplace_back();
     validate_view(p, validation == Validation::full);
-    for (auto& old : impl_->fields) if (old.info.name == f.info.name) { old = std::move(f); return; }
-    impl_->fields.push_back(std::move(f));
+    for (std::size_t j = 0; j < impl_->fields.size(); ++j) if (impl_->fields[j].name == f.name) {
+        impl_->fields[j] = std::move(f); impl_->numeric[j] = std::move(value); impl_->strings[j] = {}; return;
+    }
+    reserve_field(*impl_);
+    impl_->fields.push_back(std::move(f)); impl_->numeric.push_back(std::move(value)); impl_->strings.emplace_back();
 }
 void RecordArray::set(std::string name, StringArray value, Validation validation) {
-    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "set requires a fieldwise record owner");
+    if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "set requires fieldwise records");
     check_name(name); if (validation == Validation::full) value.validate();
-    if (value.view().shape() != impl_->shape) fail(ErrorCode::shape_mismatch, name, "text field outer shape differs");
-    detail::RecordFieldOwner f; f.info.name = std::move(name); f.info.kind = RecordFieldKind::string;
-    f.strings.emplace(std::move(value));
-    for (auto& old : impl_->fields) if (old.info.name == f.info.name) { old = std::move(f); return; }
-    impl_->fields.push_back(std::move(f));
+    if (value.rank() != impl_->shape.size()) fail(ErrorCode::shape_mismatch, name, "text field outer rank differs");
+    for (std::size_t a = 0; a < value.rank(); ++a)
+        if (value.extent(a) != impl_->shape[a]) fail(ErrorCode::shape_mismatch, name, "text field outer shape differs");
+    RecordField f; f.name = std::move(name); f.kind = RecordFieldKind::string;
+    for (std::size_t j = 0; j < impl_->fields.size(); ++j) if (impl_->fields[j].name == f.name) {
+        impl_->fields[j] = std::move(f); impl_->strings[j] = std::move(value); impl_->numeric[j] = {}; return;
+    }
+    reserve_field(*impl_);
+    impl_->fields.push_back(std::move(f)); impl_->strings.push_back(std::move(value)); impl_->numeric.emplace_back();
 }
 void RecordArray::erase(std::string_view name) {
     if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "erase requires fieldwise records");
-    for (auto i = impl_->fields.begin(); i != impl_->fields.end(); ++i) if (i->info.name == name) { impl_->fields.erase(i); return; }
+    for (std::size_t j = 0; j < impl_->fields.size(); ++j) if (impl_->fields[j].name == name) {
+        impl_->fields.erase(impl_->fields.begin() + j);
+        impl_->numeric.erase(impl_->numeric.begin() + j); impl_->strings.erase(impl_->strings.begin() + j); return;
+    }
 }
 void RecordArray::set_field_serialization_byte_order(std::string_view name, ByteOrder order) {
     if (!impl_) fail(ErrorCode::invalid_argument, {}, "empty record owner");
     const auto j = find(impl_->fields, name); auto& f = impl_->fields[j];
-    if (f.info.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "byte order applies to numeric fields");
-    f.info.byte_order = order;
-    if (impl_->interleaved) impl_->layout.fields[j].byte_order = order;
-    else f.numeric->set_serialization_byte_order(order);
+    if (f.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "byte order applies to numeric fields");
+    f.byte_order = order;
+    if (!impl_->interleaved) impl_->numeric[j].set_serialization_byte_order(order);
 }
 ArrayEdit RecordArray::edit_array(std::string_view name) {
     if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "edit_array requires fieldwise records");
-    auto& f = impl_->fields[find(impl_->fields, name)];
-    if (!f.numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numeric"); return f.numeric->edit();
+    const auto j = find(impl_->fields, name);
+    if (impl_->fields[j].kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numeric");
+    return impl_->numeric[j].edit();
 }
 StringArrayEdit RecordArray::edit_strings(std::string_view name) {
     if (!impl_ || impl_->interleaved) fail(ErrorCode::unsupported_layout, name, "edit_strings requires fieldwise records");
-    auto& f = impl_->fields[find(impl_->fields, name)];
-    if (!f.strings) fail(ErrorCode::dtype_mismatch, name, "field is not packed text"); return f.strings->edit();
+    const auto j = find(impl_->fields, name);
+    if (impl_->fields[j].kind != RecordFieldKind::string) fail(ErrorCode::dtype_mismatch, name, "field is not packed text");
+    return impl_->strings[j].edit();
 }
 Descriptor RecordArray::edit_descriptor(std::string_view name, DType type, bool ref) {
     if (!impl_) fail(ErrorCode::invalid_argument, {}, "empty record owner");
     if (impl_->interleaved) {
         if (!impl_->writable) fail(ErrorCode::invalid_argument, name, "record storage is read-only");
     } else { (void)edit_array(name); }
-    return view().member_descriptor(name, type, ref);
+    return member_descriptor(name, type, ref);
 }
 RecordMemberView<Utf8Ref> RecordArray::unsafe_edit_text_refs(std::string_view name) {
     return RecordMemberView<Utf8Ref>(edit_descriptor(name, DType::uint8, true));
@@ -404,18 +539,19 @@ RecordMemberView<Utf8Ref> RecordArray::unsafe_edit_text_refs(std::string_view na
 RecordMemberView<std::byte> RecordArray::unsafe_edit_record_bytes() {
     if (!impl_ || !impl_->interleaved) fail(ErrorCode::unsupported_layout, {}, "fieldwise records have no record bytes");
     if (!impl_->writable) fail(ErrorCode::invalid_argument, {}, "record storage is read-only");
-    auto p = view().impl_; return RecordMemberView<std::byte>(descriptor(p, p->data, p->shape, p->strides, p->layout.item_size));
+    return RecordMemberView<std::byte>(descriptor(impl_->owner, impl_->data, impl_->shape, impl_->strides, impl_->item_size));
 }
 
 RecordArray RecordArray::wrap(void* data, Shape shape, RecordLayout layout, Strides strides,
                             std::shared_ptr<const void> owner, bool writable, Validation validation) {
     check_layout(layout);
     if (strides.empty()) strides = contiguous_strides(shape, layout.item_size);
-    check_buffer(shape, layout, strides, data);
+    check_buffer(shape, layout.item_size, layout.alignment, strides, data);
     auto p = std::make_shared<detail::RecordImpl>();
-    p->shape = std::move(shape); p->layout = std::move(layout); p->strides = std::move(strides);
+    p->shape = std::move(shape); p->item_size = layout.item_size; p->alignment = layout.alignment; p->strides = std::move(strides);
     p->data = data; p->owner = std::move(owner); p->writable = writable; p->interleaved = true;
-    for (const auto& f : p->layout.fields) p->fields.push_back({f, {}, {}});
+    p->fields.reserve(layout.fields.size());
+    p->fields = std::move(layout.fields);
     RecordArray out(std::move(p)); if (validation == Validation::full) out.validate(); return out;
 }
 RecordArray RecordArray::borrow_interleaved(void* data, Shape shape, RecordLayout layout, Strides strides, Validation validation) {
@@ -441,49 +577,44 @@ RecordArray RecordArray::adopt_interleaved(void* data, Shape shape, RecordLayout
     return wrap(data, std::move(shape), std::move(layout), std::move(strides), std::move(owner), true, validation);
 }
 RecordArray RecordArray::empty_interleaved(Shape shape, RecordLayout layout) {
-    check_layout(layout); const auto n = count(shape), bytes = mul(n, layout.item_size);
-    auto allocation = std::make_shared<Allocation>(); allocation->alignment = std::max(layout.alignment, alignof(std::max_align_t));
-    if (bytes) {
-        auto* raw = ::operator new(bytes, std::align_val_t(allocation->alignment));
-        allocation->data = ::new(raw) std::byte[bytes];
-        for (const auto& f : layout.fields) for (std::size_t i = 0; i < n; ++i) {
-            auto* p = allocation->data + i*layout.item_size + f.offset;
-            if (f.kind == RecordFieldKind::numeric) visit_numeric(f.dtype, [&]<class T> { ::new(static_cast<void*>(p)) T; });
-            else if (f.kind == RecordFieldKind::utf8_ref) ::new(static_cast<void*>(p)) Utf8Ref{};
-            else std::memset(p, 0, f.width);
-        }
-    }
+    check_layout(layout);
+    auto allocation = allocate_records(shape, layout, 0);
     return wrap(allocation->data, std::move(shape), std::move(layout), {}, allocation, true, Validation::none);
 }
 
 Array RecordArrayView::copy_array(std::string_view name) const {
-    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j].info;
+    require(impl_); const auto j = find(impl_->fields, name); const auto& f = impl_->fields[j];
     if (f.kind != RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not numerical");
     if (!impl_->interleaved) {
-        auto out = impl_->fields[j].numeric.copy(); out.set_serialization_byte_order(f.byte_order); return out;
+        auto out = impl_->numeric[j].copy(); out.set_serialization_byte_order(f.byte_order); return out;
     }
-    auto b = numeric_bytes(name); const auto n = size();
+    auto b = numeric_descriptor(impl_, j); const auto n = size();
     auto out = visit_numeric(f.dtype, [&]<class T> {
-        auto a = Array::empty<T>(impl_->shape); auto* dst = a.edit().template dense<T>().data();
-        for (std::size_t i = 0; i < n; ++i) std::memcpy(dst + i, b.flat_ptr(i), sizeof(T));
+        auto a = Array::empty<T>(impl_->shape);
+        copy_members(b, a.edit().bytes().data(), sizeof(T), n);
         return a;
     });
     out.set_serialization_byte_order(f.byte_order); return out;
 }
 StringArray RecordArrayView::copy_strings(std::string_view name) const {
-    auto v = text(name); std::vector<char> bytes; std::vector<std::uint64_t> offsets{0}; offsets.reserve(size() + 1);
-    for (std::size_t i = 0; i < v.size(); ++i) {
-        auto s = v.string(i); (void)add(bytes.size(), s.size());
-        if (!s.empty()) bytes.insert(bytes.end(), s.data(), s.data() + s.size());
-        offsets.push_back(bytes.size());
+    require(impl_); const auto j = find(impl_->fields, name), n = size();
+    if (impl_->fields[j].kind == RecordFieldKind::numeric) fail(ErrorCode::dtype_mismatch, name, "field is not text");
+    std::vector<std::uint64_t> offsets(n + 1, 0);
+    std::size_t bytes = 0;
+    for (std::size_t i = 0; i < n; ++i) { bytes = add(bytes, text_at(*impl_, j, i).size()); offsets[i + 1] = bytes; }
+    std::vector<char> data(bytes);
+    for (std::size_t i = 0; i < n; ++i) {
+        auto s = text_at(*impl_, j, i);
+        if (!s.empty()) std::memcpy(data.data() + offsets[i], s.data(), s.size());
     }
-    return StringArray::from_packed(shape(), std::move(bytes), std::move(offsets));
+    return StringArray::from_packed(shape(), std::move(data), std::move(offsets));
 }
+
 RecordArray RecordArrayView::copy_fields() const {
     validate(); auto out = RecordArray::with_shape(shape());
     for (const auto& f : impl_->fields) {
-        if (f.info.kind == RecordFieldKind::numeric) out.set(f.info.name, copy_array(f.info.name));
-        else out.set(f.info.name, copy_strings(f.info.name));
+        if (f.kind == RecordFieldKind::numeric) out.set(f.name, copy_array(f.name));
+        else out.set(f.name, copy_strings(f.name));
     }
     return out;
 }
@@ -492,7 +623,7 @@ RecordArray RecordArrayView::copy_interleaved(RecordLayout layout) const {
     if (layout.fields.size() != n_fields()) fail(ErrorCode::shape_mismatch, {}, "layout field count differs");
     std::size_t bytes = 0; const auto n = size();
     for (std::size_t j = 0; j < n_fields(); ++j) {
-        auto& f = layout.fields[j]; const auto& g = impl_->fields[j].info;
+        auto& f = layout.fields[j]; const auto& g = impl_->fields[j];
         if (f.name != g.name || ((f.kind == RecordFieldKind::numeric) != (g.kind == RecordFieldKind::numeric)) ||
             (f.kind == RecordFieldKind::numeric && f.dtype != g.dtype))
             fail(ErrorCode::dtype_mismatch, f.name, "layout must preserve ordered field names and scalar types");
@@ -507,26 +638,21 @@ RecordArray RecordArrayView::copy_interleaved(RecordLayout layout) const {
             }
         }
     }
-    auto out = RecordArray::empty_interleaved(shape(), std::move(layout));
-    auto allocation = std::make_shared<Allocation>(); allocation->text.resize(bytes);
-    // Keep the native record allocation and the final, non-growing text arena.
-    struct Owners { std::shared_ptr<const void> records; std::shared_ptr<Allocation> text; };
-    auto owners = std::make_shared<Owners>(Owners{out.impl_->owner, allocation}); out.impl_->owner = owners;
+    auto allocation = allocate_records(impl_->shape, layout, bytes);
+    auto out = RecordArray::wrap(allocation->data, impl_->shape, std::move(layout), {}, allocation, true, Validation::none);
     std::size_t k = 0;
-    for (const auto& f : out.impl_->layout.fields) {
+    for (std::size_t j = 0; j < out.impl_->fields.size(); ++j) {
+        const auto& f = out.impl_->fields[j];
         if (f.kind == RecordFieldKind::numeric) {
-            auto b = numeric_bytes(f.name);
-            for (std::size_t i = 0; i < n; ++i)
-                std::memcpy(static_cast<std::byte*>(out.impl_->data) + i*out.impl_->layout.item_size + f.offset, b.flat_ptr(i), f.width);
-        } else {
-            auto s = text(f.name);
-            for (std::size_t i = 0; i < n; ++i) {
-                auto value = s.string(i); auto* p = static_cast<std::byte*>(out.impl_->data) + i*out.impl_->layout.item_size + f.offset;
-                if (f.kind == RecordFieldKind::utf8_ref) {
-                    if (value.size()) std::memcpy(allocation->text.data() + k, value.data(), value.size());
-                    *reinterpret_cast<Utf8Ref*>(p) = {value.size() ? allocation->text.data() + k : nullptr, value.size()}; k += value.size();
-                } else if (value.size()) std::memcpy(p, value.data(), value.size());
-            }
+            auto b = numeric_descriptor(impl_, j);
+            if (n) copy_members(b, static_cast<std::byte*>(out.impl_->data) + f.offset, out.impl_->item_size, n);
+        } else for (std::size_t i = 0; i < n; ++i) {
+            const auto value = text_at(*impl_, j, i);
+            auto* p = static_cast<std::byte*>(out.impl_->data) + i*out.impl_->item_size + f.offset;
+            if (f.kind == RecordFieldKind::utf8_ref) {
+                if (!value.empty()) std::memcpy(allocation->text.data() + k, value.data(), value.size());
+                *reinterpret_cast<Utf8Ref*>(p) = {value.empty() ? nullptr : allocation->text.data() + k, value.size()}; k += value.size();
+            } else if (!value.empty()) std::memcpy(p, value.data(), value.size());
         }
     }
     return out;

@@ -1,5 +1,6 @@
 #include <array>
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -108,6 +109,33 @@ void lazy_selections() {
     expect_error(ErrorCode::out_of_bounds,
         [&] { (void)original.select({Axis::gather({2}), Axis::all()}); },
         "selection checks axis bounds");
+}
+
+void selected_packed_copy_boundaries() {
+    using namespace anndatapp;
+    auto values = StringArray::from_strings(
+        {2, 3}, {"a", "b", "c", "d", "e", "f"});
+    auto selected = values.view().select({
+        Axis::gather({1, 0, 1}), Axis::gather({2, 0})});
+    auto packed = selected.copy();
+    const char expected[]{'f', 'd', 'c', 'a', 'f', 'd'};
+    const auto& view = packed.view();
+    expect(view.size() == 6 && view.byte_size() == sizeof(expected) &&
+           std::memcmp(view.bytes(), expected, sizeof(expected)) == 0 &&
+           view.offsets()[0] == 0 && view.offsets()[6] == sizeof(expected),
+           "selected packed copy preserves order, repeated rows, and final byte extent");
+    for (std::size_t i = 0; i <= sizeof(expected); ++i)
+        expect(view.offsets()[i] == i,
+               "selected packed copy writes exact final offsets");
+    expect(view.bytes() != values.view().storage_bytes() &&
+           view.offsets() != values.view().storage_offsets(),
+           "selected packed copy owns independent byte and offset buffers");
+
+    auto unchecked = StringArray::from_packed(
+        {2}, {'a', static_cast<char>(0xff)}, {0, 1, 2}, Validation::none);
+    auto malformed = unchecked.view().select({Axis::gather({1})});
+    expect_error(ErrorCode::invalid_argument, [&] { (void)malformed.copy(); },
+                 "selected materialization validates bytes changed or imported without validation");
 }
 
 void compact_string_axes() {
@@ -546,6 +574,7 @@ void categorical_string_array_colors() {
 int main() {
     packed_layout_and_copy();
     lazy_selections();
+    selected_packed_copy_boundaries();
     compact_string_axes();
     external_buffers();
     packed_storage_lifetimes();
