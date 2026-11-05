@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-import anndata.streaming;
+import anndatapp.streaming;
 namespace { bool measuring=false; std::size_t largest_allocation=0; }
 // TSan owns new/delete interception; native and ASan builds check allocation size.
 #if !__has_feature(thread_sanitizer)
@@ -27,7 +27,7 @@ void operator delete(void* p,std::size_t) noexcept { std::free(p); }
 void operator delete[](void* p,std::size_t) noexcept { std::free(p); }
 #endif
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 void check(bool p,std::string_view s) {if(!p)throw std::runtime_error(std::string(s));}
 template<class F> void bad(F&& f) {try{f();}catch(const Error&){return;}throw std::runtime_error("expected error");}
 StorageGeometry geometry(std::vector<std::size_t> shape,std::vector<std::size_t> chunks={},std::vector<std::size_t> shard={}) {

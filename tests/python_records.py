@@ -23,7 +23,7 @@ def run(driver: str, *args: object, fail: str = "", path: str = "") -> None:
     p = subprocess.run(cmd, text=True, capture_output=True, timeout=120)
     if fail:
         assert p.returncode != 0, (cmd, p.stdout, p.stderr)
-        assert f"anndata error[{fail}]" in p.stderr, (cmd, p.stderr)
+        assert f"anndatapp error[{fail}]" in p.stderr, (cmd, p.stderr)
         assert path in p.stderr, (cmd, p.stderr)
     elif p.returncode:
         raise AssertionError(f"{cmd} failed ({p.returncode})\n{p.stdout}\n{p.stderr}")
@@ -150,8 +150,8 @@ def directory_bytes(root: Path) -> list[tuple[str, bytes | None]]:
 def main() -> None:
     if len(sys.argv) != 2: raise SystemExit("usage: python_records.py DRIVER")
     driver = sys.argv[1]
-    saved = os.environ.get("ANNDATA_RECORD_FIXTURE_DIR")
-    directory = nullcontext(saved) if saved else tempfile.TemporaryDirectory(prefix="anndata-record-interop-")
+    saved = os.environ.get("ANNDATAPP_RECORD_FIXTURE_DIR")
+    directory = nullcontext(saved) if saved else tempfile.TemporaryDirectory(prefix="anndatapp-record-interop-")
     with directory as temp:
         root = Path(temp)
         if saved: root.mkdir(parents=True, exist_ok=False)

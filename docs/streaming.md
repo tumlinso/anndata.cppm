@@ -1,7 +1,7 @@
 # Reusable backed block I/O
 
-`import anndata.streaming;` provides caller-executed block streams and imports
-the backed data API. The ordinary `anndata` facade also exports it. The core
+`import anndatapp.streaming;` provides caller-executed block streams and imports
+the backed data API. The ordinary `anndatapp` facade also exports it. The core
 module retains its dependency-free memory interface.
 
 `BackedArray::storage_geometry()` describes physical source storage separately
@@ -41,19 +41,19 @@ discard and recreate the context before reading the modified structure.
 For example, a single caller can reuse one float32 buffer with manual settings:
 
 ```cpp
-import anndata;
+import anndatapp;
 
 int main() {
-    auto disk = anndata::open_h5ad("input.h5ad");
+    auto disk = anndatapp::open_h5ad("input.h5ad");
     auto io = disk.x().prepare_transfer();
-    anndata::StreamOptions options;
-    options.mode = anndata::StreamMode::manual;
-    anndata::BlockStream blocks(io.geometry(), options);
-    auto storage = anndata::Array::empty<float>({options.max_block_bytes/sizeof(float)});
+    anndatapp::StreamOptions options;
+    options.mode = anndatapp::StreamMode::manual;
+    anndatapp::BlockStream blocks(io.geometry(), options);
+    auto storage = anndatapp::Array::empty<float>({options.max_block_bytes/sizeof(float)});
     float* p = storage.edit().dense<float>().data();
     while (auto block = blocks.next()) {
         io.read_into(block->start, block->count,
-                     anndata::DenseBuffer::from(p, block->count));
+                     anndatapp::DenseBuffer::from(p, block->count));
         // Work directly with p and block->count; no transfer machinery runs here.
         blocks.complete(*block, block->estimated_bytes);
     }

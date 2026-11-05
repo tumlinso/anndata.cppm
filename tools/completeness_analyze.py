@@ -148,7 +148,7 @@ def main() -> None:
                                   "max_concurrent_x_pread":v["counters"]["max_concurrent_x_pread"],
                                   "trials":v["result"]["trials"],"adaptations":v["result"]["adaptations"],
                                   "trace":v["result"]["trace"]} for version,v in (("baseline",a),("candidate",b))}
-    result={"schema":"anndata.completeness.analysis.v1","baseline_sha256":digest(args.baseline),
+    result={"schema":"anndatapp.completeness.analysis.v1","baseline_sha256":digest(args.baseline),
             "candidate_sha256":digest(args.candidate),"fixture_manifest_sha256":digest(args.fixtures/"manifest.json"),
             "method":"Independent end-index length parsing; total Zstd output/input bytes divided by full inner chunk bytes. Interposed calls exclude direct syscalls and mmap. One observation per case; source fixture, codec and settings match.",
             "cases":cases,"adaptive":adaptive}

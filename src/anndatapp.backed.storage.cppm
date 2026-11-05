@@ -10,10 +10,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.backed:storage;
-import anndata.backed;
+module anndatapp.backed:storage;
+import anndatapp.backed;
 
-namespace anndata {
+namespace anndatapp {
 namespace backed_detail {
 using Attribute = std::variant<std::string, std::vector<std::string>, std::int64_t,
                                std::vector<std::int64_t>, bool, double>;
@@ -282,4 +282,4 @@ struct BackedDataset {
     std::shared_ptr<const std::vector<backed_detail::SliceStage>> slice_history;
 };
 } // namespace detail
-} // namespace anndata
+} // namespace anndatapp

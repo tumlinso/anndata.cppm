@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
 void require(bool condition, std::string_view message) {
@@ -17,17 +17,17 @@ void require(bool condition, std::string_view message) {
 }
 
 template<class T>
-anndata::Array dense(std::initializer_list<std::size_t> shape,
+anndatapp::Array dense(std::initializer_list<std::size_t> shape,
                      std::initializer_list<T> values) {
-    auto result = anndata::Array::empty<T>(shape);
+    auto result = anndatapp::Array::empty<T>(shape);
     auto access = result.edit().template dense<T>();
     std::size_t i = 0;
     for (T value : values) access.data()[i++] = value;
     return result;
 }
 
-anndata::AnnData fixture() {
-    using namespace anndata;
+anndatapp::AnnData fixture() {
+    using namespace anndatapp;
     auto data = AnnData::empty(3, 2);
     data.set_x(dense<float>({3, 2}, {1, 2, 3, 4, 5, 6}));
 
@@ -71,8 +71,8 @@ anndata::AnnData fixture() {
     return data;
 }
 
-void check(const anndata::AnnData& data) {
-    using namespace anndata;
+void check(const anndatapp::AnnData& data) {
+    using namespace anndatapp;
     require(data.n_obs() == 3 && data.n_vars() == 2, "round-trip shape differs");
     require(data.x().dtype() == DType::float32, "X dtype differs");
     auto x = data.x().dense<float>();
@@ -107,7 +107,7 @@ void check(const anndata::AnnData& data) {
 }
 
 void check_trusted_validation(const std::filesystem::path& path) {
-    using namespace anndata;
+    using namespace anndatapp;
     auto data = AnnData::empty(2, 2);
     auto sparse = Array::csr<float, std::int32_t, std::int32_t>(2, 2, 1);
     auto view = sparse.edit().csr<float, std::int32_t, std::int32_t>();
@@ -146,7 +146,7 @@ void check_trusted_validation(const std::filesystem::path& path) {
 }
 
 void check_reserved_index_name(const std::filesystem::path& path) {
-    using namespace anndata;
+    using namespace anndatapp;
     auto data = AnnData::empty(1, 1);
     data.set_obs(Table::with_index({"cell"}, "_index"));
     bool rejected = false;
@@ -166,29 +166,29 @@ int main(int argc, char** argv) {
         std::filesystem::create_directories(root);
         const auto path = root / "simple.h5ad";
         auto data = fixture();
-        anndata::write_h5ad(path.string(), data);
-        auto reopened = anndata::read_h5ad(path.string());
+        anndatapp::write_h5ad(path.string(), data);
+        auto reopened = anndatapp::read_h5ad(path.string());
         check(reopened);
 
         const auto gzip_path = root / "gzip.h5ad";
-        anndata::WriteOptions gzip;
-        gzip.compression = anndata::Compression::gzip;
-        anndata::write_h5ad(gzip_path.string(), data.view(), gzip);
-        check(anndata::read_h5ad(gzip_path.string()));
+        anndatapp::WriteOptions gzip;
+        gzip.compression = anndatapp::Compression::gzip;
+        anndatapp::write_h5ad(gzip_path.string(), data.view(), gzip);
+        check(anndatapp::read_h5ad(gzip_path.string()));
 
-        anndata::WriteOptions exclusive;
-        exclusive.mode = anndata::WriteMode::exclusive;
+        anndatapp::WriteOptions exclusive;
+        exclusive.mode = anndatapp::WriteMode::exclusive;
         bool rejected_existing = false;
-        try { anndata::write_h5ad(path.string(), data, exclusive); }
-        catch (const anndata::Error& error) {
-            rejected_existing = error.code() == anndata::ErrorCode::io_error;
+        try { anndatapp::write_h5ad(path.string(), data, exclusive); }
+        catch (const anndatapp::Error& error) {
+            rejected_existing = error.code() == anndatapp::ErrorCode::io_error;
         }
         require(rejected_existing, "exclusive mode must reject an existing file");
 
         const auto view_path = root / "selected-view.h5ad";
-        auto selected = data.slice(anndata::indices{2, 0}, anndata::indices{1});
-        anndata::write_h5ad(view_path.string(), selected);
-        auto view_read = anndata::read_h5ad(view_path.string());
+        auto selected = data.slice(anndatapp::indices{2, 0}, anndatapp::indices{1});
+        anndatapp::write_h5ad(view_path.string(), selected);
+        auto view_read = anndatapp::read_h5ad(view_path.string());
         require(view_read.n_obs() == 2 && view_read.n_vars() == 1,
                 "selected view shape/order differs");
         require(view_read.obs().name(0) == "c2" && view_read.obs().name(1) == "c0" &&
@@ -201,31 +201,31 @@ int main(int argc, char** argv) {
                 "selected pairwise view shape differs");
 
         bool failed_missing_path = false;
-        try { (void)anndata::read_h5ad((root / "absent.h5ad").string()); }
-        catch (const anndata::Error& error) {
-            failed_missing_path = error.code() == anndata::ErrorCode::io_error;
+        try { (void)anndatapp::read_h5ad((root / "absent.h5ad").string()); }
+        catch (const anndatapp::Error& error) {
+            failed_missing_path = error.code() == anndatapp::ErrorCode::io_error;
         }
         require(failed_missing_path, "missing input must be an I/O error");
 
-        auto zero_rows = anndata::AnnData::empty(0, 2);
-        zero_rows.set_x(anndata::Array::empty<float>({0, 2}));
-        zero_rows.set_obs(anndata::Table::with_index(std::vector<std::string>{}, "cell_id"));
-        zero_rows.set_var(anndata::Table::with_index({"g0", "g1"}, "gene_id"));
+        auto zero_rows = anndatapp::AnnData::empty(0, 2);
+        zero_rows.set_x(anndatapp::Array::empty<float>({0, 2}));
+        zero_rows.set_obs(anndatapp::Table::with_index(std::vector<std::string>{}, "cell_id"));
+        zero_rows.set_var(anndatapp::Table::with_index({"g0", "g1"}, "gene_id"));
         const auto empty_path = root / "empty.h5ad";
-        anndata::write_h5ad(empty_path.string(), zero_rows);
-        auto empty_read = anndata::read_h5ad(empty_path.string());
+        anndatapp::write_h5ad(empty_path.string(), zero_rows);
+        auto empty_read = anndatapp::read_h5ad(empty_path.string());
         require(empty_read.n_obs() == 0 && empty_read.n_vars() == 2 && empty_read.has_x(),
                 "zero-sized axis or X presence differs");
         require(empty_read.x().extent(0) == 0 && empty_read.x().extent(1) == 2,
                 "zero-sized dimensions differ");
 
-        auto without_x = anndata::AnnData::empty(1, 1);
-        without_x.set_obs(anndata::Table::with_index({"cell"}, "cell_id"));
-        without_x.set_var(anndata::Table::with_index({"gene"}, "gene_id"));
-        without_x.set_raw(anndata::Table::with_index({"raw-gene"}, "gene_id"));
+        auto without_x = anndatapp::AnnData::empty(1, 1);
+        without_x.set_obs(anndatapp::Table::with_index({"cell"}, "cell_id"));
+        without_x.set_var(anndatapp::Table::with_index({"gene"}, "gene_id"));
+        without_x.set_raw(anndatapp::Table::with_index({"raw-gene"}, "gene_id"));
         const auto no_x_path = root / "no-x-raw.h5ad";
-        anndata::write_h5ad(no_x_path.string(), without_x);
-        auto no_x_read = anndata::read_h5ad(no_x_path.string());
+        anndatapp::write_h5ad(no_x_path.string(), without_x);
+        auto no_x_read = anndatapp::read_h5ad(no_x_path.string());
         require(!no_x_read.has_x() && no_x_read.has_raw() && !no_x_read.has_raw_x(),
                 "optional X and raw without X differ");
 

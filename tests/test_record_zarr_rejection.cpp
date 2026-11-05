@@ -5,10 +5,10 @@
 #include <iterator>
 #include <string>
 
-import anndata;
+import anndatapp;
 
 namespace fs = std::filesystem;
-using namespace anndata;
+using namespace anndatapp;
 
 namespace {
 int failures = 0;
@@ -46,7 +46,7 @@ int main(int argc,char** argv) {
             auto absent=p; absent+="-new";
             rejects([&] { write_zarr(absent.string(),data.view(),options); });
             check(!fs::exists(absent),"record rejection created a new destination");
-#if ANNDATA_HAS_HDF5
+#if ANNDATAPP_HAS_HDF5
             const auto source=root/(format==ZarrFormat::v2?"v2-source.h5ad":"v3-source.h5ad");
             write_h5ad(source.string(),data);
             auto backed=open_h5ad(source.string());

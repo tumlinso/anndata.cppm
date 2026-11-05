@@ -89,8 +89,8 @@ def main() -> None:
                      "wall_seconds": time.monotonic() - started, "stdout": run.stdout, "stderr": run.stderr}
             if run.returncode == 0:
                 entry["result"] = json.loads(run.stdout)
-                counter_lines = [line.removeprefix("ANNDATA_PROBE ") for line in run.stderr.splitlines()
-                                 if line.startswith("ANNDATA_PROBE ")]
+                counter_lines = [line.removeprefix("ANNDATAPP_PROBE ") for line in run.stderr.splitlines()
+                                 if line.startswith("ANNDATAPP_PROBE ")]
                 if len(counter_lines) != 1: raise ValueError("expected exactly one counter record")
                 entry["counters"] = json.loads(counter_lines[0])
                 if entry["counters"]["read_rejections"] or entry["counters"]["write_rejections"]:
@@ -114,7 +114,7 @@ def main() -> None:
                     # Independent post-run readback is deliberately outside
                     # both the timed operation and intercepted-I/O caps.
                     try:
-                        if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+                        if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
                             from python_storage import install_restricted_runner_wakeup
                             install_restricted_runner_wakeup()
                         import numpy as np

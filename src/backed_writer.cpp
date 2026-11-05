@@ -15,11 +15,11 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
-import anndata.core;
+module anndatapp.backed;
+import anndatapp.core;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 
 using Shape = std::vector<std::size_t>;
@@ -366,11 +366,11 @@ void write_array(Backend& backend, std::string_view path, ArrayView array, std::
                         bytes->data() + offset + static_cast<std::ptrdiff_t>(first + i) * column_stride, width);
                 backend.write_numeric(path, start, tile_shape, packed.data());
             } else {
-                std::vector<anndata::Axis> selectors;
+                std::vector<anndatapp::Axis> selectors;
                 selectors.reserve(shape.size());
                 for (std::size_t axis = 0; axis + 1 < shape.size(); ++axis)
-                    selectors.push_back(anndata::Axis::stride(start[axis], 1));
-                selectors.push_back(anndata::Axis::stride(first, length));
+                    selectors.push_back(anndatapp::Axis::stride(start[axis], 1));
+                selectors.push_back(anndatapp::Axis::stride(first, length));
                 auto tile = array.select(selectors.data(), selectors.size()).copy(Validation::none);
                 auto tile_bytes = tile.view().bytes();
                 backend.write_numeric(path, start, tile_shape, tile_bytes.data());
@@ -765,4 +765,4 @@ void initialize_store(Backend& backend, const AnnDataView& source, std::size_t s
     backend.flush();
 }
 
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail

@@ -1,23 +1,32 @@
-# anndata.cppm
+# AnnData++
+
+AnnData++ is an independently developed C++20 implementation of the AnnData data model. It is a separate project from the Python AnnData package. No affiliation with or endorsement by the AnnData or scverse maintainers is implied.
 
 A standalone C++20 library for annotated biological data, with named modules and direct control of numerical memory.
 
+The [Python AnnData project](https://github.com/scverse/anndata) defines the data model and [storage conventions](https://anndata.readthedocs.io/en/stable/fileformat-prose.html) followed here.
+
 The library provides **in-memory and backed AnnData data, H5AD, and Zarr v2/v3**: dense arrays, CSR/CSC, heterogeneous metadata, annotated matrices, read-only slices, and versioned codecs. Backed access loads selected data into owned or caller-provided buffers and supports direct structural updates. Python, Cellerator, Torch, and Arrow are not runtime dependencies; a core-only build requires no storage backend.
 
+```cmake
+find_package(anndatapp CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE anndatapp::anndatapp)
+```
+
 ```cpp
-import anndata;
+import anndatapp;
 
 int main() {
-    auto data = anndata::AnnData::empty(3, 2);
-    data.set_x(anndata::Array::empty<float>({3, 2}));
+    auto data = anndatapp::AnnData::empty(3, 2);
+    data.set_x(anndatapp::Array::empty<float>({3, 2}));
     auto x = data.edit_x().dense<float>();
     float* p = x.data();
     for (int i = 0; i < 6; ++i)
         p[i] = static_cast<float>(i);
-    auto selected = data.slice(anndata::indices{0, 2}, anndata::all);
+    auto selected = data.slice(anndatapp::indices{0, 2}, anndatapp::all);
     auto independent = selected.copy();
-    anndata::write_h5ad("selected.h5ad", independent);
-    auto loaded = anndata::read_h5ad("selected.h5ad");
+    anndatapp::write_h5ad("selected.h5ad", independent);
+    auto loaded = anndatapp::read_h5ad("selected.h5ad");
 }
 ```
 
@@ -40,15 +49,16 @@ ctest --preset debug
 
 The native test suite needs no Python. Optional interoperability tests independently generate and reopen H5AD and Zarr files with Python AnnData. See the [H5AD encoding subset](docs/h5ad.md) and [backed storage contracts](docs/storage.md).
 
-Use `cmake --workflow --preset core-only` for a dependency-free build. `hdf5-only` and `zarr-only` qualify single-backend packages. `import anndata.core;` remains the smallest in-memory interface; `anndata.backed`, `anndata.streaming`, `anndata.h5ad`, and `anndata.zarr` are independently importable named modules.
+Use `cmake --workflow --preset core-only` for a dependency-free build. `hdf5-only` and `zarr-only` qualify single-backend packages. `import anndatapp.core;` remains the smallest in-memory interface; `anndatapp.backed`, `anndatapp.streaming`, `anndatapp.h5ad`, and `anndatapp.zarr` are independently importable named modules.
 
-Consumers can use `add_subdirectory()` or install the package and link `anndata::anndata` through `find_package(anndata CONFIG REQUIRED)`. `import anndata.core;` provides the independently importable core; `import anndata;` is the convenience facade. Module sources and CMake metadata are installed so consumers build BMIs with their own compatible toolchain. There is no public umbrella header and no requirement for `import std;`.
+Consumers can use `add_subdirectory()` or install the package and link `anndatapp::anndatapp` through `find_package(anndatapp CONFIG REQUIRED)`. `import anndatapp.core;` provides the independently importable core; `import anndatapp;` is the convenience facade. Module sources and CMake metadata are installed so consumers build BMIs with their own compatible toolchain. There is no public umbrella header and no requirement for `import std;`.
 
 ## Design and evidence
 
 - [Architecture and compatibility matrix](docs/architecture.md)
 - [Extension contracts and qualification requirements](docs/extension-contract.md)
 - [Development, installation, and validation](docs/development.md)
+- [Naming cutover validation](docs/rename-validation.md)
 - [Memory access and ownership](docs/memory.md)
 - [Native records and compound H5AD elements](docs/records.md)
 - [Compact selection and direct metadata validation](docs/selection-validation.md)

@@ -1,7 +1,7 @@
 // Paired gather probe: allocation counts cover regular throwing scalar/array
 // new and delete only; aligned/nothrow forms and direct C allocation are outside
 // this counter. The measured cases use ordinary size_t-aligned allocations.
-import anndata.core;
+import anndatapp.core;
 
 #include <algorithm>
 #include <array>
@@ -50,7 +50,7 @@ void operator delete(void* p, std::size_t) noexcept { allocation_probe::release(
 void operator delete[](void* p, std::size_t) noexcept { allocation_probe::release(p); }
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 constexpr std::uint64_t hash_seed = 1469598103934665603ULL;
 constexpr std::uint64_t hash_prime = 1099511628211ULL;
@@ -299,14 +299,14 @@ void run_size(std::size_t n, std::size_t trial_count) {
     auto data = AnnData::empty(n, 1);
     data.set_obs(Table::with_index(labels));
     data.set_x(Array::borrow_dense(&scalar, {n, 1}, {0, 0}, Validation::none));
-    const Selection selection(anndata::indices{std::move(selected_indices)});
+    const Selection selection(anndatapp::indices{std::move(selected_indices)});
     const auto ann_checksum = ann_data_slice<true>(data, selection, indices, labels, n, &scalar);
     const auto ann_count = count_once([&] {
         return ann_data_slice<true>(data, selection, indices, labels, n, &scalar);
     });
     const auto ann_trials = time_case(trial_count, repeat, ann_checksum,
         [&] { return ann_data_slice<false>(data, selection, indices, labels, n, &scalar); });
-    report("anndata_slice", n, repeat, trial_count, ann_count, ann_trials);
+    report("anndatapp_slice", n, repeat, trial_count, ann_count, ann_trials);
 
     require(check_axis(retained, indices) == expected_axis_hash,
             "retained gather changed after probe cases");

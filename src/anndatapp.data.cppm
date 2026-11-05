@@ -11,12 +11,12 @@ module;
 #include <utility>
 #include <vector>
 
-export module anndata.core:data;
+export module anndatapp.core:data;
 export import :arrays;
 export import :strings;
 export import :records;
 
-export namespace anndata {
+export namespace anndatapp {
 
 namespace detail {
 struct ColumnImpl;
@@ -442,4 +442,4 @@ private:
     friend class AnnData;
 };
 
-} // namespace anndata
+} // namespace anndatapp

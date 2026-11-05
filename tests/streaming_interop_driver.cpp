@@ -12,10 +12,10 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 constexpr std::size_t n = 35, m = 67;
 
 void require(bool value, std::string_view message) {

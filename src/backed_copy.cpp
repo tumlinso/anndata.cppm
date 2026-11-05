@@ -17,10 +17,10 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 using Node = std::shared_ptr<detail::BackedNode>;
 [[noreturn]] void fail(ErrorCode code,std::string_view path,std::string message) { throw Error(code,std::string(path),std::move(message)); }
@@ -374,9 +374,9 @@ void export_store(Backend& destination,const BackedAnnDataView& original,std::si
     }
     destination.flush();
 }
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail
 
-namespace anndata {
+namespace anndatapp {
 void BackedAnnData::validate_all() const {
     backed_detail::Sink sink(location(),impl_->session->backend->identity());
     backed_detail::export_store(sink,view(),impl_->session->options.scratch_bytes,Validation::full);

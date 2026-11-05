@@ -10,10 +10,10 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 
 void require(bool condition, std::string_view message) {
     if (!condition) throw std::runtime_error(std::string(message));
@@ -403,7 +403,7 @@ int main(int argc, char** argv) {
         }
         return 0;
     } catch (const Error& error) {
-        std::cerr << "anndata error[" << code_name(error.code()) << "] ";
+        std::cerr << "anndatapp error[" << code_name(error.code()) << "] ";
         if (!error.path().empty()) std::cerr << error.path() << ": ";
         std::cerr << error.what() << '\n';
         return 1;

@@ -39,7 +39,7 @@ def main():
     versions.update(python=sys.version,h5py_hdf5=h5py.version.hdf5_version,
                     numcodecs_zstd=numcodecs.zstd.__version__,numcodecs_blosc=numcodecs.blosc.VERSION_STRING)
     inputs={str(p.relative_to(root)):sha(p) for p in sorted((root/'src').glob('*')) if p.is_file()}
-    report={'schema':'anndata.cppm.head-to-head.environment.v1','platform':platform.platform(),
+    report={'schema':'anndatapp.head-to-head.environment.v1','platform':platform.platform(),
             'allowed_cpus':sorted(os.sched_getaffinity(0)), 'cpu':run(['lscpu']),
             'filesystem':run(['stat','-f','-c','%T',str(output.parent)]),
             'load_average':os.getloadavg(),'packages':versions,'python_executable':sys.executable,

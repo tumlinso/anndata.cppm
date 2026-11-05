@@ -8,10 +8,10 @@ module;
 #include <utility>
 #include <vector>
 
-export module anndata.backed;
-export import anndata.core;
+export module anndatapp.backed;
+export import anndatapp.core;
 
-export namespace anndata {
+export namespace anndatapp {
 enum class AccessMode { read_only, read_write };
 struct BackedOptions {
     AccessMode mode = AccessMode::read_only;
@@ -377,4 +377,4 @@ void write_zarr_backed(std::string_view, const BackedAnnDataView&, int format, b
 void write_zarr_eager(std::string_view, const AnnDataView&, int format, bool exclusive, std::size_t scratch_bytes, std::string_view compression, int compression_level, Validation validation);
 void write_h5ad_backed(std::string_view, const BackedAnnDataView&, bool exclusive, bool gzip, int gzip_level, std::optional<ByteOrder> byte_order, Validation validation);
 }
-} // namespace anndata
+} // namespace anndatapp

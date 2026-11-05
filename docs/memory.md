@@ -17,11 +17,11 @@ Numerical `ByteOrder` serialization hints describe preferred file representation
 `Array` and `AnnData` are move-only owning resources. `copy()` produces independent numerical data and metadata. Moving an owner transfers it without copying buffers. Read-only `ArrayView` and dataset slices retain the referenced storage. Mutable numerical access is explicit through `edit()` or a dataset's `edit_x()`.
 
 ```cpp
-import anndata;
+import anndatapp;
 
 int main() {
-    auto data = anndata::AnnData::empty(1000, 2000);
-    data.set_x(anndata::Array::empty<float>({1000, 2000}));
+    auto data = anndatapp::AnnData::empty(1000, 2000);
+    data.set_x(anndatapp::Array::empty<float>({1000, 2000}));
     auto x = data.edit_x().dense<float>();
     float* p = x.data();
     auto sr = x.stride(0), sc = x.stride(1);
@@ -43,9 +43,9 @@ All six wrapping factories accept a final `Validation` argument. The default `Va
 
 ```cpp
 // values, indices and offsets remain owned by the caller.
-auto a = anndata::Array::borrow_sparse(
-    anndata::Layout::csr, rows, columns, nnz,
-    values, indices, offsets, anndata::Validation::none);
+auto a = anndatapp::Array::borrow_sparse(
+    anndatapp::Layout::csr, rows, columns, nnz,
+    values, indices, offsets, anndatapp::Validation::none);
 auto csr = a.edit().csr<float, int, long>();
 float* p = csr.values();
 // Run your own kernel directly on p and the structural pointers.
@@ -68,12 +68,12 @@ the positions immediately, including the initializer-list form. Returned views
 retain their mapping and numerical storage independently of selector lifetimes.
 
 ```cpp
-auto v = data.x().select({anndata::Axis::stride(8, 4, 2, true),
-                         anndata::Axis::all()});
+auto v = data.x().select({anndatapp::Axis::stride(8, 4, 2, true),
+                         anndatapp::Axis::all()});
 auto x = v.dense<float>();  // rows 8, 6, 4, 2; signed element strides
 
-const anndata::Axis a[] = {anndata::Axis::gather({2, 0, 2}),
-                           anndata::Axis::all()};
+const anndatapp::Axis a[] = {anndatapp::Axis::gather({2, 0, 2}),
+                           anndatapp::Axis::all()};
 auto gathered = data.x().select(a, 2);
 auto owned = gathered.copy();
 ```
@@ -129,10 +129,10 @@ logical strings, and selected string `copy()` materializes packed storage.
 
 ```cpp
 #include <cstdint>
-import anndata;
+import anndatapp;
 
 int main() {
-    auto a = anndata::Array::csr<float, std::int32_t, std::int64_t>(2, 3, 2);
+    auto a = anndatapp::Array::csr<float, std::int32_t, std::int64_t>(2, 3, 2);
     auto csr = a.edit().csr<float, std::int32_t, std::int64_t>();
     csr.values()[0] = 1.0f;
     csr.values()[1] = 2.0f;

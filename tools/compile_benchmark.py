@@ -167,8 +167,8 @@ def configure(snapshot_dir: Path, build: Path, compiler: str, config: str) -> di
     build.mkdir(parents=True)
     cmd = ["cmake", "-S", str(snapshot_dir), "-B", str(build), "-G", "Ninja",
            f"-DCMAKE_CXX_COMPILER={compiler}", f"-DCMAKE_BUILD_TYPE={config}",
-           "-DANNDATA_BUILD_TESTS=OFF", "-DANNDATA_BUILD_EXAMPLES=ON",
-           "-DANNDATA_BUILD_BENCHMARKS=OFF", "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"]
+           "-DANNDATAPP_BUILD_TESTS=OFF", "-DANNDATAPP_BUILD_EXAMPLES=ON",
+           "-DANNDATAPP_BUILD_BENCHMARKS=OFF", "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF"]
     wall, code, output = checked(cmd)
     return {"command": cmd, "wall_seconds": wall, "returncode": code,
             "output_tail": output[-2000:]}
@@ -177,20 +177,20 @@ def configure(snapshot_dir: Path, build: Path, compiler: str, config: str) -> di
 def module_probe_sources(snapshot_dir: Path) -> None:
     (snapshot_dir / "bench-probes").mkdir(exist_ok=True)
     (snapshot_dir / "bench-probes" / "core.cpp").write_text(
-        "import anndata.core;\n"
-        "int main() { auto a=anndata::AnnData::empty(2,2); "
-        "a.set_x(anndata::Array::zeros<float>({2,2})); "
+        "import anndatapp.core;\n"
+        "int main() { auto a=anndatapp::AnnData::empty(2,2); "
+        "a.set_x(anndatapp::Array::zeros<float>({2,2})); "
         "return a.x().extent(0)==2 ? 0 : 1; }\n")
     (snapshot_dir / "bench-probes" / "facade.cpp").write_text(
-        "import anndata;\n"
-        "int main() { auto a=anndata::AnnData::empty(2,2); "
-        "a.set_x(anndata::Array::zeros<float>({2,2})); "
+        "import anndatapp;\n"
+        "int main() { auto a=anndatapp::AnnData::empty(2,2); "
+        "a.set_x(anndatapp::Array::zeros<float>({2,2})); "
         "return a.x().extent(0)==2 ? 0 : 1; }\n")
     with (snapshot_dir / "CMakeLists.txt").open("a") as f:
         f.write("\nadd_executable(bench_core bench-probes/core.cpp)\n"
-                "target_link_libraries(bench_core PRIVATE anndata::anndata)\n"
+                "target_link_libraries(bench_core PRIVATE anndatapp::anndatapp)\n"
                 "add_executable(bench_facade bench-probes/facade.cpp)\n"
-                "target_link_libraries(bench_facade PRIVATE anndata::anndata)\n")
+                "target_link_libraries(bench_facade PRIVATE anndatapp::anndatapp)\n")
 
 
 def measure(args: argparse.Namespace) -> dict:
@@ -201,7 +201,7 @@ def measure(args: argparse.Namespace) -> dict:
                     if compiler_major_match else "clang-scan-deps")
     scanner_version = (get_command_output([scanner_name, "--version"])
                        or get_command_output(["clang-scan-deps", "--version"]))
-    tmp = Path(tempfile.mkdtemp(prefix="anndata-module-benchmark-"))
+    tmp = Path(tempfile.mkdtemp(prefix="anndatapp-module-benchmark-"))
     cpu_model = None
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
@@ -214,7 +214,7 @@ def measure(args: argparse.Namespace) -> dict:
         load_average = list(os.getloadavg())
     except (AttributeError, OSError):
         load_average = None
-    results: dict = {"schema": "anndata.module-compile-benchmark.v1",
+    results: dict = {"schema": "anndatapp.module-compile-benchmark.v1",
                      "source_root": str(source),
                      "snapshot_root": "temporary generated sources and builds removed after successful run",
                      "source_manifest_sha256": None,
@@ -237,7 +237,7 @@ def measure(args: argparse.Namespace) -> dict:
     module_probe_sources(snap)
     results["source_manifest_sha256"] = source_manifest_digest(snap)
     results["build_input_hashes"] = build_inputs(snap)
-    results["module_layout"] = {"core_import": "anndata.core", "facade_import": "anndata",
+    results["module_layout"] = {"core_import": "anndatapp.core", "facade_import": "anndatapp",
                                 "optional_format_modules": "none implemented in this snapshot"}
     configure_rows: list[float] = []
     cold_rows: list[float] = []
@@ -260,14 +260,14 @@ def measure(args: argparse.Namespace) -> dict:
         build = run_root / "build"
         conf = configure(run_source, build, compiler, args.configuration)
         configure_rows.append(conf["wall_seconds"])
-        build_cmd = ["cmake", "--build", str(build), "--target", "anndata", "anndata_example",
+        build_cmd = ["cmake", "--build", str(build), "--target", "anndatapp", "anndatapp_example",
                      "--parallel", str(args.jobs), "--verbose"]
         cold = timed(build_cmd, run_root / "cold.log")
         cold_rows.append(cold["wall_seconds"])
         bmi_before = bmi_files(build)
         object_before = object_records(build)
         # Match the no-op and consumer-edit target sets exactly.
-        consumer_build_cmd = ["cmake", "--build", str(build), "--target", "anndata_example",
+        consumer_build_cmd = ["cmake", "--build", str(build), "--target", "anndatapp_example",
                               "--parallel", str(args.jobs), "--verbose"]
         baseline = timed(consumer_build_cmd, run_root / "noop-consumer.log")
         no_op_rows.append(baseline["wall_seconds"])
@@ -281,7 +281,7 @@ def measure(args: argparse.Namespace) -> dict:
         consumer_after_bmi = bmi_files(build)
         consumer_after_object = object_records(build)
 
-        library_build_cmd = ["cmake", "--build", str(build), "--target", "anndata",
+        library_build_cmd = ["cmake", "--build", str(build), "--target", "anndatapp",
                              "--parallel", str(args.jobs), "--verbose"]
         no_op_library = timed(library_build_cmd, run_root / "noop-library.log")
         no_op_library_rows.append(no_op_library["wall_seconds"])
@@ -293,9 +293,9 @@ def measure(args: argparse.Namespace) -> dict:
         impl_bmi = bmi_files(build)
         impl_object = object_records(build)
 
-        iface_file = run_source / "src" / "anndata.arrays.cppm"
+        iface_file = run_source / "src" / "anndatapp.arrays.cppm"
         content = iface_file.read_text()
-        marker = "} // namespace anndata"
+        marker = "} // namespace anndatapp"
         if marker not in content:
             raise RuntimeError(f"benchmark could not find public namespace boundary in {iface_file}")
         content = content.replace(marker,

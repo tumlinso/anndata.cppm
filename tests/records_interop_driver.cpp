@@ -7,10 +7,10 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 
 void require(bool ok, std::string_view message) {
     if (!ok) throw std::runtime_error(std::string(message));
@@ -151,7 +151,7 @@ void backed(const char* input, const char* output) {
 int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::string_view(argv[1]) == "features") {
-            std::cout << "zarr=" << ANNDATA_HAS_ZARR << '\n';
+            std::cout << "zarr=" << ANNDATAPP_HAS_ZARR << '\n';
             return 0;
         }
         if (argc < 3) throw std::runtime_error("missing record command or file");
@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
             require(small.view().array().dense<std::int32_t>().data()[0] == 37,
                     "projected read touched unrelated oversized text");
             (void)rec.read_field("text");
-#if ANNDATA_HAS_ZARR
+#if ANNDATAPP_HAS_ZARR
         } else if ((cmd == "zarr-eager" || cmd == "zarr-backed") && argc == 5) {
             ZarrWriteOptions options;
             options.format = std::string_view(argv[4]) == "2" ? ZarrFormat::v2 : ZarrFormat::v3;
@@ -190,7 +190,7 @@ int main(int argc, char** argv) {
         } else throw std::runtime_error("unknown record command");
         return 0;
     } catch (const Error& e) {
-        std::cerr << "anndata error[" << code_name(e.code()) << "] " << e.path() << ": " << e.what() << '\n';
+        std::cerr << "anndatapp error[" << code_name(e.code()) << "] " << e.path() << ": " << e.what() << '\n';
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; }
     return 1;
 }

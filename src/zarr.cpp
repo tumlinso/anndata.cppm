@@ -1,9 +1,9 @@
 module;
 #include <string_view>
 
-module anndata.zarr;
+module anndatapp.zarr;
 
-namespace anndata {
+namespace anndatapp {
 namespace {
 std::string_view compression_name(ZarrCompression compression) {
     switch(compression) {
@@ -32,4 +32,4 @@ void write_zarr(std::string_view path,const BackedAnnDataView& data,ZarrWriteOpt
                              options.scratch_bytes,compression_name(options.compression),options.compression_level,options.validation);
 }
 void write_zarr(std::string_view path,const BackedAnnData& data,ZarrWriteOptions options) { write_zarr(path,data.view(),options); }
-} // namespace anndata
+} // namespace anndatapp

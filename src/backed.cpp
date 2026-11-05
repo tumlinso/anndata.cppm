@@ -16,10 +16,10 @@ module;
 #include <vector>
 #include <variant>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata {
+namespace anndatapp {
 namespace backed_detail {
 namespace {
 [[noreturn]] void fail(ErrorCode code, std::string_view path, std::string message) {
@@ -406,4 +406,4 @@ BackedElement BackedAnnData::raw_varm(std::string_view k) const{auto a=view().ra
 AnnData BackedAnnData::read() const{return view().read();}
 void BackedAnnData::flush(){backed_detail::require_dataset(impl_);impl_->session->backend->flush();}
 void BackedAnnData::close(){if(is_open()){impl_->session->backend->close();impl_->session->open=false;}}
-} // namespace anndata
+} // namespace anndatapp

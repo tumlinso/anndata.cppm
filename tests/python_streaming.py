@@ -2,7 +2,7 @@
 
 Run with tests/requirements-interop.txt. Output stores are kept under the
 supplied artifact directory so failing runs and physical layouts remain
-inspectable. ANNDATA_INTEROP_ZARR_WAKEUP=1 enables the restricted-runner
+inspectable. ANNDATAPP_INTEROP_ZARR_WAKEUP=1 enables the restricted-runner
 event-loop workaround shared by the existing storage tests.
 """
 from __future__ import annotations

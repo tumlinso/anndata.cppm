@@ -13,11 +13,11 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
 
-using namespace anndata;
+using namespace anndatapp;
 int failures = 0;
 
 void expect(bool condition, const char* message) {

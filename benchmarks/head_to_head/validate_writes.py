@@ -114,7 +114,7 @@ def main() -> None:
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
-    if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+    if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
         raise RuntimeError("head-to-head validation requires normal asyncio, without polling")
     zarr.config.set({"async.concurrency": 1, "threading.max_workers": 1})
     print(json.dumps(validate(args.case, args.source, args.output), sort_keys=True))

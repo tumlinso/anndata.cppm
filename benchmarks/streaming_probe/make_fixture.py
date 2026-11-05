@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import warnings
 
-if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
     from python_storage import install_restricted_runner_wakeup
 
     install_restricted_runner_wakeup()
@@ -225,7 +225,7 @@ def make_fixture(root: Path) -> dict[str, object]:
     var = pd.DataFrame(index=[f"feature{i:04d}" for i in range(SHAPE[1])])
     csr = sparse_values()
     manifest = {
-        "schema": "anndata.streaming_probe.fixture.v1",
+        "schema": "anndatapp.streaming_probe.fixture.v1",
         "shape": list(SHAPE),
         "dense_formula": "float32(((17*r + 13*c + (r*c)%97)%1009) / 1009)",
         "dense_chunks_zarr2": list(DENSE_CHUNKS_Z2),

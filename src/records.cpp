@@ -13,10 +13,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.core;
+module anndatapp.core;
 import :records;
 
-namespace anndata {
+namespace anndatapp {
 namespace detail {
 struct RecordFieldOwner {
     RecordField info;

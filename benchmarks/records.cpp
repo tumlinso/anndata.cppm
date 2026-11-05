@@ -1,6 +1,6 @@
 // Bounded single-thread probe: the same AoS kernel through a raw row, a retained
 // member, and an acquired pointer/byte stride. Allocation counts use global new.
-import anndata.core;
+import anndatapp.core;
 
 #include <chrono>
 #include <cstddef>
@@ -30,7 +30,7 @@ void operator delete[](void* p, std::size_t) noexcept { std::free(p); }
 
 namespace {
 using Clock = std::chrono::steady_clock;
-struct Row { double x, y; anndata::Utf8Ref label; };
+struct Row { double x, y; anndatapp::Utf8Ref label; };
 struct Measurement { double seconds; std::size_t allocations, bytes; };
 
 template<class F> Measurement measure(F f) {
@@ -43,8 +43,8 @@ template<class F> Measurement measure(F f) {
 [[gnu::noinline]] void raw(Row* rows, std::size_t n) {
     for (std::size_t i = 0; i < n; ++i) rows[i].x += 0.125*rows[i].y;
 }
-[[gnu::noinline]] void member(const anndata::RecordMemberView<double>& x,
-                              const anndata::RecordMemberView<double>& y, std::size_t n) {
+[[gnu::noinline]] void member(const anndatapp::RecordMemberView<double>& x,
+                              const anndatapp::RecordMemberView<double>& y, std::size_t n) {
     for (std::size_t i = 0; i < n; ++i) x[i] += 0.125*y[i];
 }
 [[gnu::noinline]] void stride(double* x, double* y, std::ptrdiff_t step, std::size_t n) {
@@ -67,11 +67,11 @@ int main() {
         labels[i] = std::string(48, char('a' + i % 26));
         rows[i] = {0.0, double(i % 31), {labels[i].data(), labels[i].size()}};
     }
-    anndata::RecordLayout layout{sizeof(Row), alignof(Row), {
-        {"x", anndata::RecordFieldKind::numeric, anndata::DType::float64, offsetof(Row, x), sizeof(double)},
-        {"y", anndata::RecordFieldKind::numeric, anndata::DType::float64, offsetof(Row, y), sizeof(double)},
-        {"label", anndata::RecordFieldKind::utf8_ref, anndata::DType::uint8, offsetof(Row, label), sizeof(anndata::Utf8Ref)}}};
-    auto records = anndata::RecordArray::borrow_interleaved(rows.data(), {n}, layout);
+    anndatapp::RecordLayout layout{sizeof(Row), alignof(Row), {
+        {"x", anndatapp::RecordFieldKind::numeric, anndatapp::DType::float64, offsetof(Row, x), sizeof(double)},
+        {"y", anndatapp::RecordFieldKind::numeric, anndatapp::DType::float64, offsetof(Row, y), sizeof(double)},
+        {"label", anndatapp::RecordFieldKind::utf8_ref, anndatapp::DType::uint8, offsetof(Row, label), sizeof(anndatapp::Utf8Ref)}}};
+    auto records = anndatapp::RecordArray::borrow_interleaved(rows.data(), {n}, layout);
     auto view = records.view();
     auto x = records.edit_member<double>("x"), y = records.edit_member<double>("y");
     bool pointers_ok = x.data() == &rows[0].x && y.data() == &rows[0].y &&
@@ -97,7 +97,7 @@ int main() {
     auto c = measure([&] { for (std::size_t i = 0; i < repeats; ++i) stride(x.data(), y.data(), x.stride_bytes(0), n); });
     const auto stride_sum = sum();
     for (auto& row : rows) values_ok &= row.x == 12.5*row.y;
-    anndata::RecordArray copy;
+    anndatapp::RecordArray copy;
     auto d = measure([&] { copy = records.copy(); });
     auto text = copy.view().text("label");
     bool text_ok = text.size() == n;

@@ -13,12 +13,12 @@
 #include <string>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-extern "C" int anndata_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
-extern "C" void anndata_probe_end() __attribute__((weak));
+extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
+extern "C" void anndatapp_probe_end() __attribute__((weak));
 using Clock = std::chrono::steady_clock;
-using namespace anndata;
+using namespace anndatapp;
 
 static std::uint64_t hash_bytes(std::uint64_t h, const void* p, std::size_t n) {
     auto x = static_cast<const unsigned char*>(p);
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
         const auto layout = x.layout();
         if ((action != "sparse") != (layout == Layout::dense)) throw std::runtime_error("fixture layout differs from action");
         if (action != "dense" && action != "adaptive" && action != "sparse") throw std::runtime_error("unknown action");
-#if !ANNDATA_STREAM_CANDIDATE
+#if !ANNDATAPP_STREAM_CANDIDATE
         if (action == "adaptive") throw std::runtime_error("baseline has no adaptive stream");
 #endif
 
@@ -69,11 +69,11 @@ int main(int argc, char** argv) {
         double prepare = 0, io = 0;
         std::size_t calls = 0, payload = 0;
         std::uint64_t hash = 1469598103934665603ULL;
-        if (!anndata_probe_begin || !anndata_probe_end) throw std::runtime_error("bounded probe interposer is required");
-        if (anndata_probe_begin(512ULL*1024*1024, 512ULL*1024*1024))
+        if (!anndatapp_probe_begin || !anndatapp_probe_end) throw std::runtime_error("bounded probe interposer is required");
+        if (anndatapp_probe_begin(512ULL*1024*1024, 512ULL*1024*1024))
             throw std::runtime_error("could not arm bounded probe");
         auto total_start = Clock::now();
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
         auto t = Clock::now();
         auto transfer = x.prepare_transfer();
         StreamStats stream_stats{};
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 #endif
         auto block = [&](std::vector<std::size_t> start, std::vector<std::size_t> count) {
             auto t = Clock::now();
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
             auto req = transfer.requirements(start, count);
 #else
             auto chosen = x.select(selection(start, count));
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
             if (layout == Layout::dense) {
                 if (req.dtype != DType::float32) throw std::runtime_error("dense fixture must use float32");
                 DenseBuffer b{dense_values.data(), req.dtype, count, {}};
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
                 transfer.read_into(start, count, b);
 #else
                 prepared.read_into(b);
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
                 if (req.nnz > capacity) throw std::runtime_error("sparse fixture exceeds buffer capacity");
                 SparseBuffer b{sparse_values.data(), indices.data(), offsets.data(), req.dtype, req.index_dtype,
                     req.offset_dtype, capacity, capacity, major + 1};
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
                 transfer.read_into(start, count, b);
 #else
                 prepared.read_into(b);
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
             ++calls;
         };
         if (action == "adaptive") {
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
             StreamOptions options;
             options.min_block_bytes = br*bc;
             options.target_block_bytes = br*bc*2;
@@ -156,15 +156,15 @@ int main(int argc, char** argv) {
                 block({0, j}, {shape[0], std::min(bc, shape[1] - j)});
         }
         const auto total = elapsed(total_start);
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
         const auto stats = transfer.stats();
 #endif
-        anndata_probe_end();
-        std::cout << "{\"mode\":\"" << (action == "adaptive" ? "adaptive" : ANNDATA_STREAM_CANDIDATE ? "context" : "select")
+        anndatapp_probe_end();
+        std::cout << "{\"mode\":\"" << (action == "adaptive" ? "adaptive" : ANNDATAPP_STREAM_CANDIDATE ? "context" : "select")
                   << "\",\"calls\":" << calls << ",\"payload_bytes\":" << payload
                   << ",\"prepare_seconds\":" << prepare << ",\"transfer_seconds\":" << io
                   << ",\"total_seconds\":" << total << ",\"hash\":" << hash
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
                   << ",\"backend_reads\":" << stats.read_calls << ",\"backend_read_bytes\":" << stats.read_bytes
                   << ",\"scratch_allocations\":" << stats.scratch_allocations << ",\"scratch_bytes\":" << stats.scratch_bytes
                   << ",\"adaptation_trials\":" << stream_stats.trials << ",\"adaptations\":" << stream_stats.adaptations
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
                   << "}\n";
         return 0;
     } catch (const std::exception& e) {
-        if (anndata_probe_end) anndata_probe_end();
+        if (anndatapp_probe_end) anndatapp_probe_end();
         std::cerr << e.what() << '\n';
         return 2;
     }

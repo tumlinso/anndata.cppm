@@ -9,11 +9,11 @@ module;
 #include <utility>
 #include <vector>
 
-export module anndata.core:records;
+export module anndatapp.core:records;
 export import :arrays;
 export import :strings;
 
-export namespace anndata {
+export namespace anndatapp {
 
 struct Utf8Ref { const char* data; std::size_t size; };
 enum class RecordFieldKind { numeric, string, fixed_utf8, utf8_ref };

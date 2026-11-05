@@ -26,7 +26,7 @@ def source_hashes(root: Path) -> dict:
 
 
 def artifacts(path: Path) -> dict:
-    files=sorted(p for p in path.glob("*.pcm") if p.name!="anndata.backed-storage.pcm")
+    files=sorted(p for p in path.glob("*.pcm") if p.name!="anndatapp.backed-storage.pcm")
     if not files: raise ValueError("no public BMI files in "+str(path))
     return {p.name:{"bytes":p.stat().st_size,"sha256":digest(p)} for p in files}
 
@@ -37,11 +37,11 @@ def main() -> int:
     p.add_argument("--baseline-source",type=Path,required=True);p.add_argument("--candidate-source",type=Path,required=True)
     p.add_argument("--output-dir",type=Path,required=True);p.add_argument("--compiler",default="clang++-18")
     args=p.parse_args();out=args.output_dir.resolve();out.mkdir(parents=True,exist_ok=False)
-    modules={"core":"anndata.core","streaming":"anndata.streaming","facade":"anndata"}
+    modules={"core":"anndatapp.core","streaming":"anndatapp.streaming","facade":"anndatapp"}
     for k,m in modules.items(): (out/(k+".cpp")).write_text(f"import {m};\nint main() {{ return 0; }}\n")
     roots={"baseline":args.baseline_source.resolve(),"candidate":args.candidate_source.resolve()}
     builds={"baseline":args.baseline_build.resolve(),"candidate":args.candidate_build.resolve()}
-    record={"schema":"anndata.completeness.compile.v1","method":"one warm import-only compilation per module; OS cache not cleared",
+    record={"schema":"anndatapp.completeness.compile.v1","method":"one warm import-only compilation per module; OS cache not cleared",
             "compiler":args.compiler,"tool_sha256":digest(Path(__file__).resolve()),"source_hashes":{},"builds":{}}
     path=out/"result.json";tmp=out/"result.json.tmp"
     def checkpoint():
@@ -49,7 +49,7 @@ def main() -> int:
         tmp.replace(path)
     for label in ("baseline","candidate"):
         record["source_hashes"][label]=source_hashes(roots[label])
-        bmi=builds[label]/"CMakeFiles/anndata.dir"
+        bmi=builds[label]/"CMakeFiles/anndatapp.dir"
         data={"bmi_directory":str(bmi),"public_bmis":artifacts(bmi),"imports":{}}
         data["public_bmi_bytes"]=sum(x["bytes"] for x in data["public_bmis"].values());record["builds"][label]=data
     checkpoint()

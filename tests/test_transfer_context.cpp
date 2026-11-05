@@ -10,9 +10,9 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-using namespace anndata;
+using namespace anndatapp;
 namespace {
 void check(bool v, std::string_view message) { if (!v) throw std::runtime_error(std::string(message)); }
 template<class F> void error(ErrorCode code, F&& f) {
@@ -121,10 +121,10 @@ int main(int argc,char** argv) {
     try {
         const auto root = std::filesystem::path(argc > 1 ? argv[1] : "transfer-tests");
         std::filesystem::create_directories(root);
-#if ANNDATA_HAS_HDF5
+#if ANNDATAPP_HAS_HDF5
         run(root/"transfer.h5ad",[](auto p,auto o){return open_h5ad(p,o);},[](auto p,const auto& d){write_h5ad(p,d);});
 #endif
-#if ANNDATA_HAS_ZARR
+#if ANNDATAPP_HAS_ZARR
         for (auto format : {ZarrFormat::v2,ZarrFormat::v3}) {
             run(root/(format == ZarrFormat::v2 ? "transfer2.zarr" : "transfer3.zarr"),[](auto p,auto o){return open_zarr(p,o);},[&](auto p,const auto& d){ZarrWriteOptions o; o.format=format; write_zarr(p,d,o);});
         }

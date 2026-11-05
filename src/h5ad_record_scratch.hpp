@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <memory>
 
-namespace anndata_h5ad_detail {
+namespace anndatapp_h5ad_detail {
 inline constexpr std::size_t record_target = 1024u*1024u;
 inline constexpr std::size_t record_cap = 64u*1024u*1024u;
 

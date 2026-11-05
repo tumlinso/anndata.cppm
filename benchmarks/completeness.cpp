@@ -9,12 +9,12 @@
 #include <sys/resource.h>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-extern "C" int anndata_completeness_probe_begin(std::uint64_t, std::uint64_t,
+extern "C" int anndatapp_completeness_probe_begin(std::uint64_t, std::uint64_t,
                                                 const char*, std::size_t, int) __attribute__((weak));
-extern "C" void anndata_completeness_probe_end() __attribute__((weak));
-using namespace anndata;
+extern "C" void anndatapp_completeness_probe_end() __attribute__((weak));
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 
 static float value(std::size_t i, std::size_t j) { return float(10000 + 131*i + j); }
@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
         const std::string test = argv[1], path = argv[2], xdir = path + "/X";
         const auto index_bytes = std::stoull(argv[3]);
         const int index_at_start = std::stoi(argv[4]);
-        if (!anndata_completeness_probe_begin || !anndata_completeness_probe_end)
+        if (!anndatapp_completeness_probe_begin || !anndatapp_completeness_probe_end)
             throw std::runtime_error("bounded probe interposer is required");
         BackedOptions options; options.mode = AccessMode::read_write;
         auto store = open_zarr(path, options);
@@ -68,13 +68,13 @@ int main(int argc, char** argv) {
         auto input = test == "gather_stride"
             ? DenseBuffer::from(p + rows*columns-1,count,{-std::ptrdiff_t(columns*sizeof(float)),-std::ptrdiff_t(sizeof(float))})
             : DenseBuffer::from(p,count);
-        if (anndata_completeness_probe_begin(512ULL<<20,512ULL<<20,xdir.c_str(),index_bytes,index_at_start))
+        if (anndatapp_completeness_probe_begin(512ULL<<20,512ULL<<20,xdir.c_str(),index_bytes,index_at_start))
             throw std::runtime_error("cannot arm bounded probe");
         auto t = Clock::now();
         if (gathered) x.write(*gathered);
         else transfer.write_from(start,count,input);
         auto seconds = std::chrono::duration<double>(Clock::now()-t).count();
-        anndata_completeness_probe_end();
+        anndatapp_completeness_probe_end();
         auto stats = transfer.stats();
         rusage usage{};
         if (getrusage(RUSAGE_SELF, &usage)) throw std::runtime_error("getrusage failed");
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
         std::cout << "}\n";
         return 0;
     } catch (const std::exception& e) {
-        if (anndata_completeness_probe_end) anndata_completeness_probe_end();
+        if (anndatapp_completeness_probe_end) anndatapp_completeness_probe_end();
         std::cerr << e.what() << '\n'; return 1;
     }
 }

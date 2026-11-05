@@ -18,10 +18,10 @@ module;
 #include <variant>
 #include <sys/types.h>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 
 [[noreturn]] void fail(ErrorCode code, std::string_view path, std::string message) {
@@ -519,4 +519,4 @@ void compare_table_indexes(const BackedTable& left,const TableView& right){
     for(std::size_t i=0;i<right.size();++i)if(cursor.at(i)!=right.name(i))fail(ErrorCode::shape_mismatch,a->path,"dataframe index differs from its aligned axis");
 }
 
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail

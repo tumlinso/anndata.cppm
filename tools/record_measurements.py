@@ -12,7 +12,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'build/record-measurements'
-PREFIX = '/home/tumlinson/anndata.cppm/build/dependencies/usr'
+PREFIX = '/home/tumlinson/anndatapp/build/dependencies/usr'
 
 
 def sha(path):
@@ -51,11 +51,11 @@ def resume_final(src):
     for name in ('core', 'facade'):
         with (work/'CMakeLists.txt').open('a') as f:
             f.write(f'\nadd_executable(record_current_{name} bench-probes/{name}.cpp)\n'
-                    f'target_link_libraries(record_current_{name} PRIVATE anndata::anndata)\n')
+                    f'target_link_libraries(record_current_{name} PRIVATE anndatapp::anndatapp)\n')
     review = OUT/'final-current-review'
     if review.exists(): raise RuntimeError('current review snapshot already exists')
     shutil.copytree(work, review)
-    report = {'schema': 'anndata.record.incremental.v1', 'changes_since_final2': changes,
+    report = {'schema': 'anndatapp.record.incremental.v1', 'changes_since_final2': changes,
               'source_sha256': {p.name: sha(p) for p in sorted((work/'src').glob('*')) if p.is_file()},
               'snapshot': str(review), 'cache': 'existing final2 build tree; OS page cache not cleared',
               'jobs': 2, 'config': 'Release (-O3 -DNDEBUG)', 'load_at_start': os.getloadavg()}
@@ -63,7 +63,7 @@ def resume_final(src):
     def build_target(name, log):
         return run(['cmake', '--build', str(build), '--target', name, '--parallel', '2', '--verbose'], target/log)
     save()
-    report['incremental_library'] = build_target('anndata', 'current-library.log'); save()
+    report['incremental_library'] = build_target('anndatapp', 'current-library.log'); save()
     for name in ('core', 'facade'):
         report[name] = build_target('record_current_'+name, 'current-'+name+'.log'); save()
         run([str(build/('record_current_'+name))], target/('current-'+name+'-run.log'))
@@ -74,7 +74,7 @@ def resume_final(src):
     with impl.open('a') as f: f.write('\nnamespace { [[maybe_unused]] constexpr int record_measurement_private_edit = 1; }\n')
     report['private_edit'] = build_target('record_current_facade', 'current-private-edit.log')
     report['after_private'] = artifacts(build); save()
-    iface = work/'src/anndata.records.cppm'
+    iface = work/'src/anndatapp.records.cppm'
     content = iface.read_text(); position = content.rfind('\n}')
     if position < 0: raise RuntimeError('record interface namespace marker not found')
     iface.write_text(content[:position] + '\ninline constexpr int record_measurement_public_edit = 1;\n' + content[position:])
@@ -98,7 +98,7 @@ def prepare_runtime(src):
     review = OUT/'final-runtime-review'
     if review.exists(): raise RuntimeError('runtime review snapshot already exists')
     shutil.copytree(work, review)
-    report = {'schema': 'anndata.record.runtime-build.v1', 'snapshot': str(review),
+    report = {'schema': 'anndatapp.record.runtime-build.v1', 'snapshot': str(review),
               'source_sha256': {p.name: sha(p) for p in sorted((work/'src').glob('*')) if p.is_file()},
               'benchmark_source_sha256': sha(work/'benchmarks/records.cpp'), 'jobs': 2}
     output.write_text(json.dumps(report, indent=2, sort_keys=True)+'\n')
@@ -118,17 +118,17 @@ def prepare_candidate(src):
     before = json.loads((OUT/'runtime-build-raw.json').read_text())
     prior = OUT/'runtime-before-bench'
     if sha(prior) != before['binary_sha256']: raise RuntimeError('baseline binary identity mismatch')
-    for name in ('anndata.records.cppm', 'records.cpp'):
+    for name in ('anndatapp.records.cppm', 'records.cpp'):
         dst = work/'src'/name
         shutil.copy2(src/'src'/name, dst); os.utime(dst, None)
     changed = [p.name for p in sorted((work/'src').glob('*')) if p.is_file()
                and before['source_sha256'].get(p.name) != sha(p)]
-    if set(changed) != {'anndata.records.cppm', 'records.cpp'}:
+    if set(changed) != {'anndatapp.records.cppm', 'records.cpp'}:
         raise RuntimeError(f'unexpected source delta: {changed}')
     review = OUT/'candidate-review'
     if review.exists(): raise RuntimeError('candidate snapshot already exists')
     shutil.copytree(work, review)
-    report = {'schema': 'anndata.record.candidate-build.v1', 'snapshot': str(review),
+    report = {'schema': 'anndatapp.record.candidate-build.v1', 'snapshot': str(review),
               'changes_from_runtime': changed, 'jobs': 2,
               'source_sha256': {p.name: sha(p) for p in sorted((work/'src').glob('*')) if p.is_file()},
               'benchmark_source_sha256': sha(work/'benchmarks/records.cpp'),
@@ -179,19 +179,19 @@ def main():
                                   or p.name in ('CMakeLists.txt', 'CMakePresets.json'))}
     probes = work / 'bench-probes'
     probes.mkdir()
-    for name, mod in [('core', 'anndata.core'), ('facade', 'anndata')]:
-        (probes / f'{name}.cpp').write_text(f'import {mod};\nint main() {{ auto a=anndata::AnnData::empty(2,2); a.set_x(anndata::Array::zeros<float>({{2,2}})); return a.x().extent(0)==2 ? 0 : 1; }}\n')
+    for name, mod in [('core', 'anndatapp.core'), ('facade', 'anndatapp')]:
+        (probes / f'{name}.cpp').write_text(f'import {mod};\nint main() {{ auto a=anndatapp::AnnData::empty(2,2); a.set_x(anndatapp::Array::zeros<float>({{2,2}})); return a.x().extent(0)==2 ? 0 : 1; }}\n')
     with (work / 'CMakeLists.txt').open('a') as f:
         for name in ('core', 'facade'):
-            f.write(f'\nadd_executable(record_probe_{name} bench-probes/{name}.cpp)\ntarget_link_libraries(record_probe_{name} PRIVATE anndata::anndata)\n')
+            f.write(f'\nadd_executable(record_probe_{name} bench-probes/{name}.cpp)\ntarget_link_libraries(record_probe_{name} PRIVATE anndatapp::anndatapp)\n')
         if args.label == 'final':
-            f.write('\nadd_executable(record_native_bench benchmarks/records.cpp)\ntarget_link_libraries(record_native_bench PRIVATE anndata::anndata)\n')
+            f.write('\nadd_executable(record_native_bench benchmarks/records.cpp)\ntarget_link_libraries(record_native_bench PRIVATE anndatapp::anndatapp)\n')
     build = target / 'build'
     conf = ['cmake', '-S', str(work), '-B', str(build), '-G', 'Ninja',
             '-DCMAKE_CXX_COMPILER=clang++-18', '-DCMAKE_BUILD_TYPE=Release',
-            '-DANNDATA_BUILD_TESTS=OFF', '-DANNDATA_BUILD_EXAMPLES=OFF',
-            '-DANNDATA_BUILD_BENCHMARKS=OFF', '-DANNDATA_ENABLE_INTEROP_TESTS=OFF',
-            f'-DANNDATA_DEPENDENCY_PREFIX={PREFIX}', '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON']
+            '-DANNDATAPP_BUILD_TESTS=OFF', '-DANNDATAPP_BUILD_EXAMPLES=OFF',
+            '-DANNDATAPP_BUILD_BENCHMARKS=OFF', '-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF',
+            f'-DANNDATAPP_DEPENDENCY_PREFIX={PREFIX}', '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON']
     report = {'label': args.label, 'source': str(src), 'os': platform.platform(),
               'cpu': next((x.split(':',1)[1].strip() for x in Path('/proc/cpuinfo').read_text().splitlines() if x.startswith('model name')), None),
               'compiler': subprocess.check_output(['clang++-18', '--version'], text=True).splitlines()[0],
@@ -201,7 +201,7 @@ def main():
     report['configure'] = run(conf, target/'configure.log')
     def build_target(name, log):
         return run(['cmake', '--build', str(build), '--target', name, '--parallel', '2', '--verbose'], target/log)
-    report['library'] = build_target('anndata', 'library.log')
+    report['library'] = build_target('anndatapp', 'library.log')
     for name in ('core', 'facade'):
         report[name] = build_target('record_probe_'+name, name+'.log')
         run([str(build/('record_probe_'+name))], target/(name+'-run.log'))
@@ -214,7 +214,7 @@ def main():
     report['before'] = artifacts(build)
     if args.label == 'final':
         impl = work/'src/records.cpp'
-        iface = work/'src/anndata.records.cppm'
+        iface = work/'src/anndatapp.records.cppm'
         if not impl.exists() or not iface.exists():
             raise RuntimeError('record source paths not found')
         with impl.open('a') as f: f.write('\nnamespace { [[maybe_unused]] constexpr int record_measurement_private_edit = 1; }\n')

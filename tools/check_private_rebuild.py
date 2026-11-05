@@ -40,16 +40,16 @@ def main() -> None:
     before = unit.read_bytes()
     output.mkdir(parents=True, exist_ok=False)
     (output / (unit.name + ".original")).write_bytes(before)
-    bmis = sorted(p for p in (build / "CMakeFiles/anndata.dir").glob("*.pcm")
-                  if p.name != "anndata.backed-storage.pcm")
+    bmis = sorted(p for p in (build / "CMakeFiles/anndatapp.dir").glob("*.pcm")
+                  if p.name != "anndatapp.backed-storage.pcm")
     if not bmis:
         raise RuntimeError("no public BMIs found")
-    consumers = [build / "CMakeFiles/anndata_example.dir/examples/foundation.cpp.o",
+    consumers = [build / "CMakeFiles/anndatapp_example.dir/examples/foundation.cpp.o",
                  build / "CMakeFiles/test_records.dir/tests/test_records.cpp.o"]
-    binaries = [build / ("CMakeFiles/anndata.dir/" + args.unit + ".o"),
-                build / "libanndata.a", build / "anndata_example", build / "test_records"]
+    binaries = [build / ("CMakeFiles/anndatapp.dir/" + args.unit + ".o"),
+                build / "libanndatapp.a", build / "anndatapp_example", build / "test_records"]
     public_before, binaries_before = state(bmis + consumers), state(binaries)
-    command = ["cmake", "--build", str(build), "--target", "anndata_example", "test_records",
+    command = ["cmake", "--build", str(build), "--target", "anndatapp_example", "test_records",
                "--parallel", "2", "--verbose"]
 
     def rebuild(label: str) -> str:

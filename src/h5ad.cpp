@@ -19,9 +19,9 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.h5ad;
+module anndatapp.h5ad;
 
-namespace anndata {
+namespace anndatapp {
 namespace {
 
 // No backend object is retained by an eager read. These handles, datatypes,
@@ -459,14 +459,14 @@ bool read_record_text_tile(Context& c, hid_t object, hid_t type, hid_t member,
                            hid_t memory, hid_t file, std::size_t n, std::size_t budget,
                            std::vector<char>& bytes, std::vector<std::uint64_t>& offsets,
                            std::string_view path) {
-    using anndata_h5ad_detail::RecordVlenAllocator;
+    using anndatapp_h5ad_detail::RecordVlenAllocator;
     const auto append = [&](std::string_view value) {
         if (c.validation == Validation::full && !valid_utf8(value)) c.fail(ErrorCode::unsupported_dtype, path, "record text is not valid UTF-8");
         if (value.size() > std::size_t(PTRDIFF_MAX)-bytes.size()) c.fail(ErrorCode::invalid_argument, path, "record text exceeds addressable range");
         bytes.insert(bytes.end(),value.begin(),value.end()); offsets.push_back(bytes.size());
     };
     if (H5Tis_variable_str(member) > 0) {
-        const auto limit = anndata_h5ad_detail::record_pointer_limit(n,budget);
+        const auto limit = anndatapp_h5ad_detail::record_pointer_limit(n,budget);
         if (!limit) return false;
         auto pointers = std::make_unique<char*[]>(n);
         RecordVlenAllocator allocator{limit};
@@ -504,7 +504,7 @@ bool read_record_text_tile(Context& c, hid_t object, hid_t type, hid_t member,
 
 StringArray read_record_strings(Context& c, hid_t object, hid_t member, std::string_view name,
                                const std::vector<std::size_t>& shape, std::string_view path) {
-    using namespace anndata_h5ad_detail;
+    using namespace anndatapp_h5ad_detail;
     auto type = record_projection(c,name,member,path);
     const auto n = count_of(c,shape,path), cols = shape.empty() ? 1 : shape.back();
     std::vector<char> bytes;
@@ -1116,7 +1116,7 @@ void write_record(Context& c, hid_t parent, std::string_view key, RecordArrayVie
         if (f.kind == RecordFieldKind::numeric) transfer.bytes = records.numeric_bytes(name);
         else transfer.text = records.text(name);
     }
-    using namespace anndata_h5ad_detail;
+    using namespace anndatapp_h5ad_detail;
     if (!width || width > record_cap) c.fail(ErrorCode::unsupported_dtype, path, "record must have members fitting the transfer workspace");
     Handle file_type(c.id(H5Tcreate(H5T_COMPOUND, width), path, "create compound datatype"), H5Tclose);
     Handle memory_type(c.id(H5Tcreate(H5T_COMPOUND, width), path, "create compound memory datatype"), H5Tclose);
@@ -1438,4 +1438,4 @@ void write_h5ad(std::string_view path, const AnnDataView& data, WriteOptions opt
     } catch (const Error& error) { contextualize(c, error); }
 }
 
-} // namespace anndata
+} // namespace anndatapp

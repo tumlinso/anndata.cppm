@@ -10,10 +10,10 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 
 void require(bool condition, std::string_view message) {
     if (!condition) throw std::runtime_error(std::string(message));
@@ -316,7 +316,7 @@ void exercise_backend(const std::filesystem::path& run_directory,
     reindexed.close();
 }
 
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
 void exercise_small_budget(const std::filesystem::path& run_directory) {
     constexpr std::size_t n = 32;
     auto source = AnnData::empty(n, 1);
@@ -360,7 +360,7 @@ void exercise_h5ad(const std::filesystem::path& run_directory, const AnnData& so
 }
 #endif
 
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
 void exercise_zarr(const std::filesystem::path& run_directory, const AnnData& source,
                    ZarrFormat format, std::string_view format_name) {
     exercise_backend(run_directory, std::string("zarr-") + std::string(format_name), ".zarr",
@@ -396,12 +396,12 @@ int main(int argc, char** argv) try {
 
     const auto source = fixture();
     bool exercised = false;
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
     exercise_h5ad(run_directory, source);
     exercise_small_budget(run_directory);
     exercised = true;
 #endif
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
     exercise_zarr(run_directory, source, ZarrFormat::v2, "v2");
     exercise_zarr(run_directory, source, ZarrFormat::v3, "v3");
     exercised = true;

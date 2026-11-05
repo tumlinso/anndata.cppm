@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-import anndata.core;
+import anndatapp.core;
 
 namespace { bool measure = false; std::size_t largest = 0; }
 void* operator new(std::size_t n) {
@@ -25,7 +25,7 @@ void operator delete(void* p, std::size_t) noexcept { std::free(p); }
 void operator delete[](void* p, std::size_t) noexcept { std::free(p); }
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 void check(bool ok, const char* s) { if (!ok) throw std::runtime_error(s); }
 template<class F> void bad(ErrorCode code, F f) {
     try { f(); } catch (const Error& e) { check(e.code() == code, "wrong error code"); return; }

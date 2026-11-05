@@ -4,7 +4,7 @@ if [[ $# -ne 4 ]]; then
   echo "usage: run_geometry64k_once.sh BUILD_DIR SOURCE DESTINATION RECORD_DIR" >&2
   exit 64
 fi
-TASK=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/geometry64k
+TASK=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/geometry64k
 BUILD=$(realpath "$1")
 SOURCE=$(realpath "$2")
 DESTINATION=$3
@@ -36,7 +36,7 @@ status=$?
 set -e
 printf '%s\n' "$status" > "$RECORD/exit-code.txt"
 if [[ $status -eq 0 ]]; then
-  /home/tumlinson/anndata.cppm/.venv/bin/python \
+  /home/tumlinson/anndatapp/.venv/bin/python \
     "$TASK/compare_geometry64k.py" "$SOURCE" "$DESTINATION" "$RECORD/validation.json" \
     > "$RECORD/validation.stdout" 2> "$RECORD/validation.stderr"
 else

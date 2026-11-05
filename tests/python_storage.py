@@ -2,7 +2,7 @@
 
 The fixture writers and file readers are the pinned upstream implementations
 from ``tests/requirements-interop.txt``.  Zarr event-loop polling is available
-only through ``ANNDATA_INTEROP_ZARR_WAKEUP=1`` for syscall-restricted test
+only through ``ANNDATAPP_INTEROP_ZARR_WAKEUP=1`` for syscall-restricted test
 runners; ordinary CI keeps asyncio's default policy.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ import warnings
 
 
 def install_restricted_runner_wakeup() -> None:
-    if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") != "1":
+    if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") != "1":
         return
 
     class PollPolicy(asyncio.DefaultEventLoopPolicy):
@@ -70,7 +70,7 @@ def expect_failure(driver: str, *args: str, code: str) -> str:
     result = subprocess.run([driver, *args], text=True, capture_output=True)
     if result.returncode == 0:
         raise AssertionError(f"expected storage driver failure: {args}")
-    if f"anndata error[{code}]" not in result.stderr:
+    if f"anndatapp error[{code}]" not in result.stderr:
         raise AssertionError(f"expected {code}, got: {result.stderr.strip()}")
     return result.stderr
 
@@ -638,7 +638,7 @@ def main() -> None:
     if version("zarr") != "3.4.2":
         raise SystemExit(f"expected Zarr 3.4.2, got {version('zarr')}")
 
-    with tempfile.TemporaryDirectory(prefix="anndata-cppm-backed-") as temp:
+    with tempfile.TemporaryDirectory(prefix="anndatapp-backed-") as temp:
         root = Path(temp)
 
         # Python-generated H5AD is read and modified by C++; unknown HDF5

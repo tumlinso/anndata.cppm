@@ -1,10 +1,10 @@
 #include <cstddef>
 #include <string_view>
 
-import anndata.core;
+import anndatapp.core;
 
 int main() {
-    using namespace anndata;
+    using namespace anndatapp;
     struct Row { float score; Utf8Ref name; };
     Row rows[]={{1,{"gene",4}},{2,{"other",5}}};
     RecordLayout layout{sizeof(Row),alignof(Row),{

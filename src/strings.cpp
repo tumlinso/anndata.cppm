@@ -10,10 +10,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.core;
+module anndatapp.core;
 import :strings;
 
-namespace anndata {
+namespace anndatapp {
 namespace detail {
 struct StringArrayImpl {
     std::vector<std::size_t> shape;
@@ -426,4 +426,4 @@ void StringArray::validate() const {
     validate_impl(*impl_);
 }
 
-} // namespace anndata
+} // namespace anndatapp

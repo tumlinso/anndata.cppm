@@ -8,7 +8,7 @@
 #include <string>
 #include <string_view>
 
-import anndata;
+import anndatapp;
 
 extern "C" void bulk_probe_begin() __attribute__((weak));
 extern "C" void bulk_probe_end() __attribute__((weak));
@@ -49,20 +49,20 @@ struct ProbeScope {
     bool active = false;
 };
 
-anndata::BackedAnnData open_store(std::string_view format, const std::string& path,
+anndatapp::BackedAnnData open_store(std::string_view format, const std::string& path,
                                   bool writable) {
-    anndata::BackedOptions options;
-    options.mode = writable ? anndata::AccessMode::read_write : anndata::AccessMode::read_only;
+    anndatapp::BackedOptions options;
+    options.mode = writable ? anndatapp::AccessMode::read_write : anndatapp::AccessMode::read_only;
     options.scratch_bytes = kScratchBytes;
     options.decoded_cache_bytes = 0;
-    if (format == "zarr2" || format == "zarr3") return anndata::open_zarr(path, options);
+    if (format == "zarr2" || format == "zarr3") return anndatapp::open_zarr(path, options);
     throw std::runtime_error("format must be zarr2 or zarr3");
 }
 
-std::uint64_t read_baseline_reference_tile(anndata::BackedAnnData& store,
+std::uint64_t read_baseline_reference_tile(anndatapp::BackedAnnData& store,
                                            std::size_t rows) {
-    auto expected = store.slice(anndata::range{0, static_cast<std::ptrdiff_t>(rows), 1},
-                                anndata::range{0, 32, 1}).x().read();
+    auto expected = store.slice(anndatapp::range{0, static_cast<std::ptrdiff_t>(rows), 1},
+                                anndatapp::range{0, 32, 1}).x().read();
     auto bytes = expected.view().bytes();
     require(bytes.contiguous(), "baseline reference tile is not contiguous");
     const auto byte_count = rows * 32 * sizeof(float);
@@ -89,8 +89,8 @@ int main(int argc, char** argv) {
         const double open_seconds = seconds(open_start);
         require(store.n_obs() == 4096 && store.n_vars() == 4096,
                 "source dimensions differ from the frozen 4096 fixture");
-        require(store.has_x() && store.x().layout() == anndata::Layout::dense &&
-                store.x().dtype() == anndata::DType::float32,
+        require(store.has_x() && store.x().layout() == anndatapp::Layout::dense &&
+                store.x().dtype() == anndatapp::DType::float32,
                 "source X differs from dense float32 fixture");
 
         // Match benchmarks/storage.cpp: materialize and retain a small reference
@@ -101,12 +101,12 @@ int main(int argc, char** argv) {
 
         double operation_seconds = 0.0;
         if (action == "export") {
-            anndata::ZarrWriteOptions options;
-            options.format = format == "zarr2" ? anndata::ZarrFormat::v2 : anndata::ZarrFormat::v3;
+            anndatapp::ZarrWriteOptions options;
+            options.format = format == "zarr2" ? anndatapp::ZarrFormat::v2 : anndatapp::ZarrFormat::v3;
             options.scratch_bytes = kScratchBytes;
             ProbeScope probe;
             const auto operation_start = Clock::now();
-            anndata::write_zarr(destination, store.view(), options);
+            anndatapp::write_zarr(destination, store.view(), options);
             operation_seconds = seconds(operation_start);
             probe.stop();
             std::printf(
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
             ProbeScope probe;
             const auto operation_start = Clock::now();
             auto edit = store.edit_structure();
-            edit.reindex(anndata::range{0, 4095, 1}, anndata::all);
+            edit.reindex(anndatapp::range{0, 4095, 1}, anndatapp::all);
             edit.apply();
             store.flush();
             operation_seconds = seconds(operation_start);

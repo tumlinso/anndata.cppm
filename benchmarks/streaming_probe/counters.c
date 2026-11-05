@@ -454,7 +454,7 @@ herr_t H5Dwrite(hid_t dset, hid_t type, hid_t memspace, hid_t filespace,
     h5_record(path, bytes, 1); return r;
 }
 
-int anndata_probe_begin(uint64_t read_cap_bytes, uint64_t write_cap_bytes) {
+int anndatapp_probe_begin(uint64_t read_cap_bytes, uint64_t write_cap_bytes) {
     if (read_cap_bytes > IO_MAX_BYTES || write_cap_bytes > IO_MAX_BYTES) { errno = EFBIG; return -1; }
     int expected = 0;
     if (!__atomic_compare_exchange_n(&active, &expected, 2, 0,
@@ -511,7 +511,7 @@ static void json_alloc(const char *name, const AllocCount *c, int *first) {
 }
 static void report_probe(void) {
     fprintf(stderr,
-        "ANNDATA_PROBE {\"schema\":\"anndata.streaming_probe.counters.v1\","
+        "ANNDATAPP_PROBE {\"schema\":\"anndatapp.streaming_probe.counters.v1\","
         "\"read_cap_bytes\":%llu,\"write_cap_bytes\":%llu,"
         "\"read_budget_used_bytes\":%llu,\"write_budget_used_bytes\":%llu,"
         "\"read_rejections\":%llu,\"write_rejections\":%llu,\"io\":{",
@@ -549,9 +549,9 @@ static void report_probe(void) {
     pthread_mutex_unlock(&h5_lock);
     fputs("]}}\n", stderr);
 }
-void anndata_probe_end(void) {
+void anndatapp_probe_end(void) {
     if (__atomic_exchange_n(&active, 0, __ATOMIC_RELAXED) == 1) report_probe();
 }
 __attribute__((destructor)) static void report_if_armed(void) {
-    if (LOAD(active) == 1) anndata_probe_end();
+    if (LOAD(active) == 1) anndatapp_probe_end();
 }

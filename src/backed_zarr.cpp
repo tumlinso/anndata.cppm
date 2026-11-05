@@ -17,12 +17,12 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata {
+namespace anndatapp {
 namespace {
-namespace ze = ::anndata_zarr;
+namespace ze = ::anndatapp_zarr;
 [[noreturn]] void translate(const ze::Error& e) {
     auto code=ErrorCode::io_error;
     switch(e.failure) {
@@ -310,4 +310,4 @@ void write_zarr_backed(std::string_view path,const BackedAnnDataView& data,int f
     });
 }
 } // namespace detail
-} // namespace anndata
+} // namespace anndatapp

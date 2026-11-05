@@ -6,8 +6,8 @@ if [[ $# -ne 4 ]]; then
   exit 64
 fi
 
-TASK=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/paired96
-CODEC_IO_PRELOAD=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/libcodec_counts_limited.so
+TASK=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/paired96
+CODEC_IO_PRELOAD=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/libcodec_counts_limited.so
 PROFILE_BUILD=$(realpath "$1")
 SOURCE=$(realpath "$2")
 DESTINATION=$3
@@ -54,7 +54,7 @@ set -e
 printf '%s\n' "$status" > "$RECORD_DIR/exit-code.txt"
 
 if [[ $status -eq 0 ]]; then
-  /home/tumlinson/anndata.cppm/.venv/bin/python \
+  /home/tumlinson/anndatapp/.venv/bin/python \
     "$TASK/compare_zarr3.py" "$SOURCE" "$DESTINATION" \
     "$RECORD_DIR/validation.json" \
     > "$RECORD_DIR/validation.stdout" 2> "$RECORD_DIR/validation.stderr"

@@ -25,7 +25,7 @@ void* allocate(std::size_t n) {
 }
 void release(void* p) noexcept {if(!p)return;auto* h=static_cast<Allocation*>(p)-1;if(h->counted)live-=h->size;std::free(h);}
 void check(bool ok,const char* text){if(!ok)throw std::runtime_error(text);}
-using namespace anndata_zarr;
+using namespace anndatapp_zarr;
 
 ArrayMetadata fixture(Store& store,const std::filesystem::path& root) {
     store.create_group("",Json::object(),3);

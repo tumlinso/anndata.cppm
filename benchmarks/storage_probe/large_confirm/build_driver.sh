@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/tmp/anndata-storage-b-confirm-20261103-mnXjYU
-CAND=/tmp/anndata-dense-transfer-candidate
-DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr
+ROOT=/tmp/anndatapp-storage-b-confirm-20261103-mnXjYU
+CAND=/tmp/anndatapp-dense-transfer-candidate
+DEPENDENCY_PREFIX=/home/tumlinson/anndatapp/build/dependencies/usr
 BUILD=$ROOT/build-v2
 
 if [[ -e "$BUILD" ]]; then
@@ -12,7 +12,7 @@ if [[ -e "$BUILD" ]]; then
 fi
 mkdir -p "$BUILD/obj"
 
-python3 - "$CAND/candidate-b-identity.json" "$CAND/libanndata.a" "$CAND/candidate-b-source.sha256" <<'PY'
+python3 - "$CAND/candidate-b-identity.json" "$CAND/libanndatapp.a" "$CAND/candidate-b-source.sha256" <<'PY'
 import hashlib, json, pathlib, sys
 identity_path, archive_path, manifest_path = map(pathlib.Path, sys.argv[1:])
 identity = json.loads(identity_path.read_text())
@@ -34,28 +34,28 @@ PY
 
 cp "$CAND/candidate-b-identity.json" "$BUILD/candidate-b-identity.json"
 cp "$CAND/candidate-b-source.sha256" "$BUILD/candidate-b-source.sha256"
-cp "$CAND/libanndata.a" "$BUILD/input-libanndata.a"
+cp "$CAND/libanndatapp.a" "$BUILD/input-libanndatapp.a"
 cp "$ROOT/confirm_driver.cpp" "$BUILD/confirm_driver.cpp"
 cp "$ROOT/codec_counts_limited_256.c" "$BUILD/codec_counts_limited_256.c"
 
-MODULE_DIR=$CAND/CMakeFiles/anndata.dir
+MODULE_DIR=$CAND/CMakeFiles/anndatapp.dir
 MODULE_MAP=$BUILD/obj/consumer.modmap
 printf '%s\n' \
-  "-fmodule-file=anndata=$MODULE_DIR/anndata.pcm" \
-  "-fmodule-file=anndata.core=$MODULE_DIR/anndata.core.pcm" \
-  "-fmodule-file=anndata.backed=$MODULE_DIR/anndata.backed.pcm" \
-  "-fmodule-file=anndata.h5ad=$MODULE_DIR/anndata.h5ad.pcm" \
-  "-fmodule-file=anndata.zarr=$MODULE_DIR/anndata.zarr.pcm" \
-  "-fmodule-file=anndata.core:arrays=$MODULE_DIR/anndata.core-arrays.pcm" \
-  "-fmodule-file=anndata.core:data=$MODULE_DIR/anndata.core-data.pcm" \
-  "-fmodule-file=anndata.core:strings=$MODULE_DIR/anndata.core-strings.pcm" \
-  "-fmodule-file=anndata.backed:storage=$MODULE_DIR/anndata.backed-storage.pcm" \
+  "-fmodule-file=anndatapp=$MODULE_DIR/anndatapp.pcm" \
+  "-fmodule-file=anndatapp.core=$MODULE_DIR/anndatapp.core.pcm" \
+  "-fmodule-file=anndatapp.backed=$MODULE_DIR/anndatapp.backed.pcm" \
+  "-fmodule-file=anndatapp.h5ad=$MODULE_DIR/anndatapp.h5ad.pcm" \
+  "-fmodule-file=anndatapp.zarr=$MODULE_DIR/anndatapp.zarr.pcm" \
+  "-fmodule-file=anndatapp.core:arrays=$MODULE_DIR/anndatapp.core-arrays.pcm" \
+  "-fmodule-file=anndatapp.core:data=$MODULE_DIR/anndatapp.core-data.pcm" \
+  "-fmodule-file=anndatapp.core:strings=$MODULE_DIR/anndatapp.core-strings.pcm" \
+  "-fmodule-file=anndatapp.backed:storage=$MODULE_DIR/anndatapp.backed-storage.pcm" \
   > "$MODULE_MAP"
 
 (
   cd "$CAND"
   /usr/bin/clang++-18 \
-    -DANNDATA_HAS_HDF5=1 -DANNDATA_HAS_ZARR=1 \
+    -DANNDATAPP_HAS_HDF5=1 -DANNDATAPP_HAS_ZARR=1 \
     -isystem /usr/include/hdf5/serial \
     -isystem "$DEPENDENCY_PREFIX/include" \
     -O3 -DNDEBUG -std=c++20 \
@@ -68,7 +68,7 @@ printf '%s\n' \
   /usr/bin/clang++-18 -O3 -DNDEBUG \
     -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial:"$DEPENDENCY_PREFIX/lib/x86_64-linux-gnu" \
     "$BUILD/obj/confirm_driver.cpp.o" \
-    "$CAND/libanndata.a" \
+    "$CAND/libanndatapp.a" \
     /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so \
     /usr/lib/x86_64-linux-gnu/libz.so \
     /usr/lib/x86_64-linux-gnu/libzstd.so \
@@ -87,7 +87,7 @@ printf '%s\n' \
 sha256sum \
   "$BUILD/candidate-b-identity.json" \
   "$BUILD/candidate-b-source.sha256" \
-  "$BUILD/input-libanndata.a" \
+  "$BUILD/input-libanndatapp.a" \
   "$BUILD/confirm_driver.cpp" \
   "$BUILD/obj/consumer.modmap" \
   "$BUILD/obj/confirm_driver.cpp.o" \

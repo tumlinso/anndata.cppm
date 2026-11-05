@@ -106,7 +106,7 @@ def one(base: Path, python: str, binary: Path, driver: Path, counters: Path,
     env=os.environ.copy()
     env.update({'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1',
                 'NUMEXPR_NUM_THREADS':'1','NUMBA_NUM_THREADS':'1','BLOSC_NTHREADS':'1','PYTHONHASHSEED':'0'})
-    env.pop('ANNDATA_INTEROP_ZARR_WAKEUP',None)
+    env.pop('ANNDATAPP_INTEROP_ZARR_WAKEUP',None)
     if instrumented: env.update({'LD_PRELOAD':str(counters),'HEAD_TO_HEAD_PROBE':'1'})
     else: env.pop('LD_PRELOAD',None);env.pop('HEAD_TO_HEAD_PROBE',None)
     result={'case':case,'size':n,'language':language,'label':label,'instrumented':instrumented,
@@ -138,7 +138,7 @@ def one(base: Path, python: str, binary: Path, driver: Path, counters: Path,
     result['stderr_sha256']=digest(root/'stderr.log')
     if instrumented:
         for line in (root/'stderr.log').read_text(errors='replace').splitlines():
-            if line.startswith('ANNDATA_COMPLETENESS_PROBE '):
+            if line.startswith('ANNDATAPP_COMPLETENESS_PROBE '):
                 result['counters']=json.loads(line.split(' ',1)[1])
         if 'counters' not in result: result.update(status='failed',error='missing bounded counter receipt')
         elif result['counters']['read_rejections'] or result['counters']['write_rejections']:
@@ -169,7 +169,7 @@ def main() -> None:
     allowed=sorted(os.sched_getaffinity(0));cpu=allowed[0] if args.cpu is None else args.cpu
     if cpu not in allowed:parser.error('selected CPU is outside current affinity')
     os.sched_setaffinity(0,{cpu})
-    summary=base/'campaign.json';data=json.loads(summary.read_text()) if summary.exists() else {'schema':'anndata.head-to-head.raw.v1','cases':{},'sources':{}}
+    summary=base/'campaign.json';data=json.loads(summary.read_text()) if summary.exists() else {'schema':'anndatapp.head-to-head.raw.v1','cases':{},'sources':{}}
     source_dir=Path(__file__).resolve().parent
     identities={'binary_sha256':digest(binary),'python_driver_sha256':digest(driver),'counters_sha256':digest(counters),
                 'runner_sha256':digest(Path(__file__)),'fixture_manifest_sha256':digest(base/'fixtures'/'fixture-manifest.json'),
@@ -212,7 +212,7 @@ def main() -> None:
             cmd=[args.python,str(verifier),case,str(fixture(base,n,case)),r['output']]
             env=os.environ.copy()
             env.update({'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1','NUMEXPR_NUM_THREADS':'1','BLOSC_NTHREADS':'1'})
-            env.pop('ANNDATA_INTEROP_ZARR_WAKEUP',None);env.pop('LD_PRELOAD',None)
+            env.pop('ANNDATAPP_INTEROP_ZARR_WAKEUP',None);env.pop('LD_PRELOAD',None)
             try:
                 verify=subprocess.run(cmd,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=args.timeout_seconds,text=True)
                 (root/'independent-validation.stdout').write_text(verify.stdout)

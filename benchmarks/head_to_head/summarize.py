@@ -60,7 +60,7 @@ def main():
                 out['trial_status']={lang:[({'status':x['status'],'error':x.get('error')} if x else None) for x in v] for lang,v in trials.items()}
             cases[key]=out
     numba=[records.get(f'4096/numba_fused_loop/python/{i}') for i in range(args.repetitions)]
-    result={'schema':'anndata.cppm.head-to-head.summary.v1','raw_campaign_sha256':sha(raw),
+    result={'schema':'anndatapp.head-to-head.summary.v1','raw_campaign_sha256':sha(raw),
             'baseline_revision':'dc946845e1457299351b0ffc4ba36ef91d49db7b','source_identities':data['sources'],
             'conditions':data['conditions'],'cases':cases,
             'numba_control':payload(numba) if all(x and x['status']=='complete' for x in numba) else {'status':'incomplete_or_unavailable'},

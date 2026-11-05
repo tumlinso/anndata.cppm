@@ -31,7 +31,7 @@ class PollPolicy(asyncio.DefaultEventLoopPolicy):
         return loop
 
 
-if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
     asyncio.set_event_loop_policy(PollPolicy())
 
 import anndata as ad
@@ -104,8 +104,8 @@ def start_probe(x_dir: Path):
     if not os.environ.get("HEAD_TO_HEAD_PROBE"):
         return None
     library = ctypes.CDLL(None)
-    begin = library.anndata_completeness_probe_begin
-    end = library.anndata_completeness_probe_end
+    begin = library.anndatapp_completeness_probe_begin
+    end = library.anndatapp_completeness_probe_end
     begin.argtypes = [ctypes.c_uint64, ctypes.c_uint64, ctypes.c_char_p,
                       ctypes.c_size_t, ctypes.c_int]
     begin.restype = ctypes.c_int

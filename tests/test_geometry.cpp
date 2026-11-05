@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-using namespace anndata;
+using namespace anndatapp;
 void check(bool ok, const char* message) { if (!ok) throw std::runtime_error(message); }
 void geometry(BackedAnnData& store) {
     auto x = store.x().storage_geometry();
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 6; ++i) b.unsafe_offsets()[i] = p[i];
         for (int i = 0; i < 4; ++i) { b.unsafe_indices()[i] = i % 3; b.values()[i] = float(i); }
         data.set_layer("counts", std::move(a));
-#if ANNDATA_HAS_HDF5
+#if ANNDATAPP_HAS_HDF5
         for (bool compressed : {false, true}) {
             auto path = (root / (compressed ? "chunked.h5ad" : "contiguous.h5ad")).string();
             WriteOptions options; options.compression = compressed ? Compression::gzip : Compression::none;
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
             if (compressed) check(g.data.chunks.size() == 2, "HDF5 chunk dimensions");
         }
 #endif
-#if ANNDATA_HAS_ZARR
+#if ANNDATAPP_HAS_ZARR
         for (auto format : {ZarrFormat::v2, ZarrFormat::v3}) {
             auto path = (root / (format == ZarrFormat::v2 ? "v2.zarr" : "v3.zarr")).string();
             ZarrWriteOptions options; options.format = format;

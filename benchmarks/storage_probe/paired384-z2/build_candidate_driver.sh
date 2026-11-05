@@ -6,11 +6,11 @@ if [[ $# -ne 1 ]]; then
   exit 64
 fi
 
-TASK=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/paired384-z2
-PAIRED96=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/paired96
-CAND=/tmp/anndata-dense-transfer-candidate
-DEPENDENCY_PREFIX=/home/tumlinson/anndata.cppm/build/dependencies/usr
-SOURCE=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp
+TASK=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/paired384-z2
+PAIRED96=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/paired96
+CAND=/tmp/anndatapp-dense-transfer-candidate
+DEPENDENCY_PREFIX=/home/tumlinson/anndatapp/build/dependencies/usr
+SOURCE=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp
 MODULE_MAP=$PAIRED96/candidate/build-run/obj/consumer.modmap
 OUTPUT_DIR=$1
 
@@ -35,7 +35,7 @@ cp "$CAND/candidate-source.sha256" "$OUTPUT_DIR/candidate-source.sha256"
   /usr/bin/clang++-18 -O3 -DNDEBUG \
     -Wl,-rpath,/usr/lib/x86_64-linux-gnu/hdf5/serial:"$DEPENDENCY_PREFIX/lib/x86_64-linux-gnu" \
     "$OUTPUT_DIR/obj/bulk_export.cpp.o" \
-    "$CAND/libanndata.a" \
+    "$CAND/libanndatapp.a" \
     /usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so \
     /usr/lib/x86_64-linux-gnu/libz.so \
     /usr/lib/x86_64-linux-gnu/libzstd.so \
@@ -45,12 +45,12 @@ cp "$CAND/candidate-source.sha256" "$OUTPUT_DIR/candidate-source.sha256"
 
 {
   printf 'lane=A2_candidate_zarr2\nsource_root=%s\nbuild_root=%s\ninput_archive=%s\n' \
-    "$CAND" "$CAND" "$CAND/libanndata.a"
+    "$CAND" "$CAND" "$CAND/libanndatapp.a"
   /usr/bin/clang++-18 --version
-  sha256sum "$CAND/libanndata.a" "$MODULE_MAP" "$SOURCE" \
+  sha256sum "$CAND/libanndatapp.a" "$MODULE_MAP" "$SOURCE" \
     "$OUTPUT_DIR/obj/bulk_export.cpp.o" "$OUTPUT_DIR/bulk_export"
 } > "$OUTPUT_DIR/build-context.txt"
-sha256sum "$CAND/libanndata.a" "$MODULE_MAP" "$SOURCE" \
+sha256sum "$CAND/libanndatapp.a" "$MODULE_MAP" "$SOURCE" \
   "$OUTPUT_DIR/obj/bulk_export.cpp.o" "$OUTPUT_DIR/bulk_export" \
   > "$OUTPUT_DIR/build-hashes.sha256"
 printf 'built candidate driver at %s\n' "$OUTPUT_DIR"

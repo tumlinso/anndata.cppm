@@ -8,10 +8,10 @@ module;
 #include <utility>
 #include <vector>
 
-export module anndata.core:strings;
+export module anndatapp.core:strings;
 export import :arrays;
 
-export namespace anndata {
+export namespace anndatapp {
 
 namespace detail {
 struct StringArrayImpl;
@@ -122,4 +122,4 @@ private:
     friend class StringArrayView;
 };
 
-} // namespace anndata
+} // namespace anndatapp

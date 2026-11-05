@@ -22,7 +22,7 @@
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "ANNDATA_BUILD_BENCHMARKS": "ON"
+        "ANNDATAPP_BUILD_BENCHMARKS": "ON"
       }
     },
     {
@@ -30,7 +30,7 @@
       "inherits": "debug",
       "binaryDir": "${sourceDir}/build/sanitizers",
       "cacheVariables": {
-        "ANNDATA_ENABLE_SANITIZERS": "ON"
+        "ANNDATAPP_ENABLE_SANITIZERS": "ON"
       }
     },
     {
@@ -38,10 +38,10 @@
       "inherits": "debug",
       "binaryDir": "${sourceDir}/build/native",
       "cacheVariables": {
-        "ANNDATA_BUILD_TESTS": "ON",
-        "ANNDATA_BUILD_EXAMPLES": "ON",
-        "ANNDATA_BUILD_BENCHMARKS": "OFF",
-        "ANNDATA_ENABLE_INTEROP_TESTS": "OFF"
+        "ANNDATAPP_BUILD_TESTS": "ON",
+        "ANNDATAPP_BUILD_EXAMPLES": "ON",
+        "ANNDATAPP_BUILD_BENCHMARKS": "OFF",
+        "ANNDATAPP_ENABLE_INTEROP_TESTS": "OFF"
       }
     },
     {
@@ -49,9 +49,9 @@
       "inherits": "debug",
       "binaryDir": "${sourceDir}/build/interop",
       "cacheVariables": {
-        "ANNDATA_BUILD_TESTS": "ON",
-        "ANNDATA_BUILD_EXAMPLES": "ON",
-        "ANNDATA_ENABLE_INTEROP_TESTS": "ON",
+        "ANNDATAPP_BUILD_TESTS": "ON",
+        "ANNDATAPP_BUILD_EXAMPLES": "ON",
+        "ANNDATAPP_ENABLE_INTEROP_TESTS": "ON",
         "Python3_EXECUTABLE": "${sourceDir}/.venv/bin/python3"
       }
     },
@@ -61,8 +61,8 @@
       "inherits": "native-check",
       "binaryDir": "${sourceDir}/build/core-only",
       "cacheVariables": {
-        "ANNDATA_ENABLE_HDF5": "OFF",
-        "ANNDATA_ENABLE_ZARR": "OFF"
+        "ANNDATAPP_ENABLE_HDF5": "OFF",
+        "ANNDATAPP_ENABLE_ZARR": "OFF"
       }
     },
     {
@@ -89,8 +89,8 @@
       "inherits": "debug",
       "binaryDir": "${sourceDir}/build/thread-sanitizers",
       "cacheVariables": {
-        "ANNDATA_ENABLE_INTEROP_TESTS": "ON",
-        "ANNDATA_ENABLE_RECORD_INTEROP_TESTS": "OFF",
+        "ANNDATAPP_ENABLE_INTEROP_TESTS": "ON",
+        "ANNDATAPP_ENABLE_RECORD_INTEROP_TESTS": "OFF",
         "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
         "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread",
         "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=thread"
@@ -101,8 +101,8 @@
       "inherits": "native-check",
       "binaryDir": "${sourceDir}/build/hdf5-only",
       "cacheVariables": {
-        "ANNDATA_ENABLE_HDF5": "ON",
-        "ANNDATA_ENABLE_ZARR": "OFF"
+        "ANNDATAPP_ENABLE_HDF5": "ON",
+        "ANNDATAPP_ENABLE_ZARR": "OFF"
       }
     },
     {
@@ -110,8 +110,8 @@
       "inherits": "native-check",
       "binaryDir": "${sourceDir}/build/zarr-only",
       "cacheVariables": {
-        "ANNDATA_ENABLE_HDF5": "OFF",
-        "ANNDATA_ENABLE_ZARR": "ON"
+        "ANNDATAPP_ENABLE_HDF5": "OFF",
+        "ANNDATAPP_ENABLE_ZARR": "ON"
       }
     }
   ],

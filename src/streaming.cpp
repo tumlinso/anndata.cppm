@@ -9,9 +9,9 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.streaming;
+module anndatapp.streaming;
 
-namespace anndata {
+namespace anndatapp {
 namespace {
 [[noreturn]] void fail(const char* s) { throw Error(ErrorCode::invalid_argument, "block stream", s); }
 std::size_t mul(std::size_t a, std::size_t b) {

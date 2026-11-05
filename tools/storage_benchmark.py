@@ -40,11 +40,11 @@ ACTIONS = (
 )
 MUTATING_ACTIONS = {"write", "reindex", "structure"}
 IMPORTS = {
-    "core": "anndata.core",
-    "backed": "anndata.backed",
-    "facade": "anndata",
-    "h5ad": "anndata.h5ad",
-    "zarr": "anndata.zarr",
+    "core": "anndatapp.core",
+    "backed": "anndatapp.backed",
+    "facade": "anndatapp",
+    "h5ad": "anndatapp.h5ad",
+    "zarr": "anndatapp.zarr",
 }
 CONFIGURATIONS = {
     "core": (False, False),
@@ -257,8 +257,8 @@ def relevant_environment() -> dict[str, str | None]:
 def cache_values(path: Path) -> dict[str, str]:
     wanted = re.compile(
         r"^(CMAKE_(CXX_COMPILER|CXX_COMPILER_VERSION|CXX_FLAGS(?:_RELEASE)?|BUILD_TYPE|GENERATOR|PREFIX_PATH)|"
-        r"ANNDATA_(ENABLE_HDF5|ENABLE_ZARR|DEPENDENCY_PREFIX|BUILD_BENCHMARKS)|"
-        r"(ANNDATA_HDF5|zstd|nlohmann_json|Blosc|ZLIB)_.*)"
+        r"ANNDATAPP_(ENABLE_HDF5|ENABLE_ZARR|DEPENDENCY_PREFIX|BUILD_BENCHMARKS)|"
+        r"(ANNDATAPP_HDF5|zstd|nlohmann_json|Blosc|ZLIB)_.*)"
     )
     values: dict[str, str] = {}
     if not path.is_file():
@@ -312,11 +312,11 @@ def build_artifacts(build: Path) -> dict[str, dict[str, Any]]:
         },
         "library_objects": {
             path: item for path, item in objects.items()
-            if path.startswith("CMakeFiles/anndata.dir/")
+            if path.startswith("CMakeFiles/anndatapp.dir/")
         },
         "other_objects": {
             path: item for path, item in objects.items()
-            if not path.startswith(("CMakeFiles/storage_import_", "CMakeFiles/anndata.dir/"))
+            if not path.startswith(("CMakeFiles/storage_import_", "CMakeFiles/anndatapp.dir/"))
         },
     }
 
@@ -500,7 +500,7 @@ def add_import_probes(source: Path) -> dict[str, str]:
     for name in IMPORTS:
         target = f"storage_import_{name}"
         addition += (f"add_executable({target} benchmarks/storage_imports/{name}.cpp)\n"
-                     f"target_link_libraries({target} PRIVATE anndata::anndata)\n")
+                     f"target_link_libraries({target} PRIVATE anndatapp::anndatapp)\n")
     cmake = source / "CMakeLists.txt"
     cmake.write_text(cmake.read_text() + addition)
     return {name: sha256_file(probe_root / f"{name}.cpp") for name in IMPORTS}
@@ -518,11 +518,11 @@ def configure_command(
     return [
         "cmake", "-S", str(source), "-B", str(build), "-G", "Ninja",
         f"-DCMAKE_CXX_COMPILER={compiler}", f"-DCMAKE_BUILD_TYPE={configuration}",
-        "-DANNDATA_BUILD_TESTS=OFF", "-DANNDATA_BUILD_EXAMPLES=OFF",
-        "-DANNDATA_BUILD_BENCHMARKS=ON", "-DANNDATA_ENABLE_INTEROP_TESTS=OFF",
-        f"-DANNDATA_ENABLE_HDF5={'ON' if hdf5 else 'OFF'}",
-        f"-DANNDATA_ENABLE_ZARR={'ON' if zarr else 'OFF'}",
-        f"-DANNDATA_DEPENDENCY_PREFIX={dependency_prefix}",
+        "-DANNDATAPP_BUILD_TESTS=OFF", "-DANNDATAPP_BUILD_EXAMPLES=OFF",
+        "-DANNDATAPP_BUILD_BENCHMARKS=ON", "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF",
+        f"-DANNDATAPP_ENABLE_HDF5={'ON' if hdf5 else 'OFF'}",
+        f"-DANNDATAPP_ENABLE_ZARR={'ON' if zarr else 'OFF'}",
+        f"-DANNDATAPP_DEPENDENCY_PREFIX={dependency_prefix}",
     ]
 
 
@@ -562,7 +562,7 @@ def run_build_trial(
             trial_record["errors"].append("configure failed; build stages skipped")
         trial_record["temporary_source_restored"] = tree_manifest(source) == tree_manifest(frozen_source)
         return trial_record
-    cold = run_process(build_command(build, ["anndata"], jobs), cwd=source,
+    cold = run_process(build_command(build, ["anndatapp"], jobs), cwd=source,
                        timeout_seconds=1800)
     trial_record["cold_library_build"] = cold
     if not cold["success"]:
@@ -604,9 +604,9 @@ def run_build_trial(
     private_file = source / "src" / "backed_array.cpp"
     if not private_file.is_file():
         raise RuntimeError("private storage implementation probe src/backed_array.cpp is missing")
-    interface_file = source / "src" / "anndata.arrays.cppm"
+    interface_file = source / "src" / "anndatapp.arrays.cppm"
     if not interface_file.is_file():
-        raise RuntimeError("public interface probe source src/anndata.arrays.cppm is missing")
+        raise RuntimeError("public interface probe source src/anndatapp.arrays.cppm is missing")
     private_bytes = private_file.read_bytes()
     interface_bytes = interface_file.read_bytes()
     private_file.write_bytes(private_bytes + (
@@ -617,7 +617,7 @@ def run_build_trial(
     after_private = before_private
     after_interface = None
     try:
-        private_targets = ["anndata", *successful_targets]
+        private_targets = ["anndatapp", *successful_targets]
         private = run_process(build_command(build, private_targets, jobs),
                               cwd=source, timeout_seconds=1800)
         after_private = build_artifacts(build)
@@ -628,10 +628,10 @@ def run_build_trial(
                 trial_record["errors"].append(
                     "private implementation edit build failed; interface stage skipped")
         else:
-            marker = b"} // namespace anndata"
+            marker = b"} // namespace anndatapp"
             location = interface_bytes.rfind(marker)
             if location < 0:
-                raise RuntimeError("could not locate exported anndata namespace boundary for interface probe")
+                raise RuntimeError("could not locate exported anndatapp namespace boundary for interface probe")
             edit = (f"inline constexpr int storage_interface_revision_{trial} = {trial};\n\n").encode()
             interface_file.write_bytes(interface_bytes[:location] + edit + interface_bytes[location:])
             # Keep the private edit installed during this build. This leaves its
@@ -1317,7 +1317,7 @@ def benchmark(
     source = Path(args.source).resolve()
     dependency_prefix = (Path(args.dependency_prefix).expanduser().resolve()
                          if args.dependency_prefix else source / "build" / "dependencies" / "usr")
-    temp_root = Path(tempfile.mkdtemp(prefix="anndata-storage-benchmark-"))
+    temp_root = Path(tempfile.mkdtemp(prefix="anndatapp-storage-benchmark-"))
     args._work_root = str(temp_root)
     frozen = temp_root / "frozen-source"
     source_hashes = snapshot_source(source, frozen)
@@ -1350,7 +1350,7 @@ def benchmark(
         "repetitions": args.runs,
     }
     report: dict[str, Any] = {
-        "schema": "anndata.storage-benchmark.v1",
+        "schema": "anndatapp.storage-benchmark.v1",
         "source_root": str(source),
         "source_snapshot": {
             "git_head": tool_output(["git", "-C", str(source), "rev-parse", "HEAD"]),
@@ -1678,7 +1678,7 @@ def main() -> int:
         temp_root = report.get("temporary_work_root")
     except Exception as error:
         report = state.get("report", {
-            "schema": "anndata.storage-benchmark.v1",
+            "schema": "anndatapp.storage-benchmark.v1",
             "temporary_work_root": getattr(args, "_work_root", None),
         })
         report["fatal_error"] = f"{type(error).__name__}: {error}"

@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 import warnings
 
-if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests"))
     from python_storage import install_restricted_runner_wakeup
     install_restricted_runner_wakeup()
@@ -121,7 +121,7 @@ def main() -> None:
     layouts = {"zarr3_4": (128,256), "zarr3_16": (64,128), "zarr3_64": (32,64)}
     for name, inner in layouts.items(): create(root/name, a, inner, (256,512))
     create_huge(root/"huge_gap")
-    manifest = {"schema": "anndata.completeness.fixture.v1", "seed_manifest_sha256": digest(seed/"manifest.json"),
+    manifest = {"schema": "anndatapp.completeness.fixture.v1", "seed_manifest_sha256": digest(seed/"manifest.json"),
                 "generator_sha256": digest(Path(__file__).resolve()), "shape": list(values.shape),
                 "layouts": {k: {"inner": list(v), "shard": [256,512], "index_bytes": 4+16*(256//v[0])*(512//v[1]),
                                 "files": files(root/k)} for k,v in layouts.items()},

@@ -7,9 +7,9 @@
 #include <string_view>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-using namespace anndata;
+using namespace anndatapp;
 
 namespace {
 template<class T>

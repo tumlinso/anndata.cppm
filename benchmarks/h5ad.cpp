@@ -1,5 +1,5 @@
 // Small end-to-end H5AD workload for the opt-in benchmark target.
-import anndata;
+import anndatapp;
 
 #include <charconv>
 #include <chrono>
@@ -31,9 +31,9 @@ std::uint32_t next_value(std::uint32_t& state) {
     return state;
 }
 
-anndata::AnnData make_dense(std::size_t rows, std::size_t columns) {
-    auto result = anndata::AnnData::empty(rows, columns);
-    auto values = anndata::Array::empty<float>({rows, columns});
+anndatapp::AnnData make_dense(std::size_t rows, std::size_t columns) {
+    auto result = anndatapp::AnnData::empty(rows, columns);
+    auto values = anndatapp::Array::empty<float>({rows, columns});
     auto view = values.edit().dense<float>();
     auto* data = view.data();
     std::uint32_t state = 0x41f2ac53u;
@@ -45,10 +45,10 @@ anndata::AnnData make_dense(std::size_t rows, std::size_t columns) {
     return result;
 }
 
-anndata::AnnData make_csr(std::size_t rows, std::size_t columns, std::size_t per_row) {
+anndatapp::AnnData make_csr(std::size_t rows, std::size_t columns, std::size_t per_row) {
     const auto nnz = rows * per_row;
-    auto result = anndata::AnnData::empty(rows, columns);
-    auto values = anndata::Array::csr<float, std::uint32_t, std::uint64_t>(rows, columns, nnz);
+    auto result = anndatapp::AnnData::empty(rows, columns);
+    auto values = anndatapp::Array::csr<float, std::uint32_t, std::uint64_t>(rows, columns, nnz);
     auto view = values.edit().csr<float, std::uint32_t, std::uint64_t>();
     std::uint32_t state = 0x86b4d20fu;
     auto* data = view.values();
@@ -64,9 +64,9 @@ anndata::AnnData make_csr(std::size_t rows, std::size_t columns, std::size_t per
     return result;
 }
 
-double checksum(anndata::ArrayView values) {
+double checksum(anndatapp::ArrayView values) {
     double sum = 0.0;
-    if (values.layout() == anndata::Layout::dense) {
+    if (values.layout() == anndatapp::Layout::dense) {
         auto typed = values.dense<float>();
         for (std::size_t row = 0; row < typed.extent(0); ++row)
             for (std::size_t column = 0; column < typed.extent(1); ++column)
@@ -79,26 +79,26 @@ double checksum(anndata::ArrayView values) {
     return sum;
 }
 
-std::size_t payload_bytes(anndata::ArrayView values) {
-    if (values.layout() == anndata::Layout::dense)
+std::size_t payload_bytes(anndatapp::ArrayView values) {
+    if (values.layout() == anndatapp::Layout::dense)
         return values.extent(0) * values.extent(1) * sizeof(float);
     auto typed = values.csr<float, std::uint32_t, std::uint64_t>();
     return typed.nnz() * (sizeof(float) + sizeof(std::uint32_t))
         + (typed.rows() + 1) * sizeof(std::uint64_t);
 }
 
-anndata::WriteOptions write_options(std::string_view compression,
+anndatapp::WriteOptions write_options(std::string_view compression,
                                     std::string_view byte_order) {
-    anndata::WriteOptions options;
+    anndatapp::WriteOptions options;
     if (compression == "gzip") {
-        options.compression = anndata::Compression::gzip;
+        options.compression = anndatapp::Compression::gzip;
         options.gzip_level = 4;
     } else if (compression != "none") {
         throw std::runtime_error("compression must be none or gzip");
     }
-    if (byte_order == "native") options.byte_order = anndata::FileByteOrder::native;
-    else if (byte_order == "big") options.byte_order = anndata::FileByteOrder::big;
-    else if (byte_order == "little") options.byte_order = anndata::FileByteOrder::little;
+    if (byte_order == "native") options.byte_order = anndatapp::FileByteOrder::native;
+    else if (byte_order == "big") options.byte_order = anndatapp::FileByteOrder::big;
+    else if (byte_order == "little") options.byte_order = anndatapp::FileByteOrder::little;
     else throw std::runtime_error("byte order must be native, little, or big");
     return options;
 }
@@ -138,11 +138,11 @@ int main(int argc, char** argv) {
         sum = checksum(output.x());
         payload = payload_bytes(output.x());
         if (action == "seed") {
-            anndata::write_h5ad(filename, output, options);
+            anndatapp::write_h5ad(filename, output, options);
             return 0;
         }
         const auto start = Clock::now();
-        anndata::write_h5ad(filename, output, options);
+        anndatapp::write_h5ad(filename, output, options);
         const auto seconds = std::chrono::duration<double>(Clock::now() - start).count();
         std::ifstream input(filename, std::ios::binary | std::ios::ate);
         if (!input) throw std::runtime_error("could not inspect benchmark output file");
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         return 0;
     } else if (action == "read") {
         const auto start = Clock::now();
-        auto data = anndata::read_h5ad(filename);
+        auto data = anndatapp::read_h5ad(filename);
         const auto seconds = std::chrono::duration<double>(Clock::now() - start).count();
         if (data.n_obs() != rows || data.n_vars() != columns)
             throw std::runtime_error("read dimensions differ from expected dimensions");

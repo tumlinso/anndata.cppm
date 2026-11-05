@@ -13,7 +13,7 @@ import subprocess
 import sys
 import time
 
-if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
     from python_storage import install_restricted_runner_wakeup
     install_restricted_runner_wakeup()
@@ -139,7 +139,7 @@ def main() -> int:
     if baseline and any(baseline[k]!=v for k,v in reference.items()): raise SystemExit("baseline fixture or interposer differs")
     if args.output.exists() or args.work_root.exists(): raise SystemExit("output and work root must not already exist")
     args.output.parent.mkdir(parents=True,exist_ok=True); args.work_root.mkdir(parents=True,exist_ok=False)
-    record = {"schema":"anndata.completeness.probe.v1", **reference, "driver_sha256":digest(args.driver),
+    record = {"schema":"anndatapp.completeness.probe.v1", **reference, "driver_sha256":digest(args.driver),
               "adaptive_driver_sha256":digest(args.adaptive_driver),"runner_sha256":digest(Path(__file__).resolve()),
               "machine":platform.platform(),"budget":{"seconds_per_case":30,"intercepted_bytes_each_direction":512*1024*1024},
               "scope":"armed libc calls only; setup, copying, fixture checks and independent validation are outside caps",
@@ -149,8 +149,8 @@ def main() -> int:
         path.write_text(json.dumps(record,indent=2)+"\n"); path.replace(args.output)
     checkpoint()
     env = os.environ.copy(); env["LD_PRELOAD"] = str(args.interposer.resolve())
-    slow = {"ANNDATA_COMPLETENESS_DELAY_FAST_US":"500","ANNDATA_COMPLETENESS_DELAY_SLOW_US":"2000",
-            "ANNDATA_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW":"8"}
+    slow = {"ANNDATAPP_COMPLETENESS_DELAY_FAST_US":"500","ANNDATAPP_COMPLETENESS_DELAY_SLOW_US":"2000",
+            "ANNDATAPP_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW":"8"}
     adaptive_seed_checked = False
     for name in args.cases:
         target = None
@@ -180,8 +180,8 @@ def main() -> int:
             checkpoint()
             if proc.returncode != 0: return 1
             entry["result"] = json.loads(proc.stdout)
-            lines = [line.removeprefix("ANNDATA_COMPLETENESS_PROBE ") for line in proc.stderr.splitlines()
-                     if line.startswith("ANNDATA_COMPLETENESS_PROBE ")]
+            lines = [line.removeprefix("ANNDATAPP_COMPLETENESS_PROBE ") for line in proc.stderr.splitlines()
+                     if line.startswith("ANNDATAPP_COMPLETENESS_PROBE ")]
             if len(lines)!=1: raise ValueError("expected exactly one counter record")
             entry["counters"] = json.loads(lines[0])
             checkpoint()

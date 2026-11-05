@@ -11,10 +11,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.core;
+module anndatapp.core;
 import :arrays;
 
-namespace anndata {
+namespace anndatapp {
 namespace detail {
 struct State {
     DType type = DType::float32;
@@ -710,4 +710,4 @@ Array ArrayView::copy(Validation validation) const {
     for (std::size_t i = 0; i < output_offsets.size(); ++i) write_index(result.state_->offsets, state_->offset_type, i, output_offsets[i]);
     return result;
 }
-} // namespace anndata
+} // namespace anndatapp

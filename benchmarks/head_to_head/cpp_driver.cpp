@@ -18,13 +18,13 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-extern "C" int anndata_completeness_probe_begin(std::uint64_t, std::uint64_t,
+extern "C" int anndatapp_completeness_probe_begin(std::uint64_t, std::uint64_t,
                                                 const char*, std::size_t, int) __attribute__((weak));
-extern "C" void anndata_completeness_probe_end() __attribute__((weak));
+extern "C" void anndatapp_completeness_probe_end() __attribute__((weak));
 
-using namespace anndata;
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 
 static double since(Clock::time_point t) { return std::chrono::duration<double>(Clock::now()-t).count(); }
@@ -79,11 +79,11 @@ static const char* dtype(DType t) {
 static void begin_probe(const std::filesystem::path& path) {
     if (!std::getenv("HEAD_TO_HEAD_PROBE")) return;
     auto root = std::filesystem::is_directory(path/"X") ? path/"X" : path.parent_path();
-    if (!anndata_completeness_probe_begin || !anndata_completeness_probe_end ||
-        anndata_completeness_probe_begin(512ull<<20,512ull<<20,root.c_str(),0,0))
+    if (!anndatapp_completeness_probe_begin || !anndatapp_completeness_probe_end ||
+        anndatapp_completeness_probe_begin(512ull<<20,512ull<<20,root.c_str(),0,0))
         throw std::runtime_error("could not arm bounded interposer");
 }
-static void end_probe() { if (std::getenv("HEAD_TO_HEAD_PROBE")) anndata_completeness_probe_end(); }
+static void end_probe() { if (std::getenv("HEAD_TO_HEAD_PROBE")) anndatapp_completeness_probe_end(); }
 
 static void checkpoint(std::string_view test,std::size_t n,double prepare,double seconds,double cpu_seconds,Memory before,Memory after,
                        const TransferStats* stats=nullptr) {
@@ -198,5 +198,5 @@ int main(int argc,char** argv) {
         if (test=="h5ad_eager_read_dense" || test=="h5ad_eager_write_dense" || test=="numpy_fused_loop")
             eager(test,argv[2],argv[3],start);
         else backed(test,argv[2],argv[3],start);
-    } catch (const std::exception& e) {if (std::getenv("HEAD_TO_HEAD_PROBE") && anndata_completeness_probe_end) anndata_completeness_probe_end();std::cerr << e.what() << '\n';return 1;}
+    } catch (const std::exception& e) {if (std::getenv("HEAD_TO_HEAD_PROBE") && anndatapp_completeness_probe_end) anndatapp_completeness_probe_end();std::cerr << e.what() << '\n';return 1;}
 }

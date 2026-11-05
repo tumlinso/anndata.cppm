@@ -11,10 +11,10 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata {
+namespace anndatapp {
 namespace detail {
 using StructureSource = std::variant<Element, BackedArray, BackedElement, BackedTable, BackedColumn>;
 struct StructureEditImpl {
@@ -24,7 +24,7 @@ struct StructureEditImpl {
     std::size_t observed_revision = 0;
     // nullopt means erase; an Element may itself have ElementKind::null.
     std::map<std::string, std::optional<StructureSource>, std::less<>> changes;
-    std::optional<std::pair<::anndata::Selection, ::anndata::Selection>> selection;
+    std::optional<std::pair<::anndatapp::Selection, ::anndatapp::Selection>> selection;
     bool consumed = false;
 };
 }
@@ -613,7 +613,7 @@ std::shared_ptr<detail::BackedNode> source_node(const StructureSource& source) {
 }
 std::string unused_temporary(Backend& backend, std::size_t& counter) {
     for (;;) {
-        auto path = "/.anndata_cppm_temporary_" + std::to_string(counter++);
+        auto path = "/.anndatapp_temporary_" + std::to_string(counter++);
         if (!backend.inspect(path).exists) return path;
     }
 }
@@ -861,4 +861,4 @@ void BackedAnnData::erase(std::string path) {
     edit.erase(std::move(path));
     edit.apply();
 }
-} // namespace anndata
+} // namespace anndatapp

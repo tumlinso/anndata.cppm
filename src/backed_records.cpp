@@ -12,11 +12,11 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
-import anndata.core;
+module anndatapp.backed;
+import anndatapp.core;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 using Shape = std::vector<std::size_t>;
 using Node = std::shared_ptr<detail::BackedNode>;
@@ -258,4 +258,4 @@ void copy_record(Backend& out, std::string_view path, const Node& node,
         }
     }
 }
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail

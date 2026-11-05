@@ -9,9 +9,9 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-using namespace anndata;
+using namespace anndatapp;
 
 namespace {
 void require(bool condition, std::string_view message) {
@@ -488,7 +488,7 @@ int main(int argc, char** argv) {
             throw std::runtime_error("unknown command");
         }
     } catch (const Error& error) {
-        std::cerr << "anndata error[" << code_name(error.code()) << "] ";
+        std::cerr << "anndatapp error[" << code_name(error.code()) << "] ";
         if (!error.path().empty()) std::cerr << error.path() << ": ";
         std::cerr << error.what() << '\n';
         return 1;

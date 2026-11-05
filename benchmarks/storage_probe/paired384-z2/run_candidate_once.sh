@@ -6,8 +6,8 @@ if [[ $# -ne 4 ]]; then
   exit 64
 fi
 
-TASK=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/paired384-z2
-CODEC_IO_PRELOAD=/tmp/anndata-storage-bulk-probe-20261103-kwCan4/libcodec_counts_limited.so
+TASK=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/paired384-z2
+CODEC_IO_PRELOAD=/tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/libcodec_counts_limited.so
 PROFILE_BUILD=$(realpath "$1")
 SOURCE=$(realpath "$2")
 DESTINATION=$3
@@ -22,9 +22,9 @@ mkdir -p "$RECORD_DIR/profile-sources"
 
 cp "$TASK/compare_zarr2.py" "$RECORD_DIR/profile-sources/"
 cp "$TASK/run_candidate_once.sh" "$RECORD_DIR/profile-sources/"
-cp /tmp/anndata-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp \
+cp /tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp \
   "$RECORD_DIR/profile-sources/"
-cp /tmp/anndata-storage-bulk-probe-20261103-kwCan4/codec_counts_limited.c \
+cp /tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/codec_counts_limited.c \
   "$RECORD_DIR/profile-sources/"
 cp "$CODEC_IO_PRELOAD" "$RECORD_DIR/profile-sources/libcodec_counts_limited.so"
 cp "$PROFILE_BUILD/build-context.txt" "$RECORD_DIR/build-context.txt"
@@ -41,8 +41,8 @@ find "$SOURCE/X" -type f -printf '%s %p\n' | sort -n \
   > "$RECORD_DIR/source-x-files-by-size.txt"
 sha256sum "$PROFILE_BUILD/bulk_export" "$CODEC_IO_PRELOAD" \
   "$TASK/compare_zarr2.py" "$TASK/run_candidate_once.sh" \
-  /tmp/anndata-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp \
-  /tmp/anndata-storage-bulk-probe-20261103-kwCan4/codec_counts_limited.c \
+  /tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/bulk_export.cpp \
+  /tmp/anndatapp-storage-bulk-probe-20261103-kwCan4/codec_counts_limited.c \
   > "$RECORD_DIR/run-hashes.sha256"
 
 set +e
@@ -55,7 +55,7 @@ set -e
 printf '%s\n' "$status" > "$RECORD_DIR/exit-code.txt"
 
 if [[ $status -eq 0 ]]; then
-  /home/tumlinson/anndata.cppm/.venv/bin/python \
+  /home/tumlinson/anndatapp/.venv/bin/python \
     "$TASK/compare_zarr2.py" "$SOURCE" "$DESTINATION" \
     "$RECORD_DIR/validation.json" \
     > "$RECORD_DIR/validation.stdout" 2> "$RECORD_DIR/validation.stderr"
@@ -68,7 +68,7 @@ if [[ -e "$DESTINATION" ]]; then
   /usr/bin/du -sb "$DESTINATION" > "$RECORD_DIR/destination-du.txt"
   find "$DESTINATION" -type f -printf '%s %p\n' | sort -n \
     > "$RECORD_DIR/destination-files.txt"
-  /home/tumlinson/anndata.cppm/.venv/bin/python - "$DESTINATION" "$RECORD_DIR/destination.sha256" <<'PY'
+  /home/tumlinson/anndatapp/.venv/bin/python - "$DESTINATION" "$RECORD_DIR/destination.sha256" <<'PY'
 import hashlib
 from pathlib import Path
 import sys

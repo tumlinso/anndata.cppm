@@ -91,7 +91,7 @@ def object_groups(build: Path) -> dict[str, dict]:
             if path.startswith(("CMakeFiles/h5ad_import_", "CMakeFiles/h5ad_benchmark.dir/"))},
         "library_objects": {
             path: record for path, record in objects.items()
-            if path.startswith("CMakeFiles/anndata.dir/")},
+            if path.startswith("CMakeFiles/anndatapp.dir/")},
     }
 
 def build_cmd(build: Path, *targets: str) -> list[str]:
@@ -101,16 +101,16 @@ def build_cmd(build: Path, *targets: str) -> list[str]:
 def add_import_probes(source: Path, enabled: bool) -> None:
     probe = source / "benchmarks" / "imports"
     probe.mkdir(parents=True, exist_ok=True)
-    (probe / "core.cpp").write_text("import anndata.core;\nint main() { return 0; }\n")
-    (probe / "facade.cpp").write_text("import anndata;\nint main() { return 0; }\n")
+    (probe / "core.cpp").write_text("import anndatapp.core;\nint main() { return 0; }\n")
+    (probe / "facade.cpp").write_text("import anndatapp;\nint main() { return 0; }\n")
     addition = "\n# Temporary module import probes.\n"
     for name in ("core", "facade"):
         addition += (f"add_executable(h5ad_import_{name} benchmarks/imports/{name}.cpp)\n"
-                     f"target_link_libraries(h5ad_import_{name} PRIVATE anndata::anndata)\n")
+                     f"target_link_libraries(h5ad_import_{name} PRIVATE anndatapp::anndatapp)\n")
     if enabled:
-        (probe / "h5ad.cpp").write_text("import anndata.h5ad;\nint main() { return 0; }\n")
+        (probe / "h5ad.cpp").write_text("import anndatapp.h5ad;\nint main() { return 0; }\n")
         addition += ("add_executable(h5ad_import_module benchmarks/imports/h5ad.cpp)\n"
-                     "target_link_libraries(h5ad_import_module PRIVATE anndata::anndata)\n")
+                     "target_link_libraries(h5ad_import_module PRIVATE anndatapp::anndatapp)\n")
     cmake = source / "CMakeLists.txt"
     cmake.write_text(cmake.read_text() + addition)
 
@@ -124,13 +124,13 @@ def compile_trial(root: Path, temp: Path, enabled: bool, trial: int) -> dict:
     work.mkdir()
     configure = ["cmake", "-S", str(source), "-B", str(build), "-G", "Ninja",
                  "-DCMAKE_CXX_COMPILER=clang++-18", "-DCMAKE_BUILD_TYPE=Release",
-                 "-DANNDATA_BUILD_TESTS=ON", "-DANNDATA_BUILD_EXAMPLES=ON",
-                 "-DANNDATA_BUILD_BENCHMARKS=ON",
-                 f"-DANNDATA_ENABLE_HDF5={'ON' if enabled else 'OFF'}",
-                 "-DANNDATA_ENABLE_INTEROP_TESTS=OFF"]
+                 "-DANNDATAPP_BUILD_TESTS=ON", "-DANNDATAPP_BUILD_EXAMPLES=ON",
+                 "-DANNDATAPP_BUILD_BENCHMARKS=ON",
+                 f"-DANNDATAPP_ENABLE_HDF5={'ON' if enabled else 'OFF'}",
+                 "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF"]
     configure_seconds, output = run(configure, source)
     (work / "configure.log").write_text(output)
-    library = timed(build_cmd(build, "anndata"),
+    library = timed(build_cmd(build, "anndatapp"),
                     source, work / "library.log")
     imports = {}
     targets = ["h5ad_import_core", "h5ad_import_facade"]
@@ -154,7 +154,7 @@ def compile_trial(root: Path, temp: Path, enabled: bool, trial: int) -> dict:
 def invalidation_probe(source: Path, build: Path, work: Path) -> dict:
     """Confirm a private H5AD implementation edit keeps public BMIs/objects."""
     implementation = source / "src" / "h5ad.cpp"
-    interface = source / "src" / "anndata.h5ad.cppm"
+    interface = source / "src" / "anndatapp.h5ad.cppm"
     if not implementation.is_file() or not interface.is_file():
         raise RuntimeError("H5AD implementation/interface paths are missing from the snapshot")
     targets = ["h5ad_import_core", "h5ad_import_facade", "h5ad_import_module",
@@ -293,11 +293,11 @@ def reclassify_saved_report(root: Path, temporary: Path, output: Path) -> None:
     build = temporary / f"build-1-{trial_number}"
     work = temporary / f"work-1-{trial_number}"
     expected = enabled_trials[-1]["source_sha256"]
-    for relative in ("src/h5ad.cpp", "src/anndata.h5ad.cppm"):
+    for relative in ("src/h5ad.cpp", "src/anndatapp.h5ad.cppm"):
         if sha256(root / relative) != expected.get(relative):
             raise RuntimeError(f"the measured source identity changed: {relative}")
-    (source / "src/anndata.h5ad.cppm").write_bytes(
-        (root / "src/anndata.h5ad.cppm").read_bytes())
+    (source / "src/anndatapp.h5ad.cppm").write_bytes(
+        (root / "src/anndatapp.h5ad.cppm").read_bytes())
     reset_command = build_cmd(
         build, "h5ad_import_core", "h5ad_import_facade", "h5ad_import_module", "h5ad_benchmark")
     reset_seconds, reset_log = run(reset_command, source)
@@ -313,7 +313,7 @@ def reclassify_saved_report(root: Path, temporary: Path, output: Path) -> None:
             if path.startswith(("CMakeFiles/h5ad_import_", "CMakeFiles/h5ad_benchmark.dir/"))}
         record["library_objects"] = {
             path: artifact for path, artifact in objects.items()
-            if path.startswith("CMakeFiles/anndata.dir/")}
+            if path.startswith("CMakeFiles/anndatapp.dir/")}
     impl = report["rebuild_invalidation"]["implementation_edit"]
     api = report["rebuild_invalidation"]["interface_edit"]
     report["rebuild_invalidation"]["dependency_assertions_passed"] = bool(
@@ -322,7 +322,7 @@ def reclassify_saved_report(root: Path, temporary: Path, output: Path) -> None:
         and api["at_least_one_consumer_object_rebuilt"])
     report["measurement_correction"] = (
         "Cold build and H5AD I/O samples were retained unchanged. The first invalidation "
-        "snapshot counted CMakeFiles/anndata.dir/src/h5ad.cpp.o as a consumer object; "
+        "snapshot counted CMakeFiles/anndatapp.dir/src/h5ad.cpp.o as a consumer object; "
         "this was a classification error. Restored the measured H5AD interface source, "
         "rebuilt the same imported consumers, then reran only the implementation/interface "
         "invalidation checks with module-provider objects separated from library objects. "
@@ -366,7 +366,7 @@ def main() -> int:
         return 0
     git_status = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"],
                                 cwd=root, stdout=subprocess.PIPE, text=True, check=False)
-    report = {"format": "anndata.cppm.h5ad-benchmark", "version": 1,
+    report = {"format": "anndatapp.h5ad-benchmark", "version": 1,
               "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
               "revision": subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                                          stdout=subprocess.PIPE, text=True, check=False).stdout.strip(),
@@ -391,9 +391,9 @@ def main() -> int:
               "build_trials": [], "rebuild_invalidation": None, "io_raw_trials": []}
     context = None
     if args.keep_builds:
-        temp = Path(tempfile.mkdtemp(prefix="anndata-h5ad-bench-"))
+        temp = Path(tempfile.mkdtemp(prefix="anndatapp-h5ad-bench-"))
     else:
-        context = tempfile.TemporaryDirectory(prefix="anndata-h5ad-bench-")
+        context = tempfile.TemporaryDirectory(prefix="anndatapp-h5ad-bench-")
         temp = Path(context.name)
     try:
         if args.io_executable:

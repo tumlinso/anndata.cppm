@@ -20,19 +20,19 @@ References: [AnnData encoding specification](https://anndata.readthedocs.io/en/s
 
 ## Module and implementation boundaries
 
-`anndata.core` owns the public data API. Its arrays, strings, and data interface partitions organize that module; they are not independently importable modules. `anndata.backed` adds backend-neutral lazy descriptors, caller-buffer reads, mappings and structural edits. `anndata.h5ad` and `anndata.zarr` add format operations and options. `anndata` re-exports the core, backed API and enabled format modules as the ordinary user entry point.
+`anndatapp.core` owns the public data API. Its arrays, strings, and data interface partitions organize that module; they are not independently importable modules. `anndatapp.backed` adds backend-neutral lazy descriptors, caller-buffer reads, mappings and structural edits. `anndatapp.h5ad` and `anndatapp.zarr` add format operations and options. `anndatapp` re-exports the core, backed API and enabled format modules as the ordinary user entry point.
 
-The private `anndata.backed:storage` implementation partition defines the shared storage contract, session and encoding machinery. It is scanned by CMake but is neither a public import nor an installed interface. Backend implementations depend on this contract; public interfaces do not depend on backend headers. Implementation units can change without invalidating public module artifacts or recompiling consumer objects; compilation reports verify the actual dependency behavior.
+The private `anndatapp.backed:storage` implementation partition defines the shared storage contract, session and encoding machinery. It is scanned by CMake but is neither a public import nor an installed interface. Backend implementations depend on this contract; public interfaces do not depend on backend headers. Implementation units can change without invalidating public module artifacts or recompiling consumer objects; compilation reports verify the actual dependency behavior.
 
-The package installs one binary plus interface sources and CMake module metadata. Its configuration creates one consumer-local module-interface provider behind `anndata::anndata`, so multiple executables share the same interface build. This avoids duplicate synthesized module rules in CMake 3.28.3 while preserving ordinary `find_package()` consumption. Static, shared, and core-only configurations use the same public target. Consumers compile their own BMIs; those artifacts are not portable across arbitrary compilers, flags, or standard libraries. Separate exported format-component targets require additional qualification.
+The package installs one binary plus interface sources and CMake module metadata. Its configuration creates one consumer-local module-interface provider behind `anndatapp::anndatapp`, so multiple executables share the same interface build. This avoids duplicate synthesized module rules in CMake 3.28.3 while preserving ordinary `find_package()` consumption. Static, shared, and core-only configurations use the same public target. Consumers compile their own BMIs; those artifacts are not portable across arbitrary compilers, flags, or standard libraries. Separate exported format-component targets require additional qualification.
 
 Public owners use erased out-of-line implementation. Small templates provide typed memory views. HDF5, Arrow, JSON, codec, and other backend headers belong in implementation boundaries. HDF5 and Zarr are enabled by default and independently optional; disabling both leaves a dependency-free core and backend-neutral descriptors. Numerical loops on acquired buffers require no backend dispatch or library synchronization.
 
 ## Reuse decisions
 
-`anndata.streaming` imports the backed API and adds caller-executed block plans
+`anndatapp.streaming` imports the backed API and adds caller-executed block plans
 and runtime adaptation. Geometry and worker-local `TransferContext` resources
-belong to `anndata.backed`. Tuning implementation stays out of the core module;
+belong to `anndatapp.backed`. Tuning implementation stays out of the core module;
 neither module owns an execution pool. See [the transfer contract](streaming.md).
 
 - [HDF5](https://github.com/HDFGroup/hdf5): its C library sits behind the private H5AD adapter. AnnData element codecs are separate from generic HDF5 mechanics.

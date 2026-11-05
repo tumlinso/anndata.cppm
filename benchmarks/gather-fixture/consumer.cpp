@@ -1,4 +1,4 @@
-import anndata.core;
+import anndatapp.core;
 
 #include <cstddef>
 #include <initializer_list>
@@ -8,11 +8,11 @@ import anndata.core;
 int main() {
     float scalar = 4.5f;
     const std::size_t positions[] = {2, 0};
-    const auto axis = anndata::Axis::gather(positions, 2);
-    auto data = anndata::AnnData::empty(3, 1);
-    data.set_x(anndata::Array::borrow_dense(&scalar, {3, 1}, {0, 0},
-                                            anndata::Validation::none));
-    auto selected = data.slice(anndata::Selection(anndata::indices{2, 0}), anndata::all);
+    const auto axis = anndatapp::Axis::gather(positions, 2);
+    auto data = anndatapp::AnnData::empty(3, 1);
+    data.set_x(anndatapp::Array::borrow_dense(&scalar, {3, 1}, {0, 0},
+                                            anndatapp::Validation::none));
+    auto selected = data.slice(anndatapp::Selection(anndatapp::indices{2, 0}), anndatapp::all);
     const auto dense = selected.x().dense<float>();
     const auto obs = selected.obs();
     return axis.index(0) == 2 && axis.index(1) == 0 &&

@@ -20,11 +20,11 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-extern "C" int anndata_completeness_probe_begin(std::uint64_t,std::uint64_t,const char*,std::size_t,int) __attribute__((weak));
-extern "C" void anndata_completeness_probe_end() __attribute__((weak));
-using namespace anndata;
+extern "C" int anndatapp_completeness_probe_begin(std::uint64_t,std::uint64_t,const char*,std::size_t,int) __attribute__((weak));
+extern "C" void anndatapp_completeness_probe_end() __attribute__((weak));
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 
 static double stamp(Clock::time_point t) { return std::chrono::duration<double>(t.time_since_epoch()).count(); }
@@ -52,11 +52,11 @@ int main(int argc,char** argv) {
         const std::size_t limit=adaptive?8:std::stoull(mode);
         if(!limit || limit>8 || (!adaptive && mode!="1" && mode!="2" && mode!="4" && mode!="8"))
             throw std::runtime_error("invalid worker limit");
-        if(!anndata_completeness_probe_begin || !anndata_completeness_probe_end)
+        if(!anndatapp_completeness_probe_begin || !anndatapp_completeness_probe_end)
             throw std::runtime_error("bounded probe interposer is required");
-        if(!std::getenv("ANNDATA_COMPLETENESS_DELAY_FAST_US") ||
-           !std::getenv("ANNDATA_COMPLETENESS_DELAY_SLOW_US") ||
-           !std::getenv("ANNDATA_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW"))
+        if(!std::getenv("ANNDATAPP_COMPLETENESS_DELAY_FAST_US") ||
+           !std::getenv("ANNDATAPP_COMPLETENESS_DELAY_SLOW_US") ||
+           !std::getenv("ANNDATAPP_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW"))
             throw std::runtime_error("controlled latency settings are required");
         auto setup_start=Clock::now();
         std::vector<std::unique_ptr<Worker>> workers;
@@ -113,7 +113,7 @@ int main(int argc,char** argv) {
         double elapsed=0;
         bool armed=false;
         try {
-            if(anndata_completeness_probe_begin(512ULL<<20,512ULL<<20,xdir.c_str(),260,0))
+            if(anndatapp_completeness_probe_begin(512ULL<<20,512ULL<<20,xdir.c_str(),260,0))
                 throw std::runtime_error("cannot arm bounded probe");
             armed=true;
             auto first=Clock::now();
@@ -137,7 +137,7 @@ int main(int argc,char** argv) {
         } catch(...) { failure=std::current_exception(); }
         {std::lock_guard<std::mutex> lock(mutex);stop=true;if(failure) queue.clear();}
         work_ready.notify_all(); for(auto& thread:threads) thread.join();
-        if(armed) anndata_completeness_probe_end();
+        if(armed) anndatapp_completeness_probe_end();
         if(failure) std::rethrow_exception(failure);
         for(std::size_t i=0;i<512;++i) if(seen[i].load()!=1) throw std::runtime_error("block coverage incomplete");
         const auto stats=stream.stats(); const auto settings=stream.settings();

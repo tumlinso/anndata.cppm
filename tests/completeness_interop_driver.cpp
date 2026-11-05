@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace { std::atomic<bool> tracking{false}; std::atomic<std::size_t> largest{0}; }
 // Allocation measurement runs in native/ASan builds; TSan owns these symbols.
@@ -37,7 +37,7 @@ void operator delete[](void* p, std::size_t) noexcept { std::free(p); }
 #endif
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 void require(bool ok, const char* message) { if (!ok) throw std::runtime_error(message); }
 BackedAnnData open(std::string_view kind, const std::string& path, std::size_t scratch = 64u*1024u*1024u) {
     BackedOptions options; options.mode = AccessMode::read_write; options.scratch_bytes = scratch;

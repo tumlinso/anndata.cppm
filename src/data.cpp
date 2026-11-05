@@ -15,9 +15,9 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.core;
+module anndatapp.core;
 
-namespace anndata {
+namespace anndatapp {
 namespace detail {
 
 struct ColumnImpl {
@@ -928,7 +928,7 @@ TableView ElementView::table() const {
 }
 std::vector<std::string> ElementView::keys() const {
     check_kind(kind(), ElementKind::mapping);
-    return anndata::keys(impl_->mapping);
+    return anndatapp::keys(impl_->mapping);
 }
 bool ElementView::contains(std::string_view key) const {
     check_kind(kind(), ElementKind::mapping);
@@ -1403,4 +1403,4 @@ void AnnData::validate() const {
     }
 }
 
-} // namespace anndata
+} // namespace anndatapp

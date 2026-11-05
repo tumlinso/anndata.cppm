@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
-using namespace anndata;
-using anndata_zarr::Json;
+using namespace anndatapp;
+using anndatapp_zarr::Json;
 namespace {
 void check(bool ok, const char* message) { if (!ok) throw std::runtime_error(message); }
 void check(bool ok, const std::string& message) { if (!ok) throw std::runtime_error(message); }
@@ -84,7 +84,7 @@ Fixture fixture(const std::filesystem::path& path) {
     shard_metadata(path,"uns/huge",{1000003,1000007},{4,6},{2,3},-7);
     shard_metadata(path,"uns/fill",{5,7},{4,6},{2,3},-19.5);
 
-    anndata_zarr::Store store(path,true,128*1024);
+    anndatapp_zarr::Store store(path,true,128*1024);
     store.write_numeric("X",{0,0},{9,11},f.x.data());
     store.write_numeric("uns/weights",{0,0},{9,11},f.weights.data());
     store.write_numeric("uns/counts",{0,0},{9,11},f.counts.data());

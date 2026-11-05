@@ -424,7 +424,7 @@ def must_fail(
         raise AssertionError(f"expected command to fail: {args}")
     if not result.stderr.strip():
         raise AssertionError(f"failure had no diagnostic: {args}")
-    if expected_code and f"anndata error[{expected_code}]" not in result.stderr:
+    if expected_code and f"anndatapp error[{expected_code}]" not in result.stderr:
         raise AssertionError(f"expected {expected_code}, got: {result.stderr.strip()}")
     if path_fragment and path_fragment not in result.stderr:
         raise AssertionError(f"expected path {path_fragment}, got: {result.stderr.strip()}")
@@ -462,7 +462,7 @@ def main() -> None:
     if installed != expected:
         raise SystemExit(f"expected AnnData {expected}, got {installed}")
 
-    with tempfile.TemporaryDirectory(prefix="anndata-cppm-h5ad-") as temp:
+    with tempfile.TemporaryDirectory(prefix="anndatapp-h5ad-") as temp:
         root = Path(temp)
         if compat:
             run_compat_012(driver, root)

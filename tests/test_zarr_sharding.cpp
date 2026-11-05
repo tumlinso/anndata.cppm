@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <vector>
 #if defined(__linux__) && defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
-#define ANNDATA_TEST_FAULT_IO 1
+#define ANNDATAPP_TEST_FAULT_IO 1
 #include <sys/syscall.h>
 #include <unistd.h>
 // Test-only syscall interposition covers both static and shared libraries. The
@@ -32,7 +32,7 @@ extern "C" ssize_t pwrite(int fd, const void* data, size_t n, off_t offset) {
 }
 #endif
 
-using namespace anndata_zarr;
+using namespace anndatapp_zarr;
 void check(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
 Bytes bytes(std::initializer_list<unsigned> values) {
     Bytes result; for (auto value : values) result.push_back(std::byte(value)); return result;
@@ -111,7 +111,7 @@ void run(const std::filesystem::path& path, const std::string& index_location, b
     }
     check(file_bytes(path) == original, "uncommitted or failed writer changed shard");
     no_temps(path.parent_path());
-#if defined(ANNDATA_TEST_FAULT_IO)
+#if defined(ANNDATAPP_TEST_FAULT_IO)
     // Index read fails before creating a temporary file.
     fail_read_after = 0;
     error([&]{ ShardWriter writer(path,spec,workspace); }, Failure::io);

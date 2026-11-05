@@ -1,5 +1,7 @@
 # Storage dependencies
 
+Current builds use `ANNDATAPP_DEPENDENCY_PREFIX` and the checkout `/home/tumlinson/anndatapp`. Historical setup commands below retain the original paths and package requests that were executed.
+
 The C++ core requires no storage library or Python runtime. Default builds enable HDF5 and Zarr. Storage headers, JSON and codecs remain private to implementation units.
 
 The completeness pass installed no packages. It reused these native dependencies
@@ -54,7 +56,7 @@ for package in ./*.deb; do
 done
 ```
 
-The extracted prefix is `build/dependencies/usr`. CMake discovers it through `ANNDATA_DEPENDENCY_PREFIX`, which can be changed explicitly. No packages were installed into the system environment by this private-prefix procedure. The downloaded Ubuntu package versions were `libblosc-dev`/`libblosc1` 1.21.5+ds-1build1 and `nlohmann-json3-dev` 3.11.3-1.
+The extracted prefix is `build/dependencies/usr`. CMake discovers it through `ANNDATAPP_DEPENDENCY_PREFIX`, which can be changed explicitly. No packages were installed into the system environment by this private-prefix procedure. The downloaded Ubuntu package versions were `libblosc-dev`/`libblosc1` 1.21.5+ds-1build1 and `nlohmann-json3-dev` 3.11.3-1.
 
 HDF5, zlib and Zstandard discovery uses pkg-config consistently to avoid mixing a system HDF5 library with unrelated Conda runtime libraries. Installed consumers must be able to discover the corresponding binary dependencies; nlohmann JSON is required to build the implementation, not to compile importing consumers.
 

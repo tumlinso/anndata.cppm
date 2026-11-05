@@ -21,9 +21,9 @@ length. Numerical types are the canonical fixed-width integer types, `bool`,
 `float`, and `double`. The layout is immutable after construction.
 
 ```cpp
-import anndata;
+import anndatapp;
 
-struct Row { float score; anndata::Utf8Ref gene; };
+struct Row { float score; anndatapp::Utf8Ref gene; };
 ```
 
 Use `sizeof(Row)`, `alignof(Row)`, and `offsetof(Row, member)` when describing

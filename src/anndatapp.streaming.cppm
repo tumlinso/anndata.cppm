@@ -5,10 +5,10 @@ module;
 #include <optional>
 #include <vector>
 
-export module anndata.streaming;
-export import anndata.backed;
+export module anndatapp.streaming;
+export import anndatapp.backed;
 
-export namespace anndata {
+export namespace anndatapp {
 enum class StreamMode { adaptive, manual };
 enum class StreamOperation { read, write };
 enum class StreamPhase { baseline, trial, stable, manual };

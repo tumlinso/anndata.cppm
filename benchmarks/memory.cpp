@@ -1,6 +1,6 @@
 // Compare a checked typed view's pointer loop to the same kernel using its raw pointer.
 // Access acquisition and initialization are outside the timed single-thread kernels.
-import anndata.core;
+import anndatapp.core;
 
 #include <algorithm>
 #include <barrier>
@@ -287,8 +287,8 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    auto input = anndata::Array::empty<float>({count});
-    auto output = anndata::Array::empty<float>({count});
+    auto input = anndatapp::Array::empty<float>({count});
+    auto output = anndatapp::Array::empty<float>({count});
     auto input_access = input.edit().dense<float>();
     auto output_access = output.edit().dense<float>();
     float* input_raw = input_access.data();
@@ -328,9 +328,9 @@ int main(int argc, char** argv) {
     sparse_offsets[sparse_rows] = sparse_nnz;
     const double expected_sparse_checksum = sparse_checksum(
         sparse_values.data(), sparse_nnz, sparse_indices.data(), sparse_offsets.data(), sparse_rows + 1);
-    auto inspect_sparse = [&](anndata::Validation validation) {
-        auto wrapped = anndata::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
-            anndata::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
+    auto inspect_sparse = [&](anndatapp::Validation validation) {
+        auto wrapped = anndatapp::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
+            anndatapp::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
             sparse_values.data(), sparse_indices.data(), sparse_offsets.data(), validation);
         const auto view = wrapped.view().csr<float, std::uint32_t, std::uint64_t>();
         const bool same_buffers = view.values() == sparse_values.data() &&
@@ -342,8 +342,8 @@ int main(int argc, char** argv) {
                                                 view.rows() + 1);
         return std::pair{same_buffers, observed};
     };
-    const auto [full_sparse_pointer_identity, full_sparse_checksum] = inspect_sparse(anndata::Validation::full);
-    const auto [unchecked_sparse_pointer_identity, unchecked_sparse_checksum] = inspect_sparse(anndata::Validation::none);
+    const auto [full_sparse_pointer_identity, full_sparse_checksum] = inspect_sparse(anndatapp::Validation::full);
+    const auto [unchecked_sparse_pointer_identity, unchecked_sparse_checksum] = inspect_sparse(anndatapp::Validation::none);
     const bool full_sparse_checksum_matches = full_sparse_checksum == expected_sparse_checksum;
     const bool unchecked_sparse_checksum_matches = unchecked_sparse_checksum == expected_sparse_checksum;
     if (!full_sparse_pointer_identity || !unchecked_sparse_pointer_identity ||
@@ -405,14 +405,14 @@ int main(int argc, char** argv) {
     }
 
     auto wrap_full = [&] {
-        return anndata::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
-            anndata::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
-            sparse_values.data(), sparse_indices.data(), sparse_offsets.data(), anndata::Validation::full);
+        return anndatapp::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
+            anndatapp::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
+            sparse_values.data(), sparse_indices.data(), sparse_offsets.data(), anndatapp::Validation::full);
     };
     auto wrap_none = [&] {
-        return anndata::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
-            anndata::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
-            sparse_values.data(), sparse_indices.data(), sparse_offsets.data(), anndata::Validation::none);
+        return anndatapp::Array::borrow_sparse<float, std::uint32_t, std::uint64_t>(
+            anndatapp::Layout::csr, sparse_rows, sparse_columns, sparse_nnz,
+            sparse_values.data(), sparse_indices.data(), sparse_offsets.data(), anndatapp::Validation::none);
     };
     std::vector<SparseWrapResult> sparse_wrap_results;
     sparse_wrap_results.reserve(trials * 2);

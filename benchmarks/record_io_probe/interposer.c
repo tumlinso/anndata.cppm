@@ -103,9 +103,9 @@ herr_t H5Dwrite(hid_t dset, hid_t type, hid_t mem_space, hid_t file_space,
     return result;
 }
 
-void anndata_record_probe_enable(int value) { atomic_store(&enabled, !!value); }
+void anndatapp_record_probe_enable(int value) { atomic_store(&enabled, !!value); }
 
-void anndata_record_probe_reset(void) {
+void anndatapp_record_probe_reset(void) {
     atomic_store(&enabled, 0);
     pthread_mutex_lock(&counts_lock);
     memset(datasets, 0, sizeof datasets);
@@ -141,7 +141,7 @@ static int append_path(char *out, size_t cap, size_t *used, const char *path) {
     return append(out, cap, used, "\"");
 }
 
-size_t anndata_record_probe_json(char *out, size_t cap) {
+size_t anndatapp_record_probe_json(char *out, size_t cap) {
     if (!out || !cap) return 0;
     size_t used = 0;
     pthread_mutex_lock(&counts_lock);

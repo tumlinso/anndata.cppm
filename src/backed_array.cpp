@@ -15,10 +15,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata {
+namespace anndatapp {
 namespace {
 using backed_detail::Axis;
 using backed_detail::Backend;
@@ -1050,13 +1050,13 @@ std::size_t packing_metadata(const Descriptor& d,const NodePtr& node) {
         const auto chunk=d.data.codec_tile_shape.empty()?d.shape[i]:d.data.codec_tile_shape[i];
         positions+=std::min(chunk,d.shape[i]);
     }
-    return multiply(positions,6*sizeof(std::size_t),node)+multiply(d.shape.size(),4*sizeof(anndata::Axis)+1024,node)+2048;
+    return multiply(positions,6*sizeof(std::size_t),node)+multiply(d.shape.size(),4*sizeof(anndatapp::Axis)+1024,node)+2048;
 }
 template<class T> void pack_view(void* context,const std::vector<std::vector<std::size_t>>& positions,void* out) {
     const auto& source=*static_cast<const ArrayView*>(context);
-    std::vector<anndata::Axis> axes;axes.reserve(positions.size());
+    std::vector<anndatapp::Axis> axes;axes.reserve(positions.size());
     std::vector<std::size_t> shape;shape.reserve(positions.size());
-    for(const auto& a:positions) {axes.push_back(anndata::Axis::gather(a.data(),a.size()));shape.push_back(a.size());}
+    for(const auto& a:positions) {axes.push_back(anndatapp::Axis::gather(a.data(),a.size()));shape.push_back(a.size());}
     std::vector<std::ptrdiff_t> strides(shape.size());std::ptrdiff_t stride=1;
     for(std::size_t i=shape.size();i--;) {strides[i]=stride;stride*=std::ptrdiff_t(shape[i]);}
     auto destination=Array::borrow_dense(static_cast<T*>(out),std::move(shape),std::move(strides),Validation::none);
@@ -1086,7 +1086,7 @@ void write_gathered_view(const NodePtr& node,const Descriptor& d,const ArrayView
     // Bounded gathering for the remaining numerical backends. There is no
     // owning copy of the complete source selection.
     const auto workspace=backend->numeric_workspace_bytes(d.data,true),available=staging_budget(budget,workspace,node);
-    const auto metadata=multiply(rank,4*sizeof(anndata::Axis)+1024,node)+2048;
+    const auto metadata=multiply(rank,4*sizeof(anndatapp::Axis)+1024,node)+2048;
     if(available<=metadata || (available-metadata)/(width+6*sizeof(std::size_t))<1)
         fail(ErrorCode::invalid_argument,node,"gathered source packing exceeds scratch memory budget");
     if(forward_rectangle(d)) {
@@ -1397,4 +1397,4 @@ TransferContext BackedArray::prepare_transfer(std::size_t scratch_bytes) const {
     }
     return TransferContext(std::move(p));
 }
-} // namespace anndata
+} // namespace anndatapp

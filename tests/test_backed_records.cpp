@@ -9,10 +9,10 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 
 void require(bool ok, std::string_view message) {
     if (!ok) throw std::runtime_error(std::string(message));

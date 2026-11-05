@@ -7,10 +7,10 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata {
+namespace anndatapp {
 StorageGeometry BackedArray::storage_geometry() const {
     backed_detail::check_node(node_);
     auto& s = *node_->session;

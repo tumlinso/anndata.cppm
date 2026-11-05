@@ -1,13 +1,13 @@
 # Backed AnnData storage
 
-`anndata.backed` provides lazy descriptors without changing the in-memory `Array` contract. Format modules provide `open_h5ad()` and `open_zarr()`; the default `anndata` facade exposes both. Local HDF5 files and local Zarr v2/v3 directories are supported for the declared encoding subset.
+`anndatapp.backed` provides lazy descriptors without changing the in-memory `Array` contract. Format modules provide `open_h5ad()` and `open_zarr()`; the default `anndatapp` facade exposes both. Local HDF5 files and local Zarr v2/v3 directories are supported for the declared encoding subset.
 
 ```cpp
-import anndata;
+import anndatapp;
 
 int main() {
-    auto disk = anndata::open_h5ad("atlas.h5ad");
-    auto cells = disk.slice(anndata::range{0, 4096}, anndata::all);
+    auto disk = anndatapp::open_h5ad("atlas.h5ad");
+    auto cells = disk.slice(anndatapp::range{0, 4096}, anndatapp::all);
     auto block = cells.x().read();
     auto values = block.edit().dense<float>();
     const float* p = values.data();

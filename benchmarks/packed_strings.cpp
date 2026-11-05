@@ -1,4 +1,4 @@
-import anndata.core;
+import anndatapp.core;
 
 #include <algorithm>
 #include <array>
@@ -59,15 +59,15 @@ bool matches(std::string_view s, std::size_t i) {
 }
 
 std::uint64_t run_once(const Fixture& seed, std::size_t n,
-                       anndata::Validation validation) {
+                       anndatapp::Validation validation) {
     auto bytes = seed.bytes;
     auto offsets = seed.offsets;
     std::vector<std::size_t> shape{n};
     const char* expected_bytes = bytes.empty() ? nullptr : bytes.data();
     const auto* expected_offsets = offsets.data();
-    anndata::StringArrayView view;
+    anndatapp::StringArrayView view;
     {
-        auto owner = anndata::StringArray::from_packed(
+        auto owner = anndatapp::StringArray::from_packed(
             std::move(shape), std::move(bytes), std::move(offsets), validation);
         view = owner.view();
     }
@@ -96,8 +96,8 @@ std::uint64_t run_once(const Fixture& seed, std::size_t n,
     return h;
 }
 
-const char* validation_name(anndata::Validation v) {
-    return v == anndata::Validation::full ? "full" : "none";
+const char* validation_name(anndatapp::Validation v) {
+    return v == anndatapp::Validation::full ? "full" : "none";
 }
 
 struct Trial { double ns_per_op{}; std::uint64_t checksum{}; };
@@ -114,8 +114,8 @@ int main(int argc, char** argv) {
     using Clock = std::chrono::steady_clock;
     constexpr std::size_t byte_budget = 1u << 26, max_iterations = 4096;
     constexpr std::array<std::size_t, 4> sizes{0, 16, 4096, 65536};
-    constexpr std::array<anndata::Validation, 2> validations{
-        anndata::Validation::full, anndata::Validation::none};
+    constexpr std::array<anndatapp::Validation, 2> validations{
+        anndatapp::Validation::full, anndatapp::Validation::none};
     constexpr const char* counter_scope =
         "ordinary throwing new/new[] and delete/delete[] only; aligned, malloc, and system allocations excluded";
     std::size_t trial_count = 3;

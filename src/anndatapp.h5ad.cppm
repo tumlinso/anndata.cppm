@@ -1,10 +1,10 @@
 module;
 #include <string_view>
 
-export module anndata.h5ad;
-export import anndata.backed;
+export module anndatapp.h5ad;
+export import anndatapp.backed;
 
-export namespace anndata {
+export namespace anndatapp {
 
 enum class WriteMode { truncate, exclusive };
 enum class Compression { none, gzip };
@@ -35,4 +35,4 @@ void write_h5ad(std::string_view path, const AnnDataView& data, WriteOptions opt
 void write_h5ad(std::string_view path, const BackedAnnData& data, WriteOptions options = {});
 void write_h5ad(std::string_view path, const BackedAnnDataView& data, WriteOptions options = {});
 
-} // namespace anndata
+} // namespace anndatapp

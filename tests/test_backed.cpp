@@ -13,15 +13,15 @@
 #include <utility>
 #include <vector>
 
-#if defined(ANNDATA_TEST_HDF5)
+#if defined(ANNDATAPP_TEST_HDF5)
 #include <hdf5.h>
 #include <sys/resource.h>
 #endif
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 
 void require(bool condition, std::string_view message) {
     if (!condition) throw std::runtime_error(std::string(message));
@@ -215,18 +215,18 @@ BackedAnnData open_store(std::string_view backend, const std::filesystem::path& 
     BackedOptions options;
     options.mode = mode;
     options.scratch_bytes = scratch_bytes;
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
     if (backend == "h5ad") return open_h5ad(path.string(), options);
 #endif
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
     if (backend == "zarr") return open_zarr(path.string(), options);
 #endif
     if (backend != "h5ad" && backend != "zarr")
         throw std::runtime_error("unknown backed test backend: " + std::string(backend));
-#if !defined(ANNDATA_HAS_HDF5) || !ANNDATA_HAS_HDF5
+#if !defined(ANNDATAPP_HAS_HDF5) || !ANNDATAPP_HAS_HDF5
     if (backend == "h5ad") throw std::runtime_error("HDF5 backend is disabled");
 #endif
-#if !defined(ANNDATA_HAS_ZARR) || !ANNDATA_HAS_ZARR
+#if !defined(ANNDATAPP_HAS_ZARR) || !ANNDATAPP_HAS_ZARR
     if (backend == "zarr") throw std::runtime_error("Zarr backend is disabled");
 #endif
     throw std::runtime_error("requested backed test backend is unavailable");
@@ -414,7 +414,7 @@ void check_read_contract(const std::filesystem::path& path, std::string_view bac
         "retained array handle must become stale when the session closes");
 }
 
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
 void update_and_reindex_h5ad(const std::filesystem::path& source,
                             const std::filesystem::path& output) {
     write_h5ad(source.string(), fixture());
@@ -611,7 +611,7 @@ void test_direct_column_order(const std::filesystem::path& h5ad_path,
     require(h5_reopened.obs().column_names() == expected,
             "HDF5 dataframe-column order did not survive reopen");
 
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
     ZarrWriteOptions options;
     options.format = ZarrFormat::v3;
     write_zarr(zarr_path.string(), fixture(), options);
@@ -636,7 +636,7 @@ void test_direct_column_order(const std::filesystem::path& h5ad_path,
 }
 #endif
 
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
 void test_zarr_writer_selection(const std::filesystem::path& root, ZarrFormat format) {
     constexpr std::size_t columns = 300;
     auto data = AnnData::empty(3, columns);
@@ -817,7 +817,7 @@ void test_zarr_bool_canonicalization(const std::filesystem::path& root, ZarrForm
 }
 #endif
 
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5 && defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5 && defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
 void test_rectangular_h5ad_batches(const std::filesystem::path& root) {
     constexpr std::size_t scratch = 16u * 1024u;
     const auto source_path = root / "rectangular-source.h5ad";
@@ -842,7 +842,7 @@ void test_rectangular_h5ad_batches(const std::filesystem::path& root) {
 }
 #endif
 
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5 && defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5 && defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
 void test_cross_backend_export(const std::filesystem::path& source,
                                const std::filesystem::path& target) {
     write_h5ad(source.string(), fixture());
@@ -858,7 +858,7 @@ void test_cross_backend_export(const std::filesystem::path& source,
 }
 #endif
 
-#if defined(ANNDATA_TEST_HDF5) && defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_TEST_HDF5) && defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
 void h5_check(herr_t result, std::string_view operation) {
     if (result < 0) throw std::runtime_error("HDF5 test fixture failed: " + std::string(operation));
 }
@@ -995,11 +995,11 @@ int main(int argc, char** argv) {
         const std::filesystem::path root(argv[1]);
         std::filesystem::create_directories(root);
 
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
         const auto native_h5ad = root / "native.h5ad";
         write_h5ad(native_h5ad.string(), fixture());
         check_read_contract(native_h5ad, "h5ad");
-#if defined(ANNDATA_TEST_HDF5) && defined(__linux__) && defined(__clang__)
+#if defined(ANNDATAPP_TEST_HDF5) && defined(__linux__) && defined(__clang__)
         test_hdf5_mapping(native_h5ad);
 #endif
         update_and_reindex_h5ad(root / "source.h5ad", root / "update-reindex.h5ad");
@@ -1009,7 +1009,7 @@ int main(int argc, char** argv) {
         test_direct_column_order(root / "column-order.h5ad", root / "column-order.zarr");
 #endif
 
-#if defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
         test_zarr_native(root, ZarrFormat::v2);
         test_zarr_native(root, ZarrFormat::v3);
         test_zarr_writer_selection(root, ZarrFormat::v2);
@@ -1019,12 +1019,12 @@ int main(int argc, char** argv) {
         test_zarr_bool_canonicalization(root, ZarrFormat::v2);
         test_zarr_bool_canonicalization(root, ZarrFormat::v3);
 #endif
-#if defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5 && defined(ANNDATA_HAS_ZARR) && ANNDATA_HAS_ZARR
+#if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5 && defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
         test_rectangular_h5ad_batches(root);
         test_cross_backend_export(root / "export-source.h5ad", root / "export-target.zarr");
 #endif
 
-#if defined(ANNDATA_TEST_HDF5) && defined(ANNDATA_HAS_HDF5) && ANNDATA_HAS_HDF5
+#if defined(ANNDATAPP_TEST_HDF5) && defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
         test_bounded_fill_reads(root);
 #endif
         std::cout << "native backed H5AD/Zarr tests passed\n";

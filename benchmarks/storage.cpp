@@ -13,10 +13,10 @@
 #include <thread>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 
 void require(bool value, const char* message) {

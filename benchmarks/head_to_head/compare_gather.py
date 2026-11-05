@@ -40,7 +40,7 @@ def main():
         return {'captured_unix':time.time(),'load_average':os.getloadavg(),
                 'cpu_pressure':Path('/proc/pressure/cpu').read_text() if Path('/proc/pressure/cpu').exists() else None,
                 'selected_cpu_ticks':next((x for x in Path('/proc/stat').read_text().splitlines() if x.startswith(f'cpu{cpu} ')),None)}
-    report={'schema':'anndata.cppm.gather-candidate.v1','sources':sources,'conditions':old['conditions'],
+    report={'schema':'anndatapp.gather-candidate.v1','sources':sources,'conditions':old['conditions'],
             'shared_host_before':pressure(),'cases':{}}
     for n,case in cases:
         key=f'{n}/{case}';probe_old=old['cases'][f'{key}/cpp/probe'];timed_old=old['cases'][f'{key}/cpp/0'];python_old=old['cases'][f'{key}/python/0']

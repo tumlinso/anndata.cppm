@@ -15,10 +15,10 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 
 namespace {
 
@@ -619,9 +619,9 @@ Element read_element(const std::shared_ptr<detail::BackedNode>& value) {
 
 } // namespace
 
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail
 
-namespace anndata {
+namespace anndatapp {
 
 BackedStringArray::BackedStringArray() = default;
 BackedStringArray::BackedStringArray(std::shared_ptr<detail::BackedNode> node)
@@ -1053,4 +1053,4 @@ Element BackedElement::read() const {
     return result;
 }
 
-} // namespace anndata
+} // namespace anndatapp

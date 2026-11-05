@@ -63,7 +63,7 @@ def main():
             raise RuntimeError(f"fresh build required; preserve existing evidence in {build}")
         files = sorted(x for x in (source / "src").iterdir() if x.is_file())
         report["builds"][name] = {"source": str(source), "inputs": {str(x.relative_to(source)): sha(x) for x in files}}
-        run(name + "-configure", ["cmake", "-S", fixture, "-B", build, "-G", "Ninja", "-DCMAKE_CXX_COMPILER=clang++-18", "-DCMAKE_BUILD_TYPE=Release", f"-DANNDATA_SOURCE={source}", f"-DANNDATA_PROBE={probe}"])
+        run(name + "-configure", ["cmake", "-S", fixture, "-B", build, "-G", "Ninja", "-DCMAKE_CXX_COMPILER=clang++-18", "-DCMAKE_BUILD_TYPE=Release", f"-DANNDATAPP_SOURCE={source}", f"-DANNDATAPP_PROBE={probe}"])
         run(name + "-cold", ["cmake", "--build", build, "--target", "gather_consumer", "--parallel", "2"])
         run(name + "-consumer-run", [build / "gather_consumer"])
         for i in range(2):

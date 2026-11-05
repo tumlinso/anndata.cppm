@@ -19,10 +19,10 @@ module;
 #include <sys/types.h>
 #include <unistd.h>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 using Node = std::shared_ptr<detail::BackedNode>;
 [[noreturn]] void fail(ErrorCode code, std::string_view path, std::string message) {
@@ -358,4 +358,4 @@ void copy_pruned_category(Backend& destination,std::string_view path,const Node&
     copy_node(destination,child(path,"categories"),dict,budget,transfer_budget);
     if(destination.identity()==category->session->backend->identity())destination.copy_attributes(category->path,path);
 }
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail

@@ -13,7 +13,7 @@ jobs:
       - name: Install module toolchain
         run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
       - name: Configure
-        run: cmake --preset ${{ matrix.preset }} -DANNDATA_ENABLE_INTEROP_TESTS=OFF
+        run: cmake --preset ${{ matrix.preset }} -DANNDATAPP_ENABLE_INTEROP_TESTS=OFF
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }} --parallel 2
       - name: Native and installed-package tests
@@ -32,7 +32,7 @@ jobs:
           sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
           python -m pip install -r tests/requirements-interop.txt
       - name: Configure
-        run: cmake --preset debug -DANNDATA_ENABLE_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
+        run: cmake --preset debug -DANNDATAPP_ENABLE_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
       - name: Build
         run: cmake --build --preset debug --parallel 2
       - name: Compare semantics and bidirectional H5AD interoperability
@@ -51,7 +51,7 @@ jobs:
           sudo apt-get install -y clang-18 clang-tools-18 cmake ninja-build pkg-config libhdf5-dev zlib1g-dev libzstd-dev libblosc-dev nlohmann-json3-dev
           python -m pip install -r tests/requirements-records.txt
       - name: Configure record interoperability
-        run: cmake --preset interop-check -DANNDATA_ENABLE_RECORD_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
+        run: cmake --preset interop-check -DANNDATAPP_ENABLE_RECORD_INTEROP_TESTS=ON -DPython3_EXECUTABLE="$(command -v python)"
       - name: Build
         run: cmake --build --preset interop-check --parallel 2
       - name: Compare records with Scanpy 1.11.5

@@ -2,10 +2,10 @@ module;
 #include <cstddef>
 #include <string_view>
 
-export module anndata.zarr;
-export import anndata.backed;
+export module anndatapp.zarr;
+export import anndatapp.backed;
 
-export namespace anndata {
+export namespace anndatapp {
 enum class ZarrFormat { v2 = 2, v3 = 3 };
 enum class ZarrCompression { none, gzip, zstd, blosc };
 enum class ZarrWriteMode { truncate, exclusive };
@@ -27,4 +27,4 @@ void write_zarr(std::string_view path,const AnnDataView& data,ZarrWriteOptions o
 void write_zarr(std::string_view path,const AnnData& data,ZarrWriteOptions options = {});
 void write_zarr(std::string_view path,const BackedAnnDataView& data,ZarrWriteOptions options = {});
 void write_zarr(std::string_view path,const BackedAnnData& data,ZarrWriteOptions options = {});
-} // namespace anndata
+} // namespace anndatapp

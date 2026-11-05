@@ -1,4 +1,4 @@
-export module anndata.core;
+export module anndatapp.core;
 export import :arrays;
 export import :strings;
 export import :records;

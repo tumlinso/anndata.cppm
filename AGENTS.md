@@ -1,4 +1,4 @@
-# Working on anndata.cppm
+# Working on AnnData++
 
 Prioritize correct, maintainable delivery and shorter completion time within the user's usage and resource limits. Account for handoff, coordination, and integration costs; use stronger ownership when it materially improves decisions or independent progress.
 
@@ -7,8 +7,8 @@ Use the user's configured cooperative agent profiles (`scout`, `engineer`, `exec
 ## Build and architecture
 
 - Follow [STYLE.md](STYLE.md): compact numerical/HPC code with visible memory operations, concise local notation, minimal machinery, and small compiled interfaces.
-- Also follow the written [Cellerator coding style](/home/tumlinson/Cellerator/coding_style.md), rather than Cellerator's current implementation as an example. For `anndata.cppm`, fast module imports and consumer recompilation times remain **very high priorities**; preserve small public interfaces and implementation isolation when applying its hot-path guidance. Measure and report runtime/build tradeoffs explicitly. Keep the referenced guide unchanged.
-- C++20 named modules are mandatory. Public consumption is `import anndata;` or `import anndata.core;`, with `.cppm` interfaces. Do not introduce a public umbrella header or require `import std;`.
+- Also follow the written [Cellerator coding style](/home/tumlinson/Cellerator/coding_style.md), rather than Cellerator's current implementation as an example. For `AnnData++`, fast module imports and consumer recompilation times remain **very high priorities**; preserve small public interfaces and implementation isolation when applying its hot-path guidance. Measure and report runtime/build tradeoffs explicitly. Keep the referenced guide unchanged.
+- C++20 named modules are mandatory. Public consumption is `import anndatapp;` or `import anndatapp.core;`, with `.cppm` interfaces. Do not introduce a public umbrella header or require `import std;`.
 - Initial toolchain: Clang 18 plus matching clang-scan-deps, CMake >=3.28, Ninja >=1.11. Use CMake CXX_MODULES file sets and scanning; do not hand-order BMI commands.
 - Run `cmake --preset debug`, `cmake --build --preset debug`, `ctest --preset debug`. Sanitizers use the `sanitizers` preset. See docs/development.md for optional Python semantic tests and release benchmarks.
 - Keep storage dependencies private and optional. The core has no dependency on Python, HDF5, Arrow, Torch, or Cellerator. Downstream integration never reverses that dependency direction.
@@ -22,6 +22,6 @@ Use the user's configured cooperative agent profiles (`scout`, `engineer`, `exec
 
 ## Workflow and preservation
 
-Project Control workspace/repository alias: `anndata-cppm`. Use its supported workflow routes and the installed Todo Orchestrator skill for native authority operations. `.todo-orchestrator/authority.sqlite3` is semantic authority; never hand-edit it or generated projections. Private credentials stay outside the repository. Registration, authority creation, and full host workflow readiness require separate checks.
+Project Control workspace entry: `anndatapp`; its immutable native repository and authority IDs retain `anndata-cppm`. Use its supported workflow routes and the installed Todo Orchestrator skill for native authority operations. `.todo-orchestrator/authority.sqlite3` is semantic authority; never hand-edit it or generated projections. Private credentials stay outside the repository. Registration, authority creation, and full host workflow readiness require separate checks.
 
 Do not reset, clean, force-push, delete authority state, overwrite others' work, or commit private runtime artifacts. Preserve exact source/measurement provenance. Record partial setup and unsupported behavior honestly.

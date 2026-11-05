@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace anndata_zarr {
+namespace anndatapp_zarr {
 namespace {
 
 constexpr auto missing = std::numeric_limits<std::uint64_t>::max();
@@ -401,4 +401,4 @@ void write_shard_chunk(const std::filesystem::path& path, const ShardSpec& spec,
     writer.commit(copy);
 }
 
-} // namespace anndata_zarr
+} // namespace anndatapp_zarr

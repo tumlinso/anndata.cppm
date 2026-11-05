@@ -9,11 +9,11 @@
 
 #include "probe.h"
 
-import anndata;
+import anndatapp;
 
 namespace {
 
-using namespace anndata;
+using namespace anndatapp;
 
 struct Probe {
     record_probe_enable_fn enable = nullptr;

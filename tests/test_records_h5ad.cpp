@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
 bool observe_record_reads = false;
@@ -36,22 +36,22 @@ extern "C" herr_t H5Dread(hid_t dataset,hid_t type,hid_t memory,hid_t file,hid_t
         H5MM_allocate_t alloc = nullptr; H5MM_free_t release = nullptr;
         void* context = nullptr; void* free_context = nullptr;
         if (transfer != H5P_DEFAULT && H5Pget_vlen_mem_manager(transfer,&alloc,&context,&release,&free_context) >= 0 &&
-            alloc == anndata_h5ad_detail::RecordVlenAllocator::allocate) {
-            const auto& a = *static_cast<anndata_h5ad_detail::RecordVlenAllocator*>(context);
+            alloc == anndatapp_h5ad_detail::RecordVlenAllocator::allocate) {
+            const auto& a = *static_cast<anndatapp_h5ad_detail::RecordVlenAllocator*>(context);
             const auto metadata = sizeof(a)+sizeof(std::unique_ptr<char*[]>)+n*sizeof(char*);
             peak_record_staging = std::max(peak_record_staging,metadata+a.peak);
-            if (a.peak > a.limit || metadata+a.limit > anndata_h5ad_detail::record_cap) std::abort();
+            if (a.peak > a.limit || metadata+a.limit > anndatapp_h5ad_detail::record_cap) std::abort();
         }
     }
     return status;
 }
 
 namespace {
-using namespace anndata;
+using namespace anndatapp;
 void require(bool ok, const char* message) { if (!ok) throw std::runtime_error(message); }
 template<class F> void fails(F f, ErrorCode code) {
     try { f(); } catch (const Error& e) { require(e.code() == code, "wrong error code"); return; }
-    throw std::runtime_error("expected anndata error");
+    throw std::runtime_error("expected anndatapp error");
 }
 template<class T> Array values(std::vector<std::size_t> shape, std::initializer_list<T> x) {
     auto a = Array::empty<T>(shape); auto v = a.edit().template dense<T>();
@@ -116,7 +116,7 @@ void interleaved(const std::filesystem::path& root) {
     b.close();
 }
 void scratch_limits(const std::filesystem::path& root) {
-    using namespace anndata_h5ad_detail;
+    using namespace anndatapp_h5ad_detail;
     require(record_pointer_limit(8,32)==0,"pointer metadata admitted before budget check");
     RecordVlenAllocator small{128};
     auto* first=RecordVlenAllocator::allocate(32,&small);

@@ -41,7 +41,7 @@ def main():
             v['baseline_cpp_probe']['zstd_stream_decode_calls']=r['baseline_probe']['counters']['codec_api_stream_calls']['zstd']['decode_calls']
             v['candidate_cpp_probe']['zstd_stream_decode_calls']=r['candidate_probe']['counters']['codec_api_stream_calls']['zstd']['decode_calls']
         cases[key]=v
-    out={'schema':'anndata.cppm.gather-read.summary.v1','raw_sha256':sha(a.raw),
+    out={'schema':'anndatapp.gather-read.summary.v1','raw_sha256':sha(a.raw),
          'baseline_revision':'dc946845e1457299351b0ffc4ba36ef91d49db7b','candidate_base_revision':'c159d88',
          'sources':raw['sources'],'conditions':raw['conditions'],'shared_host_before':raw['shared_host_before'],
          'shared_host_after':raw['shared_host_after'],'cases':cases,

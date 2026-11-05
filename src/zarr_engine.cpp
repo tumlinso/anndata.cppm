@@ -9,7 +9,7 @@
 #include <numeric>
 #include <set>
 
-namespace anndata_zarr {
+namespace anndatapp_zarr {
 namespace {
 Json load_json(const std::filesystem::path& file) {
     try {
@@ -20,7 +20,7 @@ Json load_json(const std::filesystem::path& file) {
 }
 void save_json(const std::filesystem::path& file, const Json& value) {
     std::filesystem::create_directories(file.parent_path());
-    auto temporary = file; temporary += ".anndata-tmp";
+    auto temporary = file; temporary += ".anndatapp-tmp";
     std::ofstream stream(temporary, std::ios::trunc);
     if (!stream || !(stream << value.dump(2)))
         throw Error(Failure::io, file.string(), "cannot write Zarr metadata");
@@ -39,7 +39,7 @@ Bytes load_bytes(const std::filesystem::path& file, std::size_t budget) {
 }
 void save_bytes(const std::filesystem::path& file, std::span<const std::byte> bytes) {
     std::filesystem::create_directories(file.parent_path());
-    auto temporary=file; temporary += ".anndata-tmp";
+    auto temporary=file; temporary += ".anndatapp-tmp";
     std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
     if (!stream || (bytes.size() && !stream.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()))))
         throw Error(Failure::io, file.string(), "cannot write Zarr chunk");
@@ -780,4 +780,4 @@ std::filesystem::path Store::mapping_file(const std::string& path) const {
     if(!std::filesystem::exists(file) || std::filesystem::file_size(file)!=checked_product(m.shape)*m.item_size) return {};
     return file;
 }
-} // namespace anndata_zarr
+} // namespace anndatapp_zarr

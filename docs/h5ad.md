@@ -1,20 +1,20 @@
 # H5AD interoperability
 
-`import anndata;` exposes common H5AD operations in the default build. `import anndata.h5ad;` independently exposes the same operations and the core. The private backend uses the HDF5 C library. Python is only a development reference.
+`import anndatapp;` exposes common H5AD operations in the default build. `import anndatapp.h5ad;` independently exposes the same operations and the core. The private backend uses the HDF5 C library. Python is only a development reference.
 
 ```cpp
-import anndata;
+import anndatapp;
 
 int main() {
-    auto data = anndata::read_h5ad("input.h5ad");
-    auto selected = data.slice(anndata::indices{2, 0}, anndata::all);
-    anndata::WriteOptions options;
-    options.compression = anndata::Compression::gzip;
-    anndata::write_h5ad("selected.h5ad", selected, options);
+    auto data = anndatapp::read_h5ad("input.h5ad");
+    auto selected = data.slice(anndatapp::indices{2, 0}, anndatapp::all);
+    anndatapp::WriteOptions options;
+    options.compression = anndatapp::Compression::gzip;
+    anndatapp::write_h5ad("selected.h5ad", selected, options);
 }
 ```
 
-`read_h5ad()` is eager: the file closes before it returns. Numerical descriptors retain the resulting native allocations and expose their ordinary pointers and strides. Use `open_h5ad()` for [lazy backed access and updates](storage.md); `anndata.zarr` supplies Zarr v2/v3 operations. External collection links remain subsequent work.
+`read_h5ad()` is eager: the file closes before it returns. Numerical descriptors retain the resulting native allocations and expose their ordinary pointers and strides. Use `open_h5ad()` for [lazy backed access and updates](storage.md); `anndatapp.zarr` supplies Zarr v2/v3 operations. External collection links remain subsequent work.
 
 ## Encoding boundary
 

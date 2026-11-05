@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-import anndata;
+import anndatapp;
 
 namespace {
 
@@ -23,11 +23,11 @@ void expect(bool condition, const char* message) {
 }
 
 template<class F>
-void expect_error(anndata::ErrorCode code, F&& operation, const char* message) {
+void expect_error(anndatapp::ErrorCode code, F&& operation, const char* message) {
     try {
         operation();
         expect(false, message);
-    } catch (const anndata::Error& error) {
+    } catch (const anndatapp::Error& error) {
         if (error.code() != code) {
             std::cerr << "FAIL: " << message << " (wrong error code "
                       << static_cast<int>(error.code()) << ")\n";
@@ -43,7 +43,7 @@ void expect_error(anndata::ErrorCode code, F&& operation, const char* message) {
 }
 
 void packed_layout_and_copy() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto values = StringArray::from_strings(
         {2, 3}, {"alpha", "β", "", "δelta", "epsilon", "z"});
     expect(values.rank() == 2 && values.size() == 6 &&
@@ -70,7 +70,7 @@ void packed_layout_and_copy() {
 }
 
 void lazy_selections() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto values = StringArray::from_strings(
         {2, 3}, {"a", "b", "c", "d", "e", "f"});
     auto original = values.view();
@@ -111,7 +111,7 @@ void lazy_selections() {
 }
 
 void compact_string_axes() {
-    using namespace anndata;
+    using namespace anndatapp;
     StringArrayView retained;
     {
         auto a = StringArray::from_strings({2,3}, {"a","b","c","d","e","f"});
@@ -142,7 +142,7 @@ void compact_string_axes() {
 }
 
 void external_buffers() {
-    using namespace anndata;
+    using namespace anndatapp;
     std::array<char, 4> local_bytes{'o', 'k', 'x', 'y'};
     std::array<std::uint64_t, 3> local_offsets{0, 2, 4};
     StringArrayView retained_view;
@@ -203,7 +203,7 @@ void external_buffers() {
 }
 
 void packed_storage_lifetimes() {
-    using namespace anndata;
+    using namespace anndatapp;
     StringArrayView retained;
     StringArrayEdit edit;
     StringArray independent;
@@ -256,7 +256,7 @@ void packed_storage_lifetimes() {
 }
 
 void mutable_shared_storage() {
-    using namespace anndata;
+    using namespace anndatapp;
     struct Buffers { char b[2]{'o', 'k'}; std::uint64_t o[2]{0, 2}; };
     StringArrayView view;
     StringArrayEdit edit;
@@ -277,7 +277,7 @@ void mutable_shared_storage() {
 }
 
 void adopted_storage_lifetimes() {
-    using namespace anndata;
+    using namespace anndatapp;
     int calls = 0;
     const auto release = [](char* b, std::uint64_t* o, void* context) {
         ++*static_cast<int*>(context); delete[] b; delete[] o;
@@ -316,7 +316,7 @@ void adopted_storage_lifetimes() {
 }
 
 void validation_and_unsafe_editing() {
-    using namespace anndata;
+    using namespace anndatapp;
     for (const std::size_t n : {0, 7, 8, 9, 15, 16}) {
         const std::string prefix(n, 'a');
         const std::vector<std::string> valid{
@@ -356,7 +356,7 @@ void validation_and_unsafe_editing() {
 }
 
 void alignment_and_metadata() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto data = AnnData::empty(3, 2);
     data.set_obsm("labels", StringArray::from_strings(
         {3, 2}, {"c0a", "c0b", "c1a", "c1b", "c2a", "c2b"}));
@@ -412,7 +412,7 @@ void alignment_and_metadata() {
 }
 
 void serialization_byte_order_hints() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto dense = Array::empty<float>({2, 2});
     dense.set_serialization_byte_order(ByteOrder::big);
     dense.edit().dense<float>().data()[0] = 2.5F;
@@ -453,7 +453,7 @@ void serialization_byte_order_hints() {
 }
 
 void erased_sparse_buffers() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto values = Array::empty<float>({3});
     auto indices = Array::empty<std::int32_t>({3});
     auto offsets = Array::empty<std::int64_t>({4});
@@ -496,7 +496,7 @@ void erased_sparse_buffers() {
 }
 
 void categorical_string_array_colors() {
-    using namespace anndata;
+    using namespace anndatapp;
     auto make_data = [] {
         auto data = AnnData::empty(4, 1);
         auto codes = Array::empty<std::int8_t>({4});

@@ -298,7 +298,7 @@ def run(driver: Path, mode: str, kind: str, path: Path, *, bounded: bool = False
         resource.setrlimit(resource.RLIMIT_AS, (cap, cap))
     subprocess.run([str(driver), mode, "hdf5" if kind == "hdf5" else "zarr", str(path)],
                    check=True, timeout=30,
-                   preexec_fn=limit if bounded and os.environ.get("ANNDATA_COMPLETENESS_NO_AS_LIMIT") != "1" else None)
+                   preexec_fn=limit if bounded and os.environ.get("ANNDATAPP_COMPLETENESS_NO_AS_LIMIT") != "1" else None)
 
 
 def main() -> None:

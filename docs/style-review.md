@@ -29,12 +29,12 @@ evidence is recorded in [selection-validation.md](selection-validation.md).
 
 `ArrayView::select()` exposes
 `vector<optional<vector<size_t>>>` in
-[anndata.arrays.cppm](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L301). It builds and composes
-stored index lists in [arrays.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L417). Acquiring a dense view
+[anndata.arrays.cppm](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L301). It builds and composes
+stored index lists in [arrays.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L417). Acquiring a dense view
 then scans those lists to discover whether they describe an arithmetic
-progression ([arrays.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L461)). The higher-level `range`
+progression ([arrays.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L461)). The higher-level `range`
 selection also expands into positions
-([data.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L388)).
+([data.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L388)).
 
 A simple strided subarray therefore travels through a representation much more
 elaborate than its pointer, shape, and stride. A compact regular-range path is
@@ -50,9 +50,9 @@ little value.
 `data.obs().column("batch")` first calls `Table::view()`. That allocates a table
 view, copies its index-name string, and copies every column name while creating
 an allocated view descriptor for every column
-([data.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L752),
-[column view construction](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L560),
-[AnnData accessors](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L1000)). It does not copy the column payloads,
+([data.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L752),
+[column view construction](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L560),
+[AnnData accessors](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L1000)). It does not copy the column payloads,
 but the expression conceals work proportional to the number of columns.
 
 The full snapshot serves a real purpose: retained bindings survive structural
@@ -60,19 +60,19 @@ replacement. Preserve that contract. Consider a focused column-acquisition path
 that avoids constructing unrelated descriptors. Existing callers can acquire
 and reuse a table view outside a loop. Similarly, `set_obsm(Table)` compares
 indexes by materializing both lists of strings
-([data.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L1033)); direct row-wise comparison would express
+([data.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L1033)); direct row-wise comparison would express
 the required operation more plainly without copying both indexes.
 
 ### 3. Dense external-buffer entry points still require STL metadata
 
 `Array::borrow_dense()` requires vectors for shape and strides
-([anndata.arrays.cppm](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L389)), and creates an allocated
-wrapper state ([arrays.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L314)). This borrows the numerical
+([anndata.arrays.cppm](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L389)), and creates an allocated
+wrapper state ([arrays.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/arrays.cpp#L314)). This borrows the numerical
 buffer; it does not make descriptor creation allocation-free. Constructing the
 lighter `BorrowedDenseView` directly requires a public constructor parameter
 named `detail::DenseDimensions`
-([anndata.arrays.cppm](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L120)). `DenseBuffer` likewise
-owns vector metadata ([anndata.backed.cppm](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.backed.cppm#L22)).
+([anndata.arrays.cppm](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.arrays.cppm#L120)). `DenseBuffer` likewise
+owns vector metadata ([anndata.backed.cppm](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/anndata.backed.cppm#L22)).
 
 Consider a small pointer/rank/shape/stride entry point with an explicit metadata
 lifetime contract. It should complement retained owners, remain easy to use
@@ -83,11 +83,11 @@ dominates applications.
 ### 4. Some string accessors and copies hide complete traversals
 
 A selected `StringArrayView::byte_size()` visits every logical string
-([strings.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/strings.cpp#L179)). Selected `copy()` stages a vector of
+([strings.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/strings.cpp#L179)). Selected `copy()` stages a vector of
 individual strings and then repacks it
-([strings.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/strings.cpp#L251)). Categorical `ColumnView::codes()` can
+([strings.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/strings.cpp#L251)). Categorical `ColumnView::codes()` can
 also allocate and materialize recoded values despite returning `ArrayView`
-([data.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L621)); its interface already mentions recoding.
+([data.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/data.cpp#L621)); its interface already mentions recoding.
 
 Document these acquisition/materialization costs where callers encounter them.
 Selected string copies could size and fill the final packed byte/offset buffers
@@ -99,11 +99,11 @@ and traversal are visible in the source already.
 
 `scan_sparse()` calls dtype-switching `read_index()` and `write_index()` for
 stored and emitted entries
-([backed_array.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L314),
-[inner loop](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L449)). `MinorLookup::each()` also chooses
+([backed_array.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L314),
+[inner loop](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L449)). `MinorLookup::each()` also chooses
 its selection strategy per source index; its bounded-memory fallback can scan
 the entire explicit selector for each stored index
-([backed_array.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L346)).
+([backed_array.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L346)).
 
 These are internal transfer loops, distinct from the caller's acquired pointer
 loops. Consider selecting typed and selector-specific transfer routines once
@@ -115,8 +115,8 @@ remove some source-level dispatch; runtime and build effects need measurement.
 Sparse preparation itself scans the selected structure to count output entries,
 then filling scans again. Reusing `PreparedRead` can amortize preparation;
 convenience `read_into()` prepares anew each call
-([backed_array.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L483),
-[read_into](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L895)). Make that cost clear. The separate
+([backed_array.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L483),
+[read_into](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/backed_array.cpp#L895)). Make that cost clear. The separate
 validation pass before sparse writes protects against partial writes and should
 not be collapsed casually.
 
@@ -124,8 +124,8 @@ not be collapsed casually.
 
 `Store::resize()` packs chunk traversal, allocation of fill data, nested cell
 traversal, and writeback onto one long line
-([zarr_engine.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/zarr_engine.cpp#L429)). Its `coordinates()` helper uses
-a type-erased callback ([zarr_engine.cpp](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/zarr_engine.cpp#L207)).
+([zarr_engine.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/zarr_engine.cpp#L429)). Its `coordinates()` helper uses
+a type-erased callback ([zarr_engine.cpp](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/src/zarr_engine.cpp#L207)).
 
 Unfold the existing control structure into concise visible loop bodies when
 this code is next touched. Keep related arithmetic close together and make
@@ -146,7 +146,7 @@ formatting sweep.
   recent fixes reuse staging storage. There is no application scheduler or
   synchronization in the caller's acquired numerical loops.
 - Public module file sets and private storage linkage in
-  [CMakeLists.txt](https://github.com/tumlinso/anndata.cppm/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/CMakeLists.txt#L57) keep HDF5/JSON/codec headers behind the
+  [CMakeLists.txt](https://github.com/tumlinso/anndatapp/blob/2ddf57559412c90297e5b525bd6a5b6d9a0c36d1/CMakeLists.txt#L57) keep HDF5/JSON/codec headers behind the
   implementation boundary. The core has no third-party storage dependency.
 
 The existing compilation reports demonstrate private-edit isolation for their

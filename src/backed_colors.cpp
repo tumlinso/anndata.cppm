@@ -15,10 +15,10 @@ module;
 #include <utility>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 using Node = std::shared_ptr<detail::BackedNode>;
 [[noreturn]] void fail(ErrorCode code, std::string_view path, std::string message) {
@@ -273,4 +273,4 @@ void copy_promoted_color(Backend& destination, std::string_view path, const Node
         first += count;
     }
 }
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail

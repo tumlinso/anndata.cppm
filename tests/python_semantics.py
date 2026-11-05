@@ -92,7 +92,7 @@ def main():
     if len(sys.argv) != 2:
         raise SystemExit("usage: python_semantics.py /path/to/interop_driver")
     driver = str(Path(sys.argv[1]).resolve())
-    with tempfile.TemporaryDirectory(prefix="anndata-cppm-semantics-") as directory:
+    with tempfile.TemporaryDirectory(prefix="anndatapp-semantics-") as directory:
         path = Path(directory) / "reference.h5ad"
         with ad.settings.override(allow_write_nullable_strings=True):
             fixture().write_h5ad(path)

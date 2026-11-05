@@ -13,10 +13,10 @@
 #include <thread>
 #include <vector>
 
-import anndata;
-extern "C" int anndata_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
-extern "C" void anndata_probe_end() __attribute__((weak));
-using namespace anndata;
+import anndatapp;
+extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
+extern "C" void anndatapp_probe_end() __attribute__((weak));
+using namespace anndatapp;
 using Clock = std::chrono::steady_clock;
 
 static float value(std::size_t r, std::size_t c) {
@@ -35,7 +35,7 @@ static std::vector<Selection> select(std::size_t i, std::size_t j, std::size_t m
 struct Worker {
     BackedAnnData store;
     BackedArray x;
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
     TransferContext transfer;
 #endif
     Array data;
@@ -45,7 +45,7 @@ struct Worker {
     Worker(const std::string& path, bool writing, std::size_t m, std::size_t n)
         : store(open_zarr(path, BackedOptions{writing ? AccessMode::read_write : AccessMode::read_only})),
           x(store.x())
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
         , transfer(x.prepare_transfer())
 #endif
         , data(Array::empty<float>({m,n})), p(data.edit().dense<float>().data()) {}
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
                     if (writing) for (std::size_t i=0; i<m; ++i) for (std::size_t j=0; j<n; ++j)
                         worker.p[i*n+j] = value(r+i,c+j) + 0.5f;
                     auto t = Clock::now();
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
                     DenseBuffer b{worker.p, DType::float32, {m,n}, {}};
                     if (writing) worker.transfer.write_from({r,c},{m,n},b);
                     else worker.transfer.read_into({r,c},{m,n},b);
@@ -98,21 +98,21 @@ int main(int argc, char** argv) {
                 }
             } catch (...) { worker.error = std::current_exception(); }
         });
-        if (!anndata_probe_begin || !anndata_probe_end) throw std::runtime_error("bounded probe interposer required");
-        if (anndata_probe_begin(512ULL*1024*1024,512ULL*1024*1024)) throw std::runtime_error("cannot arm bounded probe");
+        if (!anndatapp_probe_begin || !anndatapp_probe_end) throw std::runtime_error("bounded probe interposer required");
+        if (anndatapp_probe_begin(512ULL*1024*1024,512ULL*1024*1024)) throw std::runtime_error("cannot arm bounded probe");
         const auto t = Clock::now();
         gate.arrive_and_wait();
         for (auto& thread:threads) thread.join();
         const auto elapsed = std::chrono::duration<double>(Clock::now()-t).count();
-        anndata_probe_end();
+        anndatapp_probe_end();
         double io = 0; for (auto& worker:workers) { if (worker->error) std::rethrow_exception(worker->error); io += worker->io_seconds; }
         std::uint64_t hash = 1469598103934665603ULL;
         for (auto h:hashes) hash = (hash ^ h)*1099511628211ULL;
-        std::cout << "{\"mode\":\"" << (ANNDATA_STREAM_CANDIDATE?"context":"select")
+        std::cout << "{\"mode\":\"" << (ANNDATAPP_STREAM_CANDIDATE?"context":"select")
                   << "\",\"calls\":" << blocks << ",\"payload_bytes\":" << blocks*m*n*sizeof(float)
                   << ",\"total_seconds\":" << elapsed << ",\"summed_io_seconds\":" << io
                   << ",\"workers\":" << nw << ",\"hash\":" << hash;
-#if ANNDATA_STREAM_CANDIDATE
+#if ANNDATAPP_STREAM_CANDIDATE
         std::size_t backend = 0, bytes = 0, allocations = 0, scratch = 0;
         for (auto& worker:workers) { auto s = worker->transfer.stats(); backend += writing?s.write_calls:s.read_calls;
             bytes += writing?s.write_bytes:s.read_bytes; allocations += s.scratch_allocations; scratch += s.scratch_bytes; }
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
         if (preparation) preparation->flush();
         return 0;
     } catch (const std::exception& e) {
-        if (anndata_probe_end) anndata_probe_end();
+        if (anndatapp_probe_end) anndatapp_probe_end();
         std::cerr << e.what() << '\n';
         return 2;
     }

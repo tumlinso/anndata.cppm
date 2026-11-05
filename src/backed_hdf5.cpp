@@ -23,10 +23,10 @@ module;
 #include <variant>
 #include <vector>
 
-module anndata.backed;
+module anndatapp.backed;
 import :storage;
 
-namespace anndata::backed_detail {
+namespace anndatapp::backed_detail {
 namespace {
 
 class H5Handle {
@@ -1343,9 +1343,9 @@ private:
 };
 
 } // namespace
-} // namespace anndata::backed_detail
+} // namespace anndatapp::backed_detail
 
-namespace anndata::detail {
+namespace anndatapp::detail {
 BackedAnnData open_h5ad_backed(std::string_view path, BackedOptions options) {
     return backed_detail::make_store(std::make_unique<backed_detail::Hdf5Backend>(path, options), options);
 }
@@ -1371,4 +1371,4 @@ void write_h5ad_backed(std::string_view path, const BackedAnnDataView& source, b
     backed_detail::export_store(destination, source, options.scratch_bytes, validation);
     destination.flush();
 }
-} // namespace anndata::detail
+} // namespace anndatapp::detail

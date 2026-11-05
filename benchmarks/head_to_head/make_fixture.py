@@ -28,7 +28,7 @@ class PollPolicy(asyncio.DefaultEventLoopPolicy):
         return loop
 
 
-if os.environ.get("ANNDATA_INTEROP_ZARR_WAKEUP") == "1":
+if os.environ.get("ANNDATAPP_INTEROP_ZARR_WAKEUP") == "1":
     asyncio.set_event_loop_policy(PollPolicy())
 
 import anndata as ad
@@ -248,7 +248,7 @@ def main() -> int:
     zarr.config.set({"async.concurrency": 1, "threading.max_workers": 1})
     blosc.set_nthreads(1)
     manifest = {
-        "schema": "anndata.cppm.head_to_head.fixtures.v1",
+        "schema": "anndatapp.head_to_head.fixtures.v1",
         "seed": SEED,
         "sizes": list(sizes),
         "x_formula": "uint64 coordinate mix, 9% deterministic support, 10-bit values scaled by 1/64",

@@ -11,7 +11,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-import anndata;
+import anndatapp;
 
 extern "C" void bulk_probe_begin() __attribute__((weak));
 extern "C" void bulk_probe_end() __attribute__((weak));
@@ -120,18 +120,18 @@ int main(int argc, char** argv) {
         const std::string destination(argv[2]);
         require(!std::filesystem::exists(destination), "destination already exists");
 
-        anndata::BackedOptions open_options;
-        open_options.mode = anndata::AccessMode::read_only;
+        anndatapp::BackedOptions open_options;
+        open_options.mode = anndatapp::AccessMode::read_only;
         open_options.scratch_bytes = 64u * 1024u * 1024u;
         open_options.decoded_cache_bytes = 0;
-        auto backed = anndata::open_zarr(source, open_options);
+        auto backed = anndatapp::open_zarr(source, open_options);
         require(backed.n_obs() == 4096 && backed.n_vars() == 4096, "source dimensions differ");
-        auto selected = backed.slice(anndata::range{2000, 2096, 1}, anndata::all);
+        auto selected = backed.slice(anndatapp::range{2000, 2096, 1}, anndatapp::all);
         require(selected.n_obs() == 96 && selected.n_vars() == 4096, "selected dimensions differ");
-        require(selected.x().layout() == anndata::Layout::dense, "source X is not dense");
+        require(selected.x().layout() == anndatapp::Layout::dense, "source X is not dense");
 
-        anndata::ZarrWriteOptions write_options;
-        write_options.format = anndata::ZarrFormat::v3;
+        anndatapp::ZarrWriteOptions write_options;
+        write_options.format = anndatapp::ZarrFormat::v3;
         write_options.scratch_bytes = 64u * 1024u * 1024u;
         PerfGroup counters;
         const bool perf_available = counters.start();
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
         bool write_succeeded = true;
         int write_failure_errno = 0;
         try {
-            anndata::write_zarr(destination, selected, write_options);
+            anndatapp::write_zarr(destination, selected, write_options);
         } catch (const std::exception& error) {
             write_succeeded = false;
             write_failure_errno = errno;

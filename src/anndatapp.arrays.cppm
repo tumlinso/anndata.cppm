@@ -9,9 +9,9 @@ module;
 #include <utility>
 #include <vector>
 
-export module anndata.core:arrays;
+export module anndatapp.core:arrays;
 
-export namespace anndata {
+export namespace anndatapp {
 
 enum class DType { boolean, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64 };
 enum class Layout { dense, csr, csc };
@@ -75,7 +75,7 @@ private:
 namespace detail {
 struct State;
 struct Selection;
-using NativeType = ::anndata::NativeType;
+using NativeType = ::anndatapp::NativeType;
 struct LargeDimensions {
     std::vector<std::size_t> shape;
     std::vector<std::ptrdiff_t> strides;
@@ -131,7 +131,7 @@ template<class T> constexpr NativeType native_type_of() {
     else if constexpr (std::is_same_v<U, unsigned long long>) return NativeType::unsigned_long_long_integer;
     else if constexpr (std::is_same_v<U, float>) return NativeType::single;
     else if constexpr (std::is_same_v<U, double>) return NativeType::double_precision;
-    else static_assert(unsupported_dtype<U>, "unsupported anndata numerical type");
+    else static_assert(unsupported_dtype<U>, "unsupported anndatapp numerical type");
 }
 }
 
@@ -148,7 +148,7 @@ template<class T> constexpr DType dtype_of() {
     else if constexpr (std::is_integral_v<U> && std::is_unsigned_v<U> && sizeof(U) == 8) return DType::uint64;
     else if constexpr (std::is_same_v<U, float>) return DType::float32;
     else if constexpr (std::is_same_v<U, double>) return DType::float64;
-    else static_assert(detail::unsupported_dtype<U>, "unsupported anndata numerical type");
+    else static_assert(detail::unsupported_dtype<U>, "unsupported anndatapp numerical type");
 }
 
 [[nodiscard]] std::size_t dtype_size(DType type) noexcept;
@@ -494,4 +494,4 @@ private:
     std::shared_ptr<detail::State> state_;
 };
 
-} // namespace anndata
+} // namespace anndatapp

@@ -12,10 +12,10 @@ import subprocess
 import sys
 import time
 
-ROOT = Path("/tmp/anndata-storage-b-confirm-20261103-mnXjYU")
-CAMPAIGN = Path("/tmp/anndata-storage-campaign-20261103/comparison-4096")
+ROOT = Path("/tmp/anndatapp-storage-b-confirm-20261103-mnXjYU")
+CAMPAIGN = Path("/tmp/anndatapp-storage-campaign-20261103/comparison-4096")
 BUILD = ROOT / "build-v2"
-PYTHON = Path("/home/tumlinson/anndata.cppm/.venv/bin/python")
+PYTHON = Path("/home/tumlinson/anndatapp/.venv/bin/python")
 LIMIT = 256 * 1024 * 1024
 TIMEOUT_SECONDS = 30
 EXPECTED = {
@@ -143,7 +143,7 @@ def main() -> int:
         "action": action,
         "format": fmt,
         "candidate_label": "B_destination_codec_units",
-        "candidate_archive": "/tmp/anndata-dense-transfer-candidate/libanndata.a",
+        "candidate_archive": "/tmp/anndatapp-dense-transfer-candidate/libanndatapp.a",
         "candidate_archive_sha256": "213270a9e5adfa2565a97b2a761f5573fb7afcd758fc8c8f3b7d47a9f70c8299",
         "candidate_source_manifest_sha256": "39d5e66667103eff4de17f8e4c70b2166108a942e71c6304f8b2ad3f2377b89e",
         "source_fixture": str(source),

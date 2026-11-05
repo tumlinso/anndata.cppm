@@ -1,6 +1,6 @@
 // Count C++ allocations for descriptor acquisition and release only.
 // This probe makes no timing or zero-allocation claim.
-import anndata.core;
+import anndatapp.core;
 
 #include <cstddef>
 #include <cstdint>
@@ -112,15 +112,15 @@ void operator delete[](void* p, std::align_val_t, const std::nothrow_t&) noexcep
 }
 
 namespace {
-using anndata::Array;
-using anndata::Axis;
-using anndata::AnnData;
-using anndata::Column;
-using anndata::DenseView;
-using anndata::Error;
+using anndatapp::Array;
+using anndatapp::Axis;
+using anndatapp::AnnData;
+using anndatapp::Column;
+using anndatapp::DenseView;
+using anndatapp::Error;
 
 void require(bool condition, const char* message) {
-    if (!condition) throw Error(anndata::ErrorCode::invalid_argument, "selection_probe", message);
+    if (!condition) throw Error(anndatapp::ErrorCode::invalid_argument, "selection_probe", message);
 }
 
 template<class F>
@@ -278,7 +278,7 @@ void metadata_probe() {
 
 int main() {
     static_assert(sizeof(std::size_t) == 8, "selection probe requires 64-bit size_t");
-    std::cout << "{\"kind\":\"probe\",\"name\":\"anndata_selection_probe\","
+    std::cout << "{\"kind\":\"probe\",\"name\":\"anndatapp_selection_probe\","
                  "\"counter\":\"global C++ new/delete; calls and requested bytes\","
                  "\"measurement\":\"acquisition plus returned descriptor release; setup and JSON output excluded\","
                  "\"retained_descriptor_zero_allocation_claim\":false,"

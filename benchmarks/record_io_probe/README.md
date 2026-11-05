@@ -16,7 +16,7 @@ Per-dataset counts include source and destination datasets with the same path
 under separate read/write totals.
 
 Build the driver as a private consumer target against the current HDF5-enabled
-`anndata::anndata` target, linking `${CMAKE_DL_LIBS}` and adding this directory
+`anndatapp::anndatapp` target, linking `${CMAKE_DL_LIBS}` and adding this directory
 to its private include path. Build `interposer.c` independently:
 
 ```sh

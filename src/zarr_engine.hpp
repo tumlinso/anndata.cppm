@@ -12,7 +12,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-namespace anndata_zarr {
+namespace anndatapp_zarr {
 using Json = nlohmann::json;
 using Shape = std::vector<std::size_t>;
 using Bytes = std::vector<std::byte>;
@@ -179,4 +179,4 @@ private:
     void transfer(const std::string&, const Shape&, const Shape&, void*, std::vector<std::string>*, bool) const;
     void transfer(const std::string&, const ArrayMetadata&, const Shape&, const Shape&, void*, std::vector<std::string>*, bool, const NumericCodec* codec = nullptr) const;
 };
-} // namespace anndata_zarr
+} // namespace anndatapp_zarr

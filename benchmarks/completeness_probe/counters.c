@@ -129,9 +129,9 @@ static int parse_env_u64(const char *name, uint64_t *value, uint64_t max, int *s
 }
 static int capture_delay(void) {
     int fast_set = 0, slow_set = 0;
-    if (parse_env_u64("ANNDATA_COMPLETENESS_DELAY_FAST_US", &delay_fast_us, MAX_DELAY_US, &fast_set) ||
-        parse_env_u64("ANNDATA_COMPLETENESS_DELAY_SLOW_US", &delay_slow_us, MAX_DELAY_US, &slow_set) ||
-        parse_env_u64("ANNDATA_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW",
+    if (parse_env_u64("ANNDATAPP_COMPLETENESS_DELAY_FAST_US", &delay_fast_us, MAX_DELAY_US, &fast_set) ||
+        parse_env_u64("ANNDATAPP_COMPLETENESS_DELAY_SLOW_US", &delay_slow_us, MAX_DELAY_US, &slow_set) ||
+        parse_env_u64("ANNDATAPP_COMPLETENESS_DELAY_SLOW_FROM_SHARD_ROW",
                       &delay_slow_from_row, UINT64_MAX, &delay_slow_row_set)) return -1;
     (void)fast_set; (void)slow_set;
     return 0;
@@ -152,7 +152,7 @@ static int shard_key(const char *full, char *key) {
     memcpy(key, rel, n + 1);
     char *deleted = strstr(key, " (deleted)");
     if (deleted && !deleted[10]) *deleted = 0;
-    char *tmp = strstr(key, ".anndata-tmp");
+    char *tmp = strstr(key, ".anndatapp-tmp");
     if (tmp && !tmp[12]) *tmp = 0;
     tmp = strstr(key, ".tmp-");
     if (tmp) *tmp = 0;
@@ -566,7 +566,7 @@ int deflate(z_streamp stream, int flush) {
 
 static int begin_error(int error) { errno = error; return -1; }
 static int begin_reset_error(int error) { STORE(active, 0); errno = error; return -1; }
-int anndata_completeness_probe_begin(uint64_t read_cap_bytes, uint64_t write_cap_bytes,
+int anndatapp_completeness_probe_begin(uint64_t read_cap_bytes, uint64_t write_cap_bytes,
                                      const char *x_dir, size_t encoded_index_bytes,
                                      int index_location_start) {
     if (!x_dir || !*x_dir || read_cap_bytes > IO_MAX_BYTES || write_cap_bytes > IO_MAX_BYTES ||
@@ -639,7 +639,7 @@ static void report_probe(void) {
     path_overflow = shard_path_overflow;
     pthread_mutex_unlock(&shard_lock);
     fprintf(stderr,
-        "ANNDATA_COMPLETENESS_PROBE {\"schema\":\"anndata.completeness_probe.counters.v1\","
+        "ANNDATAPP_COMPLETENESS_PROBE {\"schema\":\"anndatapp.completeness_probe.counters.v1\","
         "\"x_dir\":"); json_path(x_root);
     fprintf(stderr,
         ",\"index_bytes\":%llu,\"index_at_start\":%d,"
@@ -706,9 +706,9 @@ static void report_probe(void) {
     pthread_mutex_unlock(&shard_lock);
     fputs("]}\n", stderr);
 }
-void anndata_completeness_probe_end(void) {
+void anndatapp_completeness_probe_end(void) {
     if (__atomic_exchange_n(&active, 0, __ATOMIC_RELAXED) == 1) report_probe();
 }
 __attribute__((destructor)) static void report_if_armed(void) {
-    if (LOAD(active) == 1) anndata_completeness_probe_end();
+    if (LOAD(active) == 1) anndatapp_completeness_probe_end();
 }
