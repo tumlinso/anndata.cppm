@@ -162,8 +162,9 @@ void fieldwise_shape_order_and_copies() {
         [&] { records.set("bad_text", StringArray::from_strings({4}, {"a", "b", "c", "d"})); },
         "string field insertion rejects a mismatched record shape");
 
-    if (sizeof(long) == sizeof(long long) && !std::is_same_v<long, long long>) {
-        auto wide = Array::empty<long long>({1});
+    using OtherInt64 = std::conditional_t<std::is_same_v<std::int64_t,long long>,long,long long>;
+    if (sizeof(OtherInt64) == sizeof(std::int64_t) && !std::is_same_v<OtherInt64,std::int64_t>) {
+        auto wide = Array::empty<OtherInt64>({1});
         auto native = RecordArray::with_shape({1});
         expect_error(ErrorCode::dtype_mismatch,
             [&] { native.set("wide", std::move(wide)); },

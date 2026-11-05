@@ -274,7 +274,8 @@ StringArray StringArrayView::copy() const {
     }
     const auto n = size();
     return pack_strings(shape(), n, [&](std::size_t i) -> std::string_view {
-        const auto j = source_index(*impl_, selection_, i), a = impl_->offsets[j], b = impl_->offsets[j + 1];
+        const auto j = source_index(*impl_, selection_, i);
+        const auto a = impl_->offsets[j], b = impl_->offsets[j + 1];
         return a == b ? std::string_view{} : std::string_view(impl_->bytes + a, b - a);
     });
 }

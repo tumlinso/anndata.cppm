@@ -10,12 +10,12 @@
 #include <stdexcept>
 #include <string>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <utility>
 #include <vector>
 #if defined(__linux__) && defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
 #define ANNDATAPP_TEST_FAULT_IO 1
 #include <sys/syscall.h>
-#include <unistd.h>
 // Test-only syscall interposition covers both static and shared libraries. The
 // selected worker thread receives EIO after the requested number of operations.
 static thread_local int fail_read_after = -1, fail_write_after = -1;

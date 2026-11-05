@@ -312,7 +312,8 @@ ShardWriter::~ShardWriter() = default;
 
 bool ShardWriter::read(const Shape& local, Bytes& encoded, std::size_t max_bytes) {
     auto& w = *impl_; w.check();
-    const auto i = w.entry(local), offset = get(w.index, i, 0), length = get(w.index, i, 1);
+    const auto i = w.entry(local);
+    const auto offset = get(w.index, i, 0), length = get(w.index, i, 1);
     if (offset == missing) { encoded.clear(); return false; }
     if (offset & replaced) fail(Failure::argument, w.path, "inner chunk has already been replaced");
     if (!length) fail(Failure::encoding, w.path, "empty encoded inner chunk");
@@ -331,7 +332,8 @@ bool ShardWriter::read(const Shape& local, Bytes& encoded, std::size_t max_bytes
 
 void ShardWriter::replace(const Shape& local, std::span<const std::byte> encoded) {
     auto& w = *impl_; w.check();
-    const auto i = w.entry(local), previous = get(w.index, i, 0);
+    const auto i = w.entry(local);
+    const auto previous = get(w.index, i, 0);
     if (previous != missing && (previous & replaced))
         fail(Failure::argument, w.path, "inner chunk has already been replaced");
     if (encoded.empty()) { set(w.index, i, replaced, missing); return; }
