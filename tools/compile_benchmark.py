@@ -163,14 +163,16 @@ def get_command_output(cmd: list[str]) -> str | None:
         return str(error)
 
 
-def configure(snapshot_dir: Path, build: Path, compiler: str, config: str, hdf5: bool, zarr: bool) -> dict:
+def configure(snapshot_dir: Path, build: Path, compiler: str, config: str, hdf5: bool, zarr: bool,
+              dependency_prefix: Path) -> dict:
     build.mkdir(parents=True)
     cmd = ["cmake", "-S", str(snapshot_dir), "-B", str(build), "-G", "Ninja",
            f"-DCMAKE_CXX_COMPILER={compiler}", f"-DCMAKE_BUILD_TYPE={config}",
            "-DANNDATAPP_BUILD_TESTS=OFF", "-DANNDATAPP_BUILD_EXAMPLES=ON",
            "-DANNDATAPP_BUILD_BENCHMARKS=OFF", "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF",
            f"-DANNDATAPP_ENABLE_HDF5={'ON' if hdf5 else 'OFF'}",
-           f"-DANNDATAPP_ENABLE_ZARR={'ON' if zarr else 'OFF'}"]
+           f"-DANNDATAPP_ENABLE_ZARR={'ON' if zarr else 'OFF'}",
+           f"-DANNDATAPP_DEPENDENCY_PREFIX={dependency_prefix}"]
     wall, code, output = checked(cmd)
     return {"command": cmd, "wall_seconds": wall, "returncode": code,
             "output_tail": output[-2000:]}
@@ -198,6 +200,8 @@ def module_probe_sources(snapshot_dir: Path) -> None:
 def measure(args: argparse.Namespace) -> dict:
     source = Path(args.source).resolve()
     compiler = shutil.which(args.compiler) or args.compiler
+    dependency_prefix = (Path(args.dependency_prefix).resolve() if args.dependency_prefix
+                         else source / "build/dependencies/usr")
     compiler_major_match = re.search(r"clang\+\+-(\d+)", compiler)
     scanner_name = (f"clang-scan-deps-{compiler_major_match.group(1)}"
                     if compiler_major_match else "clang-scan-deps")
@@ -231,6 +235,7 @@ def measure(args: argparse.Namespace) -> dict:
                          "ninja": get_command_output(["ninja", "--version"]),
                          "gnu_time": get_command_output(["/usr/bin/time", "--version"]),
                          "configuration": args.configuration,
+                         "dependency_prefix": str(dependency_prefix),
                          "generator": "Ninja", "parallel_jobs": args.jobs,
                          "cache_policy": "fresh build trees; operating-system page cache was not cleared",
                          "repetitions": args.runs}}
@@ -261,7 +266,7 @@ def measure(args: argparse.Namespace) -> dict:
         if run_manifest != results["source_manifest_sha256"]:
             raise RuntimeError("source changed during measurement; rerun with a stable checkout")
         build = run_root / "build"
-        conf = configure(run_source, build, compiler, args.configuration, args.hdf5, args.zarr)
+        conf = configure(run_source, build, compiler, args.configuration, args.hdf5, args.zarr, dependency_prefix)
         cache = (build / "CMakeCache.txt").read_text()
         for option, enabled in (("HDF5", args.hdf5), ("ZARR", args.zarr)):
             expected = f"ANNDATAPP_ENABLE_{option}:BOOL={'ON' if enabled else 'OFF'}"
@@ -409,6 +414,7 @@ def main() -> int:
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--compiler", default="clang++-18")
     parser.add_argument("--configuration", default="Release", choices=("Release", "Debug", "RelWithDebInfo"))
+    parser.add_argument("--dependency-prefix", help="private storage dependency prefix (default: source/build/dependencies/usr)")
     parser.add_argument("--hdf5", action=argparse.BooleanOptionalAction, default=True, help="enable H5AD backend (default: enabled)")
     parser.add_argument("--zarr", action=argparse.BooleanOptionalAction, default=True, help="enable Zarr backend (default: enabled)")
     args = parser.parse_args()

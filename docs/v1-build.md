@@ -32,7 +32,8 @@ been qualified.
 
 S01: `tools/compile_benchmark.py` explicitly configures HDF5 and Zarr via
 `--[no-]hdf5` and `--[no-]zarr`, checks the resulting cache, and reports the
-enabled modules. Core and facade probes link their respective targets. Reports
+enabled modules, with `--dependency-prefix` available for private storage
+dependencies. Core and facade probes link their respective targets. Reports
 hash build inputs, including source files that may be disabled in a particular
 configuration. No fresh timing or size claims follow from this correction.
 
@@ -65,3 +66,22 @@ it binds the candidate snapshot manifest, logs, and both private-edit receipts.
 The `records.cpp` and `backed.cpp` private edits each left ten public BMIs and
 two consumer objects unchanged, and restoration reproduced binary hashes.
 These correctness checks do not establish performance or platform portability.
+
+After the C03 sparse-gather change, the final source-3 rerun passed Debug,
+Release and ASan/UBSan native suites (20/20 each), full interoperability
+(31/31), and focused ThreadSanitizer (4/4). Core-only, HDF5-only, Zarr-only,
+shared and shared Release each passed the affected arrays and installed
+consumer checks (2/2). The final `arrays.cpp` private-edit gate again left ten
+public BMIs and two consumer objects unchanged and restored binary hashes.
+The earlier qualification manifest describes source-2. The source-3 evidence
+manifest `build/v1-cleanup/c03-qualification-sha256.txt` has SHA-256
+`f7de934536f8e63c7495399be81e1cc4d5eeab0fd07ed4c38510086827ccaf9f`.
+
+After the source-4 private checked-arithmetic change, Debug, Release and
+ASan/UBSan native suites passed 20/20 each, and full interoperability passed
+31/31. An independent signed-128 oracle checked 200 boundary and sign cases
+for each of the intrinsic and standard fallback helper paths. The HDF5-only
+arrays and installed-consumer checks passed 2/2. Earlier source-3 component and
+ThreadSanitizer results remain scoped to source-3. The source-4 local evidence
+manifest `build/v1-cleanup/c10-qualification-sha256.txt` has SHA-256
+`aa69d49f15daaee1e7ff60f99d38faddd27bebc52940c8bdb662b247c1c5fc0b`.

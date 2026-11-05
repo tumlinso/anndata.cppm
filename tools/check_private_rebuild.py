@@ -41,14 +41,22 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=False)
     (output / (unit.name + ".original")).write_bytes(before)
     component_dirs = [build / "CMakeFiles/anndatapp_core.dir", build / "CMakeFiles/anndatapp.dir"]
-    bmis = sorted(p for directory in component_dirs for p in directory.glob("*.pcm")
-                  if p.name != "anndatapp.backed-storage.pcm")
+    bmis = sorted(Path(module["bmi"]) for directory in component_dirs
+                  for module in json.loads((directory / "CXXModules.json").read_text())["modules"].values()
+                  if not module["is-private"])
     if not bmis:
         raise RuntimeError("no public BMIs found")
     consumers = [build / "CMakeFiles/anndatapp_example.dir/examples/foundation.cpp.o",
                  build / "CMakeFiles/test_records.dir/tests/test_records.cpp.o"]
     objects = [directory / (args.unit + ".o") for directory in component_dirs]
-    objects = [path for path in objects if path.is_file()]
+    # A reused build tree may retain an object from before a component split.
+    # Only count objects with an active Ninja build edge for this source.
+    def active_object(path: Path) -> bool:
+        if not path.is_file(): return False
+        query = subprocess.run(["ninja", "-C", str(build), "-t", "query", str(path.relative_to(build))],
+                               text=True, capture_output=True, check=True).stdout
+        return "\n  input:" in query and f"\n    {unit}" in query
+    objects = [path for path in objects if active_object(path)]
     if len(objects) != 1:
         raise RuntimeError(f"expected one component object for {args.unit}, found {objects}")
     component = objects[0].parents[len(Path(args.unit).parts) - 1].name.removesuffix(".dir")
