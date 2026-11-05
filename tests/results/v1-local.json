@@ -1,0 +1,146 @@
+{
+  "schema": "anndatapp.local-qualification/1",
+  "date_utc": "2026-11-05",
+  "status": "local_cleanup_candidate",
+  "release": "not_tagged; requires two additional devices, including AArch64",
+  "host": {
+    "name": "testlsserver",
+    "architecture": "x86_64",
+    "os": "Linux",
+    "cpu": "Xeon E5-2698 v4",
+    "toolchain": "Clang/clang-scan-deps 18.1.3; CMake 3.28.3; Ninja 1.11.1"
+  },
+  "findings": {
+    "resolved": 49,
+    "disposition": "docs/v1-status.md"
+  },
+  "source2_full": {
+    "debug": 20,
+    "release": 20,
+    "asan_ubsan": 20,
+    "interop": 31,
+    "tsan_focused": 4,
+    "core_only": 12,
+    "hdf5_only": 16,
+    "zarr_only": 16,
+    "shared_debug": 20,
+    "shared_release": 20
+  },
+  "source3_followup": {
+    "debug": 20,
+    "release": 20,
+    "asan_ubsan": 20,
+    "interop": 31,
+    "tsan_focused": 4,
+    "affected_arrays_and_installed_consumer_per_component": 2,
+    "components": [
+      "core_only",
+      "hdf5_only",
+      "zarr_only",
+      "shared_debug",
+      "shared_release"
+    ]
+  },
+  "source4_followup": {
+    "debug": 20,
+    "release": 20,
+    "asan_ubsan": 20,
+    "interop": 31,
+    "affected_hdf5_arrays_and_installed_consumer": 2,
+    "arithmetic_oracle_cases_per_path": 200,
+    "oracle_paths": [
+      "intrinsic",
+      "portable_fallback"
+    ],
+    "downstream_ctests": 9,
+    "additional_downstream_executables": 4
+  },
+  "private_rebuilds": {
+    "units": [
+      "records.cpp",
+      "backed.cpp",
+      "arrays.cpp"
+    ],
+    "unchanged_public_bmis_per_probe": 10,
+    "unchanged_consumer_objects_per_probe": 2,
+    "restored_binary_hashes": true
+  },
+  "limits": [
+    "ASan leak detection disabled",
+    "Source4 concurrency/component scope reuses source3 gates after a private arithmetic-only change",
+    "Single Linux x86_64 host; no AArch64 or GPU qualification",
+    "One Clang frontend crash did not recur in retry/reproduction; cause unknown"
+  ],
+  "artifacts": {
+    "build/v1-cleanup/baseline.json": "e8c17a0e2b3186d2edb3f60af13d31137f685c4b3edc942dd1388a959449d61f",
+    "build/v1-cleanup/baseline-validation/result.json": "f9d114b635c35ee5dfcec15cac4198abda570d9f2426d4d099f167be30e976e0",
+    "build/v1-cleanup/candidate-2.json": "d5f6ebd28b5009c6a34706d75fec2a8b379e1edf24d77f18e670315f966cc1fa",
+    "build/v1-cleanup/candidate-3.json": "61c98e99bb2101126224ef5f427c6702aa471efbdf194445049f907d37760eb0",
+    "build/v1-cleanup/candidate-4.json": "7fa7ecc609f3d68eadbb94d979f16c26832929b92036d809472cbdd254b08575",
+    "build/v1-cleanup/build-qualification-sha256.txt": "0959b4b73fa4d65d33fab7d1ba3873b7bcba8494b7f62f11bbcade5470c8cf07",
+    "build/v1-cleanup/c03-qualification-sha256.txt": "f7de934536f8e63c7495399be81e1cc4d5eeab0fd07ed4c38510086827ccaf9f",
+    "build/v1-cleanup/c10-qualification-sha256.txt": "aa69d49f15daaee1e7ff60f99d38faddd27bebc52940c8bdb662b247c1c5fc0b",
+    "build/v1-cleanup/downstream/post-c04/result.json": "7fa946804bd03f8029c5b392dea7d037d2965bc05d822eb36b12cc80cc955c90",
+    "build/v1-cleanup/checked-arithmetic/result.json": "7e44f29489d2a9f05bc00bad4c53047c39ec0591d382de27cad7595d6d397823",
+    "build/v1-cleanup/descriptor-codegen-4.json": "b1e11ac074226e2e27bae9bdb2572f8634d4454437b5a144f6c4db0f98b95d59"
+  },
+  "final_production_sha256": {
+    "CMakeLists.txt": "7e6c4c0428048cc19e88c37206e04d3e400b263709e2cd323c4c907e3287bb10",
+    "CMakePresets.json": "7a3b00685c3b68591ad924d197ee5408559cd9804b6cf3c3b338fb4cdd554a89",
+    "src/anndatapp.arrays.cppm": "47fbedd0112434d257119f60b3e583fc83cb498736ddf0673f5b277847a74b5b",
+    "src/anndatapp.backed.cppm": "d9a3ef89bdcff30e5e909ec912ab4b336c0fb997b88d2d95299ce423e749c49f",
+    "src/anndatapp.backed.storage.cppm": "f18e970fdec86549fe47c7d706c6d16d9f3215c0791e12d51ad8048c2c13077a",
+    "src/anndatapp.core.cppm": "715a25b39c33254135c710035e9c3aad4a524da543618904c454e485972e934d",
+    "src/anndatapp.cppm": "2d3c13ff9e4fcad2b4f10f347b12246039d062590f72d1596d817b51938231d1",
+    "src/anndatapp.data.cppm": "4eebf7aca9973363ec43ecb141d92063e136895e50d4fd59e55bbe37222d07a9",
+    "src/anndatapp.h5ad.cppm": "af949c9a288e1fd3e54dbe7b8a7ab380d2bc19014483ac5a87caa388a9665c52",
+    "src/anndatapp.records.cppm": "58b425897bd39311e2294963a1070aa97e2c62693d17389da0a7bdba8cef280b",
+    "src/anndatapp.streaming.cppm": "bb57c31c02cdccb2d5b734f125011c8298a898d32a73229c3cf01c2334448c57",
+    "src/anndatapp.strings.cppm": "624346a578f6ae093de10c3e1e8d9ceaa1684ad734ee09a3dd19ee1d9d3bbab1",
+    "src/anndatapp.zarr.cppm": "9f5dfe216bb87a989e6b78c6af4a1fbf6a05bbb52d9b982eab495181430035f6",
+    "src/arrays.cpp": "53657f2f437e82d64e8c1d1501572c9ed7bec49be5eac09b650e5b4ff2ed5f6c",
+    "src/backed.cpp": "666d88ca29447b8c8aadd889255eb624ee87a4185b55454fd4a17413160b80cd",
+    "src/backed_array.cpp": "7ae11939ec5db5b7f8c7bfc6c2f44157b1ed7e7ce7ad04f04b55ec7b87eb9673",
+    "src/backed_category.cpp": "6d0399e7b4f91b845a5aec8217bef824c1dbd3bf26d6a298924c58aed0e29360",
+    "src/backed_codec.cpp": "36b34ca1d164914c612110ec5ff7955b3ebf3e9be53bf50dfc0b4945672d2636",
+    "src/backed_colors.cpp": "f8b44101b3ec6f554ba138723c784b6d860312fc6be32512885277040289772e",
+    "src/backed_copy.cpp": "ce31d49f1198932c461a5b6eaa725ec2203fff41f348a0f6757d9930f18f999c",
+    "src/backed_geometry.cpp": "53d8d3e6f1a7644b63c1b0d1ed93e3ae120c46f83fcff857d70dd0f76326a162",
+    "src/backed_hdf5.cpp": "d4c24db51e0900d1ab5bb344b007f7e6d7c3bc45511730b7bc61d7e8e0000824",
+    "src/backed_index.cpp": "1bfddc9f65dc24375ccf257e2d0ddca23e2822586b43df24cff6fc1273ef3ec6",
+    "src/backed_records.cpp": "7b77a6f1abbf0d1eeb49047bbcef60c412a2522a63b0e90d5070609b96d6e728",
+    "src/backed_structure.cpp": "33bf6f915bf974d401d2dc4d33a72672d494f03405148cd910a5a09a5dd58e32",
+    "src/backed_writer.cpp": "07aaf55fe6bd1ee750d592d4b8948ff0229b3d68772dfc9a89562e25614e63a2",
+    "src/backed_zarr.cpp": "1ba09b4b125f8e9918d8954f958f16460a27bd10bcb0d4fbaa68370f16fcdcfd",
+    "src/data.cpp": "25d61932b968739751cc1ba3734be12d40bfc085be2d64a9c3f8e443349d73d2",
+    "src/h5ad.cpp": "1afe4c764182c4081bb1dbddfd09aae6a15fccdafd5930c3f3b15a4815824aa1",
+    "src/h5ad_record_scratch.hpp": "b429a1f1de2d68f025ffc4097185900e190ab084e6be86f35b5426c10149c993",
+    "src/h5ad_text.hpp": "483cb95fede7a2cf90bc046ac9ba365db4858172dad23e7ae1d48244edf8e308",
+    "src/records.cpp": "a5de9d4b856cfd6fdc3ba6f95fb8066ac94e62b81d4b955ced94f30becc24422",
+    "src/streaming.cpp": "d314eb1ada7b065ce76ce44118baa12b8d87e108b4cedc276266aa79ce93de41",
+    "src/strings.cpp": "cf5cbc0506260f7008db5feda47cd92f07c476df7c90fce45d171cf8da242d0a",
+    "src/utf8.hpp": "6bfe2ed98be36a2f79d14dd83e2d0fa03636196342de41d03903e85a5af06536",
+    "src/zarr.cpp": "922f8269c2532fc9c7aefcb580100aa5f3d7e5ab6fe9a73c8020592840da809b",
+    "src/zarr_codecs.cpp": "f4584d2f829ae4ae0bdf0fe7fa8829bf8b406dd9d1dbebfb5e405a87997d7c34",
+    "src/zarr_engine.cpp": "6b2aab6dbb10d433cd74a7eada83753c715a6e912b25627bbdd4a43eeea4ce81",
+    "src/zarr_engine.hpp": "04074488a258e2d06fd9144e45a26ad8c191ef1a706d1fa2c1327a5044f81dce",
+    "src/zarr_sharding.cpp": "ba8885a95d05877df3afd168b2c335848afc806c552b61696931a5e89dc75be4"
+  },
+  "performance": {
+    "scenarios": 10,
+    "operations": 38,
+    "alternating_pairs_per_scenario": 5,
+    "observer_free_timing_processes": 100,
+    "separate_diagnostic_processes": 20,
+    "final_regression_flags": 0,
+    "baseline_charged_seconds": 6.552,
+    "candidate_charged_seconds": 5.639,
+    "scenario_cap_seconds_per_revision": 30,
+    "machine_cap_seconds_per_revision": 300,
+    "raw_samples": "build/v1-cleanup/performance-run-5/samples.json",
+    "raw_samples_sha256": "7437f7115d6503070589489defdd2c6634a873d05dd39bb600f6ac1cdf878710",
+    "summary": "benchmarks/results/v1-summary.json",
+    "limits": "Bounded same-machine sample; overlapping ranges do not establish equal speed. Consumer build probe is separately scoped to source2.",
+    "summary_sha256": "b5f20bffd268031dde2b0cb1a289bd13dee6633f57a710e8ca46edaf4cc2ec78"
+  }
+}

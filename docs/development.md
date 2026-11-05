@@ -143,3 +143,18 @@ throwing C++ allocations, not aligned allocations, `malloc` or process memory.
 ## Workflow state
 
 The Project Control workspace entry is `anndatapp`. Its immutable native repository and authority IDs retain `anndata-cppm` so workflow history remains attached. Todo SQLite is authoritative and private, with metadata under `.todo-orchestrator/`. Authored planning files are inputs, not a replacement authority. Keep credentials outside the checkout and use the installed paired runtime for bootstrap. The sanitized setup receipt distinguishes registration, authority initialization, integration provisioning, source access, and host workflow readiness.
+
+## Cleanup candidate qualification
+
+The [current cleanup status](v1-status.md), [migration guide](migration-1.0.md), and [support contract](support.md) define the candidate boundary. The package remains pre-1.0 until additional-device qualification, including AArch64, is complete. Core-only installed consumption uses `find_package(anndatapp CONFIG REQUIRED COMPONENTS core)` and `anndatapp::core`.
+
+Use the existing native, backend, shared and sanitizer presets above. For the full independent reference gate, provide an isolated environment with `tests/requirements-records.txt`, enable both interoperability options, and run CTest:
+
+```sh
+cmake --preset interop-check -DANNDATAPP_ENABLE_RECORD_INTEROP_TESTS=ON \
+  -DPython3_EXECUTABLE=/path/to/reference/bin/python
+cmake --build --preset interop-check --parallel 2
+ctest --preset interop-check
+```
+
+The [bounded performance recipe](v1-performance.md) is separate from correctness qualification. Generated inventory/render output and raw measurements stay ignored; commit source and compact evidence summaries only.

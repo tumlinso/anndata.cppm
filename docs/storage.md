@@ -67,7 +67,7 @@ Untouched extension children and attributes remain in the same store. Same-store
 
 Zarr v2 support includes C/F order, chunk separators, fills/missing chunks, Blosc/LZ4, gzip/zlib, Zstandard and variable-length UTF-8. Zarr v3 support includes endian-aware bytes, transpose, UTF-8 strings, compression, CRC32C and indexed sharding. Unknown required codecs/types are diagnosed. Trailing outer codecs after a shard are explicitly unsupported in the initial range-access engine. New Zarr output defaults to v3 with unsharded chunks; existing supported sharded stores can be read and updated.
 
-The logical element subset remains the numerical/string/table/categorical/nullable/mapping/raw types documented in [h5ad.md](h5ad.md). Table indexes are strings. Compound, ragged, complex/half, legacy unversioned encodings and arbitrary extension schemas remain outside this milestone.
+The logical element subset remains the numerical/string/table/categorical/nullable/mapping/raw types documented in [h5ad.md](h5ad.md). Table indexes are strings. H5AD additionally supports the primitive numerical/text compound subset in [records.md](records.md); Zarr records are rejected explicitly. Ragged, complex/half, legacy unversioned encodings and arbitrary extension schemas remain outside this capability boundary.
 
 `map_readonly()` is explicit and never falls back to an allocating read. Eligible HDF5 storage must be an allocated, unfiltered, contiguous native representation in a regular local SEC2 file. Eligible Zarr mapping is for directly readable native raw chunks, not an arbitrary multi-chunk matrix. Mappings retain the actual file descriptor and memory mapping independently of the store session.
 

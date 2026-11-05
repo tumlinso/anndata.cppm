@@ -1,5 +1,9 @@
 # Validation
 
+## Cleanup candidate
+
+The [current qualification record](v1-qualification.md) binds the cleanup candidate to native, sanitizer, Python/Scanpy, package and downstream checks. Its [standard performance report](v1-performance.md) keeps instrumentation separate from timing and preserves superseded regression evidence. Additional-device qualification remains required before 1.0. Older sections below retain their original source-specific scope.
+
 ## Python comparison and gathered-read correction
 
 The [bounded screen](head-to-head-performance.md) records one matched observation
