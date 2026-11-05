@@ -32,13 +32,6 @@ struct File {
     ~File() { if (fd >= 0) ::close(fd); }
 };
 
-struct TempFile {
-    File file;
-    std::filesystem::path path;
-    bool committed = false;
-    ~TempFile() { if (!committed && !path.empty()) ::unlink(path.c_str()); }
-};
-
 std::uint64_t file_size(int fd, const std::filesystem::path& path) {
     struct stat st{};
     if (::fstat(fd, &st) != 0) syserr(path, "stat shard");

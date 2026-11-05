@@ -103,6 +103,14 @@ void test_parallel_and_contracts() {
     check(serial.settings().limit==StreamLimit::backend_serialized,"explain backend clamp");
     auto r=serial.next();check(bool(r),"serial request");check(!serial.next(),"only one writer");
     auto forged=*r;forged.count[0]++;bad([&]{serial.complete(forged,0);});serial.complete(*r,0);
+    BlockStream retry(geometry({64},{16}),manual(16,1));
+    auto failed=retry.next();check(bool(failed),"request for retry");
+    // A failed external operation has not been completed and retains its lane.
+    check(!retry.next(),"failed request remains outstanding");
+    retry.complete(*failed,failed->estimated_bytes);
+    auto replacement=retry.next();check(bool(replacement),"retry releases lane after completion");
+    bad([&]{retry.complete(*failed,failed->estimated_bytes);});
+    retry.complete(*replacement,replacement->estimated_bytes);
 }
 void test_sparse() {
     for(auto layout:{Layout::csr,Layout::csc}) {

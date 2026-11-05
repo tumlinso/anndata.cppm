@@ -16,8 +16,17 @@ memory or zero-copy decompression.
 `prepare_transfer(scratch_bytes)` creates a move-only, retained worker context.
 Zero uses the session's available scratch budget. Context preparation inspects
 the schema and obtains private backend resources; repeated block transfers do
-not repeat ordinary schema discovery. Preparation must be serialized with
-structural mutation. Each concurrent worker owns a context and output buffers.
+not repeat ordinary schema discovery. Serialize creation of backed handles and
+preparation of contexts sharing a session, as well as all direct backed access,
+structural mutation and close on that session. After preparation, workers may
+use separate contexts and non-overlapping output buffers concurrently when the
+reported backend capabilities and physical write-conflict rules permit it.
+Complete session-level operations before starting those workers, or after all
+workers have drained.
+Each context belongs to one worker; synchronize any sharing of a context.
+Shared transformed categorical handles have mutable paging state and their
+backed operations must also be serialized. Numerical buffers already acquired
+can be processed under ordinary C++ memory rules.
 
 `read_into(start, count, DenseBuffer)` and `write_from(start, count, DenseBuffer)`
 operate in captured logical selection coordinates. Dense buffers expose signed
@@ -72,6 +81,10 @@ allocations.
 `stats()` separates backend transfer calls and native transfer bytes from owned
 scratch capacity. These are not physical device-byte counters. Payload reuse
 does not imply that every metadata or third-party allocation disappears.
+`scratch_allocations` counts the backend's instrumented staging allocations and
+context-owned numerical tile allocation events, including tile replacements;
+it excludes temporary selection metadata and third-party allocations.
+`scratch_bytes` is retained capacity, not peak or cumulative allocation.
 
 Reusable Zarr staging covers unsharded C-order native-endian raw buffers and the
 common gzip/zlib, Zstd and Blosc encodings. Numerical sharded writes additionally
@@ -101,6 +114,12 @@ consolidated metadata; structural updates still invalidate and rebuild it.
 Issuance, completion reporting, and configuration are caller-serialized. The
 library creates no execution threads and adds no synchronization to numerical
 pointer loops. Outstanding requests can complete out of order.
+
+If a transfer fails, its request remains outstanding and retains its conflict
+unit. The caller can retry that same request if the operation and backend make
+replay safe, then report completion only after success. Otherwise, drain any
+other workers and abandon the stream. A failed write may already have changed
+data; neither retry nor abandonment rolls those changes back.
 
 Dense Zarr write requests retain exclusive ownership of a physical chunk, or a
 whole shard for sharded arrays, until every fragment of that unit completes.

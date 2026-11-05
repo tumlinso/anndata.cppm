@@ -1,4 +1,5 @@
 module;
+#include "utf8.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -125,48 +126,42 @@ std::vector<std::size_t> physical_coordinate(const std::vector<Axis>& axes,
     return result;
 }
 
-bool valid_utf8(std::string_view value) noexcept {
-    const auto continuation = [](unsigned char byte) { return byte >= 0x80 && byte <= 0xbf; };
-    std::size_t i = 0;
-    while (i < value.size()) {
-        const auto first = static_cast<unsigned char>(value[i]);
-        if (first <= 0x7f) { ++i; continue; }
-        if (first >= 0xc2 && first <= 0xdf) {
-            if (i + 1 >= value.size() ||
-                !continuation(static_cast<unsigned char>(value[i + 1]))) return false;
-            i += 2;
-            continue;
-        }
-        if (first >= 0xe0 && first <= 0xef) {
-            if (i + 2 >= value.size()) return false;
-            const auto second = static_cast<unsigned char>(value[i + 1]);
-            const auto third = static_cast<unsigned char>(value[i + 2]);
-            if (!continuation(third)) return false;
-            if (first == 0xe0) { if (second < 0xa0 || second > 0xbf) return false; }
-            else if (first == 0xed) { if (second < 0x80 || second > 0x9f) return false; }
-            else if (!continuation(second)) return false;
-            i += 3;
-            continue;
-        }
-        if (first >= 0xf0 && first <= 0xf4) {
-            if (i + 3 >= value.size()) return false;
-            const auto second = static_cast<unsigned char>(value[i + 1]);
-            if (!continuation(static_cast<unsigned char>(value[i + 2])) ||
-                !continuation(static_cast<unsigned char>(value[i + 3]))) return false;
-            if (first == 0xf0) { if (second < 0x90 || second > 0xbf) return false; }
-            else if (first == 0xf4) { if (second < 0x80 || second > 0x8f) return false; }
-            else if (!continuation(second)) return false;
-            i += 4;
-            continue;
-        }
-        return false;
-    }
-    return true;
+void validate_single_string(std::string_view value, std::string_view path) {
+    if (detail::utf8_error(value) != detail::Utf8Error::none)
+        codec_fail(ErrorCode::invalid_argument, path, "string is not valid UTF-8");
 }
 
-void validate_single_string(std::string_view value, std::string_view path) {
-    if (!valid_utf8(value))
-        codec_fail(ErrorCode::invalid_argument, path, "string is not valid UTF-8");
+template<class F>
+void visit_string_batches(const std::shared_ptr<detail::BackedNode>& value,
+                          const std::vector<Axis>& axes,
+                          const std::vector<std::size_t>& shape, std::size_t count,
+                          std::size_t budget, F&& visit) {
+    const auto tile = std::max<std::size_t>(1, budget / (sizeof(std::string) + 1));
+    for (std::size_t flat = 0; flat < count;) {
+        const auto logical = coordinate(shape, flat);
+        auto start = physical_coordinate(axes, logical, value->path);
+        std::vector<std::size_t> rectangle(logical.size(), 1);
+        std::size_t run = 1;
+        if (!logical.empty()) {
+            const auto last = logical.size() - 1;
+            const auto cap = std::min(shape[last] - logical[last], tile);
+            while (run < cap) {
+                const auto max = std::numeric_limits<std::size_t>::max();
+                if (start[last] > max - run ||
+                    axes[last].at(logical[last] + run) != start[last] + run) break;
+                ++run;
+            }
+            rectangle[last] = run;
+        }
+        auto strings = value->session->backend->read_strings_bounded(
+            value->path, start, rectangle, budget);
+        if (strings.empty() || strings.size() > run)
+            codec_fail(ErrorCode::io_error, value->path,
+                       "backend returned an invalid bounded string prefix");
+        const auto actual = strings.size();
+        visit(strings);
+        flat += actual;
+    }
 }
 
 std::vector<std::string> read_strings_all(const std::shared_ptr<detail::BackedNode>& value,
@@ -178,42 +173,13 @@ std::vector<std::string> read_strings_all(const std::shared_ptr<detail::BackedNo
     const auto count = element_count(output_shape, value->path);
     std::vector<std::string> result;
     result.reserve(count);
-
-    // Read no more than a scratch-sized run of adjacent last-axis values at a
-    // time. A string that cannot fit is rejected by the backend admission check.
     const auto budget = scratch_remaining(value);
-    const auto tile = std::max<std::size_t>(1, budget / (sizeof(std::string) + 1));
-    std::size_t flat = 0;
-    while (flat < count) {
-        const auto logical = coordinate(output_shape, flat);
-        auto start = physical_coordinate(axes, logical, value->path);
-        std::vector<std::size_t> rectangle(logical.size(), 1);
-        std::size_t run = 1;
-        if (!logical.empty()) {
-            const auto last = logical.size() - 1;
-            const auto remaining = output_shape[last] - logical[last];
-            const auto cap = std::min(remaining, tile);
-            while (run < cap) {
-                const auto next = axes[last].at(logical[last] + run);
-                if (start[last] == std::numeric_limits<std::size_t>::max() ||
-                    next != start[last] + run)
-                    break;
-                ++run;
-            }
-            rectangle[last] = run;
-        }
-        auto strings = value->session->backend->read_strings_bounded(
-            value->path, start, rectangle, budget);
-        if (strings.empty() || strings.size() > run)
-            codec_fail(ErrorCode::io_error, value->path,
-                       "backend returned an invalid bounded string prefix");
-        const auto actual = strings.size();
+    visit_string_batches(value, axes, output_shape, count, budget, [&](auto& strings) {
         if (validate && value->session->options.validation == Validation::full) {
             for (const auto& string : strings) validate_single_string(string, value->path);
         }
         for (auto& string : strings) result.push_back(std::move(string));
-        flat += actual;
-    }
+    });
     return result;
 }
 
@@ -275,32 +241,7 @@ StringArray read_string_array(const std::shared_ptr<detail::BackedNode>& value) 
     offsets.reserve(count + 1);
     offsets.push_back(0);
     const auto budget = scratch_remaining(value);
-    const auto tile = std::max<std::size_t>(1, budget / (sizeof(std::string) + 1));
-    std::size_t flat = 0;
-    while (flat < count) {
-        const auto logical = coordinate(output_shape, flat);
-        auto start = physical_coordinate(axes, logical, value->path);
-        std::vector<std::size_t> rectangle(logical.size(), 1);
-        std::size_t run = 1;
-        if (!logical.empty()) {
-            const auto last = logical.size() - 1;
-            const auto remaining = output_shape[last] - logical[last];
-            const auto cap = std::min(remaining, tile);
-            while (run < cap) {
-                const auto next = axes[last].at(logical[last] + run);
-                if (start[last] == std::numeric_limits<std::size_t>::max() ||
-                    next != start[last] + run)
-                    break;
-                ++run;
-            }
-            rectangle[last] = run;
-        }
-        auto strings = value->session->backend->read_strings_bounded(
-            value->path, start, rectangle, budget);
-        if (strings.empty() || strings.size() > run)
-            codec_fail(ErrorCode::io_error, value->path,
-                       "backend returned an invalid bounded string prefix");
-        const auto actual = strings.size();
+    visit_string_batches(value, axes, output_shape, count, budget, [&](auto& strings) {
         for (const auto& string : strings) {
             if (value->session->options.validation == Validation::full)
                 validate_single_string(string, value->path);
@@ -313,8 +254,7 @@ StringArray read_string_array(const std::shared_ptr<detail::BackedNode>& value) 
             bytes.insert(bytes.end(), string.begin(), string.end());
             offsets.push_back(static_cast<std::uint64_t>(bytes.size()));
         }
-        flat += actual;
-    }
+    });
     auto output = StringArray::from_packed(output_shape, std::move(bytes), std::move(offsets),
                                            Validation::none);
     return output;

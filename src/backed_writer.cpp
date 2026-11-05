@@ -14,6 +14,7 @@ module;
 #include <utility>
 #include <variant>
 #include <vector>
+#include "utf8.hpp"
 
 module anndatapp.backed;
 import anndatapp.core;
@@ -74,33 +75,10 @@ Shape shape_of(StringArrayView array) {
     return shape;
 }
 
-bool valid_utf8(std::string_view text) {
-    const auto* bytes = reinterpret_cast<const unsigned char*>(text.data());
-    std::size_t i = 0;
-    while (i < text.size()) {
-        const auto first = bytes[i++];
-        if (first < 0x80) continue;
-        unsigned remaining = 0;
-        std::uint32_t value = 0, minimum = 0;
-        if (first >= 0xc2 && first <= 0xdf) { remaining = 1; value = first & 0x1f; minimum = 0x80; }
-        else if (first >= 0xe0 && first <= 0xef) { remaining = 2; value = first & 0x0f; minimum = 0x800; }
-        else if (first >= 0xf0 && first <= 0xf4) { remaining = 3; value = first & 0x07; minimum = 0x10000; }
-        else return false;
-        if (remaining > text.size() - i) return false;
-        while (remaining--) {
-            const auto next = bytes[i++];
-            if ((next & 0xc0) != 0x80) return false;
-            value = (value << 6) | (next & 0x3f);
-        }
-        if (value < minimum || value > 0x10ffff || (value >= 0xd800 && value <= 0xdfff)) return false;
-    }
-    return true;
-}
-
 void validate_text(std::string_view text, std::string_view path, Validation validation = Validation::full) {
     if (text.find('\0') != std::string_view::npos)
         fail(ErrorCode::invalid_argument, path, "serialized strings cannot contain embedded NUL bytes");
-    if (validation == Validation::full && !valid_utf8(text))
+    if (validation == Validation::full && detail::utf8_error(text) != detail::Utf8Error::none)
         fail(ErrorCode::unsupported_dtype, path, "serialized string is not valid UTF-8");
 }
 
@@ -179,7 +157,6 @@ void validate_column(ColumnView column, std::string_view path, Validation valida
             for (std::size_t i = 0; i < categories.size(); ++i) {
                 if (!categories.valid(i))
                     fail(ErrorCode::invalid_argument, child_path(path, "categories"), "category dictionaries cannot contain nulls");
-                validate_text(categories.string(i), child_path(path, "categories"), validation);
                 if (!seen.insert(categories.string(i)).second)
                     fail(ErrorCode::invalid_argument, child_path(path, "categories"), "category dictionaries must contain unique values");
             }
@@ -280,8 +257,8 @@ std::vector<std::size_t> coordinates(Shape shape, std::size_t linear) {
 }
 
 void write_array(Backend& backend, std::string_view path, ArrayView array, std::size_t scratch_bytes,
-                 Validation validation = Validation::full) {
-    validate_array(array, path, validation);
+                 Validation validation, bool prevalidated) {
+    if (!prevalidated) validate_array(array, path, validation);
     const auto type = array.dtype();
     if (array.layout() != Layout::dense) {
         std::optional<Array> copied;
@@ -496,19 +473,19 @@ void write_strings(Backend& backend, std::string_view path, Shape shape, Getter 
 }
 
 void write_string_array(Backend& backend, std::string_view path, StringArrayView array,
-                        std::size_t scratch_bytes, Validation validation = Validation::full) {
-    if (validation == Validation::full) array.validate();
+                        std::size_t scratch_bytes, Validation validation, bool prevalidated) {
+    if (!prevalidated && validation == Validation::full) array.validate();
     const auto shape = shape_of(array);
     write_strings(backend, path, shape, [&](std::size_t i) { return array.string(i); }, scratch_bytes);
 }
 
 void write_column(Backend& backend, std::string_view path, ColumnView column, std::size_t scratch_bytes,
-                  Validation validation = Validation::full) {
+                  Validation validation, bool prevalidated) {
     if (column.kind() == ColumnKind::categorical) {
         auto attrs = encoding("categorical", "0.2.0");
         attrs.emplace("ordered", column.ordered());
         backend.create_group(path, attrs);
-        if (validation == Validation::full) {
+        if (!prevalidated && validation == Validation::full) {
             const auto categories = column.categories();
             if (categories.kind() == ColumnKind::string) {
                 std::unordered_set<std::string_view> seen;
@@ -526,8 +503,8 @@ void write_column(Backend& backend, std::string_view path, ColumnView column, st
                     fail(ErrorCode::out_of_bounds, child_path(path, "codes"), "categorical code is outside dictionary bounds");
             }
         }
-        write_array(backend, child_path(path, "codes"), column.codes(), scratch_bytes, validation);
-        write_column(backend, child_path(path, "categories"), column.categories(), scratch_bytes, validation);
+        write_array(backend, child_path(path, "codes"), column.codes(), scratch_bytes, validation, prevalidated);
+        write_column(backend, child_path(path, "categories"), column.categories(), scratch_bytes, validation, prevalidated);
         return;
     }
     if (column.nullable()) {
@@ -540,7 +517,7 @@ void write_column(Backend& backend, std::string_view path, ColumnView column, st
             write_strings(backend, child_path(path, "values"), {column.size()},
                 [&](std::size_t i) { return column.string(i); }, scratch_bytes);
         } else {
-            write_array(backend, child_path(path, "values"), column.values(), scratch_bytes, validation);
+            write_array(backend, child_path(path, "values"), column.values(), scratch_bytes, validation, prevalidated);
         }
         auto mask_path = child_path(path, "mask");
         auto mask_attrs = encoding("array", "0.2.0");
@@ -557,15 +534,15 @@ void write_column(Backend& backend, std::string_view path, ColumnView column, st
         return;
     }
     if (column.kind() == ColumnKind::numeric) {
-        write_array(backend, path, column.values(), scratch_bytes, validation);
+        write_array(backend, path, column.values(), scratch_bytes, validation, prevalidated);
         return;
     }
     write_strings(backend, path, {column.size()}, [&](std::size_t i) { return column.string(i); }, scratch_bytes);
 }
 
 void write_table(Backend& backend, std::string_view path, TableView table, std::size_t scratch_bytes,
-                 Validation validation = Validation::full) {
-    validate_table(table, path, validation);
+                 Validation validation, bool prevalidated) {
+    if (!prevalidated) validate_table(table, path, validation);
     const auto names = table.column_names();
     const std::string index_key = table.index_name().empty() ? "_index" : std::string(table.index_name());
     auto attrs = encoding("dataframe", "0.2.0");
@@ -575,7 +552,7 @@ void write_table(Backend& backend, std::string_view path, TableView table, std::
     write_strings(backend, child_path(path, index_key), {table.size()},
         [&](std::size_t i) { return table.name(i); }, scratch_bytes);
     for (const auto& name : names)
-        if (name != index_key) write_column(backend, child_path(path, name), table.column(name), scratch_bytes, validation);
+        if (name != index_key) write_column(backend, child_path(path, name), table.column(name), scratch_bytes, validation, prevalidated);
 }
 
 void write_null(Backend& backend, std::string_view path) {
@@ -583,14 +560,14 @@ void write_null(Backend& backend, std::string_view path) {
 }
 
 void write_element_impl(Backend& backend, std::string_view path, ElementView value, std::size_t scratch_bytes,
-                        Validation validation = Validation::full) {
+                        Validation validation, bool prevalidated) {
     switch (value.kind()) {
         case ElementKind::null: write_null(backend, path); return;
-        case ElementKind::array: write_array(backend, path, value.array(), scratch_bytes, validation); return;
+        case ElementKind::array: write_array(backend, path, value.array(), scratch_bytes, validation, prevalidated); return;
         case ElementKind::record_array: write_record(backend, path, value.record_array(), scratch_bytes); return;
-        case ElementKind::string_array: write_string_array(backend, path, value.string_array(), scratch_bytes, validation); return;
-        case ElementKind::column: write_column(backend, path, value.column(), scratch_bytes, validation); return;
-        case ElementKind::table: write_table(backend, path, value.table(), scratch_bytes, validation); return;
+        case ElementKind::string_array: write_string_array(backend, path, value.string_array(), scratch_bytes, validation, prevalidated); return;
+        case ElementKind::column: write_column(backend, path, value.column(), scratch_bytes, validation, prevalidated); return;
+        case ElementKind::table: write_table(backend, path, value.table(), scratch_bytes, validation, prevalidated); return;
         case ElementKind::string:
             write_strings(backend, path, {}, [&](std::size_t) { return value.string(); }, scratch_bytes,
                           encoding("string", "0.2.0"));
@@ -598,7 +575,7 @@ void write_element_impl(Backend& backend, std::string_view path, ElementView val
         case ElementKind::mapping: {
             backend.create_group(path, encoding("dict", "0.1.0"));
             for (const auto& key : value.keys())
-                write_element_impl(backend, child_path(path, key), value.at(key), scratch_bytes, validation);
+                write_element_impl(backend, child_path(path, key), value.at(key), scratch_bytes, validation, prevalidated);
             return;
         }
         case ElementKind::boolean:
@@ -629,17 +606,17 @@ void write_element_impl(Backend& backend, std::string_view path, ElementView val
 
 template<class Getter>
 void write_array_mapping(Backend& backend, std::string_view path, const std::vector<std::string>& keys,
-                         Getter get, std::size_t scratch_bytes, Validation validation) {
+                         Getter get, std::size_t scratch_bytes, Validation validation, bool prevalidated) {
     backend.create_group(path, encoding("dict", "0.1.0"));
-    for (const auto& key : keys) write_array(backend, child_path(path, key), get(key), scratch_bytes, validation);
+    for (const auto& key : keys) write_array(backend, child_path(path, key), get(key), scratch_bytes, validation, prevalidated);
 }
 
 template<class Getter>
 void write_element_mapping(Backend& backend, std::string_view path, const std::vector<std::string>& keys,
-                           Getter get, std::size_t scratch_bytes, Validation validation) {
+                           Getter get, std::size_t scratch_bytes, Validation validation, bool prevalidated) {
     backend.create_group(path, encoding("dict", "0.1.0"));
     for (const auto& key : keys)
-        write_element_impl(backend, child_path(path, key), get(key), scratch_bytes, validation);
+        write_element_impl(backend, child_path(path, key), get(key), scratch_bytes, validation, prevalidated);
 }
 
 void validate_axis_element(ElementView value, std::size_t expected, TableView axis,
@@ -736,7 +713,7 @@ void validate_serializable(ElementView value, std::string_view path) {
 
 void write_element(Backend& backend, std::string_view path, ElementView value, std::size_t scratch_bytes) {
     validate_serializable(value, path);
-    write_element_impl(backend, path, value, scratch_bytes);
+    write_element_impl(backend, path, value, scratch_bytes, Validation::full, false);
 }
 
 void initialize_store(Backend& backend, const AnnDataView& source, std::size_t scratch_bytes,
@@ -744,21 +721,23 @@ void initialize_store(Backend& backend, const AnnDataView& source, std::size_t s
     if (validation == Validation::full) validate_dataset(source);
     else validate_dataset_serializable(source, validation);
     backend.attributes("/", encoding("anndata", "0.1.0"));
-    write_table(backend, "/obs", source.obs(), scratch_bytes, validation);
-    write_table(backend, "/var", source.var(), scratch_bytes, validation);
-    if (source.has_x()) write_array(backend, "/X", source.x(), scratch_bytes, validation);
-    write_array_mapping(backend, "/layers", source.layer_names(), [&](const auto& key) { return source.layer(key); }, scratch_bytes, validation);
-    write_array_mapping(backend, "/obsp", source.obsp_names(), [&](const auto& key) { return source.obsp(key); }, scratch_bytes, validation);
-    write_array_mapping(backend, "/varp", source.varp_names(), [&](const auto& key) { return source.varp(key); }, scratch_bytes, validation);
-    write_element_mapping(backend, "/obsm", source.obsm_names(), [&](const auto& key) { return source.obsm(key); }, scratch_bytes, validation);
-    write_element_mapping(backend, "/varm", source.varm_names(), [&](const auto& key) { return source.varm(key); }, scratch_bytes, validation);
-    write_element_impl(backend, "/uns", source.uns(), scratch_bytes, validation);
+    // The dataset preflight covers every child. Source aliases must stay stable
+    // throughout this synchronous write, under the caller's synchronization.
+    write_table(backend, "/obs", source.obs(), scratch_bytes, validation, true);
+    write_table(backend, "/var", source.var(), scratch_bytes, validation, true);
+    if (source.has_x()) write_array(backend, "/X", source.x(), scratch_bytes, validation, true);
+    write_array_mapping(backend, "/layers", source.layer_names(), [&](const auto& key) { return source.layer(key); }, scratch_bytes, validation, true);
+    write_array_mapping(backend, "/obsp", source.obsp_names(), [&](const auto& key) { return source.obsp(key); }, scratch_bytes, validation, true);
+    write_array_mapping(backend, "/varp", source.varp_names(), [&](const auto& key) { return source.varp(key); }, scratch_bytes, validation, true);
+    write_element_mapping(backend, "/obsm", source.obsm_names(), [&](const auto& key) { return source.obsm(key); }, scratch_bytes, validation, true);
+    write_element_mapping(backend, "/varm", source.varm_names(), [&](const auto& key) { return source.varm(key); }, scratch_bytes, validation, true);
+    write_element_impl(backend, "/uns", source.uns(), scratch_bytes, validation, true);
     if (source.has_raw()) {
         backend.create_group("/raw", encoding("raw", "0.1.0"));
-        if (source.has_raw_x()) write_array(backend, "/raw/X", source.raw_x(), scratch_bytes, validation);
+        if (source.has_raw_x()) write_array(backend, "/raw/X", source.raw_x(), scratch_bytes, validation, true);
         else write_null(backend, "/raw/X");
-        write_table(backend, "/raw/var", source.raw_var(), scratch_bytes, validation);
-        write_element_mapping(backend, "/raw/varm", source.raw_varm_names(), [&](const auto& key) { return source.raw_varm(key); }, scratch_bytes, validation);
+        write_table(backend, "/raw/var", source.raw_var(), scratch_bytes, validation, true);
+        write_element_mapping(backend, "/raw/varm", source.raw_varm_names(), [&](const auto& key) { return source.raw_varm(key); }, scratch_bytes, validation, true);
     } else {
         write_null(backend, "/raw");
     }

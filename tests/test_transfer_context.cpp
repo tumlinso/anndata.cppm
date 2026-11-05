@@ -1,8 +1,11 @@
 #include <array>
+#include <barrier>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <future>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -18,6 +21,14 @@ void check(bool v, std::string_view message) { if (!v) throw std::runtime_error(
 template<class F> void error(ErrorCode code, F&& f) {
     try { f(); } catch (const Error& e) { check(e.code() == code, "wrong error code"); return; }
     throw std::runtime_error("missing expected error");
+}
+template<class I> void add_sparse_width(AnnData& d, const char* name) {
+    auto x = Array::csr<float,I,std::int32_t>(4,5,3);
+    auto a = x.edit().template csr<float,I,std::int32_t>();
+    const float values[]{1,2,3}; const I indices[]{I(4),I(0),I(2)}; const std::int32_t offsets[]{0,2,2,3,3};
+    for (int i = 0; i < 3; ++i) { a.values()[i]=values[i]; a.unsafe_indices()[i]=indices[i]; }
+    for (int i = 0; i < 5; ++i) a.unsafe_offsets()[i]=offsets[i];
+    d.set_layer(name,std::move(x));
 }
 AnnData fixture() {
     auto d = AnnData::empty(4, 5);
@@ -38,10 +49,45 @@ AnnData fixture() {
     for (int i = 0; i < 5; ++i) { b.values()[i] = double(i); b.unsafe_indices()[i] = k[i]; }
     for (int i = 0; i < 6; ++i) b.unsafe_offsets()[i] = q[i];
     d.set_layer("csc", std::move(csc));
+    add_sparse_width<std::int8_t>(d,"i8"); add_sparse_width<std::uint8_t>(d,"u8");
+    add_sparse_width<std::int16_t>(d,"i16"); add_sparse_width<std::uint16_t>(d,"u16");
+    add_sparse_width<std::int32_t>(d,"i32"); add_sparse_width<std::uint32_t>(d,"u32");
+    add_sparse_width<std::int64_t>(d,"i64"); add_sparse_width<std::uint64_t>(d,"u64");
     auto scalar = Array::empty<std::int32_t>({}); scalar.edit().dense<std::int32_t>().data()[0] = 37;
     d.set_uns("scalar", Element(std::move(scalar)));
     d.set_uns("empty", Element(Array::empty<double>({0,3})));
     return d;
+}
+template<class I> void sparse_width(BackedAnnData& d, const char* name) {
+    auto source=d.layer(name);
+    auto gathered=source.select({all,indices{4,0,4}}).read();
+    auto a=gathered.view().template csr<float,I,std::int32_t>();
+    check(a.nnz()==3 && a.indices()[0]==I(0) && a.indices()[1]==I(2) && a.indices()[2]==I(1), "sparse width gather indices differ");
+    check(a.values()[0]==1 && a.values()[1]==1 && a.values()[2]==2, "sparse width gather values differ");
+    auto copy=source.read();
+    source.write(copy.view());
+    auto transfer=source.prepare_transfer();
+    auto r=transfer.requirements({0,0},{4,5});
+    std::array<float,3> values{}; std::array<I,3> indices{}; std::array<std::int32_t,5> offsets{};
+    transfer.read_into({0,0},{4,5},{values.data(),indices.data(),offsets.data(),DType::float32,r.index_dtype,r.offset_dtype,3,3,5});
+    check(values==std::array<float,3>{1,2,3} && indices==std::array<I,3>{I(4),I(0),I(2)}, "sparse width transfer differs");
+}
+void shared_session_readers(BackedAnnData& d) {
+    auto x = d.x();
+    std::vector<TransferContext> contexts;
+    for (int i = 0; i < 4; ++i) contexts.push_back(x.prepare_transfer(1024*1024));
+    if (!contexts.front().geometry().parallel_reads) return;
+    std::barrier gate{std::ptrdiff_t(contexts.size())};
+    std::vector<std::future<void>> jobs;
+    for (std::size_t i = 0; i < contexts.size(); ++i) jobs.push_back(std::async(std::launch::async, [&, i] {
+        std::array<float, 20> values{};
+        gate.arrive_and_wait();
+        for (int k = 0; k < 10; ++k) {
+            contexts[i].read_into({0,0}, {4,5}, DenseBuffer::from(values.data(), {4,5}));
+            for (std::size_t j = 0; j < values.size(); ++j) check(values[j] == float(j), "same-session read differs");
+        }
+    }));
+    for (auto& job : jobs) job.get();
 }
 void dense(BackedAnnData& d) {
     auto t = d.x().prepare_transfer(1024*1024);
@@ -60,6 +106,18 @@ void dense(BackedAnnData& d) {
     error(ErrorCode::out_of_bounds,[&]{ t.read_into({3,4},{2,1},DenseBuffer::from(x.data(),{2,1})); });
     error(ErrorCode::shape_mismatch,[&]{ t.read_into({0,0},{2,3},DenseBuffer::from(x.data(),{3,2})); });
     error(ErrorCode::invalid_argument,[&]{ auto unused = d.x().prepare_transfer(100); });
+    StreamOptions options; options.mode = StreamMode::manual;
+    BlockStream stream(t.geometry(), options);
+    auto request = stream.next(); check(bool(request), "retry stream did not issue request");
+    std::array<float,20> retry{};
+    error(ErrorCode::shape_mismatch,[&]{ t.read_into(request->start, request->count, DenseBuffer::from(retry.data(),{1})); });
+    check(!stream.next(), "failed transfer released its outstanding request");
+    t.read_into(request->start, request->count, DenseBuffer::from(retry.data(),request->count));
+    stream.complete(*request, request->estimated_bytes);
+    const auto last = request->count[0]*request->count[1]-1;
+    check(retry[0] == float(request->start[0]*5+request->start[1]) &&
+          retry[last] == float((request->start[0]+request->count[0]-1)*5+request->start[1]+request->count[1]-1),
+          "retry did not complete original request");
     std::int32_t scalar = 0;
     auto s = d.uns().at("scalar").array().prepare_transfer(1024*1024);
     s.read_into({}, {}, DenseBuffer::from(&scalar,{})); check(scalar == 37, "scalar read differs");
@@ -103,7 +161,12 @@ template<class Open, class Write> void run(const std::filesystem::path& path, Op
     auto data = fixture(); write(path.string(),data);
     BackedOptions options; options.mode = AccessMode::read_write;
     auto d = open(path.string(),options);
-    dense(d); sparse(d);
+    shared_session_readers(d); dense(d); sparse(d);
+    sparse_width<std::int8_t>(d,"i8"); sparse_width<std::uint8_t>(d,"u8");
+    sparse_width<std::int16_t>(d,"i16"); sparse_width<std::uint16_t>(d,"u16");
+    sparse_width<std::int32_t>(d,"i32"); sparse_width<std::uint32_t>(d,"u32");
+    sparse_width<std::int64_t>(d,"i64"); sparse_width<std::uint64_t>(d,"u64");
+    d.validate_all(); // Traverse the same widths through streamed sparse copying.
     auto stale = d.x().prepare_transfer();
     d.set("/X",Element(Array::zeros<float>({4,5})));
     error(ErrorCode::invalid_argument,[&]{ stale.geometry(); });
@@ -118,6 +181,7 @@ template<class Open, class Write> void run(const std::filesystem::path& path, Op
 }
 int main(int argc,char** argv) {
     static_assert(!std::is_copy_constructible_v<TransferContext> && std::is_nothrow_move_constructible_v<TransferContext>);
+    static_assert(!std::is_constructible_v<BackedAnnData,std::shared_ptr<detail::BackedDataset>>);
     try {
         const auto root = std::filesystem::path(argc > 1 ? argv[1] : "transfer-tests");
         std::filesystem::create_directories(root);

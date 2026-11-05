@@ -32,6 +32,10 @@ using Node = std::shared_ptr<detail::BackedNode>;
     auto reason = errno ? std::strerror(errno) : "temporary storage failure";
     fail(ErrorCode::io_error, path, std::string(operation) + ": " + reason);
 }
+// The private spill store assumes POSIX positional I/O. Keep that platform
+// boundary here; a non-POSIX target needs a replacement with the same exact
+// transfer, offset-range, and cleanup behavior.
+namespace posix_spill {
 struct TempFile {
     std::FILE* file = nullptr;
     int descriptor = -1;
@@ -76,21 +80,25 @@ void write_exact(int descriptor, const void* p, std::size_t bytes, std::size_t o
         done += static_cast<std::size_t>(result);
     }
 }
+void resize(int descriptor, std::size_t bytes, std::string_view path) {
+    if (bytes > static_cast<std::size_t>(std::numeric_limits<off_t>::max()) ||
+        ::ftruncate(descriptor, static_cast<off_t>(bytes)) != 0)
+        io_fail(path, "size temporary category bitmap");
+}
+}
 struct Bitset {
     std::size_t bytes = 0, page_size = 0;
     std::string path;
     std::vector<unsigned char> memory, page;
-    std::unique_ptr<TempFile> file;
+    std::unique_ptr<posix_spill::TempFile> file;
     std::size_t page_begin = std::numeric_limits<std::size_t>::max(), page_count = 0;
     bool dirty = false;
     Bitset(std::size_t bits, std::size_t budget, std::string_view p):path(p) {
         bytes = bits / 8 + (bits % 8 != 0);
         if (bytes <= budget / 8) memory.assign(bytes, 0);
         else {
-            file = std::make_unique<TempFile>(path);
-            if (bytes > static_cast<std::size_t>(std::numeric_limits<off_t>::max()) ||
-                ::ftruncate(file->descriptor, static_cast<off_t>(bytes)) != 0)
-                io_fail(path, "size temporary category bitmap");
+            file = std::make_unique<posix_spill::TempFile>(path);
+            posix_spill::resize(file->descriptor, bytes, path);
             page_size = std::max<std::size_t>(1, std::min<std::size_t>(4096, budget / 16));
             page.resize(page_size);
         }
@@ -98,14 +106,14 @@ struct Bitset {
     ~Bitset() { try { flush(); } catch (...) {} }
     void flush() {
         if (!dirty) return;
-        write_exact(file->descriptor, page.data(), page_count, page_begin, path); dirty = false;
+        posix_spill::write_exact(file->descriptor, page.data(), page_count, page_begin, path); dirty = false;
     }
     unsigned char& byte(std::size_t i) {
         if (!file) return memory[i];
         const auto begin = (i / page_size) * page_size;
         if (begin != page_begin) {
             flush(); page_begin = begin; page_count = std::min(page_size, bytes - begin);
-            read_exact(file->descriptor, page.data(), page_count, begin, path);
+            posix_spill::read_exact(file->descriptor, page.data(), page_count, begin, path);
         }
         return page[i - page_begin];
     }
@@ -188,7 +196,7 @@ struct CategoryPlan {
     std::size_t source_count = 0, selected_count = 0;
     std::string path;
     std::vector<std::size_t> positions;
-    std::unique_ptr<TempFile> positions_file;
+    std::unique_ptr<posix_spill::TempFile> positions_file;
     mutable std::vector<std::size_t> page;
     mutable std::size_t page_begin=std::numeric_limits<std::size_t>::max();
     std::shared_ptr<CategoryPlan> outer, before, after;
@@ -236,9 +244,11 @@ std::size_t category_position(const std::shared_ptr<CategoryPlan>& plan,std::siz
     if(!plan->positions_file)return plan->positions[i];
     auto capacity=plan->page.size(),begin=(i/capacity)*capacity;
     if(begin!=plan->page_begin){
-        plan->page_begin=begin;auto page_count=std::min(capacity,plan->selected_count-begin);
+        plan->page_begin=std::numeric_limits<std::size_t>::max();
+        auto page_count=std::min(capacity,plan->selected_count-begin);
         if(begin>std::numeric_limits<std::size_t>::max()/sizeof(std::size_t))fail(ErrorCode::invalid_argument,plan->path,"category mapping offset overflow");
-        read_exact(plan->positions_file->descriptor,plan->page.data(),page_count*sizeof(std::size_t),begin*sizeof(std::size_t),plan->path);
+        posix_spill::read_exact(plan->positions_file->descriptor,plan->page.data(),page_count*sizeof(std::size_t),begin*sizeof(std::size_t),plan->path);
+        plan->page_begin=begin;
     }
     return plan->page[i-begin];
 }
@@ -300,14 +310,14 @@ std::shared_ptr<CategoryPlan> make_category_plan(const Node& category,std::size_
         plan->positions.reserve(plan->selected_count);
         for(std::size_t i=0;i<source.categories;++i)if(used->get(i))plan->positions.push_back(i);
     } else {
-        plan->positions_file=std::make_unique<TempFile>(category->path);
+        plan->positions_file=std::make_unique<posix_spill::TempFile>(category->path);
         auto capacity=std::max<std::size_t>(1,std::min<std::size_t>(512,budget/(16*sizeof(std::size_t))));
         plan->page.resize(capacity);std::size_t filled=0,written=0;
         for(std::size_t i=0;i<source.categories;++i)if(used->get(i)){
             plan->page[filled++]=i;
-            if(filled==capacity){write_exact(plan->positions_file->descriptor,plan->page.data(),filled*sizeof(std::size_t),written*sizeof(std::size_t),plan->path);written+=filled;filled=0;}
+            if(filled==capacity){posix_spill::write_exact(plan->positions_file->descriptor,plan->page.data(),filled*sizeof(std::size_t),written*sizeof(std::size_t),plan->path);written+=filled;filled=0;}
         }
-        if(filled)write_exact(plan->positions_file->descriptor,plan->page.data(),filled*sizeof(std::size_t),written*sizeof(std::size_t),plan->path);
+        if(filled)posix_spill::write_exact(plan->positions_file->descriptor,plan->page.data(),filled*sizeof(std::size_t),written*sizeof(std::size_t),plan->path);
     }
     return plan;
 }

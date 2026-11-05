@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
-#include <functional>
 #include <limits>
 #include <numeric>
 #include <set>
@@ -69,26 +68,30 @@ Shape read_shape(const Json& j, const std::string& path, bool positive=false) {
     checked_product(result);
     return result;
 }
+struct TypeName { std::string_view v2, v3; Type type; };
+constexpr TypeName type_names[] = {
+    {"b1","bool",Type::boolean}, {"i1","int8",Type::int8}, {"u1","uint8",Type::uint8},
+    {"i2","int16",Type::int16}, {"u2","uint16",Type::uint16}, {"i4","int32",Type::int32},
+    {"u4","uint32",Type::uint32}, {"i8","int64",Type::int64}, {"u8","uint64",Type::uint64},
+    {"f4","float32",Type::float32}, {"f8","float64",Type::float64}, {"O","string",Type::string}
+};
 Type parse_type(std::string dtype, int format, char& endian, const std::string& path) {
     if (format==2) {
         if (dtype=="|O" || dtype=="O" || dtype=="|O8" || dtype=="object") return Type::string;
         if (dtype.empty()) throw Error(Failure::dtype,path,"invalid Zarr v2 dtype");
         if (dtype.front()=='<' || dtype.front()=='>' || dtype.front()=='|' || dtype.front()=='=') { endian=dtype.front(); dtype.erase(dtype.begin()); }
         if (dtype=="b1" || dtype=="bool" || dtype=="?") return Type::boolean;
-        const std::vector<std::string> names={"i1","u1","i2","u2","i4","u4","i8","u8","f4","f8"};
-        for(std::size_t i=0;i<names.size();++i) if(dtype==names[i]) return static_cast<Type>(i+1);
+        for(const auto& n:type_names) if(dtype==n.v2) return n.type;
     } else {
-        const std::vector<std::string> names={"bool","int8","uint8","int16","uint16","int32","uint32","int64","uint64","float32","float64","string"};
-        for(std::size_t i=0;i<names.size();++i) if(dtype==names[i]) return static_cast<Type>(i);
+        for(const auto& n:type_names) if(dtype==n.v3) return n.type;
         if(dtype=="str" || dtype=="utf8" || dtype=="vlen-utf8") return Type::string;
     }
     throw Error(Failure::dtype,path,"unsupported Zarr dtype: "+dtype);
 }
 std::string dtype_name(Type type,int format,char endian) {
-    const std::vector<std::string> v2={"b1","i1","u1","i2","u2","i4","u4","i8","u8","f4","f8","O"};
-    const std::vector<std::string> v3={"bool","int8","uint8","int16","uint16","int32","uint32","int64","uint64","float32","float64","string"};
-    if(format==3) return v3.at(static_cast<std::size_t>(type));
-    return std::string(1,type_size(type)==1 || type==Type::string?'|':endian)+v2.at(static_cast<std::size_t>(type));
+    for(const auto& n:type_names) if(type==n.type)
+        return format==3 ? std::string(n.v3) : std::string(1,type_size(type)==1 || type==Type::string?'|':endian)+std::string(n.v2);
+    throw Error(Failure::dtype,"dtype","unsupported Zarr scalar type");
 }
 char serializer_endian(const Json& codecs) {
     for(const auto& codec:codecs) {
@@ -219,7 +222,7 @@ Chunk filled(const ArrayMetadata& m,const Shape& shape,std::size_t budget=64*102
 std::size_t flat(const Shape& coord,const Shape& shape) {
     std::size_t value=0; for(std::size_t i=0;i<shape.size();++i) value=value*shape[i]+coord[i]; return value;
 }
-void coordinates(const Shape& first,const Shape& stop,const std::function<void(const Shape&)>& visit) {
+template<class F> void coordinates(const Shape& first,const Shape& stop,F&& visit) {
     for(std::size_t i=0;i<first.size();++i) if(first[i]>=stop[i]) return;
     Shape current=first;
     if(current.empty()) { visit(current); return; }
@@ -232,7 +235,12 @@ void coordinates(const Shape& first,const Shape& stop,const std::function<void(c
 }
 } // namespace
 
+void validate_root_path(std::string_view path) {
+    if(path.empty() || path.find('\0')!=std::string_view::npos)
+        throw Error(Failure::argument,std::string(path),"Zarr root path must be nonempty and NUL-free");
+}
 Store::Store(std::filesystem::path root,bool writable,std::size_t scratch_bytes):root_(std::move(root)),writable_(writable),scratch_bytes_(scratch_bytes) {
+    validate_root_path(root_.string());
     if(scratch_bytes_<1024) throw Error(Failure::argument,root_.string(),"scratch_bytes must be at least 1024");
     consolidation_v2_=std::filesystem::exists(root_/".zmetadata");
     if(std::filesystem::exists(root_/"zarr.json")) consolidation_v3_=load_json(root_/"zarr.json").contains("consolidated_metadata");
@@ -286,9 +294,28 @@ std::vector<std::string> Store::children(const std::string& path) const {
 }
 void Store::mutation() {
     if(!writable_) throw Error(Failure::argument,root_.string(),"Zarr store is read-only");
+    // Read fallback supports consolidated-only nodes. Structural writes require
+    // independent metadata so invalidation cannot discard their only copy.
+    const auto v2=root_/".zmetadata", v3=root_/"zarr.json";
+    const bool has_v2=std::filesystem::exists(v2),has_v3=std::filesystem::exists(v3);
+    if(has_v2) {
+        const auto consolidated=load_json(v2);
+        for(const auto& [key,value]:consolidated.at("metadata").items()) {
+            (void)value;
+            if(!std::filesystem::is_regular_file(root_/relative_node(key)))
+                throw Error(Failure::argument,root_.string(),"structural updates require independently stored Zarr metadata");
+        }
+    }
+    auto root=has_v3?load_json(v3):Json();
+    if(has_v3 && root.contains("consolidated_metadata"))
+        for(const auto& [key,value]:root.at("consolidated_metadata").at("metadata").items()) {
+            (void)value;
+            if(!std::filesystem::is_regular_file(root_/relative_node(key)/"zarr.json"))
+                throw Error(Failure::argument,root_.string(),"structural updates require independently stored Zarr metadata");
+        }
     metadata_dirty_=true;
-    if(std::filesystem::exists(root_/".zmetadata")) { consolidation_v2_=true; std::filesystem::remove(root_/".zmetadata"); }
-    if(std::filesystem::exists(root_/"zarr.json")) { auto root=load_json(root_/"zarr.json"); if(root.contains("consolidated_metadata")) { consolidation_v3_=true; root.erase("consolidated_metadata"); save_json(root_/"zarr.json",root); } }
+    if(has_v2) { consolidation_v2_=true; std::filesystem::remove(v2); }
+    if(has_v3 && root.contains("consolidated_metadata")) { consolidation_v3_=true; root.erase("consolidated_metadata"); save_json(v3,root); }
 }
 Chunk Store::chunk(const std::string& path,const ArrayMetadata& m,const Shape& coord) const {
     const auto shape=inner_shape(m,scratch_bytes_); const auto count=checked_product(shape);
@@ -337,7 +364,7 @@ void Store::transfer(const std::string& path,const ArrayMetadata& m,const Shape&
         input.scratch_bytes=(scratch_bytes_/8)*7;
         const_cast<Store*>(this)->write_selection(path,m,input); return;
     }
-    Bytes().swap(packed_scratch_); Bytes().swap(shard_scratch_.index); Bytes().swap(shard_scratch_.encoded);
+    Bytes().swap(packed_scratch_); Bytes().swap(shard_scratch_.index);
     std::vector<WritePoint>().swap(selection_scratch_);
     const auto shape=inner_shape(m,scratch_bytes_); Shape first(rank),stop(rank);
     const bool raw=codec && !strings && raw_native(m);
@@ -393,8 +420,11 @@ void Store::transfer(const std::string& path,const ArrayMetadata& m,const Shape&
         Shape row_end=end;
         if(rank) row_end.back()=begin.back()+1;
         coordinates(begin,row_end,[&](const Shape& absolute) {
-            Shape local(rank),out(rank); for(std::size_t i=0;i<rank;++i) { local[i]=absolute[i]-coord[i]*shape[i]; out[i]=absolute[i]-start[i]; }
-            auto source_index=flat(local,shape),target_index=flat(out,count);
+            std::size_t source_index=0,target_index=0;
+            for(std::size_t i=0;i<rank;++i) {
+                source_index=source_index*shape[i]+(absolute[i]-coord[i]*shape[i]);
+                target_index=target_index*count[i]+(absolute[i]-start[i]);
+            }
             const auto run=rank?end.back()-begin.back():1;
             if(strings) {
                 for(std::size_t j=0;j<run;++j) if(writing) value.strings[source_index+j]=(*strings)[target_index+j]; else (*strings)[target_index+j]=value.strings[source_index+j];
@@ -542,7 +572,7 @@ bool Store::write_selection(const std::string& path,const ArrayMetadata& m,const
     if(selection_scratch_.capacity()!=positions) {
         std::vector<WritePoint>().swap(selection_scratch_);selection_scratch_.resize(positions);numeric_scratch_allocations_+=positions!=0;
     } else selection_scratch_.resize(positions);
-    if(shard_scratch_.capacity()>index_bytes) {Bytes().swap(shard_scratch_.index);Bytes().swap(shard_scratch_.encoded);}
+    if(shard_scratch_.capacity()>index_bytes) Bytes().swap(shard_scratch_.index);
     reserve(numeric_scratch_,chunk_bytes);reserve(packed_scratch_,chunk_bytes);
     if(encoded_scratch_.capacity()>slot) Bytes().swap(encoded_scratch_);
     if(codec_scratch_.capacity()>slot) Bytes().swap(codec_scratch_);

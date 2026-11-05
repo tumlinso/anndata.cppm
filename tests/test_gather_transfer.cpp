@@ -107,6 +107,18 @@ void gathered_x(const Fixture& f, const BackedAnnData& d) {
     auto a = d.x().select({indices{8,0,5,8},indices{10,1,6,0,10}});
     auto t = a.prepare_transfer(32*1024);
     check(t.scratch_capacity() == 32*1024,"small transfer budget differs");
+    // Warm the backend with an overlapping destination, which uses the
+    // logical-order fallback. The next grouped read needs a larger tile.
+    float warm = 0;
+    t.read_into({0,0},{4,5},DenseBuffer::from(&warm,{4,5},{0,0}));
+    const auto allocations = t.stats().scratch_allocations;
+    const auto reads = t.stats().read_calls;
+    std::array<float,20> grouped{};
+    t.read_into({0,0},{4,5},DenseBuffer::from(grouped.data(),{4,5}));
+    check(t.stats().read_calls-reads < 20,"read-only gather did not group by inner chunk");
+    check(t.stats().scratch_allocations == allocations+1,"grouped tile replacement allocation not counted");
+    t.read_into({0,0},{4,5},DenseBuffer::from(grouped.data(),{4,5}));
+    check(t.stats().scratch_allocations == allocations+1,"reused grouped tile counted as a new allocation");
     std::array<float,6> block{}; t.read_into({1,1},{2,3},DenseBuffer::from(block.data(),{2,3}));
     for (std::size_t i = 0; i < 2; ++i) for (std::size_t j = 0; j < 3; ++j)
         check(block[i*3+j] == f.x[rows[i+1]*11+cols[j+1]],"partial logical gather differs");

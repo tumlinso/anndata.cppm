@@ -157,6 +157,23 @@ void check_reserved_index_name(const std::filesystem::path& path) {
     }
     require(rejected, "explicit dataframe index name _index must fail without lossy round-trip");
 }
+void check_tiled_strides(const std::filesystem::path& path) {
+    using namespace anndatapp;
+    constexpr std::size_t n = 1048576/sizeof(std::int32_t)+3;
+    std::vector<std::int32_t> values(4*n);
+    for (std::size_t i = 0; i < values.size(); ++i) values[i] = std::int32_t(i);
+    auto reversed = Array::borrow_dense(values.data()+n-1,{2,2,n},
+        {std::ptrdiff_t(2*n),std::ptrdiff_t(n),-1});
+    reversed.set_serialization_byte_order(ByteOrder::big);
+    auto data = AnnData::empty(0,0); data.set_uns("reversed",Element(std::move(reversed)));
+    write_h5ad(path.string(),data);
+    auto output = read_h5ad(path.string());
+    auto array = output.uns().at("reversed").array();
+    require(array.serialization_byte_order()==ByteOrder::big,"tiled write lost byte order");
+    auto bytes = array.dense<std::int32_t>();
+    for (std::size_t row = 0; row < 4; ++row) for (std::size_t j = 0; j < n; ++j)
+        require(bytes.data()[row*n+j]==std::int32_t(row*n+n-1-j),"rank-three signed-stride tile differs");
+}
 }
 
 int main(int argc, char** argv) {
@@ -231,6 +248,7 @@ int main(int argc, char** argv) {
 
         check_trusted_validation(root / "trusted-invalid-sparse.h5ad");
         check_reserved_index_name(root / "reserved-index.h5ad");
+        check_tiled_strides(root / "tiled-strides.h5ad");
         std::cout << "native H5AD round-trip passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

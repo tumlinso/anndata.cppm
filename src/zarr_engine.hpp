@@ -9,6 +9,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <nlohmann/json.hpp>
 
@@ -23,6 +24,7 @@ struct Error : std::runtime_error {
     std::string path;
     Error(Failure f, std::string p, std::string message) : std::runtime_error(std::move(message)), failure(f), path(std::move(p)) {}
 };
+void validate_root_path(std::string_view);
 struct ArrayMetadata {
     int format = 3;
     Type type = Type::float64;
@@ -104,9 +106,9 @@ std::size_t shard_index_workspace(const ShardSpec&, const std::filesystem::path&
 void validate_index_pipeline(const PayloadMeta&, const Shape&);
 std::uint32_t shard_crc32c(std::span<const std::byte>);
 struct ShardWorkspace {
-    Bytes index, encoded;
+    Bytes index;
     std::size_t allocations = 0;
-    std::size_t capacity() const noexcept { return index.capacity() + encoded.capacity(); }
+    std::size_t capacity() const noexcept { return index.capacity(); }
 };
 class ShardWriter {
 public:

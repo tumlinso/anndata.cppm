@@ -27,6 +27,7 @@ struct StreamOptions {
     bool statistics = false;
 };
 struct BlockRequest {
+    // Opaque, unique within this stream; do not infer a sequence or lane.
     std::uint64_t id = 0;
     std::vector<std::size_t> start, count;
     // Source physical unit coordinates; empty for a nonphysical read plan.
@@ -66,6 +67,8 @@ public:
     BlockStream(const BlockStream&) = delete;
     BlockStream& operator=(const BlockStream&) = delete;
     std::optional<BlockRequest> next();
+    // A failed transfer remains outstanding: retry the same request only when
+    // safe, or drain other workers and abandon the stream. Do not complete it.
     void complete(const BlockRequest&, const BlockCompletion&);
     void complete(const BlockRequest&, std::size_t useful_bytes, double io_seconds = 0);
     // Only before executing a sparse request. Its next issuance has fewer

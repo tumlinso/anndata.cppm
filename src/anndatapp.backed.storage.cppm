@@ -265,6 +265,7 @@ struct BackedNode {
     std::shared_ptr<backed_detail::ColorOverride> color_override;
 };
 struct BackedAccess {
+    static BackedAnnData owner(std::shared_ptr<BackedDataset> value) { return BackedAnnData(std::move(value)); }
     static BackedElement element(std::shared_ptr<BackedNode> value) { return BackedElement(std::move(value)); }
     static BackedArray array(std::shared_ptr<BackedNode> value) { return BackedArray(std::move(value)); }
     static const std::shared_ptr<BackedNode>& get(const BackedArray& v) { return v.node_; }

@@ -637,6 +637,82 @@ void test_direct_column_order(const std::filesystem::path& h5ad_path,
 #endif
 
 #if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
+void test_writer_validation(const std::filesystem::path& root) {
+    const auto path = (root / "writer-validation.zarr").string();
+    auto write = [&](const AnnData& data, Validation validation) {
+        ZarrWriteOptions options;
+        options.validation = validation;
+        write_zarr(path, data, options);
+    };
+    auto expect_path = [&](const AnnData& data, Validation validation, ErrorCode code, std::string_view expected_path) {
+        try { write(data, validation); }
+        catch (const Error& error) {
+            if (error.code() != code || error.path() != expected_path)
+                throw std::runtime_error("writer validation error differs: " + std::string(error.path()) + ": " + error.what());
+            return;
+        }
+        throw std::runtime_error("writer validation accepted malformed data");
+    };
+    auto categorical = [](std::string text, bool duplicate, std::int8_t code) {
+        auto data = AnnData::empty(1, 0);
+        auto obs = Table::with_index({"cell"});
+        std::vector<std::string> categories{text};
+        if (duplicate) categories.push_back(text);
+        auto codes = Array::empty<std::int8_t>({1});
+        codes.edit().dense<std::int8_t>().data()[0] = code;
+        obs.set("kind", Column::categorical(std::move(codes), Column::strings(std::move(categories)), false, Validation::none));
+        data.set_obs(std::move(obs));
+        return data;
+    };
+    for (const auto& invalid : {std::string("\xff", 1), std::string("\xc2\x20", 2),
+                                std::string("\xe0\x80\x80", 3), std::string("\xed\xa0\x80", 3),
+                                std::string("\xf4\x90\x80\x80", 4), std::string("\xe2\x82", 2)}) {
+        auto data = categorical(invalid, false, 0);
+        expect_path(data, Validation::full, ErrorCode::unsupported_dtype, "/obs/kind/categories");
+        // The Zarr UTF-8 codec rejects invalid bytes even when optional
+        // writer-level content validation is disabled.
+        expect_error(ErrorCode::unsupported_encoding, [&] { write(data, Validation::none); },
+                     "Zarr codec accepted malformed category text");
+    }
+    auto valid = categorical("\xce\xb2", false, 0);
+    write(valid, Validation::full);
+    auto duplicate = categorical("same", true, 0);
+    expect_path(duplicate, Validation::full, ErrorCode::invalid_argument, "/obs/kind/categories");
+    write(duplicate, Validation::none);
+    auto bad_code = categorical("valid", false, 1);
+    expect_path(bad_code, Validation::full, ErrorCode::out_of_bounds, "/obs/kind");
+    write(bad_code, Validation::none);
+    auto nul = categorical(std::string("a\0b", 3), false, 0);
+    for (auto mode : {Validation::full, Validation::none})
+        expect_path(nul, mode, ErrorCode::invalid_argument, "/obs/kind/categories");
+    auto bad_index = AnnData::empty(1, 0);
+    bad_index.set_obs(Table::with_index({"cell"}, "_index"));
+    for (auto mode : {Validation::full, Validation::none})
+        expect_path(bad_index, mode, ErrorCode::invalid_argument, "/obs/_index");
+    auto invalid_index_text = AnnData::empty(1, 0);
+    invalid_index_text.set_obs(Table::with_index(std::vector<std::string>{std::string("\xff", 1)}));
+    expect_path(invalid_index_text, Validation::full, ErrorCode::unsupported_dtype, "/obs/_index");
+    expect_error(ErrorCode::unsupported_encoding, [&] { write(invalid_index_text, Validation::none); },
+                 "Zarr codec accepted malformed index text");
+    auto nul_index = AnnData::empty(1, 0);
+    nul_index.set_obs(Table::with_index(std::vector<std::string>{std::string("x\0y", 3)}));
+    for (auto mode : {Validation::full, Validation::none})
+        expect_path(nul_index, mode, ErrorCode::invalid_argument, "/obs/_index");
+}
+
+void test_zarr_bad_axes(const std::filesystem::path& root) {
+    for (const auto* axis : {"obs", "var"}) for (const auto* code : {"dict", "null"}) {
+        const auto path = root / (std::string("bad-") + axis + "-" + code + ".zarr");
+        ZarrWriteOptions options; options.format = ZarrFormat::v2;
+        write_zarr(path.string(), fixture(), options);
+        std::ofstream attr(path / axis / ".zattrs", std::ios::trunc);
+        attr << "{\"encoding-type\":\"" << code << "\",\"encoding-version\":\"0.1.0\"}";
+        attr.close();
+        require(bool(attr), "cannot write malformed axis fixture");
+        expect_error(ErrorCode::unsupported_encoding, [&]{ (void)open_zarr(path.string()); },
+                     "non-dataframe AnnData axis must fail");
+    }
+}
 void test_zarr_writer_selection(const std::filesystem::path& root, ZarrFormat format) {
     constexpr std::size_t columns = 300;
     auto data = AnnData::empty(3, columns);
@@ -879,6 +955,24 @@ void h5_string_attr(hid_t object, const char* name, const char* value) {
     H5Tclose(type);
 }
 
+void test_h5ad_bad_axes(const std::filesystem::path& root) {
+    for (const auto* axis : {"obs", "var"}) {
+        const auto path = root / (std::string("bad-") + axis + ".h5ad");
+        write_h5ad(path.string(), fixture());
+        hid_t file = H5Fopen(path.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+        h5_check(file < 0 ? -1 : 0, "open malformed axis fixture");
+        hid_t group = H5Gopen2(file, (std::string("/") + axis).c_str(), H5P_DEFAULT);
+        h5_check(group < 0 ? -1 : 0, "open axis");
+        h5_check(H5Adelete(group, "encoding-type"), "replace axis type");
+        h5_check(H5Adelete(group, "encoding-version"), "replace axis version");
+        h5_string_attr(group, "encoding-type", "dict");
+        h5_string_attr(group, "encoding-version", "0.1.0");
+        H5Gclose(group); H5Fclose(file);
+        expect_error(ErrorCode::unsupported_encoding, [&]{ (void)open_h5ad(path.string()); },
+                     "non-dataframe H5AD axis must fail");
+    }
+}
+
 hid_t make_chunked_dataset(hid_t file, const char* path, hid_t type,
                            std::vector<hsize_t> shape, std::vector<hsize_t> chunk,
                            const void* fill) {
@@ -1010,6 +1104,8 @@ int main(int argc, char** argv) {
 #endif
 
 #if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR
+        test_writer_validation(root);
+        test_zarr_bad_axes(root);
         test_zarr_native(root, ZarrFormat::v2);
         test_zarr_native(root, ZarrFormat::v3);
         test_zarr_writer_selection(root, ZarrFormat::v2);
@@ -1025,6 +1121,7 @@ int main(int argc, char** argv) {
 #endif
 
 #if defined(ANNDATAPP_TEST_HDF5) && defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
+        test_h5ad_bad_axes(root);
         test_bounded_fill_reads(root);
 #endif
         std::cout << "native backed H5AD/Zarr tests passed\n";

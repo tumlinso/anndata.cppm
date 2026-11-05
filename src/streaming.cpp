@@ -39,7 +39,7 @@ void validate(const StreamOptions& o) {
 struct Lane {
     bool live=false, pending=false;
     std::vector<std::size_t> start,count,cursor,tile,conflict;
-    BlockRequest request;
+    std::uint64_t request_id=0;
     std::size_t sparse_limit=std::numeric_limits<std::size_t>::max();
 };
 }
@@ -58,7 +58,7 @@ struct BlockStreamImpl {
     int block_direction=1,flight_direction=1,trial_direction=1;
     bool block_done=false,flight_done=false,block_up_accepted=false,flight_up_accepted=false;
     std::size_t saved_block=0,saved_flight=0;
-    std::uint64_t next_id=1;
+    std::uint64_t next_id=0;
     std::size_t window_samples=0;
     double epoch_bytes=0,epoch_seconds=0,epoch_busy=0,reference=0,stable_rate=0,sparse_row_bytes=0;
     bool intervals=true,reference_intervals=true;
@@ -200,22 +200,30 @@ struct BlockStreamImpl {
         lane.live=true;lane.pending=false;lane.sparse_limit=std::numeric_limits<std::size_t>::max();
         advance_grid(grouped);
     }
-    void advance(Lane& lane) {
+    void advance(Lane& lane,const BlockRequest& request) {
         if(lane.cursor.empty()) {lane.live=false;return;}
         for(std::size_t i=lane.cursor.size();i--;) {
-            lane.cursor[i]+=lane.request.count[i];
+            lane.cursor[i]+=request.count[i];
             if(lane.cursor[i]<lane.count[i]) return;
             lane.cursor[i]=0;
         }
         lane.live=false;
     }
     Lane& find(const BlockRequest& r) {
-        for(auto& lane:lanes) if(lane.pending && lane.request.id==r.id) {
-            if(lane.request.start!=r.start || lane.request.count!=r.count || lane.request.conflict_start!=r.conflict_start || lane.request.conflict_count!=r.conflict_count)
-                fail("request descriptor was modified");
-            return lane;
+        if(!r.id) fail("request is unknown or already completed");
+        auto& lane=lanes[(r.id-1)%lanes.size()];
+        if(!lane.pending || lane.request_id!=r.id) fail("request is unknown or already completed");
+        const auto rank=g.shape.size();
+        if(r.start.size()!=rank || r.count.size()!=rank || r.conflict_start!=lane.conflict ||
+           r.conflict_count.size()!=lane.conflict.size())
+            fail("request descriptor was modified");
+        for(std::size_t i=0;i<rank;++i) {
+            auto n=std::min(lane.tile[i],lane.count[i]-lane.cursor[i]);
+            if(g.layout!=Layout::dense && i==major) n=std::min(n,lane.sparse_limit);
+            if(r.start[i]!=lane.start[i]+lane.cursor[i] || r.count[i]!=n) fail("request descriptor was modified");
         }
-        fail("request is unknown or already completed");
+        for(auto n:r.conflict_count) if(n!=1) fail("request descriptor was modified");
+        return lane;
     }
     bool candidate() {
         for(std::size_t k=0;k<4 && exploration_trials<8;++k) {
@@ -328,14 +336,15 @@ std::optional<BlockRequest> BlockStream::next() {
     if(!lane && !p.exhausted && !p.transition && !p.settling)
         for(auto& x:p.lanes) if(!x.live) {p.region(x);lane=&x;break;}
     if(!lane) return {};
-    auto& r=lane->request;r.id=p.next_id++;
-    if(!r.id) fail("request identity overflow");
+    if(p.next_id>std::numeric_limits<std::uint64_t>::max()-p.lanes.size()) fail("request identity overflow");
+    BlockRequest r;r.id=p.next_id+std::size_t(lane-p.lanes.data())+1;
+    p.next_id+=p.lanes.size();
     const auto rank=p.g.shape.size();r.start.resize(rank);r.count.resize(rank);
     for(std::size_t i=0;i<rank;++i) {r.start[i]=lane->start[i]+lane->cursor[i];r.count[i]=std::min(lane->tile[i],lane->count[i]-lane->cursor[i]);}
     if(p.g.layout!=Layout::dense) r.count[p.major]=std::min(r.count[p.major],lane->sparse_limit);
     r.conflict_start=lane->conflict;r.conflict_count.assign(r.conflict_start.size(),1);
     r.estimated_bytes=p.g.layout==Layout::dense?mul(product(r.count),p.item):0;
-    lane->pending=true;++p.pending;++p.stats.issued;
+    lane->request_id=r.id;lane->pending=true;++p.pending;++p.stats.issued;
     return r;
 }
 void BlockStream::complete(const BlockRequest& r,const BlockCompletion& sample) {
@@ -361,7 +370,7 @@ void BlockStream::complete(const BlockRequest& r,const BlockCompletion& sample) 
         p.transition=p.transition||p.epoch_useful>=count;
         p.window_full=p.window_full||p.window_samples>=64;
     }
-    lane.pending=false;--p.pending;p.advance(lane);p.finish();
+    lane.pending=false;--p.pending;p.advance(lane,r);p.finish();
 }
 void BlockStream::complete(const BlockRequest& r,std::size_t bytes,double seconds) {complete(r,BlockCompletion{bytes,seconds,0,0});}
 void BlockStream::split(const BlockRequest& r,std::size_t max_major_count) {

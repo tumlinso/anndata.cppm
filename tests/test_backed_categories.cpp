@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cerrno>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -9,6 +10,28 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#if defined(__linux__) && defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
+#define ANNDATAPP_TEST_CATEGORY_FAULT_IO 1
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <unistd.h>
+static thread_local off_t fail_category_mapping_size = -1;
+static thread_local bool category_mapping_faulted = false;
+extern "C" ssize_t pread(int fd, void* data, size_t n, off_t offset) {
+    if (fail_category_mapping_size >= 0) {
+        struct stat status{};
+        if (::fstat(fd, &status) == 0 && S_ISREG(status.st_mode) &&
+            status.st_nlink == 0 && status.st_size == fail_category_mapping_size) {
+            fail_category_mapping_size = -1;
+            category_mapping_faulted = true;
+            errno = EIO;
+            return -1;
+        }
+    }
+    return static_cast<ssize_t>(::syscall(SYS_pread64, fd, data, n, offset));
+}
+#endif
 
 import anndatapp;
 
@@ -317,6 +340,101 @@ void exercise_backend(const std::filesystem::path& run_directory,
 }
 
 #if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
+template<class T>
+Array code_values(const std::vector<T>& values) {
+    auto result = Array::empty<T>({values.size()});
+    auto output = result.edit().template dense<T>();
+    for (std::size_t i = 0; i < values.size(); ++i) output.data()[i] = values[i];
+    return result;
+}
+
+template<class T>
+AnnData code_width_fixture(const std::vector<T>& values) {
+    auto source = AnnData::empty(values.size(), 1);
+    auto obs = Table::with_index({"c0", "c1", "c2"});
+    obs.set("group", Column::categorical(code_values(values), Column::strings({"a", "b"})));
+    source.set_obs(std::move(obs));
+    source.set_var(Table::with_index({"g0"}));
+    return source;
+}
+
+template<class T>
+void write_code_values(BackedAnnData& store, const std::vector<T>& values) {
+    auto column = store.obs().column("group");
+    column.unsafe_codes().write(code_values(values).view());
+    store.flush();
+}
+
+template<class T>
+void check_exported_codes(const std::filesystem::path& path,
+                          const std::vector<T>& expected) {
+    auto store = open_h5ad(path.string(), BackedOptions{.validation = Validation::none});
+    auto copied = store.obs().column("group").codes().read();
+    require(copied.dtype() == dtype_of<T>() && copied.extent(0) == expected.size(),
+            "categorical code export changed dtype or shape");
+    const auto values = copied.view().dense<T>();
+    for (std::size_t i = 0; i < expected.size(); ++i)
+        require(values.data()[i] == expected[i], "categorical code export changed a code");
+}
+
+template<class T>
+void check_code_export_case(const std::filesystem::path& run_directory,
+                            const std::string& case_name, BackedAnnData& store,
+                            const std::vector<T>& values, bool invalid) {
+    write_code_values(store, values);
+    const auto full_path = run_directory / (case_name + "-full.h5ad");
+    bool rejected = false;
+    try {
+        write_h5ad(full_path.string(), store.view(), WriteOptions{.validation = Validation::full});
+    } catch (const Error& error) {
+        rejected = true;
+        require(invalid && error.code() == ErrorCode::out_of_bounds &&
+                    error.path() == "/obs/group/codes",
+                "full categorical export reported the wrong error");
+    }
+    require(rejected == invalid, "full categorical export accepted or rejected the wrong codes");
+
+    const auto none_path = run_directory / (case_name + "-none.h5ad");
+    write_h5ad(none_path.string(), store.view(), WriteOptions{.validation = Validation::none});
+    check_exported_codes(none_path, values);
+    if (!invalid) check_exported_codes(full_path, values);
+}
+
+template<class T>
+void exercise_code_width(const std::filesystem::path& run_directory,
+                         std::string_view width, std::vector<T> valid,
+                         std::vector<T> out_of_range,
+                         std::vector<T> invalid_negative = {},
+                         std::vector<T> unsigned_overflow = {}) {
+    const std::string prefix = "codes-" + std::string(width);
+    const auto source_path = run_directory / (prefix + "-source.h5ad");
+    auto source = code_width_fixture(valid);
+    write_h5ad(source_path.string(), source);
+    auto store = open_h5ad(source_path.string(), BackedOptions{.mode = AccessMode::read_write});
+
+    check_code_export_case(run_directory, prefix + "-valid", store, valid, false);
+    check_code_export_case(run_directory, prefix + "-upper", store, out_of_range, true);
+    if (!invalid_negative.empty())
+        check_code_export_case(run_directory, prefix + "-negative", store,
+                               invalid_negative, true);
+    if (!unsigned_overflow.empty())
+        check_code_export_case(run_directory, prefix + "-overflow", store,
+                               unsigned_overflow, true);
+    store.close();
+}
+
+void exercise_code_width_validation(const std::filesystem::path& run_directory) {
+    exercise_code_width<std::int8_t>(run_directory, "i8", {0, -1, 1}, {0, 2, 1}, {0, -2, 1});
+    exercise_code_width<std::uint8_t>(run_directory, "u8", {0, 1, 1}, {0, 2, 1});
+    exercise_code_width<std::int16_t>(run_directory, "i16", {0, -1, 1}, {0, 2, 1}, {0, -2, 1});
+    exercise_code_width<std::uint16_t>(run_directory, "u16", {0, 1, 1}, {0, 2, 1});
+    exercise_code_width<std::int32_t>(run_directory, "i32", {0, -1, 1}, {0, 2, 1}, {0, -2, 1});
+    exercise_code_width<std::uint32_t>(run_directory, "u32", {0, 1, 1}, {0, 2, 1});
+    exercise_code_width<std::int64_t>(run_directory, "i64", {0, -1, 1}, {0, 2, 1}, {0, -2, 1});
+    exercise_code_width<std::uint64_t>(run_directory, "u64", {0, 1, 1}, {0, 2, 1}, {},
+                                      {0, std::uint64_t{1} << 63, 1});
+}
+
 void exercise_small_budget(const std::filesystem::path& run_directory) {
     constexpr std::size_t n = 32;
     auto source = AnnData::empty(n, 1);
@@ -347,6 +465,49 @@ void exercise_small_budget(const std::filesystem::path& run_directory) {
     }
     throw std::runtime_error("scratch budget below 64 bytes was accepted");
 }
+
+#if defined(ANNDATAPP_TEST_CATEGORY_FAULT_IO)
+void exercise_failed_category_page_refill(const std::filesystem::path& run_directory) {
+    constexpr std::size_t n = 32;
+    auto source = AnnData::empty(n, 1);
+    std::vector<std::string> names, categories;
+    auto codes = Array::empty<std::int8_t>({n});
+    auto values = codes.edit().dense<std::int8_t>();
+    for (std::size_t i = 0; i < n; ++i) {
+        names.push_back("c" + std::to_string(i));
+        categories.push_back("v" + std::to_string(i));
+        values.data()[i] = static_cast<std::int8_t>(i);
+    }
+    auto obs = Table::with_index(std::move(names));
+    obs.set("group", Column::categorical(std::move(codes),
+                                           Column::strings(std::move(categories))));
+    source.set_obs(std::move(obs));
+    source.set_var(Table::with_index({"g0"}));
+    const auto path = run_directory / "failed-category-refill.h5ad";
+    write_h5ad(path.string(), source);
+    auto store = open_h5ad(path.string(), BackedOptions{.scratch_bytes = 256});
+    auto dictionary = store.slice(all, all).obs().column("group").categories();
+
+    fail_category_mapping_size = static_cast<off_t>(n * sizeof(std::size_t));
+    category_mapping_faulted = false;
+    try {
+        (void)dictionary.read();
+        throw std::runtime_error("category page refill fault was not observed");
+    } catch (const Error& error) {
+        require(error.code() == ErrorCode::io_error,
+                "failed category page refill reported the wrong error");
+    }
+    require(category_mapping_faulted,
+            "fault injection did not target the anonymous category mapping file");
+
+    const auto recovered = dictionary.read();
+    require(recovered.kind() == ColumnKind::string && recovered.size() == n,
+            "category page refill retry returned the wrong dictionary shape");
+    for (std::size_t i = 0; i < n; ++i)
+        require(recovered.view().string(i) == "v" + std::to_string(i),
+                "category page refill retry returned a stale or partial position");
+}
+#endif
 
 void exercise_h5ad(const std::filesystem::path& run_directory, const AnnData& source) {
     exercise_backend(run_directory, "h5ad", ".h5ad", source,
@@ -398,7 +559,11 @@ int main(int argc, char** argv) try {
     bool exercised = false;
 #if defined(ANNDATAPP_HAS_HDF5) && ANNDATAPP_HAS_HDF5
     exercise_h5ad(run_directory, source);
+    exercise_code_width_validation(run_directory);
     exercise_small_budget(run_directory);
+#if defined(ANNDATAPP_TEST_CATEGORY_FAULT_IO)
+    exercise_failed_category_page_refill(run_directory);
+#endif
     exercised = true;
 #endif
 #if defined(ANNDATAPP_HAS_ZARR) && ANNDATAPP_HAS_ZARR

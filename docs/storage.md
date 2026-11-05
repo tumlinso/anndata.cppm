@@ -39,6 +39,17 @@ Forward dense copies use destination codec geometry and one reusable bounded rec
 
 Callers synchronize access and choose parallel execution. HDF5's installed thread-safety capability can be queried. Zarr chunks within one shard share a write-conflict unit. Array shapes, selections, and public source geometry let callers partition work; block streams retain ownership of conflict units across bounded fragments. The library launches no execution pool, and numerical buffers can be processed independently using ordinary C++ concurrency rules.
 
+Serialize backed handle creation, context preparation, direct backed operations,
+structural updates, and close when they share a session. Separately prepared
+worker contexts may run concurrently under their backend's capability and
+physical conflict constraints, with session operations performed before workers
+start or after they drain. Transformed category handles can share mutable
+page state and require caller serialization. A non-contiguous sparse source
+passed to `BackedArray::write` is copied before validation and writing, so that
+operation can allocate in proportion to the selected sparse data.
+When writing an in-memory dataset, callers must keep its aliased source data
+stable throughout the synchronous write, including after validation completes.
+
 ## Structural updates
 
 For source geometry, reusable worker resources, and caller-controlled adaptive

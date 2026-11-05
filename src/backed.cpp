@@ -266,9 +266,16 @@ BackedAnnData make_store(std::unique_ptr<Backend> backend, BackedOptions options
     if (options.decoded_cache_bytes) fail(ErrorCode::invalid_argument, "store", "decoded application caching is not implemented; use zero");
     auto session = std::make_shared<Session>(); session->backend = std::move(backend); session->options = options;
     if (encoding(session->backend->inspect("/"), "/") != "anndata") fail(ErrorCode::unsupported_encoding, "/", "root is not AnnData");
-    const auto obs = logical_shape(*session, "/obs"); const auto var = logical_shape(*session, "/var");
+    auto axis_shape = [&](std::string_view path) {
+        if (encoding(session->backend->inspect(path), path) != "dataframe")
+            fail(ErrorCode::unsupported_encoding, path, "AnnData axis must be a dataframe");
+        auto shape = logical_shape(*session, path);
+        if (shape.size() != 1) fail(ErrorCode::shape_mismatch, path, "AnnData axis must have rank one");
+        return shape;
+    };
+    const auto obs = axis_shape("/obs"), var = axis_shape("/var");
     auto data = std::make_shared<detail::BackedDataset>(); data->session = std::move(session); data->obs = Axis{obs[0]}; data->var = Axis{var[0]};
-    return BackedAnnData(std::move(data));
+    return detail::BackedAccess::owner(std::move(data));
 }
 void check_dataset_children(const BackedAnnDataView& source) {
     const auto& data=detail::BackedAccess::get(source);require_dataset(data);
@@ -283,7 +290,7 @@ void check_dataset_children(const BackedAnnDataView& source) {
             if(code=="null" || (key!="X"&&key!="var"&&key!="varm"))fail(ErrorCode::unsupported_encoding,child("/raw",key),"unknown raw element cannot be materialized");
     }
 }
-BackedAnnDataView root_view(const std::shared_ptr<detail::BackedDataset>& data) { return BackedAnnData(data).view(); }
+BackedAnnDataView root_view(const std::shared_ptr<detail::BackedDataset>& data) { return detail::BackedAccess::owner(data).view(); }
 } // namespace backed_detail
 
 using BackedAxis = backed_detail::Axis;
@@ -380,8 +387,8 @@ bool BackedAnnData::writable() const { backed_detail::require_dataset(impl_); re
 std::string BackedAnnData::location() const { backed_detail::require_dataset(impl_); return impl_->session->backend->location(); }
 BackedAnnDataView BackedAnnData::view() const { backed_detail::require_dataset(impl_); return BackedAnnDataView(std::make_shared<detail::BackedDataset>(*impl_)); }
 BackedAnnDataView BackedAnnData::slice(Selection o,Selection v) const {return view().slice(std::move(o),std::move(v));}
-std::size_t BackedAnnData::n_obs() const{return view().n_obs();}
-std::size_t BackedAnnData::n_vars() const{return view().n_vars();}
+std::size_t BackedAnnData::n_obs() const{backed_detail::require_dataset(impl_);return impl_->obs.size;}
+std::size_t BackedAnnData::n_vars() const{backed_detail::require_dataset(impl_);return impl_->var.size;}
 bool BackedAnnData::has_x() const{return view().has_x();}
 BackedArray BackedAnnData::x() const{auto a=view().x();a.node_->writable=true;return a;}
 BackedTable BackedAnnData::obs() const{auto a=view().obs();a.node_->writable=true;return a;}

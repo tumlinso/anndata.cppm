@@ -1,4 +1,5 @@
 module;
+#include "utf8.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -37,17 +38,12 @@ void require_children(const Node& n,const std::vector<std::string>& expected) {
     if(actual!=wanted)fail(ErrorCode::unsupported_encoding,n->path,"unexpected or missing stored children");
 }
 void validate_utf8(std::string_view value,std::string_view path){
-    auto* bytes=reinterpret_cast<const unsigned char*>(value.data());std::size_t i=0;
-    while(i<value.size()){
-        auto first=bytes[i++];if(first<0x80)continue;
-        unsigned remaining;std::uint32_t code,minimum;
-        if(first>=0xc2&&first<=0xdf){remaining=1;code=first&0x1f;minimum=0x80;}
-        else if(first>=0xe0&&first<=0xef){remaining=2;code=first&0x0f;minimum=0x800;}
-        else if(first>=0xf0&&first<=0xf4){remaining=3;code=first&7;minimum=0x10000;}
-        else fail(ErrorCode::invalid_argument,path,"invalid UTF-8 string");
-        if(remaining>value.size()-i)fail(ErrorCode::invalid_argument,path,"truncated UTF-8 string");
-        while(remaining--){auto next=bytes[i++];if((next&0xc0)!=0x80)fail(ErrorCode::invalid_argument,path,"invalid UTF-8 continuation");code=(code<<6)|(next&0x3f);}
-        if(code<minimum||code>0x10ffff||(code>=0xd800&&code<=0xdfff))fail(ErrorCode::invalid_argument,path,"invalid Unicode scalar");
+    switch (detail::utf8_error(value)) {
+    case detail::Utf8Error::none: return;
+    case detail::Utf8Error::invalid_lead: fail(ErrorCode::invalid_argument,path,"invalid UTF-8 string");
+    case detail::Utf8Error::truncated: fail(ErrorCode::invalid_argument,path,"truncated UTF-8 string");
+    case detail::Utf8Error::invalid_continuation: fail(ErrorCode::invalid_argument,path,"invalid UTF-8 continuation");
+    case detail::Utf8Error::invalid_scalar: fail(ErrorCode::invalid_argument,path,"invalid Unicode scalar");
     }
 }
 void copy_strings(Backend& out,std::string_view path,const Node& n,const NodeInfo& info,std::size_t budget) {
@@ -82,27 +78,32 @@ template<class T> std::int64_t signed_value(const std::byte* p,std::string_view 
     if constexpr(std::is_unsigned_v<T>)if(value>static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))fail(ErrorCode::out_of_bounds,path,"category code exceeds signed range");
     return static_cast<std::int64_t>(value);
 }
-std::int64_t category_code(const std::byte* p,DType t,std::string_view path){
-    switch(t){
-    case DType::int8:return signed_value<std::int8_t>(p,path);case DType::uint8:return signed_value<std::uint8_t>(p,path);
-    case DType::int16:return signed_value<std::int16_t>(p,path);case DType::uint16:return signed_value<std::uint16_t>(p,path);
-    case DType::int32:return signed_value<std::int32_t>(p,path);case DType::uint32:return signed_value<std::uint32_t>(p,path);
-    case DType::int64:return signed_value<std::int64_t>(p,path);case DType::uint64:return signed_value<std::uint64_t>(p,path);
-    default:fail(ErrorCode::unsupported_dtype,path,"category codes must be integers");}
+template<class T> void validate_codes_as(const Node& codes,std::size_t dictionary,std::size_t budget) {
+    constexpr auto width=sizeof(T);const auto cap=std::max<std::size_t>(1,budget/width);
+    std::vector<std::byte> data;
+    for(std::size_t i=0;i<codes->axes[0].size;){
+        auto first=codes->axes[0].at(i);std::size_t run=1;auto limit=std::min(cap,codes->axes[0].size-i);
+        while(run<limit && codes->axes[0].at(i+run)==first+run)++run;
+        data.resize(run*width);codes->session->backend->read_numeric(codes->path,{first},{run},data.data());
+        for(std::size_t j=0;j<run;++j){auto value=signed_value<T>(data.data()+j*width,codes->path);if(value < -1 || (value>=0&&static_cast<std::uint64_t>(value)>=dictionary))fail(ErrorCode::out_of_bounds,codes->path,"category code lies outside dictionary");}
+        i+=run;
+    }
 }
 void validate_codes(const Node& codes,std::size_t dictionary,std::size_t budget){
     const auto info=codes->session->backend->inspect(codes->path);
     if(info.group||info.strings||info.shape.size()!=1||codes->axes.size()!=1)fail(ErrorCode::shape_mismatch,codes->path,"category codes must be one-dimensional numeric arrays");
     if(info.dtype==DType::boolean||info.dtype==DType::float32||info.dtype==DType::float64)fail(ErrorCode::unsupported_dtype,codes->path,"category codes require integer dtype");
     if(codes->session->options.validation==Validation::none)return;
-    const auto width=dtype_size(info.dtype);const auto cap=std::max<std::size_t>(1,budget/width);
-    std::vector<std::byte> data;
-    for(std::size_t i=0;i<codes->axes[0].size;){
-        auto first=codes->axes[0].at(i);std::size_t run=1;auto limit=std::min(cap,codes->axes[0].size-i);
-        while(run<limit && codes->axes[0].at(i+run)==first+run)++run;
-        data.resize(run*width);codes->session->backend->read_numeric(codes->path,{first},{run},data.data());
-        for(std::size_t j=0;j<run;++j){auto value=category_code(data.data()+j*width,info.dtype,codes->path);if(value < -1 || (value>=0&&static_cast<std::uint64_t>(value)>=dictionary))fail(ErrorCode::out_of_bounds,codes->path,"category code lies outside dictionary");}
-        i+=run;
+    switch(info.dtype){
+    case DType::int8:validate_codes_as<std::int8_t>(codes,dictionary,budget);return;
+    case DType::uint8:validate_codes_as<std::uint8_t>(codes,dictionary,budget);return;
+    case DType::int16:validate_codes_as<std::int16_t>(codes,dictionary,budget);return;
+    case DType::uint16:validate_codes_as<std::uint16_t>(codes,dictionary,budget);return;
+    case DType::int32:validate_codes_as<std::int32_t>(codes,dictionary,budget);return;
+    case DType::uint32:validate_codes_as<std::uint32_t>(codes,dictionary,budget);return;
+    case DType::int64:validate_codes_as<std::int64_t>(codes,dictionary,budget);return;
+    case DType::uint64:validate_codes_as<std::uint64_t>(codes,dictionary,budget);return;
+    default:fail(ErrorCode::unsupported_dtype,codes->path,"category codes must be integers");
     }
 }
 void check_table(const Node& n,const NodeInfo& info){
@@ -164,11 +165,16 @@ public:
     void read_numeric(std::string_view p,const std::vector<std::size_t>& s,const std::vector<std::size_t>& c,void* d)override{retained_->check_open();retained_->backend->read_numeric(p,s,c,d);}
     std::vector<std::string>read_strings(std::string_view p,const std::vector<std::size_t>& s,const std::vector<std::size_t>& c)override{retained_->check_open();return retained_->backend->read_strings(p,s,c);}
     std::vector<std::string>read_strings_bounded(std::string_view p,const std::vector<std::size_t>& s,const std::vector<std::size_t>& c,std::size_t b)override{retained_->check_open();return retained_->backend->read_strings_bounded(p,s,c,b);}
+    void read_record_numeric(std::string_view p,std::string_view f,const std::vector<std::size_t>& s,const std::vector<std::size_t>& c,void* d)override{retained_->check_open();retained_->backend->read_record_numeric(p,f,s,c,d);}
+    std::vector<std::string>read_record_strings_bounded(std::string_view p,std::string_view f,const std::vector<std::size_t>& s,const std::vector<std::size_t>& c,std::size_t b)override{retained_->check_open();return retained_->backend->read_record_strings_bounded(p,f,s,c,b);}
     void write_numeric(std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const void*)override{readonly();}
     void write_strings(std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const std::vector<std::string>&)override{readonly();}
+    void write_record_numeric(std::string_view,std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const void*)override{readonly();}
+    void write_record_strings(std::string_view,std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const std::vector<std::string>&)override{readonly();}
     void create_group(std::string_view,const Attributes&)override{readonly();}
     void create_numeric(std::string_view,DType,const std::vector<std::size_t>&,const Attributes&,ByteOrder)override{readonly();}
     void create_strings(std::string_view,const std::vector<std::size_t>&,const Attributes&)override{readonly();}
+    void create_record(std::string_view,const std::vector<std::size_t>&,const std::vector<RecordFieldInfo>&,const Attributes&)override{readonly();}
     void attributes(std::string_view,const Attributes&)override{readonly();}
     void erase(std::string_view)override{readonly();}
     void rename(std::string_view,std::string_view)override{readonly();}
@@ -186,7 +192,7 @@ BackedAnnDataView validation_view(const BackedAnnDataView& source,Validation val
     session->revisions=original->session->revisions;
     session->dataset_revision=original->session->dataset_revision;
     auto dataset=std::make_shared<detail::BackedDataset>(*original);dataset->session=std::move(session);
-    return BackedAnnData(std::move(dataset)).view();
+    return detail::BackedAccess::owner(std::move(dataset)).view();
 }
 class Sink final:public Backend{
     std::string location_,identity_;
@@ -200,9 +206,12 @@ public:
     void write_numeric(std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const void*)override{}
     std::vector<std::string>read_strings(std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&)override{return {};}
     void write_strings(std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const std::vector<std::string>&)override{}
+    void write_record_numeric(std::string_view,std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const void*)override{}
+    void write_record_strings(std::string_view,std::string_view,const std::vector<std::size_t>&,const std::vector<std::size_t>&,const std::vector<std::string>&)override{}
     void create_group(std::string_view,const Attributes&)override{}
     void create_numeric(std::string_view,DType,const std::vector<std::size_t>&,const Attributes&,ByteOrder)override{}
     void create_strings(std::string_view,const std::vector<std::size_t>&,const Attributes&)override{}
+    void create_record(std::string_view,const std::vector<std::size_t>&,const std::vector<RecordFieldInfo>&,const Attributes&)override{}
     void attributes(std::string_view,const Attributes&)override{}
     void erase(std::string_view)override{}
     void rename(std::string_view,std::string_view)override{}

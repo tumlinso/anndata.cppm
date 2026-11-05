@@ -150,6 +150,30 @@ void scratch_limits(const std::filesystem::path& root) {
     require(failed_record_reads==2 && successful_record_reads==2 && largest_record_prefix==1 && peak_record_staging>record_target && peak_record_staging<=record_cap,"large records repeated a learned staging failure");
     std::cout<<"record_staging single reads="<<successful_record_reads<<" retries="<<failed_record_reads<<" peak="<<peak_record_staging<<'\n';
 }
+void padding_fixture(const std::filesystem::path& path) {
+    auto eager = read_h5ad(path.string());
+    auto backed = open_h5ad(path.string(),{.scratch_bytes=4096});
+    const char* modes[]{"str_nullterm","str_nullpad","str_spacepad"};
+    for (std::size_t mode = 0; mode < 3; ++mode) {
+        const std::string expected[]{mode ? std::string("A\0B",3) : "A",
+            mode==2 ? std::string("tail\0",5) : "tail",mode ? std::string("mid\0x",5) : "mid"};
+        const auto name = std::string(modes[mode]), prefix = "padding_"+name;
+        auto column = backed.obs().column(name).read();
+        auto array = backed.uns().at(prefix+"_array").read();
+        auto field = backed.uns().at("padding_record").read_field(name);
+        auto record = backed.uns().at("padding_record").read();
+        for (std::size_t i = 0; i < 3; ++i) {
+            require(eager.obs().column(name).string(i)==expected[i] && column.view().string(i)==expected[i],"ordinary fixed padding differs");
+            require(eager.uns().at(prefix+"_array").string_array().string(i)==expected[i] && array.view().string_array().string(i)==expected[i],"packed fixed padding differs");
+            require(eager.uns().at("padding_record").record_array().string(name,i)==expected[i] &&
+                field.view().string_array().string(i)==expected[i] && record.view().record_array().string(name,i)==expected[i],"record fixed padding differs");
+        }
+        auto scalar = backed.uns().at(prefix+"_scalar").read();
+        auto empty = backed.uns().at(prefix+"_empty").read();
+        require(eager.uns().at(prefix+"_scalar").string()==expected[0] && scalar.view().string()==expected[0],"scalar fixed padding differs");
+        require(eager.uns().at(prefix+"_empty").string_array().size()==0 && empty.view().string_array().size()==0,"empty fixed padding differs");
+    }
+}
 void run(const std::filesystem::path& root) {
     auto d=fixture(); auto input=root/"records.h5ad", output=root/"export.h5ad";
     WriteOptions options; options.compression=Compression::gzip; write_h5ad(input.string(),d,options);
@@ -178,6 +202,8 @@ void run(const std::filesystem::path& root) {
 int main(int argc,char** argv) {
     try {
         const auto root=std::filesystem::path(argc>1?argv[1]:"records-h5ad-tests");
-        std::filesystem::create_directories(root); run(root); std::cout<<"record H5AD tests passed\n";
+        std::filesystem::create_directories(root); run(root);
+        if (argc > 2) padding_fixture(argv[2]);
+        std::cout<<"record H5AD tests passed\n";
     } catch(const std::exception& e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

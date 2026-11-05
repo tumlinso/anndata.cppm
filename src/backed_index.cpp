@@ -16,6 +16,7 @@ module;
 #include <utility>
 #include <vector>
 #include <variant>
+// Temporary-run offsets use the POSIX large-file API (fseeko/ftello).
 #include <sys/types.h>
 
 module anndatapp.backed;

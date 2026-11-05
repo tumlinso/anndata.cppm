@@ -1,5 +1,7 @@
 module;
 #include <hdf5.h>
+#include "h5ad_text.hpp"
+#include "utf8.hpp"
 #include <algorithm>
 #include <bit>
 #include <cerrno>
@@ -28,6 +30,8 @@ import :storage;
 
 namespace anndatapp::backed_detail {
 namespace {
+using ::anndatapp::detail::Utf8Error;
+using ::anndatapp::detail::utf8_error;
 
 class H5Handle {
 public:
@@ -198,29 +202,6 @@ struct Reclaim {
     ~Reclaim() { H5Dvlen_reclaim(type, space, H5P_DEFAULT, buffer); }
 };
 
-bool valid_utf8(std::string_view text) {
-    const auto* bytes = reinterpret_cast<const unsigned char*>(text.data());
-    std::size_t i = 0;
-    while (i < text.size()) {
-        const auto first = bytes[i++];
-        if (first < 0x80) continue;
-        unsigned remaining = 0;
-        std::uint32_t value = 0, minimum = 0;
-        if (first >= 0xc2 && first <= 0xdf) { remaining = 1; value = first & 0x1f; minimum = 0x80; }
-        else if (first >= 0xe0 && first <= 0xef) { remaining = 2; value = first & 0x0f; minimum = 0x800; }
-        else if (first >= 0xf0 && first <= 0xf4) { remaining = 3; value = first & 0x07; minimum = 0x10000; }
-        else return false;
-        if (remaining > text.size() - i) return false;
-        while (remaining--) {
-            const auto next = bytes[i++];
-            if ((next & 0xc0) != 0x80) return false;
-            value = (value << 6) | (next & 0x3f);
-        }
-        if (value < minimum || value > 0x10ffff || (value >= 0xd800 && value <= 0xdfff)) return false;
-    }
-    return true;
-}
-
 template<class Read>
 std::vector<std::string> read_text(const H5Context& c, hid_t type, hid_t space, Read read, std::string_view path) {
     const auto n = product(c, shape_of(c, space, path), path);
@@ -239,14 +220,11 @@ std::vector<std::string> read_text(const H5Context& c, hid_t type, hid_t space, 
         c.check(read(type, bytes.data()), path, "read fixed strings");
         const auto pad = H5Tget_strpad(type);
         for (std::size_t i = 0; i < n; ++i) {
-            std::string_view s(bytes.data() + i * width, width);
-            if (pad == H5T_STR_SPACEPAD) { while (!s.empty() && s.back() == ' ') s.remove_suffix(1); }
-            else { const auto end = s.find('\0'); if (end != std::string_view::npos) s = s.substr(0, end); }
-            result.emplace_back(s);
+            result.emplace_back(anndatapp_h5ad_detail::fixed_text(bytes.data()+i*width,width,pad));
         }
     }
     if (c.validation == Validation::full)
-        for (const auto& s : result) if (!valid_utf8(s)) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
+        for (const auto& s : result) if (utf8_error(s) != Utf8Error::none) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
     return result;
 }
 
@@ -678,14 +656,11 @@ std::vector<std::string> read_planned_strings(const H5Context& c, hid_t dataset,
         c.check(H5Dread(dataset, memory_type, r.memory_space, r.file_space, H5P_DEFAULT, bytes.data()), path, "read bounded fixed strings");
         const auto pad = H5Tget_strpad(string_type);
         for (std::size_t i = 0; i < r.elements; ++i) {
-            std::string_view value(bytes.data() + i * plan.fixed_width, plan.fixed_width);
-            if (pad == H5T_STR_SPACEPAD) { while (!value.empty() && value.back() == ' ') value.remove_suffix(1); }
-            else if (const auto end = value.find('\0'); end != std::string_view::npos) value = value.substr(0, end);
-            result.emplace_back(value);
+            result.emplace_back(anndatapp_h5ad_detail::fixed_text(bytes.data()+i*plan.fixed_width,plan.fixed_width,pad));
         }
     }
     if (validate_utf8_values && c.validation == Validation::full)
-        for (const auto& value : result) if (!valid_utf8(value)) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
+        for (const auto& value : result) if (utf8_error(value) != Utf8Error::none) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
     return result;
 }
 

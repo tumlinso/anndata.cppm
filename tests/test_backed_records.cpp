@@ -226,6 +226,97 @@ void check_export(const std::filesystem::path& output) {
             scalar.string("label", 0) == "α",
             "backed export changed rank-zero numeric or VLEN text values");
 }
+
+void check_validation_export(const std::filesystem::path& output) {
+    auto actual = read_h5ad(output.string());
+    const auto nested = actual.uns().at("record_bundle").at("nested");
+    check_schema_and_values(nested.at("record").record_array(), 10);
+    const auto empty = nested.at("empty").record_array();
+    require(empty.shape() == std::vector<std::size_t>{0, 2} && empty.size() == 0 &&
+            empty.field_names() == std::vector<std::string>{"id", "enabled", "score", "label"},
+            "validation export changed the empty record shape or fields");
+    const auto cube = nested.at("cube").record_array();
+    require(cube.shape() == std::vector<std::size_t>{2, 1, 2} &&
+            cube.array("id").dense<std::int32_t>().data()[3] == 33,
+            "validation export changed rank-three record values");
+    const auto scalar = nested.at("scalar").record_array();
+    require(scalar.rank() == 0 && scalar.size() == 1 &&
+            scalar.array("id").dense<std::int32_t>().data()[0] == 77 &&
+            scalar.string("label", 0) == "α",
+            "validation export changed rank-zero record values");
+}
+
+void check_validation_adapters(const std::filesystem::path& source,
+                               const std::filesystem::path& full_after_none,
+                               const std::filesystem::path& none_after_none,
+                               const std::filesystem::path& full_after_full,
+                               const std::filesystem::path& none_after_full) {
+    BackedOptions none_options;
+    none_options.validation = Validation::none;
+    auto opened_none = open_h5ad(source.string(), none_options);
+    opened_none.validate_all();
+
+    WriteOptions full_options;
+    full_options.validation = Validation::full;
+    write_h5ad(full_after_none.string(), opened_none, full_options);
+
+    WriteOptions none_write;
+    none_write.validation = Validation::none;
+    write_h5ad(none_after_none.string(), opened_none, none_write);
+
+    BackedOptions full_open_options;
+    full_open_options.validation = Validation::full;
+    auto opened_full = open_h5ad(source.string(), full_open_options);
+    write_h5ad(full_after_full.string(), opened_full, full_options);
+    write_h5ad(none_after_full.string(), opened_full, none_write);
+
+    for (const auto& output : {full_after_none, none_after_none, full_after_full, none_after_full})
+        check_validation_export(output);
+}
+
+AnnData invalid_utf8_fixture() {
+    auto record = RecordArray::with_shape({1});
+    record.set("id", dense<std::int32_t>({1}, {41}));
+    record.set("label", StringArray::from_packed(
+        {1}, {static_cast<char>(0xff)}, {0, 1}, Validation::none), Validation::none);
+    auto data = AnnData::empty(0, 0);
+    data.set_uns("invalid_record", Element(std::move(record)));
+    return data;
+}
+
+void check_invalid_utf8_adapters(const std::filesystem::path& source,
+                                const std::filesystem::path& full_after_none,
+                                const std::filesystem::path& none_after_none,
+                                const std::filesystem::path& full_after_full) {
+    WriteOptions none_write;
+    none_write.validation = Validation::none;
+    write_h5ad(source.string(), invalid_utf8_fixture(), none_write);
+
+    BackedOptions none_options;
+    none_options.validation = Validation::none;
+    auto opened_none = open_h5ad(source.string(), none_options);
+    require_error([&] { opened_none.validate_all(); }, ErrorCode::invalid_argument,
+                  "invalid UTF-8 string", "validate_all missed malformed record text");
+
+    WriteOptions full_write;
+    full_write.validation = Validation::full;
+    require_error([&] { write_h5ad(full_after_none.string(), opened_none, full_write); },
+                  ErrorCode::invalid_argument, "invalid UTF-8 string",
+                  "full export after Validation::none open missed malformed record text");
+
+    write_h5ad(none_after_none.string(), opened_none, none_write);
+    auto copied = read_h5ad(none_after_none.string(), ReadOptions{Validation::none});
+    const auto value = copied.uns().at("invalid_record").record_array().string("label", 0);
+    require(value.size() == 1 && static_cast<unsigned char>(value[0]) == 0xff,
+            "Validation::none export did not preserve malformed record bytes");
+
+    BackedOptions full_options;
+    full_options.validation = Validation::full;
+    auto opened_full = open_h5ad(source.string(), full_options);
+    require_error([&] { write_h5ad(full_after_full.string(), opened_full, full_write); },
+                  ErrorCode::invalid_argument, "invalid UTF-8 string",
+                  "full/full export did not diagnose malformed record text");
+}
 }
 
 int main(int argc, char** argv) {
@@ -238,9 +329,21 @@ int main(int argc, char** argv) {
         std::filesystem::create_directories(run);
         const auto source = run / "source.h5ad";
         const auto output = run / "export.h5ad";
+        const auto full_after_none = run / "full-after-none.h5ad";
+        const auto none_after_none = run / "none-after-none.h5ad";
+        const auto full_after_full = run / "full-after-full.h5ad";
+        const auto none_after_full = run / "none-after-full.h5ad";
+        const auto invalid_source = run / "invalid-source.h5ad";
+        const auto invalid_full_after_none = run / "invalid-full-after-none.h5ad";
+        const auto invalid_none_after_none = run / "invalid-none-after-none.h5ad";
+        const auto invalid_full_after_full = run / "invalid-full-after-full.h5ad";
 
         auto data = fixture();
         write_h5ad(source.string(), data);
+        check_validation_adapters(source, full_after_none, none_after_none,
+                                  full_after_full, none_after_full);
+        check_invalid_utf8_adapters(invalid_source, invalid_full_after_none,
+                                    invalid_none_after_none, invalid_full_after_full);
         check_backed(source, output);
         check_export(output);
         std::cout << "native backed record checks passed\n";

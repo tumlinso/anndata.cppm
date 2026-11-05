@@ -73,6 +73,8 @@ struct StorageGeometry {
 struct TransferStats {
     std::size_t read_calls = 0, write_calls = 0;
     std::size_t read_bytes = 0, write_bytes = 0;
+    // Counted backend staging and context-tile allocation events, not all
+    // allocations. scratch_bytes is retained capacity at this observation.
     std::size_t scratch_allocations = 0, scratch_bytes = 0;
 };
 namespace detail {
@@ -83,8 +85,10 @@ struct StructureEditImpl;
 struct BackedAccess;
 struct TransferContextImpl;
 }
-// One context per worker. Numerical buffers remain caller-owned. Structural
-// edits and explicit close invalidate it; numerical payload edits do not.
+// One context per worker. Serialize handle/context preparation and session
+// operations, including structural edits and close. Numerical buffers remain
+// caller-owned. Structural replacement and close invalidate affected contexts;
+// numerical payload edits do not.
 class TransferContext {
 public:
     TransferContext();
@@ -165,6 +169,7 @@ public:
     // Only an eligible full array can map. Failure is explicit and never falls
     // back to an allocating read. The returned owner is read-only.
     MappedArray map_readonly() const;
+    // A non-contiguous sparse source is copied before its values are written.
     void write(const ArrayView& source) const;
 private:
     friend struct detail::BackedAccess;
@@ -363,14 +368,13 @@ public:
     void set(std::string path, BackedTable source);
     void set(std::string path, BackedColumn source);
     void erase(std::string path);
-    explicit BackedAnnData(std::shared_ptr<detail::BackedDataset>);
 private:
     friend struct detail::BackedAccess;
+    explicit BackedAnnData(std::shared_ptr<detail::BackedDataset>);
     std::shared_ptr<detail::BackedDataset> impl_;
 };
 namespace detail {
-// Stable cross-module facade bridges. Backend types remain in the private
-// implementation partition and never appear in public consumer interfaces.
+// Internal cross-module bridges, excluded from the public API contract.
 BackedAnnData open_h5ad_backed(std::string_view path, BackedOptions options);
 BackedAnnData open_zarr_backed(std::string_view path, BackedOptions options);
 void write_zarr_backed(std::string_view, const BackedAnnDataView&, int format, bool exclusive, std::size_t scratch_bytes, std::string_view compression, int compression_level, Validation validation);

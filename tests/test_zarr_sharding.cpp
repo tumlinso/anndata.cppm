@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <sys/stat.h>
+#include <utility>
 #include <vector>
 #if defined(__linux__) && defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
 #define ANNDATAPP_TEST_FAULT_IO 1
@@ -53,6 +54,48 @@ template<class F> void error(F&& f, Failure expected) {
 void no_temps(const std::filesystem::path& root) {
     for (auto& p : std::filesystem::directory_iterator(root))
         check(p.path().filename().string().find(".tmp-") == std::string::npos, "temporary file survived");
+}
+auto snapshot(const std::filesystem::path& root) {
+    std::vector<std::pair<std::string,Bytes>> result;
+    for (const auto& e : std::filesystem::recursive_directory_iterator(root))
+        if (e.is_regular_file()) result.emplace_back(std::filesystem::relative(e.path(),root).string(),file_bytes(e.path()));
+    std::sort(result.begin(),result.end());
+    return result;
+}
+void metadata_boundaries(const std::filesystem::path& root) {
+    std::string invalid = root.string(); invalid.append("\0suffix",7);
+    error([&] { Store store(std::filesystem::path(invalid),false); },Failure::argument);
+    error([&] { Store store({},false); },Failure::argument);
+    for (int format : {2,3}) {
+        auto path = root/(format==2?"metadata-v2":"metadata-v3");
+        Store store(path,true);
+        store.create_group("",Json::object(),format);
+        CreateOptions options; options.format = format; options.compression = "none";
+        store.create_array("X",Type::int32,{2},Json::object(),'<',options); store.flush();
+        if (format==2) {
+            std::filesystem::remove(path/"X"/".zarray"); std::filesystem::remove(path/"X"/".zattrs");
+        } else std::filesystem::remove(path/"X"/"zarr.json");
+        check(store.inspect("X").exists,"consolidated read fallback lost");
+        const auto original = snapshot(path);
+        error([&] { store.attributes("X",{{"new",1}}); },Failure::argument);
+        error([&] { store.create_group("new",Json::object(),format); },Failure::argument);
+        error([&] { store.create_array("new",Type::int32,{1},Json::object(),'<',options); },Failure::argument);
+        error([&] { store.erase("X"); },Failure::argument);
+        error([&] { store.rename("X","Y"); },Failure::argument);
+        error([&] { store.resize("X",{1}); },Failure::argument);
+        store.flush();
+        check(snapshot(path)==original && store.inspect("X").exists,"rejected structural mutation changed consolidated-only store");
+        Store reopened(path,false); check(reopened.inspect("X").exists,"consolidated-only store cannot reopen");
+    }
+}
+void codec_categories() {
+    ArrayMetadata m; m.type = Type::uint16; m.item_size = 2;
+    const auto raw = Json::array({{{"name","bytes"},{"configuration",{{"endian","little"}}}}});
+    const auto unknown = Json::array({{{"name","unsupported-by-test"}}});
+    const auto payload = bytes({1,2});
+    error([&] { (void)decode_payload({m,unknown,1024},{1},payload); },Failure::codec);
+    error([&] { (void)decode_payload({m,raw,1024},{2},payload); },Failure::encoding);
+    error([&] { (void)decode_payload({m,raw,8},{1},payload); },Failure::argument);
 }
 void run(const std::filesystem::path& path, const std::string& index_location, bool transpose, int crc_count, const char* endian) {
     ShardSpec spec;
@@ -171,6 +214,7 @@ int main(int argc,char** argv) {
         auto pattern = (root/"trial-XXXXXX").string();
         if (!::mkdtemp(pattern.data())) throw std::runtime_error("cannot create fixture directory");
         root = pattern;
+        metadata_boundaries(root); codec_categories();
         for (const auto& location : {"start","end"}) for (bool transpose : {false,true})
             for (int crc : {0,1,3}) for (const auto& endian : {"little","big"})
                 run(root/(std::string(location)+(transpose?"-transpose":"-plain")+"-crc"+std::to_string(crc)+endian),location,transpose,crc,endian);

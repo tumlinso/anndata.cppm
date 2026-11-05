@@ -71,6 +71,39 @@ backed_detail::Attributes from_json(const ze::Json& attrs) {
     return result;
 }
 char byte_order(ByteOrder order) { return order==ByteOrder::little?'<':order==ByteOrder::big?'>':'='; }
+DType native_dtype(ze::Type type) {
+    switch(type) {
+        case ze::Type::boolean: return DType::boolean;
+        case ze::Type::int8: return DType::int8;
+        case ze::Type::uint8: return DType::uint8;
+        case ze::Type::int16: return DType::int16;
+        case ze::Type::uint16: return DType::uint16;
+        case ze::Type::int32: return DType::int32;
+        case ze::Type::uint32: return DType::uint32;
+        case ze::Type::int64: return DType::int64;
+        case ze::Type::uint64: return DType::uint64;
+        case ze::Type::float32: return DType::float32;
+        case ze::Type::float64: return DType::float64;
+        case ze::Type::string: break;
+    }
+    throw Error(ErrorCode::unsupported_dtype,"zarr","Zarr scalar is not a supported numerical dtype");
+}
+ze::Type storage_dtype(DType type) {
+    switch(type) {
+        case DType::boolean: return ze::Type::boolean;
+        case DType::int8: return ze::Type::int8;
+        case DType::uint8: return ze::Type::uint8;
+        case DType::int16: return ze::Type::int16;
+        case DType::uint16: return ze::Type::uint16;
+        case DType::int32: return ze::Type::int32;
+        case DType::uint32: return ze::Type::uint32;
+        case DType::int64: return ze::Type::int64;
+        case DType::uint64: return ze::Type::uint64;
+        case DType::float32: return ze::Type::float32;
+        case DType::float64: return ze::Type::float64;
+    }
+    throw Error(ErrorCode::unsupported_dtype,"zarr","numerical dtype has no Zarr storage representation");
+}
 struct Mapping {
     void* data=MAP_FAILED;
     std::size_t size=0;
@@ -126,6 +159,7 @@ class ZarrBackend final:public backed_detail::Backend {
     ze::Store& store() { if(!store_) throw Error(ErrorCode::invalid_argument,location_,"Zarr session is closed"); return *store_; }
 public:
     ZarrBackend(std::string path,bool writable,std::size_t scratch,ze::CreateOptions create={}):location_(std::move(path)),scratch_bytes_(scratch),writable_(writable),create_(std::move(create)) {
+        ze::validate_root_path(location_);
         struct stat directory{};
         if(::stat(location_.c_str(),&directory)!=0 || !S_ISDIR(directory.st_mode))
             throw Error(ErrorCode::io_error,location_,"cannot identify the Zarr store directory");
@@ -163,7 +197,7 @@ public:
         for(const auto& [name,value]:node.attributes.items()) { (void)value; if(!semantic_attribute(name)) info.has_opaque_attrs=true; }
         if(!node.group) {
             info.strings=node.array.type==ze::Type::string;
-            if(!info.strings) info.dtype=static_cast<DType>(node.array.type);
+            if(!info.strings) info.dtype=native_dtype(node.array.type);
             info.shape=node.array.shape;
             info.physical.shape=node.array.shape;
             info.physical.organization=StorageOrganization::chunked;
@@ -205,7 +239,7 @@ public:
         auto actual=dtype;
         auto encoding=attrs.find("encoding-type");
         if(encoding!=attrs.end() && std::get_if<std::string>(&encoding->second) && std::get<std::string>(encoding->second)=="null") actual=DType::boolean;
-        store().create_array(std::string(path),static_cast<ze::Type>(actual),shape,to_json(attrs),byte_order(order),create_);
+        store().create_array(std::string(path),storage_dtype(actual),shape,to_json(attrs),byte_order(order),create_);
     }); }
     void create_strings(std::string_view path,const std::vector<std::size_t>& shape,const backed_detail::Attributes& attrs) override { zarr_call([&] { store().create_array(std::string(path),ze::Type::string,shape,to_json(attrs),'|',create_); }); }
     void attributes(std::string_view path,const backed_detail::Attributes& attrs) override { zarr_call([&] { store().attributes(std::string(path),to_json(attrs)); }); }
@@ -233,12 +267,12 @@ public:
         auto owner=std::make_shared<Mapping>(); owner->size=bytes;
         owner->data=::mmap(nullptr,bytes,PROT_READ,MAP_PRIVATE,fd,0); const auto saved=errno; ::close(fd);
         if(owner->data==MAP_FAILED) throw Error(ErrorCode::io_error,file.string(),std::strerror(saved));
-        return MappedArray(owner,static_cast<const std::byte*>(owner->data),bytes,static_cast<DType>(node.array.type),node.array.shape);
+        return MappedArray(owner,static_cast<const std::byte*>(owner->data),bytes,native_dtype(node.array.type),node.array.shape);
     }); }
 };
 void prepare_destination(std::string_view path,bool exclusive) {
+    ze::validate_root_path(path);
     const auto location=std::filesystem::path(path);
-    if(location.empty()) throw Error(ErrorCode::invalid_argument,std::string(path),"empty Zarr destination");
     if(std::filesystem::exists(location)) {
         if(exclusive) throw Error(ErrorCode::io_error,std::string(path),"Zarr destination already exists");
         if(std::filesystem::is_symlink(location) || !std::filesystem::is_directory(location) ||
@@ -257,7 +291,7 @@ bool path_prefix(const std::filesystem::path& prefix,const std::filesystem::path
     return true;
 }
 void reject_source_overlap(std::string_view destination,const std::string& source) {
-    if(destination.empty()) throw Error(ErrorCode::invalid_argument,std::string(destination),"empty Zarr destination");
+    ze::validate_root_path(destination);
     const auto source_path=std::filesystem::weakly_canonical(std::filesystem::absolute(source));
     const auto destination_path=std::filesystem::weakly_canonical(std::filesystem::absolute(std::filesystem::path(destination)));
     const bool equivalent=std::filesystem::exists(destination_path) && std::filesystem::equivalent(source_path,destination_path);
@@ -289,6 +323,7 @@ BackedAnnData open_zarr_backed(std::string_view path,BackedOptions options) {
 }
 void write_zarr_eager(std::string_view path,const AnnDataView& data,int format,bool exclusive,std::size_t scratch_bytes,std::string_view compression,int level,Validation validation) {
     zarr_call([&] {
+        ze::validate_root_path(path);
         auto options=creation(format,compression,level);
         if(scratch_bytes<1024) throw Error(ErrorCode::invalid_argument,std::string(path),"scratch_bytes must be at least 1024");
         require_zarr_metadata(data.uns(),"/uns");
@@ -298,6 +333,7 @@ void write_zarr_eager(std::string_view path,const AnnDataView& data,int format,b
 }
 void write_zarr_backed(std::string_view path,const BackedAnnDataView& data,int format,bool exclusive,std::size_t scratch_bytes,std::string_view compression,int level,Validation validation) {
     zarr_call([&] {
+        ze::validate_root_path(path);
         auto options=creation(format,compression,level);
         if(scratch_bytes<1024) throw Error(ErrorCode::invalid_argument,std::string(path),"scratch_bytes must be at least 1024");
         const auto& source=BackedAccess::get(data);

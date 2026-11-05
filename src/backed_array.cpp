@@ -243,7 +243,7 @@ bool disjoint_dense(const std::vector<std::size_t>& shape,const std::vector<std:
 bool grouped_shard_read(const NodePtr& node,const Descriptor& d,const std::vector<std::size_t>& start,
                         const std::vector<std::size_t>& count,const std::vector<std::ptrdiff_t>& strides,
                         std::byte* output,backed_detail::NumericTransfer& source,
-                        std::vector<std::byte>& tile,std::size_t available) {
+                        std::vector<std::byte>& tile,std::size_t available,std::size_t& tile_allocations) {
     const auto rank=count.size(),width=dtype_size(d.data.dtype);
     const auto& unit=d.data.codec_tile_shape;
     if(!rank || !d.data.sharded_payload || unit.size()!=rank || available<4096 || rank>(available-4096)/256)return false;
@@ -263,7 +263,9 @@ bool grouped_shard_read(const NodePtr& node,const Descriptor& d,const std::vecto
     if(map_bytes>available || control>available-map_bytes)return false;
     const auto tile_bytes=multiply(elements(unit,node),width,node),limit=available-map_bytes-control;
     if(tile_bytes>limit)return false;
-    if(tile.capacity()>limit || tile.capacity()<tile_bytes) {std::vector<std::byte>().swap(tile);tile.resize(tile_bytes);}
+    if(tile.capacity()>limit || tile.capacity()<tile_bytes) {
+        std::vector<std::byte>().swap(tile);tile.resize(tile_bytes);tile_allocations+=tile_bytes!=0;
+    }
     else tile.resize(tile_bytes);
 
     std::vector<ReadAxis> axes(rank);
@@ -363,11 +365,12 @@ void dense_transfer(const NodePtr& n, const Descriptor& d, const DenseBuffer& b,
     const bool packed = strides == contiguous_strides(d.shape, width, n);
     if (!writing && d.data.sharded_payload && !forward_rectangle(d) && !n->code_recode) {
         const auto workspace=std::max(backend.numeric_workspace_bytes(d.data,false),
-                                      n->session->options.mode==AccessMode::read_write?backend.numeric_workspace_bytes(d.data,true):std::size_t{0});
+                                      n->writable && n->session->options.mode==AccessMode::read_write?backend.numeric_workspace_bytes(d.data,true):std::size_t{0});
         const auto available=staging_budget(available_scratch,workspace,n);
         auto source=backend.prepare_numeric(n->path);
         std::vector<std::byte> tile;
-        if(grouped_shard_read(n,d,std::vector<std::size_t>(rank,0),d.shape,strides,dest,*source,tile,available))return;
+        std::size_t tile_allocations=0;
+        if(grouped_shard_read(n,d,std::vector<std::size_t>(rank,0),d.shape,strides,dest,*source,tile,available,tile_allocations))return;
     }
     if (packed && forward_rectangle(d)) {
         std::vector<std::size_t> start(rank);
@@ -432,6 +435,19 @@ template<class T> std::size_t unpack_index(const std::byte* p, const NodePtr& n)
     if (wide > std::numeric_limits<std::size_t>::max())
         fail(ErrorCode::invalid_sparse_structure, n, "sparse index or offset exceeds size_t");
     return static_cast<std::size_t>(wide);
+}
+template<class F> void visit_integer(DType t, const NodePtr& n, F&& f) {
+    switch (t) {
+    case DType::int8: return f.template operator()<std::int8_t>();
+    case DType::uint8: return f.template operator()<std::uint8_t>();
+    case DType::int16: return f.template operator()<std::int16_t>();
+    case DType::uint16: return f.template operator()<std::uint16_t>();
+    case DType::int32: return f.template operator()<std::int32_t>();
+    case DType::uint32: return f.template operator()<std::uint32_t>();
+    case DType::int64: return f.template operator()<std::int64_t>();
+    case DType::uint64: return f.template operator()<std::uint64_t>();
+    default: fail(ErrorCode::unsupported_dtype, n, "unsupported sparse integer dtype");
+    }
 }
 std::size_t read_index(const std::byte* p, DType t, const NodePtr& n) {
     switch (t) {
@@ -568,8 +584,8 @@ std::size_t scan_sparse(const NodePtr& n, const Descriptor& d, const SparseBuffe
                 value_chunk.resize(multiply(len, vsz, n));
                 backend.read_numeric(data_path, {pos}, {len}, value_chunk.data());
             }
-            for (std::size_t j = 0; j < len; ++j) {
-                const auto source_minor = read_index(index_chunk.data() + j * isz, d.indices.dtype, n);
+            visit_integer(d.indices.dtype, n, [&]<class I> { for (std::size_t j = 0; j < len; ++j) {
+                const auto source_minor = unpack_index<I>(index_chunk.data() + j * sizeof(I), n);
                 if (source_minor >= d.source_shape[minor_axis])
                     fail(ErrorCode::invalid_sparse_structure, n, "sparse index exceeds minor dimension");
                 lookup.each(source_minor, [&](std::size_t selected_minor) {
@@ -588,10 +604,10 @@ std::size_t scan_sparse(const NodePtr& n, const Descriptor& d, const SparseBuffe
                     ++emitted;
                     if (require_original_widths) {
                         std::array<std::byte, 8> checked{};
-                        write_index(checked.data(), d.indices.dtype, selected_minor, n);
+                        pack_index<I>(checked.data(), selected_minor, n);
                     }
                 });
-            }
+            }});
             pos += len;
         }
         if (require_original_widths) {
@@ -676,8 +692,8 @@ void write_sparse(const NodePtr& n, const Descriptor& d, const ArrayView& source
                 auto length = std::min(chunk, end - pos);
                 index_chunk.resize(multiply(length, isz, n));
                 backend.read_numeric(indices_path, {pos}, {length}, index_chunk.data());
-                for (std::size_t j = 0; j < length; ++j) {
-                    const auto target_minor = read_index(index_chunk.data() + j * isz, d.indices.dtype, n);
+                visit_integer(d.indices.dtype, n, [&]<class I> { for (std::size_t j = 0; j < length; ++j) {
+                    const auto target_minor = unpack_index<I>(index_chunk.data() + j * sizeof(I), n);
                     if (target_minor >= d.source_shape[minor_axis])
                         fail(ErrorCode::invalid_sparse_structure, n, "stored sparse index exceeds minor dimension");
                     lookup.each(target_minor, [&](std::size_t selected_minor) {
@@ -691,7 +707,7 @@ void write_sparse(const NodePtr& n, const Descriptor& d, const ArrayView& source
                         }
                         ++emitted;
                     });
-                }
+                }});
                 pos += length;
             }
             if (read_index(src.offsets() + (m + 1) * src_osz, source.offset_dtype(), n) != emitted)
@@ -855,8 +871,8 @@ void copy_sparse(Backend& target, std::string_view path, const NodePtr& n,
             input_values.resize(multiply(length, vsz, n));
             source.read_numeric(in_indices, {pos}, {length}, input_indices.data());
             source.read_numeric(in_data, {pos}, {length}, input_values.data());
-            for (std::size_t j = 0; j < length; ++j) {
-                const auto index = read_index(input_indices.data() + j * isz, d.indices.dtype, n);
+            visit_integer(d.indices.dtype, n, [&]<class I> { for (std::size_t j = 0; j < length; ++j) {
+                const auto index = unpack_index<I>(input_indices.data() + j * sizeof(I), n);
                 if (index >= d.source_shape[minor_axis]) fail(ErrorCode::invalid_sparse_structure, n, "sparse index exceeds minor dimension");
                 lookup.each(index, [&](std::size_t selected) {
                     if (emitted >= r.nnz) fail(ErrorCode::invalid_sparse_structure, n, "sparse source changed while copying");
@@ -865,11 +881,11 @@ void copy_sparse(Backend& target, std::string_view path, const NodePtr& n,
                     if (d.data.dtype == DType::boolean && n->session->options.validation == Validation::full)
                         values[vo] = values[vo] == std::byte{0} ? std::byte{0} : std::byte{1};
                     auto io = indices.size(); indices.resize(io + isz);
-                    write_index(indices.data() + io, d.indices.dtype, selected, n);
+                    pack_index<I>(indices.data() + io, selected, n);
                     ++emitted;
                     if (values.size() / vsz == chunk) flush_values();
                 });
-            }
+            }});
             pos += length;
         }
         add_offset(emitted);
@@ -891,8 +907,7 @@ struct PreparedReadImpl {
 };
 }
 namespace {
-Array read_prepared(const NodePtr& n, const ReadRequirements& r) {
-    auto d = describe(n);
+Array read_prepared(const NodePtr& n, const ReadRequirements& r, const Descriptor& d) {
     if (d.layout != r.layout || d.shape != r.shape || d.data.dtype != r.dtype)
         fail(ErrorCode::invalid_sparse_structure, n, "stored array changed after preparation");
     if (r.layout == Layout::dense) {
@@ -921,11 +936,14 @@ Array read_prepared(const NodePtr& n, const ReadRequirements& r) {
     result.set_offset_serialization_byte_order(d.offsets.byte_order);
     return result;
 }
+Array read_prepared(const NodePtr& n, const ReadRequirements& r) {
+    return read_prepared(n, r, describe(n));
+}
 }
 namespace backed_detail {
 Array read_array(const NodePtr& n) {
     auto d = describe(n);
-    return read_prepared(n, requirements(n, d));
+    return read_prepared(n, requirements(n, d), d);
 }
 void copy_array(Backend& destination, std::string_view dest_path, const NodePtr& n, std::size_t scratch_bytes) {
     auto d = describe(n);
@@ -1021,8 +1039,11 @@ PreparedRead BackedArray::prepare_read() const {
     return PreparedRead(std::move(p));
 }
 Array BackedArray::read() const { return backed_detail::read_array(node_); }
-void BackedArray::read_into(const DenseBuffer& b) const { prepare_read().read_into(b); }
-void BackedArray::read_into(const SparseBuffer& b) const { prepare_read().read_into(b); }
+void BackedArray::read_into(const DenseBuffer& b) const { auto d = describe(node_); dense_transfer(node_, d, b, false); }
+void BackedArray::read_into(const SparseBuffer& b) const {
+    auto d = describe(node_);
+    sparse_into(node_, d, requirements(node_, d), b);
+}
 MappedArray BackedArray::map_readonly() const {
     auto d = describe(node_);
     if (node_->code_recode || node_->color_override) fail(ErrorCode::unsupported_layout, node_, "transformed arrays cannot be memory mapped");
@@ -1177,7 +1198,7 @@ struct TransferContextImpl {
     std::unique_ptr<Backend> backend;
     std::unique_ptr<backed_detail::NumericTransfer> data, indices, offsets;
     std::vector<std::byte> tile;
-    std::size_t budget = 0;
+    std::size_t budget = 0, tile_allocations = 0;
     bool sparse_prepared = false;
     std::vector<std::size_t> sparse_start, sparse_count;
     std::size_t sparse_begin = 0, sparse_end = 0;
@@ -1244,9 +1265,9 @@ struct TransferContextImpl {
         }
         if(!writing && d.data.sharded_payload && !forward_rectangle(d)) {
             const auto workspace=std::max(backend->numeric_workspace_bytes(d.data,false),
-                                          node->writable?backend->numeric_workspace_bytes(d.data,true):std::size_t{0});
+                                          geometry.writable?backend->numeric_workspace_bytes(d.data,true):std::size_t{0});
             const auto available=staging_budget(budget,workspace,node);
-            if(grouped_shard_read(node,d,start,count,strides,p,*data,tile,available))return;
+            if(grouped_shard_read(node,d,start,count,strides,p,*data,tile,available,tile_allocations))return;
         }
         const bool canonical = !writing && d.data.dtype == DType::boolean && node->session->options.validation == Validation::full;
         auto transfer = [&](const std::vector<std::size_t>& source, const std::vector<std::size_t>& ext, std::byte* q) {
@@ -1344,9 +1365,10 @@ void TransferContext::read_into(const std::vector<std::size_t>& start, const std
     if (!r.nnz) return;
     p.indices->read({p.sparse_begin}, {r.nnz}, b.indices);
     if (p.node->session->options.validation == Validation::full)
-        for (std::size_t j = 0; j < r.nnz; ++j)
-            if (read_index(static_cast<const std::byte*>(b.indices) + j*isz, r.index_dtype, p.node) >= r.shape[minor])
+        visit_integer(r.index_dtype, p.node, [&]<class I> { for (std::size_t j = 0; j < r.nnz; ++j)
+            if (unpack_index<I>(static_cast<const std::byte*>(b.indices) + j*sizeof(I), p.node) >= r.shape[minor])
                 fail(ErrorCode::invalid_sparse_structure, p.node, "sparse index exceeds minor dimension");
+        });
     p.data->read({p.sparse_begin}, {r.nnz}, b.values);
     if (r.dtype == DType::boolean && p.node->session->options.validation == Validation::full)
         for (std::size_t j = 0; j < r.nnz; ++j) {
@@ -1362,7 +1384,7 @@ TransferStats TransferContext::stats() const {
         out.read_bytes += s.read_bytes; out.write_bytes += s.write_bytes;
         out.scratch_allocations += s.scratch_allocations; out.scratch_bytes += s.scratch_bytes;
     }
-    out.scratch_allocations += p.backend->scratch_allocations() + !p.tile.empty();
+    out.scratch_allocations += p.backend->scratch_allocations() + p.tile_allocations;
     out.scratch_bytes += p.backend->retained_scratch_bytes() + p.tile.capacity();
     return out;
 }
@@ -1390,10 +1412,11 @@ TransferContext BackedArray::prepare_transfer(std::size_t scratch_bytes) const {
         p->offsets = p->backend->prepare_numeric(backed_detail::child(node_->path, "indptr"));
     } else if (!desc.shape.empty()) {
         const auto workspace = std::max(p->backend->numeric_workspace_bytes(desc.data, false),
-                                       node_->writable ? p->backend->numeric_workspace_bytes(desc.data, true) : std::size_t{0});
+                                       p->geometry.writable ? p->backend->numeric_workspace_bytes(desc.data, true) : std::size_t{0});
         const auto available = staging_budget(p->budget, workspace, node_);
         const auto required = multiply(desc.shape.back(), dtype_size(desc.data.dtype), node_);
         p->tile.resize(std::min({available, required, std::size_t{1024*1024}}));
+        p->tile_allocations += !p->tile.empty();
     }
     return TransferContext(std::move(p));
 }

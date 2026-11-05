@@ -1,6 +1,8 @@
 module;
 #include <hdf5.h>
 #include "h5ad_record_scratch.hpp"
+#include "h5ad_text.hpp"
+#include "utf8.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -23,6 +25,8 @@ module anndatapp.h5ad;
 
 namespace anndatapp {
 namespace {
+using ::anndatapp::detail::Utf8Error;
+using ::anndatapp::detail::utf8_error;
 
 // No backend object is retained by an eager read. These handles, datatypes,
 // conversion buffers and diagnostics stay out of all public module interfaces.
@@ -198,62 +202,37 @@ struct Reclaim {
     ~Reclaim() { if (active) H5Dvlen_reclaim(type, space, transfer, buffer); }
 };
 
-bool valid_utf8(std::string_view text) {
-    const auto* bytes = reinterpret_cast<const unsigned char*>(text.data());
-    std::size_t i = 0;
-    while (i < text.size()) {
-        const auto first = bytes[i++];
-        if (first < 0x80) continue;
-        unsigned remaining = 0;
-        std::uint32_t value = 0, minimum = 0;
-        if (first >= 0xc2 && first <= 0xdf) { remaining = 1; value = first & 0x1f; minimum = 0x80; }
-        else if (first >= 0xe0 && first <= 0xef) { remaining = 2; value = first & 0x0f; minimum = 0x800; }
-        else if (first >= 0xf0 && first <= 0xf4) { remaining = 3; value = first & 0x07; minimum = 0x10000; }
-        else return false;
-        if (remaining > text.size() - i) return false;
-        while (remaining--) {
-            const auto next = bytes[i++];
-            if ((next & 0xc0) != 0x80) return false;
-            value = (value << 6) | (next & 0x3f);
-        }
-        if (value < minimum || value > 0x10ffff || (value >= 0xd800 && value <= 0xdfff)) return false;
-    }
-    return true;
-}
-
-template<class Read>
-std::vector<std::string> read_strings(const Context& c, hid_t type, hid_t space, Read read, std::string_view path) {
-    if (H5Tget_class(type) != H5T_STRING)
-        c.fail(ErrorCode::unsupported_dtype, path, "expected an HDF5 string datatype");
-    if (H5Sget_simple_extent_type(space) == H5S_NULL)
-        c.fail(ErrorCode::unsupported_encoding, path, "string data cannot use a null dataspace");
-    const auto shape = shape_of(c, space, path);
-    const auto n = count_of(c, shape, path);
-    std::vector<std::string> result;
-    result.reserve(n);
-    if (!n) return result;
+template<class Read,class Append>
+void read_strings_into(const Context& c,hid_t type,hid_t space,std::size_t n,Read read,Append append,std::string_view path) {
+    // Callers admit the string datatype, dataspace and output count first.
+    if (!n) return;
+    const auto emit = [&](std::string_view text) {
+        if (c.validation == Validation::full && utf8_error(text) != Utf8Error::none)
+            c.fail(ErrorCode::unsupported_dtype,path,"string data is not valid UTF-8");
+        append(text);
+    };
     if (H5Tis_variable_str(type) > 0) {
-        std::vector<char*> pointers(n, nullptr);
-        Reclaim reclaim{type, space, pointers.data()};
-        c.check(read(type, pointers.data()), path, "read UTF-8 strings");
-        for (const auto* pointer : pointers) result.emplace_back(pointer ? pointer : "");
+        std::vector<char*> pointers(n,nullptr);
+        Reclaim reclaim{type,space,pointers.data()};
+        c.check(read(type,pointers.data()),path,"read UTF-8 strings");
+        for (const auto* p : pointers) emit(p ? std::string_view(p) : std::string_view{});
     } else {
         const auto width = H5Tget_size(type);
-        std::vector<char> bytes(multiply(c, n, width, path));
-        c.check(read(type, bytes.data()), path, "read fixed strings");
+        std::vector<char> bytes(multiply(c,n,width,path));
+        c.check(read(type,bytes.data()),path,"read fixed strings");
         const auto padding = H5Tget_strpad(type);
-        for (std::size_t i = 0; i < n; ++i) {
-            const auto* first = bytes.data() + i * width;
-            std::size_t length = width;
-            if (padding == H5T_STR_NULLTERM) length = static_cast<std::size_t>(std::find(first, first + width, '\0') - first);
-            else if (padding == H5T_STR_NULLPAD) while (length && first[length - 1] == '\0') --length;
-            else if (padding == H5T_STR_SPACEPAD) while (length && first[length - 1] == ' ') --length;
-            result.emplace_back(first, length);
-        }
+        for (std::size_t i = 0; i < n; ++i) emit(anndatapp_h5ad_detail::fixed_text(bytes.data()+i*width,width,padding));
     }
-    if (c.validation == Validation::full)
-        for (const auto& text : result)
-            if (!valid_utf8(text)) c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
+}
+template<class Read>
+std::vector<std::string> read_strings(const Context& c,hid_t type,hid_t space,Read read,std::string_view path) {
+    if (H5Tget_class(type) != H5T_STRING)
+        c.fail(ErrorCode::unsupported_dtype,path,"expected an HDF5 string datatype");
+    if (H5Sget_simple_extent_type(space) == H5S_NULL)
+        c.fail(ErrorCode::unsupported_encoding,path,"string data cannot use a null dataspace");
+    const auto n = count_of(c,shape_of(c,space,path),path);
+    std::vector<std::string> result; result.reserve(n);
+    read_strings_into(c,type,space,n,read,[&](std::string_view text) { result.emplace_back(text); },path);
     return result;
 }
 
@@ -418,29 +397,27 @@ StringValues read_string_values(Context& c, hid_t object, std::string_view path)
     return {shape_of(c, space, path), std::move(strings)};
 }
 
-StringArray read_string_array(Context& c, hid_t object, std::string_view path) try {
-    auto values = read_string_values(c, object, path);
-    std::size_t total = 0;
-    for (const auto& string : values.values) {
-        if (string.size() > static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) - total)
-            c.fail(ErrorCode::invalid_argument, path, "packed string bytes exceed addressable range");
-        total += string.size();
-    }
+StringArray read_string_array(Context& c,hid_t object,std::string_view path) try {
+    require_kind(c,object,H5I_DATASET,path);
+    Handle type(c.id(H5Dget_type(object),path,"inspect string datatype"),H5Tclose);
+    Handle space(c.id(H5Dget_space(object),path,"inspect string dataspace"),H5Sclose);
+    if (H5Sget_simple_extent_type(space) == H5S_NULL)
+        c.fail(ErrorCode::unsupported_encoding,path,"string array cannot use a null dataspace");
+    if (H5Tget_class(type) != H5T_STRING)
+        c.fail(ErrorCode::unsupported_dtype,path,"expected an HDF5 string datatype");
+    auto shape = shape_of(c,space,path);
+    const auto n = count_of(c,shape,path);
+    check_filters(c,object,path);
     std::vector<char> bytes;
-    bytes.reserve(total);
-    std::vector<std::uint64_t> offsets;
-    offsets.reserve(values.values.size() + 1);
-    offsets.push_back(0);
-    for (const auto& string : values.values) {
-        bytes.insert(bytes.end(), string.begin(), string.end());
-        offsets.push_back(bytes.size());
-    }
-    // The decoder constructed monotonically increasing offsets itself; UTF-8
-    // was checked once while decoding when full validation was requested.
-    return StringArray::from_packed(std::move(values.shape), std::move(bytes), std::move(offsets), Validation::none);
-} catch (const Error& error) {
-    rethrow_at(c, error, path);
-}
+    std::vector<std::uint64_t> offsets{0}; offsets.reserve(n+1);
+    read_strings_into(c,type,space,n,[&](hid_t t,void* p) { return H5Dread(object,t,H5S_ALL,H5S_ALL,H5P_DEFAULT,p); },
+        [&](std::string_view text) {
+            if (text.size() > std::size_t(PTRDIFF_MAX)-bytes.size())
+                c.fail(ErrorCode::invalid_argument,path,"packed string bytes exceed addressable range");
+            bytes.insert(bytes.end(),text.begin(),text.end()); offsets.push_back(bytes.size());
+        },path);
+    return StringArray::from_packed(std::move(shape),std::move(bytes),std::move(offsets),Validation::none);
+} catch (const Error& error) { rethrow_at(c,error,path); }
 
 // A projected compound memory type transfers one named field directly into
 // its native allocation. File record offsets and padding never become native
@@ -461,7 +438,7 @@ bool read_record_text_tile(Context& c, hid_t object, hid_t type, hid_t member,
                            std::string_view path) {
     using anndatapp_h5ad_detail::RecordVlenAllocator;
     const auto append = [&](std::string_view value) {
-        if (c.validation == Validation::full && !valid_utf8(value)) c.fail(ErrorCode::unsupported_dtype, path, "record text is not valid UTF-8");
+        if (c.validation == Validation::full && utf8_error(value) != Utf8Error::none) c.fail(ErrorCode::unsupported_dtype, path, "record text is not valid UTF-8");
         if (value.size() > std::size_t(PTRDIFF_MAX)-bytes.size()) c.fail(ErrorCode::invalid_argument, path, "record text exceeds addressable range");
         bytes.insert(bytes.end(),value.begin(),value.end()); offsets.push_back(bytes.size());
     };
@@ -492,11 +469,7 @@ bool read_record_text_tile(Context& c, hid_t object, hid_t type, hid_t member,
         c.check(H5Dread(object,type,memory,file,H5P_DEFAULT,raw.get()),path,"read fixed record strings");
         const auto pad = H5Tget_strpad(member);
         for (std::size_t i = 0; i < n; ++i) {
-            std::string_view value(raw.get()+i*width,width);
-            if (pad == H5T_STR_NULLTERM) value = value.substr(0,value.find('\0'));
-            else if (pad == H5T_STR_NULLPAD) { while (!value.empty() && value.back() == '\0') value.remove_suffix(1); }
-            else if (pad == H5T_STR_SPACEPAD) { while (!value.empty() && value.back() == ' ') value.remove_suffix(1); }
-            append(value);
+            append(anndatapp_h5ad_detail::fixed_text(raw.get()+i*width,width,pad));
         }
     }
     return true;
@@ -842,7 +815,7 @@ AnnData read_dataset(Context& c, hid_t root) {
 void check_text(const Context& c, std::string_view text, std::string_view path) {
     if (text.find('\0') != std::string_view::npos)
         c.fail(ErrorCode::invalid_argument, path, "HDF5 variable-length strings cannot contain embedded NUL bytes");
-    if (c.validation == Validation::full && !valid_utf8(text))
+    if (c.validation == Validation::full && utf8_error(text) != Utf8Error::none)
         c.fail(ErrorCode::unsupported_dtype, path, "string data is not valid UTF-8");
 }
 
@@ -947,19 +920,36 @@ std::vector<std::size_t> array_shape(ArrayView array) {
 
 // Select one row fragment in file coordinates. The matching memory buffer is
 // one-dimensional even for a higher-dimensional destination.
-void write_tile(const Context& c, hid_t dataset, hid_t memory_type,
-                 const std::vector<std::size_t>& shape, std::size_t outer, std::size_t first,
-                 std::size_t length, const void* data, std::string_view path) {
-    std::vector<hsize_t> start(shape.size(), 0), count(shape.size(), 1);
-    start.back() = first; count.back() = length;
-    for (std::size_t axis = shape.size() - 1; axis > 0; --axis) {
-        start[axis - 1] = outer % shape[axis - 1]; outer /= shape[axis - 1];
+struct TileWriter {
+    const Context& c;
+    hid_t dataset;
+    const std::vector<std::size_t>& shape;
+    std::string_view path;
+    std::vector<hsize_t> start, count;
+    Handle file, memory;
+    std::size_t row = SIZE_MAX, length = 0;
+    TileWriter(const Context& context,hid_t d,const std::vector<std::size_t>& dims,std::string_view p)
+        : c(context),dataset(d),shape(dims),path(p),start(dims.size()),count(dims.size(),1),
+          file(c.id(H5Dget_space(d),p,"inspect output dataspace"),H5Sclose) {}
+    void select_row(std::size_t outer) {
+        if (row != outer) {
+            row = outer;
+            for (std::size_t d = shape.size()-1; d > 0; --d) { start[d-1] = outer%shape[d-1]; outer /= shape[d-1]; }
+        }
     }
-    Handle file_space(c.id(H5Dget_space(dataset), path, "inspect output dataspace"), H5Sclose);
-    c.check(H5Sselect_hyperslab(file_space, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr), path, "select output tile");
-    auto memory_space = space_for(c, {length}, path);
-    c.check(H5Dwrite(dataset, memory_type, memory_space, file_space, H5P_DEFAULT, data), path, "write dataset tile");
-}
+    void write(hid_t type,std::size_t outer,std::size_t first,std::size_t n,const void* data) {
+        select_row(outer);
+        start.back() = first; count.back() = n;
+        if (!memory.valid()) memory = space_for(c,{n},path);
+        else if (length != n) {
+            const hsize_t dim = n;
+            c.check(H5Sset_extent_simple(memory,1,&dim,nullptr),path,"resize output memory tile");
+        }
+        length = n;
+        c.check(H5Sselect_hyperslab(file,H5S_SELECT_SET,start.data(),nullptr,count.data(),nullptr),path,"select output tile");
+        c.check(H5Dwrite(dataset,type,memory,file,H5P_DEFAULT,data),path,"write dataset tile");
+    }
+};
 
 void write_dense_data(Context& c, hid_t dataset, ArrayView array, hid_t memory_type, std::string_view path) {
     const auto shape = array_shape(array);
@@ -976,34 +966,37 @@ void write_dense_data(Context& c, hid_t dataset, ArrayView array, hid_t memory_t
     const auto tile_elements = std::max<std::size_t>(1, 1048576 / width);
     const auto columns = shape.back();
     const auto outer_count = count / columns;
-    std::vector<std::byte> packed;
-    if (bytes) packed.resize(multiply(c, std::min(columns, tile_elements), width, path));
+    auto packed = visit_dtype(array.dtype(),[&]<class T> { return Array::empty<T>({std::min(columns,tile_elements)}); });
+    auto* output = packed.edit().bytes().data();
+    TileWriter writer(c,dataset,shape,path);
+    std::vector<Axis> axes(bytes ? 0 : shape.size());
+    std::vector<std::size_t> tile_shape(bytes ? 0 : shape.size(),1);
+    std::vector<std::ptrdiff_t> tile_strides(bytes ? 0 : shape.size(),0);
+    if (!bytes) tile_strides.back() = 1; // borrow_dense strides count elements.
     for (std::size_t outer = 0; outer < outer_count; ++outer) {
+        writer.select_row(outer);
         std::ptrdiff_t row_offset = 0;
-        auto coordinate = outer;
         if (bytes) for (std::size_t axis = shape.size() - 1; axis > 0; --axis) {
-            row_offset += static_cast<std::ptrdiff_t>(coordinate % shape[axis - 1]) * bytes->stride_bytes(axis - 1);
-            coordinate /= shape[axis - 1];
+            row_offset += std::ptrdiff_t(writer.start[axis-1])*bytes->stride_bytes(axis-1);
         }
+        else for (std::size_t axis = 0; axis+1 < shape.size(); ++axis) axes[axis] = Axis::stride(writer.start[axis],1);
         for (std::size_t first = 0; first < columns;) {
             const auto length = std::min(tile_elements, columns - first);
             if (bytes) {
                 const auto stride = bytes->stride_bytes(shape.size() - 1);
                 for (std::size_t j = 0; j < length; ++j)
-                    std::memcpy(packed.data() + j * width, bytes->data() + row_offset + static_cast<std::ptrdiff_t>(first + j) * stride, width);
-                write_tile(c, dataset, memory_type, shape, outer, first, length, packed.data(), path);
+                    std::memcpy(output + j * width, bytes->data() + row_offset + static_cast<std::ptrdiff_t>(first + j) * stride, width);
+                writer.write(memory_type,outer,first,length,output);
             } else {
                 // A gather cannot expose affine strides. Materialize only this
                 // bounded row fragment, not the array or its owning dataset.
-                std::vector<Axis> axes(shape.size());
-                coordinate = outer;
-                for (std::size_t axis = shape.size() - 1; axis > 0; --axis) {
-                    axes[axis - 1] = Axis::stride(coordinate % shape[axis - 1], 1);
-                    coordinate /= shape[axis - 1];
-                }
                 axes.back() = Axis::stride(first, length);
-                auto tile = array.select(axes.data(), axes.size()).copy();
-                write_tile(c, dataset, memory_type, shape, outer, first, length, tile.view().bytes().data(), path);
+                tile_shape.back() = length;
+                auto tile = visit_dtype(array.dtype(),[&]<class T> {
+                    return Array::borrow_dense(reinterpret_cast<T*>(output),tile_shape,tile_strides,Validation::none);
+                });
+                array.select(axes.data(),axes.size()).copy_into(tile.edit(),Validation::none);
+                writer.write(memory_type,outer,first,length,output);
             }
             first += length;
         }
@@ -1071,10 +1064,13 @@ void write_strings(Context& c, hid_t parent, std::string_view key, const std::ve
     }
     const auto columns = shape.back();
     const auto rows = n / columns;
+    TileWriter writer(c,dataset,shape,path);
+    std::vector<std::string> strings;
+    std::vector<const char*> pointers;
+    strings.reserve(std::min<std::size_t>(columns,4096)); pointers.reserve(strings.capacity());
     for (std::size_t row = 0; row < rows; ++row) {
         for (std::size_t first = 0; first < columns;) {
-            std::vector<std::string> strings;
-            std::vector<const char*> pointers;
+            strings.clear(); pointers.clear();
             std::size_t byte_count = 0;
             while (first + strings.size() < columns && strings.size() < 4096) {
                 const auto value = get(row * columns + first + strings.size());
@@ -1082,9 +1078,8 @@ void write_strings(Context& c, hid_t parent, std::string_view key, const std::ve
                 check_text(c, value, path);
                 strings.emplace_back(value); byte_count += value.size() + 1;
             }
-            pointers.reserve(strings.size());
             for (const auto& string : strings) pointers.push_back(string.c_str());
-            write_tile(c, dataset, type, shape, row, first, strings.size(), pointers.data(), path);
+            writer.write(type,row,first,strings.size(),pointers.data());
             first += strings.size();
         }
     }
@@ -1140,6 +1135,8 @@ void write_record(Context& c, hid_t parent, std::string_view key, RecordArrayVie
     write_encoding(c, dataset, "rec-array", "0.2.0", path);
     const auto n = records.size(), cols = shape.empty() ? 1 : shape.back();
     if (!n) return;
+    std::optional<TileWriter> writer;
+    if (!shape.empty()) writer.emplace(c,dataset,shape,path);
     std::size_t capacity = std::max(record_target,width);
     auto buffer = std::unique_ptr<std::byte[]>(new std::byte[capacity]);
     for (std::size_t row = 0; row < n / cols; ++row) {
@@ -1185,7 +1182,7 @@ void write_record(Context& c, hid_t parent, std::string_view key, RecordArrayVie
                 }
             }
             if (shape.empty()) c.check(H5Dwrite(dataset, memory_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer.get()), path, "write scalar record");
-            else write_tile(c, dataset, memory_type, shape, row, first, len, buffer.get(), path);
+            else writer->write(memory_type,row,first,len,buffer.get());
             first += len;
         }
     }
