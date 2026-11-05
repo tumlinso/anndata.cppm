@@ -1,0 +1,188 @@
+{
+  "scope": "Frozen-source semantic review uses grouped abstraction/operation families. Mechanical checks establish references and file/include coverage, not semantic correctness. Include and declaration inference remains lexical.",
+  "source_manifest": "source-manifest.json",
+  "production_files": 36,
+  "production_lines": 16937,
+  "production_files_without_ledger": [],
+  "ledger_entries": 715,
+  "ledgers": [
+    {
+      "ledger": "access-ledger.json",
+      "entries": 91
+    },
+    {
+      "ledger": "aliases-ledger.json",
+      "entries": 8
+    },
+    {
+      "ledger": "backed-model-ledger.json",
+      "entries": 64
+    },
+    {
+      "ledger": "backends-ledger.json",
+      "entries": 177
+    },
+    {
+      "ledger": "build-ledger.json",
+      "entries": 7
+    },
+    {
+      "ledger": "core-ledger.json",
+      "entries": 137
+    },
+    {
+      "ledger": "data-ledger.json",
+      "entries": 62
+    },
+    {
+      "ledger": "support-ledger.json",
+      "entries": 169
+    }
+  ],
+  "per_production_file_entries": {
+    "src/anndatapp.arrays.cppm": 54,
+    "src/anndatapp.backed.cppm": 31,
+    "src/anndatapp.backed.storage.cppm": 13,
+    "src/anndatapp.core.cppm": 1,
+    "src/anndatapp.cppm": 1,
+    "src/anndatapp.data.cppm": 31,
+    "src/anndatapp.h5ad.cppm": 5,
+    "src/anndatapp.records.cppm": 27,
+    "src/anndatapp.streaming.cppm": 5,
+    "src/anndatapp.strings.cppm": 15,
+    "src/anndatapp.zarr.cppm": 3,
+    "src/arrays.cpp": 13,
+    "src/backed.cpp": 12,
+    "src/backed_array.cpp": 24,
+    "src/backed_category.cpp": 8,
+    "src/backed_codec.cpp": 13,
+    "src/backed_colors.cpp": 5,
+    "src/backed_copy.cpp": 9,
+    "src/backed_geometry.cpp": 1,
+    "src/backed_hdf5.cpp": 33,
+    "src/backed_index.cpp": 7,
+    "src/backed_records.cpp": 5,
+    "src/backed_structure.cpp": 12,
+    "src/backed_writer.cpp": 10,
+    "src/backed_zarr.cpp": 13,
+    "src/data.cpp": 31,
+    "src/h5ad.cpp": 42,
+    "src/h5ad_record_scratch.hpp": 4,
+    "src/records.cpp": 19,
+    "src/streaming.cpp": 7,
+    "src/strings.cpp": 7,
+    "src/zarr.cpp": 3,
+    "src/zarr_codecs.cpp": 20,
+    "src/zarr_engine.cpp": 27,
+    "src/zarr_engine.hpp": 12,
+    "src/zarr_sharding.cpp": 16
+  },
+  "findings": {
+    "B01": "backed-model.md",
+    "B02": "backed-model.md",
+    "B03": "backed-model.md",
+    "B04": "backed-model.md",
+    "B05": "backed-model.md",
+    "B06": "backed-model.md",
+    "B07": "backed-model.md",
+    "A01": "access.md",
+    "A02": "access.md",
+    "A03": "access.md",
+    "A04": "access.md",
+    "A05": "access.md",
+    "A06": "access.md",
+    "A07": "access.md",
+    "A08": "access.md",
+    "A09": "access.md",
+    "A10": "access.md",
+    "F01": "backends.md",
+    "F02": "backends.md",
+    "F03": "backends.md",
+    "F04": "backends.md",
+    "F05": "backends.md",
+    "F06": "backends.md",
+    "F07": "backends.md",
+    "F08": "backends.md",
+    "F09": "backends.md",
+    "F10": "backends.md",
+    "D01": "data.md",
+    "D02": "data.md",
+    "D03": "data.md",
+    "D04": "data.md",
+    "D05": "data.md",
+    "D06": "data.md",
+    "D07": "data.md",
+    "D08": "data.md",
+    "C01": "core.md",
+    "C02": "core.md",
+    "C03": "core.md",
+    "C04": "core.md",
+    "C05": "core.md",
+    "C06": "core.md",
+    "C07": "core.md",
+    "C08": "core.md",
+    "C09": "core.md",
+    "C10": "core.md",
+    "S01": "support.md",
+    "S02": "support.md",
+    "R01": "build.md",
+    "R02": "build.md"
+  },
+  "include_summary": {
+    "files": 99,
+    "c_source_files": 8,
+    "cpp_source_files": 88,
+    "headers": 3,
+    "production_files": 36,
+    "production_module_sources": 11,
+    "production_cpp_implementations": 23,
+    "production_headers": 2,
+    "support_files": 63,
+    "include_sites": 991,
+    "nonliteral_include_directives": 0,
+    "include_sites_by_classification": {
+      "backend": 21,
+      "external": 2,
+      "local": 12,
+      "platform": 74,
+      "standard": 847,
+      "standard_c": 35
+    },
+    "production_include_sites": 384,
+    "support_include_sites": 607,
+    "production_include_sites_by_classification": {
+      "backend": 5,
+      "external": 1,
+      "local": 5,
+      "platform": 14,
+      "standard": 359
+    },
+    "support_include_sites_by_classification": {
+      "backend": 16,
+      "external": 1,
+      "local": 7,
+      "platform": 60,
+      "standard": 488,
+      "standard_c": 35
+    },
+    "declaration_rows": 379,
+    "missing_direct_header_candidates": 113,
+    "unused_include_candidates": 82
+  },
+  "checks": {
+    "source_manifest_matches_frozen_bytes": true,
+    "include_source_lines_match": true,
+    "unique_include_sites": 991,
+    "ledger_paths_and_line_ranges_valid": true,
+    "finding_references_resolve": true,
+    "markdown_local_links_resolve": true
+  },
+  "live_drift_since_freeze": [
+    "README.md",
+    "docs/validation.md",
+    "tests/dtype_rejection_driver.cpp",
+    "tests/python_unsupported_dtype.py"
+  ],
+  "live_drift_note": "Concurrent work outside review ownership; preserved and excluded from frozen-source conclusions.",
+  "errors": []
+}

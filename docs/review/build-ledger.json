@@ -1,0 +1,12 @@
+{
+  "scope": "Frozen build/package/CI code, full files read; function and target families grouped",
+  "entries": [
+    {"path":"CMakeLists.txt","line":1,"name":"top-level options, dependency discovery, module file sets, binary linkage, installation and test/benchmark targets","purpose":"top-level options, dependency discovery, module file sets, binary linkage, installation and test/benchmark targets","costs":"Compiled implementations and private dependencies; all enabled interfaces share the package target","disposition":"investigate","findings":["R01","R02"]},
+    {"path":"CMakePresets.json","line":1,"name":"qualified build/test/workflow configurations","purpose":"qualified build/test/workflow configurations","costs":"Separate build trees for backend, sanitizer, shared and optional Python gates","disposition":"retain","findings":[]},
+    {"path":"cmake/anndatappConfig.cmake.in","line":1,"name":"installed dependency and package entry point","purpose":"installed dependency and package entry point","costs":"Installed consumers need enabled native libraries; private JSON headers not propagated","disposition":"retain","findings":[]},
+    {"path":"cmake/anndatappModuleProvider.cmake","line":2,"name":"_anndatapp_module_provider and property/configuration forwarding","purpose":"_anndatapp_module_provider and property/configuration forwarding","costs":"Consumer-local static provider builds all enabled interface objects/BMIs once per package target","disposition":"investigate","findings":["R01"]},
+    {"path":"cmake/FindBlosc.cmake","line":1,"name":"native Blosc discovery and imported dependency","purpose":"native Blosc discovery and imported dependency","costs":"Private include paths, shared identity and link metadata","disposition":"retain","findings":[]},
+    {"path":"cmake/test-installed-consumer.cmake","line":1,"name":"checked and installed multi-module consumer verification","purpose":"checked and installed multi-module consumer verification","costs":"Fresh prefix/build avoids stale state; execute_process has no per-command timeout","disposition":"retain","findings":[]},
+    {"path":".github/workflows/ci.yml","line":1,"name":"native, semantics, records and TSan job matrix","purpose":"native, semantics, records and TSan job matrix","costs":"Ubuntu/Clang18 qualification; downloaded dependencies only in CI, no portability proof beyond tested targets","disposition":"retain","findings":["R02"]}
+  ]
+}

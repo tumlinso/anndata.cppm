@@ -6,6 +6,46 @@
 __pycache__/
 *.pyc
 
+# Documentation render output and renderer caches; keep authored sources/evidence.
+.quarto/
+_freeze/
+site_libs/
+_site/
+_book/
+/docs/**/*_files/
+/docs/**/*.html
+/docs/**/*.pdf
+/docs/**/*.epub
+/docs/**/*.docx
+/README.html
+/README.pdf
+/STYLE.html
+/STYLE.pdf
+/AGENTS.html
+/AGENTS.pdf
+/docs/review/generated/
+/docs/review/includes.json
+
+# CMake/Ninja output, including accidental builds outside /build/.
+CMakeFiles/
+cmake-build-*/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
+CPackConfig.cmake
+CPackSourceConfig.cmake
+install_manifest*.txt
+compile_commands.json
+build.ninja
+rules.ninja
+.ninja_deps
+.ninja_log
+Testing/
+anndatappConfig.cmake
+anndatappConfigVersion.cmake
+anndatappTargets*.cmake
+
 # Raw measurement campaigns and generated profiler artifacts stay local.
 /benchmarks/artifacts/
 /benchmarks/record_io_probe/artifacts/

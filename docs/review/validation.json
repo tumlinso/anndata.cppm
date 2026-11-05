@@ -1,0 +1,374 @@
+{
+  "scope": "Frozen-tree Debug correctness and allocation/build-work observations only; no runtime speed comparison, sanitizer or new whole-matrix qualification",
+  "source_manifest": "source-manifest.json",
+  "environment": {
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "scanner": "clang-scan-deps-18",
+    "cmake": "cmake version 3.28.3",
+    "ninja": "1.11.1"
+  },
+  "debug": {
+    "configure": "cmake --preset debug -DANNDATAPP_DEPENDENCY_PREFIX=/home/tumlinson/anndatapp/build/dependencies/usr",
+    "build": "cmake --build --preset debug --parallel 2",
+    "test": "ctest --preset debug --output-junit <raw>/debug-tests.xml",
+    "passed": 20,
+    "failed": 0,
+    "installed_consumer_included": true
+  },
+  "selection_counter": {
+    "configuration": "Debug, ANNDATAPP_BUILD_BENCHMARKS=ON",
+    "command": "timeout 30s build/debug/anndatapp_selection_probe",
+    "source_sha256": "517b8bdef056780ec647a52677780115d46c9bbc2d5e16d5607aff9a319f50a3",
+    "records": [
+      {
+        "kind": "probe",
+        "name": "anndatapp_selection_probe",
+        "counter": "global C++ new/delete; calls and requested bytes",
+        "measurement": "acquisition plus returned descriptor release; setup and JSON output excluded",
+        "retained_descriptor_zero_allocation_claim": false,
+        "lookup_time_may_remain_linear_in_column_count": true
+      },
+      {
+        "kind": "selection",
+        "operation": "all",
+        "logical_length": 16,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "forward",
+        "logical_length": 16,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "reverse",
+        "logical_length": 16,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "nested_affine",
+        "logical_length": 16,
+        "allocation_calls": 4,
+        "requested_bytes": 272,
+        "deallocation_calls": 4
+      },
+      {
+        "kind": "selection",
+        "operation": "all",
+        "logical_length": 1048576,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "forward",
+        "logical_length": 1048576,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "reverse",
+        "logical_length": 1048576,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "nested_affine",
+        "logical_length": 1048576,
+        "allocation_calls": 4,
+        "requested_bytes": 272,
+        "deallocation_calls": 4
+      },
+      {
+        "kind": "selection",
+        "operation": "all",
+        "logical_length": 4294967296,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "forward",
+        "logical_length": 4294967296,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "reverse",
+        "logical_length": 4294967296,
+        "allocation_calls": 2,
+        "requested_bytes": 136,
+        "deallocation_calls": 2
+      },
+      {
+        "kind": "selection",
+        "operation": "nested_affine",
+        "logical_length": 4294967296,
+        "allocation_calls": 4,
+        "requested_bytes": 272,
+        "deallocation_calls": 4
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_direct",
+        "columns_per_axis": 8,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_table_route",
+        "columns_per_axis": 8,
+        "allocation_calls": 13,
+        "requested_bytes": 1944,
+        "deallocation_calls": 13
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_direct",
+        "columns_per_axis": 8,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_table_route",
+        "columns_per_axis": 8,
+        "allocation_calls": 13,
+        "requested_bytes": 1944,
+        "deallocation_calls": 13
+      },
+      {
+        "kind": "metadata_semantics",
+        "columns_per_axis": 8,
+        "obs_pointer_matches": true,
+        "var_pointer_matches": true,
+        "contents_match": true
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_direct",
+        "columns_per_axis": 128,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_table_route",
+        "columns_per_axis": 128,
+        "allocation_calls": 137,
+        "requested_bytes": 29784,
+        "deallocation_calls": 137
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_direct",
+        "columns_per_axis": 128,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_table_route",
+        "columns_per_axis": 128,
+        "allocation_calls": 137,
+        "requested_bytes": 29784,
+        "deallocation_calls": 137
+      },
+      {
+        "kind": "metadata_semantics",
+        "columns_per_axis": 128,
+        "obs_pointer_matches": true,
+        "var_pointer_matches": true,
+        "contents_match": true
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_direct",
+        "columns_per_axis": 1024,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "obs_table_route",
+        "columns_per_axis": 1024,
+        "allocation_calls": 1036,
+        "requested_bytes": 237656,
+        "deallocation_calls": 1036
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_direct",
+        "columns_per_axis": 1024,
+        "allocation_calls": 1,
+        "requested_bytes": 136,
+        "deallocation_calls": 1
+      },
+      {
+        "kind": "metadata",
+        "operation": "var_table_route",
+        "columns_per_axis": 1024,
+        "allocation_calls": 1036,
+        "requested_bytes": 237656,
+        "deallocation_calls": 1036
+      },
+      {
+        "kind": "metadata_semantics",
+        "columns_per_axis": 1024,
+        "obs_pointer_matches": true,
+        "var_pointer_matches": true,
+        "contents_match": true
+      }
+    ]
+  },
+  "installed_core_import": {
+    "configuration": "Clang18 Debug, default backends enabled; one executable imports anndatapp.core only",
+    "passed": true,
+    "public_bmi_count": 10,
+    "public_bmi_total_bytes": 44615920,
+    "public_bmis": [
+      {
+        "name": "anndatapp.backed.pcm",
+        "bytes": 7040212,
+        "sha256": "ae1de75f73c8728a5603bffa75ac98250381cd23677660d5625098e50c5fd612"
+      },
+      {
+        "name": "anndatapp.core-arrays.pcm",
+        "bytes": 6659708,
+        "sha256": "7d0439f09128542b0c5efbde030053ee2865f2e6633ad3634f1daab09063267d"
+      },
+      {
+        "name": "anndatapp.core-data.pcm",
+        "bytes": 7457008,
+        "sha256": "a901b8b0248975a1b29ce7e52c7f5b5c2c2f2492476d95d17ea2afa7b1268716"
+      },
+      {
+        "name": "anndatapp.core-records.pcm",
+        "bytes": 6154176,
+        "sha256": "1886c0e44f5c18fce81258f1cc89050b336fdd7e127d719a73cc1624f9fc7c5f"
+      },
+      {
+        "name": "anndatapp.core-strings.pcm",
+        "bytes": 5858924,
+        "sha256": "40a23dde641e3870c4fb5f154872f6f6b0a821588b89d09f68b924f920360e7f"
+      },
+      {
+        "name": "anndatapp.core.pcm",
+        "bytes": 17896,
+        "sha256": "9083afcb68bad17aff05322c4c81340032a8aabb0fc13be64be2ef9f068a620f"
+      },
+      {
+        "name": "anndatapp.h5ad.pcm",
+        "bytes": 2329648,
+        "sha256": "691e68bf0b4a5923d5f698cda30a911eab9f560c74bb45e2a6d07b499df81d3d"
+      },
+      {
+        "name": "anndatapp.pcm",
+        "bytes": 18176,
+        "sha256": "72f23cef805bdcd17e194112ec1c70cfdbdc5f4c2575b72e2a8a684a1e9afb51"
+      },
+      {
+        "name": "anndatapp.streaming.pcm",
+        "bytes": 6730728,
+        "sha256": "0db5774a0677ba1c6545924bc8ae2198467f685fa96aff62fd775836c3661e5b"
+      },
+      {
+        "name": "anndatapp.zarr.pcm",
+        "bytes": 2349444,
+        "sha256": "e92c91ac3710cbcbfa63d9dd8f8cf7a332e31749432da2e861fe0b6a0e968cef"
+      }
+    ],
+    "scope_limit": "Artifact count and bytes, not process memory, timing distribution or a baseline/candidate comparison"
+  },
+  "raw_evidence_root": "build/thin-review-20261105/",
+  "log_sha256": {
+    "core-consumer-configure.log": "d8c495f99b8e7d307544eefefcc011a101e40f9d1d55b6d41abda2200075d24d",
+    "debug-tests.log": "0b9c1b0d3b047ecb4aff11e6d77c89026bc293b327042ece8a1cc2d841f527c0",
+    "probe-configure.log": "9c976a982d1dfbceebf2df1d0b60231df1f55a89a075379aec196d69bdc2150e",
+    "probe-build.log": "c9c88147466661701ca3fce3ba59e8395579544feace9aa9a66ddee25323a937",
+    "debug-build.log": "6642d1a22d68cb318c4accaaf88913a9732faacd8f3a7f7531c54a5bf417ff4a",
+    "core-consumer-build.log": "356a45e97818ff5255de705644af3af5b748818a0abf6f0d8dca40b0fe397a47",
+    "inventory-ledger-check.log": "2582ad14c046641df16104a018042b4ebbcf9d6d46aa2fe3824c5a0c731f5182"
+  },
+  "not_run": [
+    "fresh ASan/UBSan matrix",
+    "fresh TSan qualification",
+    "full optional Python/Scanpy interoperability matrix",
+    "runtime optimization comparisons",
+    "private-edit invalidation comparison"
+  ],
+  "targeted_probes": {
+    "access": {
+      "recipe": "probes/access.md",
+      "source_sha256": "d224efdbede5632bd461cdcd686ab8eb8235d8a9200ccb397f825ab0a4417c4f",
+      "binary_sha256": "c2da7b6f256e57052df0ac50caf13fcd66abfefa1340c60b7c9069011b3834b1",
+      "observations": [
+        "Same-session serially prepared worker contexts passed Zarr v2/v3 concurrent read/separate-array writes, four workers and ten iterations",
+        "Malformed dictionary-encoded AnnData obs/var caused signal11/exit139"
+      ],
+      "limits": "No TSan, HDF5, concurrent preparation, same-object sharing or overlapping physical writes"
+    },
+    "records": {
+      "recipe": "probes/record_validation.md",
+      "source_sha256": "d59aed737bc6218be12d19354d29057d3ae6a5c38a0d5d576f2417d465461c45",
+      "valid_log_sha256": "3aad82f16d9f21ce89fa2b9aa6a980246e2e40450a645c3175e67787a0481f9c",
+      "invalid_log_sha256": "de0d68568dc5e47d9134828b4774511effa67bc8fefe83ff318c51ca43d62c57",
+      "observations": [
+        "Valid records rejected by validate_all and none-open/full-export with unsupported_encoding",
+        "Same-mode none/none and full/full exports passed field roundtrip",
+        "Invalid UTF8 mode-mismatch paths fail before text validation; full/full diagnoses invalid UTF8; none/none copies"
+      ],
+      "limits": "One-dimensional HDF5 record with int32 and VLEN UTF8 fields only; unmet-expectation probe modes return nonzero"
+    },
+    "backends": {
+      "recipe": "probes/backends.md",
+      "source_sha256": "eb72728aae623f47a54b281576536163c84cd91cbbd6a68a82b1690b4032085f",
+      "result_sha256": "040e626913c7f7b0fc4832f917e1c9a8e1004c097b4502af54a4aeac33b23816",
+      "observations": {
+        "consolidated_v2": {
+          "after": false,
+          "before": true,
+          "exception": "Zarr element does not exist"
+        },
+        "consolidated_v3": {
+          "after": false,
+          "before": true,
+          "exception": "Zarr element does not exist"
+        },
+        "root_with_embedded_nul_exception": "basic_filebuf::underflow error reading the file: Is a directory"
+      },
+      "limits": "Private engine fixtures only; exact exception dynamic type and public-wrapper/truncate behavior untested; no payload"
+    }
+  },
+  "artifact_checks": {
+    "coverage_receipt": "coverage.json",
+    "python_sources_compile": true,
+    "git_diff_check_passed": true,
+    "raw_inventory_ledger_check": "build/thin-review-20261105/inventory-ledger-check.log",
+    "inventory_regeneration_identical": true,
+    "production_ledger_tool_validation_passed": true,
+    "full_include_inventory": "Generated output retained locally under build/thin-review-20261105/generated-inventory; recreate using tools/review_inventory.py. Committed includes.md is an authored summary."
+  }
+}

@@ -56,6 +56,7 @@ Consumers can use `add_subdirectory()` or install the package and link `anndatap
 ## Design and evidence
 
 - [Architecture and compatibility matrix](docs/architecture.md)
+- [Thin-library review and implementation backlog](docs/review/README.md)
 - [Extension contracts and qualification requirements](docs/extension-contract.md)
 - [Development, installation, and validation](docs/development.md)
 - [Naming cutover validation](docs/rename-validation.md)

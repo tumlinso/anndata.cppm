@@ -1,0 +1,13 @@
+{
+  "scope": "Root cross-check supplement for local aliases not named explicitly in subsystem ledger rows",
+  "entries": [
+    {"path":"src/backed.cpp","line":289,"name":"BackedAxis","purpose":"Alias for private backed_detail::Axis; preserves compact local selection notation","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_array.cpp","line":26,"name":"Node, NodePtr","purpose":"Node is BackedNode and NodePtr retains it through shared ownership; aliases add no independent representation","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_category.cpp","line":27,"name":"Node","purpose":"Local shared_ptr<BackedNode> alias; mutable plan safety remains A03","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_colors.cpp","line":23,"name":"Node","purpose":"Local shared_ptr<BackedNode> alias used in explicit color-resolution traversal","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_copy.cpp","line":25,"name":"Node","purpose":"Local retained-node alias used by bounded copy/validation flow","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_records.cpp","line":21,"name":"Shape, Node","purpose":"Local vector<size_t> shape and retained-node aliases; owning vector costs remain those in record transfer ledger","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/backed_writer.cpp","line":25,"name":"Shape","purpose":"Local vector<size_t> alias keeps coordinate notation concise; allocations remain visible","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]},
+    {"path":"src/zarr_codecs.cpp","line":347,"name":"Kind aliases at 347 and 367","purpose":"Local NumericCodec::Kind aliases reduce repeated qualified names; no new dispatch or state","costs":"No new runtime object or helper layer is introduced by the alias itself","disposition":"retain","findings":[]}
+  ]
+}

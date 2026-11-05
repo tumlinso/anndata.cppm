@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.28)
+project(review_core_consumer LANGUAGES CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(anndatapp CONFIG REQUIRED)
+add_executable(core_consumer main.cpp)
+target_link_libraries(core_consumer PRIVATE anndatapp::anndatapp)
