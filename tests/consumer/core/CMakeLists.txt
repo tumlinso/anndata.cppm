@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.28)
+project(anndatapp_core_consumer LANGUAGES CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
+# Catch any optional dependency discovery even when the installed facade has backends.
+set(CMAKE_DISABLE_FIND_PACKAGE_PkgConfig TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_Blosc TRUE)
+add_subdirectory(first)
+add_subdirectory(records)
+add_library(core_bridge INTERFACE)
+target_link_libraries(core_bridge INTERFACE anndatapp::core)
+install(TARGETS core_bridge EXPORT core_bridge_targets)
+install(EXPORT core_bridge_targets NAMESPACE bridge:: DESTINATION lib/cmake/bridge)

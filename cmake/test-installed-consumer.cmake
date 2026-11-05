@@ -1,5 +1,5 @@
-set(_prefix "${ANNDATAPP_BUILD_DIR}/installed-test/prefix")
-set(_consumer "${ANNDATAPP_BUILD_DIR}/installed-test/consumer-v2")
+set(_prefix "${ANNDATAPP_BUILD_DIR}/installed-test-v3/prefix")
+set(_consumer "${ANNDATAPP_BUILD_DIR}/installed-test-v3/consumer")
 function(checked)
   execute_process(COMMAND ${ARGV} RESULT_VARIABLE _result OUTPUT_VARIABLE _stdout ERROR_VARIABLE _stderr)
   if(NOT _result EQUAL 0)
@@ -7,6 +7,29 @@ function(checked)
   endif()
 endfunction()
 checked("${CMAKE_COMMAND}" --install "${ANNDATAPP_BUILD_DIR}" --prefix "${_prefix}" --config "${ANNDATAPP_CONFIG}")
+checked("${CMAKE_COMMAND}" -S "${ANNDATAPP_SOURCE_DIR}/tests/consumer/core" -B "${_consumer}-core" -G Ninja
+  "-DCMAKE_CXX_COMPILER=${ANNDATAPP_COMPILER}" "-DCMAKE_BUILD_TYPE=${ANNDATAPP_CONFIG}"
+  "-DCMAKE_PREFIX_PATH=${_prefix}")
+checked("${CMAKE_COMMAND}" --build "${_consumer}-core" --parallel 2)
+file(GLOB_RECURSE _core_bmis "${_consumer}-core/*.pcm")
+list(LENGTH _core_bmis _core_bmi_count)
+if(NOT _core_bmi_count EQUAL 5)
+  message(FATAL_ERROR "Expected five core BMIs, got: ${_core_bmis}")
+endif()
+foreach(_bmi IN LISTS _core_bmis)
+  get_filename_component(_name "${_bmi}" NAME)
+  if(NOT _name MATCHES "^anndatapp\\.core(-.*)?\\.pcm$")
+    message(FATAL_ERROR "Unexpected non-core BMI in core-only consumer: ${_bmi}")
+  endif()
+endforeach()
+checked("${_consumer}-core/first/core_consumer")
+checked("${_consumer}-core/records/core_records")
+checked("${CMAKE_COMMAND}" --install "${_consumer}-core" --prefix "${_consumer}-bridge")
+checked("${CMAKE_COMMAND}" -S "${ANNDATAPP_SOURCE_DIR}/tests/consumer/core-export" -B "${_consumer}-export" -G Ninja
+  "-DCMAKE_CXX_COMPILER=${ANNDATAPP_COMPILER}" "-DCMAKE_BUILD_TYPE=${ANNDATAPP_CONFIG}"
+  "-DCMAKE_PREFIX_PATH=${_prefix}" "-DBRIDGE_PREFIX=${_consumer}-bridge")
+checked("${CMAKE_COMMAND}" --build "${_consumer}-export" --parallel 2)
+checked("${_consumer}-export/export_consumer")
 checked("${CMAKE_COMMAND}" -S "${ANNDATAPP_SOURCE_DIR}/tests/consumer" -B "${_consumer}" -G Ninja
   "-DCMAKE_CXX_COMPILER=${ANNDATAPP_COMPILER}" "-DCMAKE_BUILD_TYPE=${ANNDATAPP_CONFIG}"
   "-DCMAKE_PREFIX_PATH=${_prefix}\;${ANNDATAPP_DEPENDENCY_PREFIX}")
@@ -15,6 +38,13 @@ checked("${_consumer}/consumer")
 checked("${_consumer}/consumer_records")
 checked("${_consumer}/consumer_backed")
 checked("${_consumer}/consumer_streaming")
+checked("${CMAKE_COMMAND}" --install "${_consumer}" --prefix "${_consumer}-facade-bridge")
+checked("${CMAKE_COMMAND}" -S "${ANNDATAPP_SOURCE_DIR}/tests/consumer/export" -B "${_consumer}-facade-export" -G Ninja
+  "-DCMAKE_CXX_COMPILER=${ANNDATAPP_COMPILER}" "-DCMAKE_BUILD_TYPE=${ANNDATAPP_CONFIG}"
+  "-DCMAKE_PREFIX_PATH=${_prefix}\;${ANNDATAPP_DEPENDENCY_PREFIX}"
+  "-DBRIDGE_PREFIX=${_consumer}-facade-bridge")
+checked("${CMAKE_COMMAND}" --build "${_consumer}-facade-export" --parallel 2)
+checked("${_consumer}-facade-export/export_facade")
 if(ANNDATAPP_HDF5_ENABLED)
   checked("${_consumer}/consumer_facade" "${_consumer}/facade.h5ad")
 else()

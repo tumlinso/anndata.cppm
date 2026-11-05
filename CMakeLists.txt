@@ -11,11 +11,17 @@ endif()
 if(NOT CMAKE_GENERATOR MATCHES "Ninja")
   message(FATAL_ERROR "Use Ninja (>=1.11) for C++20 module dependency scanning.")
 endif()
+string(REGEX MATCH "^[0-9]+" _anndatapp_clang_major "${CMAKE_CXX_COMPILER_VERSION}")
 if(NOT CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS)
-  string(REGEX MATCH "^[0-9]+" _anndatapp_clang_major "${CMAKE_CXX_COMPILER_VERSION}")
   find_program(CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS
     NAMES clang-scan-deps-${_anndatapp_clang_major} clang-scan-deps
     REQUIRED)
+endif()
+execute_process(COMMAND "${CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS}" --version
+  RESULT_VARIABLE _scanner_result OUTPUT_VARIABLE _scanner_version ERROR_VARIABLE _scanner_error)
+string(REGEX MATCH "[Vv]ersion[ ]+([0-9]+)" _scanner_match "${_scanner_version}")
+if(NOT _scanner_result EQUAL 0 OR NOT _scanner_match OR NOT CMAKE_MATCH_1 STREQUAL _anndatapp_clang_major)
+  message(FATAL_ERROR "clang-scan-deps must match Clang ${_anndatapp_clang_major}: ${_scanner_version}${_scanner_error}")
 endif()
 
 option(ANNDATAPP_BUILD_TESTS "Build standalone native tests" ${PROJECT_IS_TOP_LEVEL})
@@ -49,8 +55,19 @@ if(ANNDATAPP_ENABLE_ZARR)
   find_package(nlohmann_json 3.11 CONFIG REQUIRED)
 endif()
 
+add_library(anndatapp_core)
+add_library(anndatapp::core ALIAS anndatapp_core)
+target_compile_features(anndatapp_core PUBLIC cxx_std_20)
+set_target_properties(anndatapp_core PROPERTIES POSITION_INDEPENDENT_CODE ON EXPORT_NAME core_binary)
+target_sources(anndatapp_core
+  PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES
+    src/anndatapp.core.cppm src/anndatapp.arrays.cppm src/anndatapp.strings.cppm
+    src/anndatapp.records.cppm src/anndatapp.data.cppm
+  PRIVATE src/arrays.cpp src/strings.cpp src/records.cpp src/data.cpp)
+
 add_library(anndatapp)
 add_library(anndatapp::anndatapp ALIAS anndatapp)
+target_link_libraries(anndatapp PUBLIC anndatapp_core)
 target_compile_features(anndatapp PUBLIC cxx_std_20)
 target_compile_definitions(anndatapp PUBLIC
   ANNDATAPP_HAS_HDF5=$<BOOL:${ANNDATAPP_ENABLE_HDF5}>
@@ -58,16 +75,8 @@ target_compile_definitions(anndatapp PUBLIC
 set_target_properties(anndatapp PROPERTIES POSITION_INDEPENDENT_CODE ON EXPORT_NAME anndatapp_binary)
 target_sources(anndatapp
   PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" FILES
-    src/anndatapp.cppm
-    src/anndatapp.core.cppm
-    src/anndatapp.arrays.cppm
-    src/anndatapp.strings.cppm
-    src/anndatapp.records.cppm
-    src/anndatapp.data.cppm
-    src/anndatapp.backed.cppm
-    src/anndatapp.streaming.cppm
-  PRIVATE src/arrays.cpp src/strings.cpp src/records.cpp src/data.cpp src/backed.cpp
-    src/backed_array.cpp src/backed_codec.cpp src/backed_structure.cpp src/backed_writer.cpp
+    src/anndatapp.cppm src/anndatapp.backed.cppm src/anndatapp.streaming.cppm
+  PRIVATE src/backed.cpp src/backed_array.cpp src/backed_codec.cpp src/backed_structure.cpp src/backed_writer.cpp
     src/backed_index.cpp src/backed_copy.cpp src/backed_category.cpp src/backed_colors.cpp
     src/backed_records.cpp src/backed_geometry.cpp src/streaming.cpp)
 target_sources(anndatapp PRIVATE FILE_SET backed_internal TYPE CXX_MODULES
@@ -84,12 +93,21 @@ if(ANNDATAPP_ENABLE_ZARR)
   target_link_libraries(anndatapp PRIVATE PkgConfig::ANNDATAPP_ZLIB PkgConfig::ANNDATAPP_ZSTD Blosc::Blosc
     "$<BUILD_INTERFACE:nlohmann_json::nlohmann_json>")
 endif()
+target_compile_options(anndatapp_core PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(anndatapp PRIVATE -Wall -Wextra -Wpedantic)
 if(ANNDATAPP_ENABLE_SANITIZERS)
+  target_compile_options(anndatapp_core PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
+  target_link_options(anndatapp_core PUBLIC -fsanitize=address,undefined)
   target_compile_options(anndatapp PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
   target_link_options(anndatapp PUBLIC -fsanitize=address,undefined)
 endif()
 
+install(TARGETS anndatapp_core EXPORT anndatappCoreTargets
+  FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_DATADIR}/anndatapp/modules
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(EXPORT anndatappCoreTargets NAMESPACE anndatapp:: CXX_MODULES_DIRECTORY core-cxx-modules
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/anndatapp)
 install(TARGETS anndatapp EXPORT anndatappTargets
   FILE_SET CXX_MODULES DESTINATION ${CMAKE_INSTALL_DATADIR}/anndatapp/modules
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -134,6 +152,9 @@ if(ANNDATAPP_BUILD_TESTS)
   add_test(NAME backed COMMAND test_backed "${CMAKE_CURRENT_BINARY_DIR}/backed-tests")
   add_executable(test_backed_categories tests/test_backed_categories.cpp)
   target_link_libraries(test_backed_categories PRIVATE anndatapp::anndatapp)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_options(test_backed_categories PRIVATE -Wl,--export-dynamic-symbol=pread)
+  endif()
   add_test(NAME backed_categories COMMAND test_backed_categories "${CMAKE_CURRENT_BINARY_DIR}/backed-category-tests")
   if(ANNDATAPP_ENABLE_ZARR)
     add_executable(test_gather_transfer tests/test_gather_transfer.cpp)

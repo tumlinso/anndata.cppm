@@ -40,14 +40,23 @@ def main() -> None:
     before = unit.read_bytes()
     output.mkdir(parents=True, exist_ok=False)
     (output / (unit.name + ".original")).write_bytes(before)
-    bmis = sorted(p for p in (build / "CMakeFiles/anndatapp.dir").glob("*.pcm")
+    component_dirs = [build / "CMakeFiles/anndatapp_core.dir", build / "CMakeFiles/anndatapp.dir"]
+    bmis = sorted(p for directory in component_dirs for p in directory.glob("*.pcm")
                   if p.name != "anndatapp.backed-storage.pcm")
     if not bmis:
         raise RuntimeError("no public BMIs found")
     consumers = [build / "CMakeFiles/anndatapp_example.dir/examples/foundation.cpp.o",
                  build / "CMakeFiles/test_records.dir/tests/test_records.cpp.o"]
-    binaries = [build / ("CMakeFiles/anndatapp.dir/" + args.unit + ".o"),
-                build / "libanndatapp.a", build / "anndatapp_example", build / "test_records"]
+    objects = [directory / (args.unit + ".o") for directory in component_dirs]
+    objects = [path for path in objects if path.is_file()]
+    if len(objects) != 1:
+        raise RuntimeError(f"expected one component object for {args.unit}, found {objects}")
+    component = objects[0].parents[len(Path(args.unit).parts) - 1].name.removesuffix(".dir")
+    libraries = [build / ("lib" + component + suffix) for suffix in (".a", ".so", ".dylib")]
+    libraries = [path for path in libraries if path.is_file()]
+    if len(libraries) != 1:
+        raise RuntimeError(f"expected one component library for {component}, found {libraries}")
+    binaries = objects + libraries + [build / "anndatapp_example", build / "test_records"]
     public_before, binaries_before = state(bmis + consumers), state(binaries)
     command = ["cmake", "--build", str(build), "--target", "anndatapp_example", "test_records",
                "--parallel", "2", "--verbose"]
@@ -105,7 +114,7 @@ def main() -> None:
     if any(restored[str(p)]["sha256"] != binaries_before[str(p)]["sha256"] for p in binaries):
         raise RuntimeError("a restored object, library or executable differs from its original bytes")
     result = {
-        "source": str(source), "build": str(build),
+        "source": str(source), "build": str(build), "component": component,
         "source_sha256": hashlib.sha256(before).hexdigest(),
         "public_artifacts": public_before, "binaries_before": binaries_before,
         "restored_binaries": restored, "command": command,

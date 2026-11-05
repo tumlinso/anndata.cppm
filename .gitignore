@@ -44,7 +44,7 @@ rules.ninja
 Testing/
 anndatappConfig.cmake
 anndatappConfigVersion.cmake
-anndatappTargets*.cmake
+anndatapp*Targets*.cmake
 
 # Raw measurement campaigns and generated profiler artifacts stay local.
 /benchmarks/artifacts/

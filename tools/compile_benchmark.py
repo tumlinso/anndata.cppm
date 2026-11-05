@@ -163,12 +163,14 @@ def get_command_output(cmd: list[str]) -> str | None:
         return str(error)
 
 
-def configure(snapshot_dir: Path, build: Path, compiler: str, config: str) -> dict:
+def configure(snapshot_dir: Path, build: Path, compiler: str, config: str, hdf5: bool, zarr: bool) -> dict:
     build.mkdir(parents=True)
     cmd = ["cmake", "-S", str(snapshot_dir), "-B", str(build), "-G", "Ninja",
            f"-DCMAKE_CXX_COMPILER={compiler}", f"-DCMAKE_BUILD_TYPE={config}",
            "-DANNDATAPP_BUILD_TESTS=OFF", "-DANNDATAPP_BUILD_EXAMPLES=ON",
-           "-DANNDATAPP_BUILD_BENCHMARKS=OFF", "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF"]
+           "-DANNDATAPP_BUILD_BENCHMARKS=OFF", "-DANNDATAPP_ENABLE_INTEROP_TESTS=OFF",
+           f"-DANNDATAPP_ENABLE_HDF5={'ON' if hdf5 else 'OFF'}",
+           f"-DANNDATAPP_ENABLE_ZARR={'ON' if zarr else 'OFF'}"]
     wall, code, output = checked(cmd)
     return {"command": cmd, "wall_seconds": wall, "returncode": code,
             "output_tail": output[-2000:]}
@@ -188,7 +190,7 @@ def module_probe_sources(snapshot_dir: Path) -> None:
         "return a.x().extent(0)==2 ? 0 : 1; }\n")
     with (snapshot_dir / "CMakeLists.txt").open("a") as f:
         f.write("\nadd_executable(bench_core bench-probes/core.cpp)\n"
-                "target_link_libraries(bench_core PRIVATE anndatapp::anndatapp)\n"
+                "target_link_libraries(bench_core PRIVATE anndatapp::core)\n"
                 "add_executable(bench_facade bench-probes/facade.cpp)\n"
                 "target_link_libraries(bench_facade PRIVATE anndatapp::anndatapp)\n")
 
@@ -238,7 +240,8 @@ def measure(args: argparse.Namespace) -> dict:
     results["source_manifest_sha256"] = source_manifest_digest(snap)
     results["build_input_hashes"] = build_inputs(snap)
     results["module_layout"] = {"core_import": "anndatapp.core", "facade_import": "anndatapp",
-                                "optional_format_modules": "none implemented in this snapshot"}
+                                "enabled_format_modules": [name for name, enabled in
+                                    (("anndatapp.h5ad", args.hdf5), ("anndatapp.zarr", args.zarr)) if enabled]}
     configure_rows: list[float] = []
     cold_rows: list[float] = []
     no_op_rows: list[float] = []
@@ -258,7 +261,12 @@ def measure(args: argparse.Namespace) -> dict:
         if run_manifest != results["source_manifest_sha256"]:
             raise RuntimeError("source changed during measurement; rerun with a stable checkout")
         build = run_root / "build"
-        conf = configure(run_source, build, compiler, args.configuration)
+        conf = configure(run_source, build, compiler, args.configuration, args.hdf5, args.zarr)
+        cache = (build / "CMakeCache.txt").read_text()
+        for option, enabled in (("HDF5", args.hdf5), ("ZARR", args.zarr)):
+            expected = f"ANNDATAPP_ENABLE_{option}:BOOL={'ON' if enabled else 'OFF'}"
+            if expected not in cache.splitlines():
+                raise RuntimeError(f"configured backend does not match report: {expected}")
         configure_rows.append(conf["wall_seconds"])
         build_cmd = ["cmake", "--build", str(build), "--target", "anndatapp", "anndatapp_example",
                      "--parallel", str(args.jobs), "--verbose"]
@@ -382,11 +390,11 @@ def measure(args: argparse.Namespace) -> dict:
                 a["objects_after_interface_edit"], "examples/foundation.cpp.o")})
     results["notes"] = [
         "Cold means a fresh configure/build directory; the OS page cache was not cleared.",
-        "The initial public package has core and facade modules in one exported target.",
+        "Core and facade probes link their respective build-tree targets.",
         "Consumer import measurements reuse the built package module artifacts.",
         "Interface edits add an inline public constant to the arrays partition in a disposable source snapshot.",
         "Implementation edits append an unused private declaration to arrays.cpp in a disposable source snapshot.",
-        "No HDF5, Zarr, Arrow, or optional module is implemented, so those compilation costs are unmeasured.",
+        "Enabled format modules reflect the checked CMake cache; other optional dependencies are outside this probe.",
         "Wall time includes the complete requested CMake/Ninja operation; build-command RSS is reported where GNU time is available."]
     results["temporary_build_root"] = "removed after collecting command and artifact evidence"
     shutil.rmtree(tmp)
@@ -401,6 +409,8 @@ def main() -> int:
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--compiler", default="clang++-18")
     parser.add_argument("--configuration", default="Release", choices=("Release", "Debug", "RelWithDebInfo"))
+    parser.add_argument("--hdf5", action=argparse.BooleanOptionalAction, default=True, help="enable H5AD backend (default: enabled)")
+    parser.add_argument("--zarr", action=argparse.BooleanOptionalAction, default=True, help="enable Zarr backend (default: enabled)")
     args = parser.parse_args()
     if args.runs < 5:
         parser.error("at least five paired repetitions are required")

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Bounded module build probe. Operates only on disposable source copies."""
+"""Historical record campaign recovery utility, tied to this checkout and its preserved artifacts.
+
+This is not a general benchmark: it assumes the original final2 trees and dependency
+prefix, takes one sample, and mutates disposable campaign copies. See docs/v1-build.md.
+"""
 import argparse
 import hashlib
 import json
@@ -145,6 +149,8 @@ def prepare_candidate(src):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--acknowledge-campaign-recovery', action='store_true',
+                        help='acknowledge checkout-specific historical recovery and one-sample scope')
     parser.add_argument('label', choices=['baseline', 'final'])
     parser.add_argument('--source', required=True)
     parser.add_argument('--tag', help='unique artifact prefix for a fresh retry')
@@ -152,6 +158,8 @@ def main():
     parser.add_argument('--prepare-runtime', action='store_true')
     parser.add_argument('--prepare-candidate', action='store_true')
     args = parser.parse_args()
+    if not args.acknowledge_campaign_recovery:
+        parser.error('historical checkout-specific recovery only; pass --acknowledge-campaign-recovery')
     src = Path(args.source).resolve()
     if args.prepare_candidate:
         if args.label != 'final': raise ValueError('--prepare-candidate requires final')

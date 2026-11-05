@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.28)
+project(anndatapp_facade_export_consumer LANGUAGES CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(anndatapp 0.1 CONFIG REQUIRED)
+include("${BRIDGE_PREFIX}/lib/cmake/bridge/facade_bridge_targets.cmake")
+add_executable(export_facade main.cpp)
+target_link_libraries(export_facade PRIVATE bridge::facade_bridge)
