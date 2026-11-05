@@ -1,6 +1,6 @@
 # 1.0 preparation notes
 
-The package remains pre-1.0. This cleanup prepares a locally qualified candidate; tagging and publishing 1.0 require the same candidate to pass on two additional devices, including AArch64.
+The package remains pre-1.0. The user-approved release plan covers the AArch64 host and the user's other machine. The user will requalify the pushed candidate on that other machine before the release decision.
 
 ## Changes
 

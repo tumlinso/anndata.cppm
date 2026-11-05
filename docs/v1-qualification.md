@@ -1,6 +1,6 @@
 # Local cleanup qualification
 
-The cleanup candidate was checked on `testlsserver`, Linux x86-64, dual Xeon E5-2698 v4, with Clang/clang-scan-deps 18.1.3, CMake 3.28.3 and Ninja 1.11.1. The package remains pre-1.0. Two further devices, including AArch64, must qualify the exact release candidate before tagging or publication.
+The cleanup candidate was checked on `testlsserver`, Linux x86-64, dual Xeon E5-2698 v4, with Clang/clang-scan-deps 18.1.3, CMake 3.28.3 and Ninja 1.11.1. The package remains pre-1.0. The current user-approved release plan covers the AArch64 host and the user's other machine, where the user will requalify the pushed candidate before the release decision.
 
 The [49-finding disposition](v1-status.md), [support contract](support.md), [migration guide](migration-1.0.md) and [bounded performance report](v1-performance.md) describe the resulting API and its limits. The compact machine-readable receipt is [v1-local.json](../tests/results/v1-local.json). Raw logs, generated fixtures and source snapshots remain local under ignored `build/v1-cleanup/`.
 
@@ -58,4 +58,4 @@ cmake --workflow --preset shared-release
 
 Configure `thread-sanitizers` and `interop-check` with an explicit isolated reference Python, as documented in [development.md](development.md). Coordinate an exclusive timing window for the separate [performance recipe](v1-performance.md). Do not treat a passing native suite as storage interoperability or a bounded performance result as cross-device portability.
 
-The remaining release dependency is three-device qualification of the exact candidate, with two additional user-selected devices and at least one AArch64 host. Source/module sources and compact reports are the release artifacts; compiler-specific BMIs are not portable distribution artifacts.
+The remaining machine qualification is the user's requalification of the pushed candidate on the other machine. The [ARM qualification report](v1-arm-qualification.md) records this host's results and limitations. Historical receipts retain the device policy recorded at the time of their runs. The current two-machine plan supersedes that policy. Source/module sources and compact reports are the release artifacts. Compiler-specific BMIs are not portable distribution artifacts.

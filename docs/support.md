@@ -34,6 +34,6 @@ A failed transfer is not successful completion. Retry only when replay is safe, 
 
 ## Toolchains and compatibility
 
-C++20 named modules, CMake >=3.28, Ninja >=1.11 and a matching Clang/dependency scanner are required by the initial toolchain. The initial qualified platform is Linux x86-64 with Clang 18. Extra devices, including AArch64, require independent qualification before the 1.0 tag. POSIX file/mapping/spill mechanics and storage dependencies remain explicit platform boundaries.
+C++20 named modules, CMake >=3.28, Ninja >=1.11 and a matching Clang/dependency scanner are required by the initial toolchain. The initial qualified platform is Linux x86-64 with Clang 18. The user-approved release plan covers the AArch64 host and the user's other machine, with requalification of the pushed candidate on that other machine pending. POSIX file/mapping/spill mechanics and storage dependencies remain explicit platform boundaries.
 
 The 1.x promise covers documented public source APIs and data contracts. Consumers build module interfaces for their compatible compiler, standard library and flags; precompiled BMIs and a stable binary ABI are not promised. Names in `detail` namespaces, private partitions and implementation headers are internal facilities. Pre-1.0 source changes and replacement spellings are documented in [migration notes](migration-1.0.md).

@@ -1,6 +1,6 @@
 # 1.0 cleanup status
 
-The target is a locally qualified candidate. The 1.0 tag remains gated on two additional devices, including AArch64. Source compatibility applies to the documented 1.x API; binary ABI compatibility is not promised. Adaptive streaming remains the default.
+The target is a locally qualified candidate. The user-approved release plan covers the AArch64 host and the user's other machine. The next qualification gate is the user's requalification of the pushed candidate on that other machine. Source compatibility applies to the documented 1.x API. Binary ABI compatibility is not promised. Adaptive streaming remains the default.
 
 All 49 review findings close through a fix, a tested API decision, or evidence supporting retention. Historical review documents remain unchanged as baseline observations. Generated inventories and raw campaigns stay ignored. See the [qualification record](v1-qualification.md) for exact test scopes and the remaining release gates.
 
@@ -54,7 +54,7 @@ The pre-cleanup working tree is preserved under `build/v1-cleanup/baseline-sourc
 | [F09](review/backends.md) | Remove unused shard owner/state (P3, style) | Resolved | Removed unused shard owner/workspace state. |
 | [F10](review/backends.md) | Measure codec-state construction before retaining more state (P3, investigate) | Resolved | Retained per-call contexts after scoped lifecycle-cost diagnostic; no unmeasured persistent-state framework. |
 | [R01](review/build.md) | One installed provider compiles the whole enabled interface set (P2, measured build work; candidate split) | Resolved | Independent core target/component, five core BMIs and no optional discovery; installed/downstream exports tested. |
-| [R02](review/build.md) | Toolchain qualification is narrower than source portability (P3, explicit coverage limit) | Resolved | Matching scanner admission and explicit qualified platform boundaries; two additional devices still required for release. |
+| [R02](review/build.md) | Toolchain qualification is narrower than source portability (P3, explicit coverage limit) | Resolved | Matching scanner admission and explicit qualified platform boundaries. The two-machine release plan awaits the user's requalification on the other machine. |
 | [S01](review/support.md) | Current module-build benchmark encodes a stale no-storage architecture | Resolved | Correct backend scope/dependency prefix reporting; bounded standard and consumer probes replace broad campaign. |
 | [S02](review/support.md) | `record_measurements.py` is a checkout-specific continuation recipe, not a portable current benchmark | Resolved | Historical recovery tool explicitly labeled/guarded; current measurements use the bounded reproducible runner. |
 

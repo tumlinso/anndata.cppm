@@ -425,7 +425,7 @@
     "Cellerator supported module 1/1 plus adapted installed module 2/2; full SDK blocked by CUDA header dependency. preprocess.cppm, CellShard and velocity unavailable locally.",
     "Cellerator style guide, configured agent profiles and Todo Orchestrator skill unavailable locally; no native authority writes.",
     "Homebrew zlib/Blosc link deployment-target warnings (27.2 libraries on 27.0 host) preserved.",
-    "Another device required; changed candidate must be requalified on other devices. No release tag or publication."
+    "User-approved two-machine release plan covers the AArch64 host and the user's other machine. User requalification of the pushed candidate on the other machine is pending."
   ],
   "original_baseline": "cb6234a1a7a549d70a514e820085e18fb5a66403",
   "original_candidate": "96272ff5f1bbb6abd3b2133e6c07f68b56a57fbb",
@@ -471,9 +471,18 @@
       "zarr": "3.4.2"
     }
   },
+  "release_plan": {
+    "machine_count": 2,
+    "machines": [
+      "AArch64 host",
+      "user's other machine"
+    ],
+    "pending": "User requalification of the pushed candidate on the other machine before the release decision",
+    "policy_note": "Supersedes the historical device-count policy recorded in earlier receipts."
+  },
   "schema": "anndatapp.arm-qualification/1",
   "status": "conditional_not_release_qualified",
-  "x86_evidence_unchanged": {
+  "x86_evidence_at_arm_run": {
     "benchmarks/results/v1-summary.json": "b5f20bffd268031dde2b0cb1a289bd13dee6633f57a710e8ca46edaf4cc2ec78",
     "docs/v1-performance.md": "b3c60425fc7d8b31937038c8bc0d2173b81c032d7bad837f0f4d1a99a58eb5dc",
     "docs/v1-qualification.md": "5bc1f31119c8c164eb66800c3c88c9c6bee9119c4bea8c5d4b5bf89f3e90b91d",
