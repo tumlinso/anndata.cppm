@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import statistics
 import subprocess
@@ -55,31 +56,45 @@ def build(args):
     driver = manifest(ROOT, driver=True)
     output.mkdir(parents=True, exist_ok=True)
     configure = ["cmake", "-S", ROOT / "benchmarks/v1", "-B", output, "-G", "Ninja",
-                 "-DCMAKE_CXX_COMPILER=clang++-18", "-DCMAKE_C_COMPILER=clang-18",
+                 f"-DCMAKE_CXX_COMPILER={args.cxx}", f"-DCMAKE_C_COMPILER={args.cc}",
                  "-DCMAKE_BUILD_TYPE=Release", f"-DANNDATAPP_SOURCE={source}",
                  f"-DV1_NEW_CORE={'ON' if args.new_core else 'OFF'}"]
+    if args.scanner:
+        configure += [f"-DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS={args.scanner}"]
     if args.prefix:
         configure += [f"-DCMAKE_PREFIX_PATH={args.prefix.resolve()}"]
-    commands = [configure, ["cmake", "--build", output, "--target", "v1_benchmark", "v1_io_counters", "v1_alloc_counters", "-j2"]]
+    commands = [configure, ["cmake", "--build", output, "--target", "v1_benchmark", "v1_io_counters", "v1_alloc_counters", "v1_observer_check", "-j2"]]
     records = []
     for i, cmd in enumerate(commands):
         first = time.monotonic()
-        result = command(cmd)
+        try:
+            result = command(cmd)
+        except subprocess.CalledProcessError as exc:
+            (output / f"build-{i}.log").write_text((exc.stdout or "") + (exc.stderr or ""))
+            raise
         (output / f"build-{i}.log").write_text(result.stdout + result.stderr)
         records.append({"command": list(map(str, cmd)), "wall_seconds": time.monotonic()-first})
     if before != manifest(source) or driver != manifest(ROOT, driver=True):
         raise RuntimeError("source or driver changed during build; repeat only after freezing it")
+    toolchain = json.loads((output / "toolchain-paths.json").read_text())
     versions = {name: {"version": command(cmd).stdout.strip(), "executable": str(Path(shutil.which(cmd[0])).resolve()),
                        "sha256": sha(shutil.which(cmd[0]))} for name, cmd in {
-        "compiler": ["clang++-18", "--version"], "scanner": ["clang-scan-deps-18", "--version"],
+        "compiler": [toolchain["compiler"], "--version"], "scanner": [toolchain["scanner"], "--version"],
         "cmake": ["cmake", "--version"], "ninja": ["ninja", "--version"]}.items()}
+    observers = json.loads((output / "observer-paths.json").read_text())
+    try:
+        check = command([output / "v1_observer_check"], env=observer_environment(observers, True), timeout=30)
+    except subprocess.CalledProcessError as exc:
+        (output / "observer-check.log").write_text((exc.stdout or "") + (exc.stderr or ""))
+        raise
+    (output / "observer-check.log").write_text(check.stdout + check.stderr)
     receipt = {"schema": "anndatapp-v1-build/1", "source": before, "driver": driver,
                "new_core": args.new_core, "commands": records, "toolchain": versions,
                "executable": str(output / "v1_benchmark"), "executable_sha256": sha(output / "v1_benchmark"),
-               "interposer": str(output / "libv1_io_counters.so"),
-               "interposer_sha256": sha(output / "libv1_io_counters.so"),
-               "alloc_interposer": str(output / "libv1_alloc_counters.so"),
-               "alloc_interposer_sha256": sha(output / "libv1_alloc_counters.so"),
+               **observers, "interposer_sha256": sha(observers["interposer"]),
+               "alloc_interposer_sha256": sha(observers["alloc_interposer"]),
+               "observer_check": {"validated": True, "log": str(output / "observer-check.log"),
+                                  "log_sha256": sha(output / "observer-check.log")},
                "consumer_linkage": (output / "consumer-linkage.txt").read_text()}
     write(output / "receipt.json", receipt)
     print(output / "receipt.json")
@@ -87,6 +102,9 @@ def build(args):
 
 def check_receipt(path):
     receipt = json.loads(Path(path).read_text())
+    observation = receipt.get("observer_check", {})
+    if not observation.get("validated") or sha(observation["log"]) != observation["log_sha256"]:
+        raise RuntimeError("missing or changed successful observer preflight")
     for name in ("executable", "interposer", "alloc_interposer"):
         if sha(receipt[name]) != receipt[name + "_sha256"]:
             raise RuntimeError(f"{name} changed since build")
@@ -105,6 +123,16 @@ def fixture_identity(path):
             "manifest": json.loads((path / "manifest.json").read_text())}
 
 
+def observer_environment(receipt, diagnostic):
+    env = os.environ.copy()
+    for name in ("LD_PRELOAD", "DYLD_INSERT_LIBRARIES", "DYLD_FORCE_FLAT_NAMESPACE"):
+        env.pop(name, None)
+    if diagnostic:
+        name = "DYLD_INSERT_LIBRARIES" if platform.system() == "Darwin" else "LD_PRELOAD"
+        env[name] = receipt["alloc_interposer"] + ":" + receipt["interposer"]
+    return env
+
+
 def invoke(receipt, scenario, fixture, work, mode, timeout):
     # Every process receives a disposable byte-identical store. Copying and
     # hashing are outside both the executable's timer and its process interval.
@@ -120,9 +148,7 @@ def invoke(receipt, scenario, fixture, work, mode, timeout):
         cmd.append("--validate-only")
     if mode == "diagnostic":
         cmd.append("--diagnostic")
-    env = os.environ.copy(); env.pop("LD_PRELOAD",None)
-    if mode == "diagnostic":
-        env["LD_PRELOAD"] = receipt["alloc_interposer"] + ":" + receipt["interposer"]
+    env = observer_environment(receipt, mode == "diagnostic")
     first = time.monotonic()
     result = command(cmd, env=env, timeout=timeout)
     elapsed = time.monotonic()-first
@@ -138,8 +164,14 @@ def invoke(receipt, scenario, fixture, work, mode, timeout):
 
 
 def environment():
-    cpu = next((line.split(":", 1)[1].strip() for line in Path("/proc/cpuinfo").read_text().splitlines()
-                if line.startswith("model name")), "unknown")
+    cpu = platform.processor() or "unavailable"
+    if Path("/proc/cpuinfo").exists():
+        cpu = next((line.split(":", 1)[1].strip() for line in Path("/proc/cpuinfo").read_text().splitlines()
+                    if line.startswith("model name")), cpu)
+    elif platform.system() == "Darwin":
+        result = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], text=True, capture_output=True)
+        if result.returncode == 0:
+            cpu = result.stdout.strip()
     return {"hostname": platform.node(), "platform": platform.platform(), "machine": platform.machine(),
             "cpu": cpu, "logical_cpus": os.cpu_count(), "python": platform.python_version(),
             "cache_policy": "normal OS caches; no cache dropping", "maximum_workers": 4,
@@ -169,12 +201,17 @@ def consumer(args):
                 os.utime(build_dir / "core_consumer.cpp",None)
             log = output / f"{revision}-{sample}.log"
             rss = output / f"{revision}-{sample}.rss"
-            cmd = ["/usr/bin/time","-f","%M","-o",str(rss),"cmake","--build",str(build_dir),
-                   "--target","v1_core_consumer","-j2","--verbose"]
+            timer = ["/usr/bin/time", "-l"] if platform.system() == "Darwin" else ["/usr/bin/time", "-f", "%M", "-o", str(rss)]
+            cmd = timer + ["cmake","--build",str(build_dir),"--target","v1_core_consumer","-j2","--verbose"]
             first = time.monotonic()
             result = command(cmd,timeout=60-charged)
             elapsed = time.monotonic()-first; charged += elapsed
             log.write_text(result.stdout+result.stderr)
+            if platform.system() == "Darwin":
+                peak = re.search(r"^\s*(\d+)\s+maximum resident set size\s*$", result.stderr, re.MULTILINE)
+                if not peak:
+                    raise RuntimeError("BSD time did not report command high-water RSS")
+                rss.write_text(str((int(peak[1])+1023)//1024)+"\n")
             if not obj.exists() or "core_consumer.cpp.o" not in result.stdout:
                 raise RuntimeError("consumer compilation was not observed")
             rows.append({"operation": "fresh_consumer" if not sample else "source_recompile", "wall_seconds": elapsed,
@@ -195,7 +232,7 @@ def consumer(args):
                              "linkage": receipt["consumer_linkage"],
                              "source_sha256":receipt["source"]["sha256"]}
     report = {"scope":"one fresh core-import consumer and three source-only recompiles per revision; library BMIs prebuilt by benchmark build",
-              "rss_scope":"GNU time command high-water RSS; not summed concurrent compiler RSS",
+              "rss_scope":"OS time command high-water RSS normalized to KiB; not summed concurrent compiler RSS",
               "bmi_scope":"consumer compiler module-map import closure, plus all already-built BMI artifacts including private partitions; not parsing latency",
               "build_budget_seconds_per_revision":60,"environment":environment(),"results":results}
     path = output / "consumer-build.json"; write(path,report)
@@ -238,9 +275,9 @@ def summarize(raw, diagnostics, receipts, fixture, raw_path):
     return {"schema": "anndatapp-v1-standard/1", "status": "measured",
             "samples_per_revision": SAMPLES, "order": "baseline,candidate repeated five times per scenario",
             "diagnostic_samples_per_scenario_revision": 1,
-            "timing_observers": "no LD_PRELOAD; ordinary global C++ allocation functions",
+            "timing_observers": "no preload/injected observers; ordinary global C++ allocation functions",
             "environment": environment(), "fixtures": fixture,
-            "revisions": {rev: {k: receipt[k] for k in ("source", "driver", "toolchain", "executable_sha256", "interposer_sha256", "alloc_interposer_sha256", "new_core")}
+            "revisions": {rev: {k: receipt[k] for k in ("source", "driver", "toolchain", "executable_sha256", "interposer_sha256", "alloc_interposer_sha256", "observer_check", "new_core")}
                           for rev, receipt in receipts.items()},
             "budgets": {"scenario_seconds_per_revision": SCENARIO_SECONDS,
                         "benchmark_seconds_per_machine_revision": REVISION_SECONDS,
@@ -327,6 +364,9 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("--source", type=Path, required=True); b.add_argument("--build", type=Path, required=True)
     b.add_argument("--new-core", action="store_true"); b.add_argument("--prefix", type=Path)
+    b.add_argument("--cxx", default=os.environ.get("CXX", "clang++-18"))
+    b.add_argument("--cc", default=os.environ.get("CC", "clang-18"))
+    b.add_argument("--scanner", default=os.environ.get("CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS"))
     c = sub.add_parser("consumer")
     for key in ("baseline","candidate","work"):
         c.add_argument("--"+key,type=Path,required=True)

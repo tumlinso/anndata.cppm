@@ -1,0 +1,136 @@
+diff --git a/src/backed_hdf5.cpp b/src/backed_hdf5.cpp
+--- a/src/backed_hdf5.cpp
++++ b/src/backed_hdf5.cpp
+@@ -1,5 +1,6 @@
+ module;
+ #include <hdf5.h>
++#include "h5ad_object.hpp"
+ #include <algorithm>
+ #include <bit>
+ #include <cerrno>
+@@ -28,6 +29,8 @@
+ 
+ namespace anndatapp::backed_detail {
+ namespace {
++using ::anndatapp_h5ad_detail::ObjectInfo;
++using ::anndatapp_h5ad_detail::object_info;
+ 
+ class H5Handle {
+ public:
+@@ -251,8 +254,8 @@
+ }
+ 
+ Attributes read_attributes(const H5Context& c, hid_t object, std::string_view path, bool& opaque) {
+-    H5O_info_t info{};
+-    c.check(H5Oget_info(object, &info), path, "inspect attributes");
++    ObjectInfo info{};
++    c.check(object_info(object, &info), path, "inspect attributes");
+     std::string encoding;
+     const auto has_encoding = H5Aexists(object, "encoding-type");
+     if (has_encoding < 0) c.fail(ErrorCode::io_error, path, "inspect encoding attribute failed");
+@@ -515,8 +518,8 @@
+     H5Handle current(c.id(H5Gopen2(file, "/", H5P_DEFAULT), path, "open root"), H5Oclose);
+     if (path == "/") return current;
+     std::vector<haddr_t> ancestors;
+-    H5O_info_t identity{};
+-    c.check(H5Oget_info(current, &identity), path, "inspect root identity");
++    ObjectInfo identity{};
++    c.check(object_info(current, &identity), path, "inspect root identity");
+     ancestors.push_back(identity.addr);
+     std::size_t first = 1;
+     while (first < path.size()) {
+@@ -534,7 +537,7 @@
+         c.check(H5Lget_info(current, key.c_str(), &link, H5P_DEFAULT), path, "inspect link");
+         if (link.type != H5L_TYPE_HARD) c.fail(ErrorCode::unsupported_encoding, path, "soft and external HDF5 links are unsupported");
+         H5Handle next(c.id(H5Oopen(current, key.c_str(), H5P_DEFAULT), path, "open element"), H5Oclose);
+-        c.check(H5Oget_info(next, &identity), path, "inspect element identity");
++        c.check(object_info(next, &identity), path, "inspect element identity");
+         if (std::find(ancestors.begin(), ancestors.end(), identity.addr) != ancestors.end()) c.fail(ErrorCode::unsupported_encoding, path, "cyclic HDF5 links are unsupported");
+         ancestors.push_back(identity.addr);
+         current = std::move(next);
+@@ -1176,8 +1179,8 @@
+         ensure_writable();
+         auto original = open_object(c_, file_, source);
+         auto replacement = open_object(c_, file_, target);
+-        H5O_info_t info{};
+-        c_.check(H5Oget_info(original, &info), source, "inspect source attributes");
++        ObjectInfo info{};
++        c_.check(object_info(original, &info), source, "inspect source attributes");
+         for (hsize_t i = 0; i < info.num_attrs; ++i) {
+             H5Handle attr(c_.id(H5Aopen_by_idx(original, ".", H5_INDEX_NAME, H5_ITER_INC, i, H5P_DEFAULT, H5P_DEFAULT), source, "open preserved attribute"), H5Aclose);
+             const auto length = H5Aget_name(attr, 0, nullptr);
+diff --git a/src/h5ad.cpp b/src/h5ad.cpp
+--- a/src/h5ad.cpp
++++ b/src/h5ad.cpp
+@@ -1,5 +1,6 @@
+ module;
+ #include <hdf5.h>
++#include "h5ad_object.hpp"
+ #include "h5ad_record_scratch.hpp"
+ #include <algorithm>
+ #include <array>
+@@ -23,6 +24,8 @@
+ 
+ namespace anndatapp {
+ namespace {
++using ::anndatapp_h5ad_detail::ObjectInfo;
++using ::anndatapp_h5ad_detail::object_info;
+ 
+ // No backend object is retained by an eager read. These handles, datatypes,
+ // conversion buffers and diagnostics stay out of all public module interfaces.
+@@ -152,8 +155,8 @@
+     Context& context;
+     haddr_t address;
+     Ancestor(Context& c, hid_t object, std::string_view path) : context(c), address(0) {
+-        H5O_info_t info{};
+-        c.check(H5Oget_info(object, &info), path, "inspect object identity");
++        ObjectInfo info{};
++        c.check(object_info(object, &info), path, "inspect object identity");
+         address = info.addr;
+         if (!c.ancestors.insert(address).second)
+             c.fail(ErrorCode::unsupported_encoding, path, "cyclic HDF5 group links are not supported");
+diff --git a/src/h5ad_object.hpp b/src/h5ad_object.hpp
+new file mode 100644
+--- /dev/null
++++ b/src/h5ad_object.hpp
+@@ -0,0 +1,17 @@
++#pragma once
++
++#include <hdf5.h>
++
++namespace anndatapp_h5ad_detail {
++
++// Keep native-file object addresses for hard-link cycle detection. HDF5 1.12
++// changed the default info API to tokens; select the address API explicitly.
++#if H5_VERSION_GE(1,12,0)
++using ObjectInfo = H5O_info1_t;
++inline herr_t object_info(hid_t object,ObjectInfo* info) { return H5Oget_info1(object,info); }
++#else
++using ObjectInfo = H5O_info_t;
++inline herr_t object_info(hid_t object,ObjectInfo* info) { return H5Oget_info(object,info); }
++#endif
++
++} // namespace anndatapp_h5ad_detail
+diff --git a/src/zarr_sharding.cpp b/src/zarr_sharding.cpp
+--- a/src/zarr_sharding.cpp
++++ b/src/zarr_sharding.cpp
+@@ -319,7 +319,8 @@
+ 
+ bool ShardWriter::read(const Shape& local, Bytes& encoded, std::size_t max_bytes) {
+     auto& w = *impl_; w.check();
+-    const auto i = w.entry(local), offset = get(w.index, i, 0), length = get(w.index, i, 1);
++    const auto i = w.entry(local);
++    const auto offset = get(w.index, i, 0), length = get(w.index, i, 1);
+     if (offset == missing) { encoded.clear(); return false; }
+     if (offset & replaced) fail(Failure::argument, w.path, "inner chunk has already been replaced");
+     if (!length) fail(Failure::encoding, w.path, "empty encoded inner chunk");
+@@ -338,7 +339,8 @@
+ 
+ void ShardWriter::replace(const Shape& local, std::span<const std::byte> encoded) {
+     auto& w = *impl_; w.check();
+-    const auto i = w.entry(local), previous = get(w.index, i, 0);
++    const auto i = w.entry(local);
++    const auto previous = get(w.index, i, 0);
+     if (previous != missing && (previous & replaced))
+         fail(Failure::argument, w.path, "inner chunk has already been replaced");
+     if (encoded.empty()) { set(w.index, i, replaced, missing); return; }

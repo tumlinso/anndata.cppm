@@ -6,9 +6,33 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <sys/uio.h>
+#include <errno.h>
+#ifndef __APPLE__
 #include <sys/syscall.h>
+#endif
 #include <unistd.h>
 #include <time.h>
+#include "dyld_interpose.h"
+
+#ifdef __APPLE__
+#define V1_SYSCALL(...) (errno = ENOSYS, (ssize_t)-1)
+extern int H5Dread(int64_t,int64_t,int64_t,int64_t,int64_t,void*);
+extern int H5Dwrite(int64_t,int64_t,int64_t,int64_t,int64_t,const void*);
+extern void* ZSTD_createCCtx(void);
+extern void* ZSTD_createDCtx(void);
+extern size_t ZSTD_freeCCtx(void*);
+extern size_t ZSTD_freeDCtx(void*);
+extern size_t ZSTD_compress2(void*,void*,size_t,const void*,size_t);
+extern size_t ZSTD_decompressStream(void*,void*,void*);
+extern int deflateInit_(void*,int,const char*,int);
+extern int deflateInit2_(void*,int,int,int,int,int,const char*,int);
+extern int inflateInit_(void*,const char*,int);
+extern int inflateInit2_(void*,int,const char*,int);
+extern int deflateEnd(void*);
+extern int inflateEnd(void*);
+#else
+#define V1_SYSCALL(...) syscall(__VA_ARGS__)
+#endif
 
 #define Z_STREAM_ERROR (-2)
 
@@ -83,6 +107,19 @@ static zlib_end_fn next_inflate_end;
 
 static void resolve_symbols(void) {
     resolving = 1;
+#ifdef __APPLE__
+    // dyld excludes the replacing image's own references from interposition.
+    // RTLD_NEXT can return interposed addresses and recurse on this platform.
+    next_read = &read; next_pread = &pread; next_readv = &readv;
+    next_write = &write; next_pwrite = &pwrite; next_writev = &writev;
+    next_h5d_read = &H5Dread; next_h5d_write = &H5Dwrite;
+    next_zstd_create_cctx = &ZSTD_createCCtx; next_zstd_create_dctx = &ZSTD_createDCtx;
+    next_zstd_free_cctx = &ZSTD_freeCCtx; next_zstd_free_dctx = &ZSTD_freeDCtx;
+    next_zstd_compress2 = &ZSTD_compress2; next_zstd_decompress_stream = &ZSTD_decompressStream;
+    next_deflate_init = &deflateInit_; next_deflate_init2 = &deflateInit2_;
+    next_inflate_init = &inflateInit_; next_inflate_init2 = &inflateInit2_;
+    next_deflate_end = &deflateEnd; next_inflate_end = &inflateEnd;
+#else
     next_read = (read_fn)dlsym(RTLD_NEXT, "read");
     next_pread = (pread_fn)dlsym(RTLD_NEXT, "pread");
     next_readv = (readv_fn)dlsym(RTLD_NEXT, "readv");
@@ -103,6 +140,7 @@ static void resolve_symbols(void) {
     next_inflate_init2 = (inflate_init2_fn)dlsym(RTLD_NEXT, "inflateInit2_");
     next_deflate_end = (zlib_end_fn)dlsym(RTLD_NEXT, "deflateEnd");
     next_inflate_end = (zlib_end_fn)dlsym(RTLD_NEXT, "inflateEnd");
+#endif
     resolving = 0;
     atomic_store_explicit(&resolved, 1, memory_order_release);
 }
@@ -157,10 +195,33 @@ __attribute__((visibility("default"))) void v1_io_end(uint64_t *out) {
             out[i] = atomic_load_explicit(&counters[i], memory_order_relaxed);
 }
 
+#ifdef __APPLE__
+#define read v1_observe_read
+#define pread v1_observe_pread
+#define readv v1_observe_readv
+#define write v1_observe_write
+#define pwrite v1_observe_pwrite
+#define writev v1_observe_writev
+#define H5Dread v1_observe_H5Dread
+#define H5Dwrite v1_observe_H5Dwrite
+#define ZSTD_createCCtx v1_observe_ZSTD_createCCtx
+#define ZSTD_createDCtx v1_observe_ZSTD_createDCtx
+#define ZSTD_freeCCtx v1_observe_ZSTD_freeCCtx
+#define ZSTD_freeDCtx v1_observe_ZSTD_freeDCtx
+#define ZSTD_compress2 v1_observe_ZSTD_compress2
+#define ZSTD_decompressStream v1_observe_ZSTD_decompressStream
+#define deflateInit_ v1_observe_deflateInit_
+#define deflateInit2_ v1_observe_deflateInit2_
+#define inflateInit_ v1_observe_inflateInit_
+#define inflateInit2_ v1_observe_inflateInit2_
+#define deflateEnd v1_observe_deflateEnd
+#define inflateEnd v1_observe_inflateEnd
+#endif
+
 ssize_t read(int fd, void *buf, size_t n) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_read ? next_read(fd, buf, n) : syscall(SYS_read, fd, buf, n);
+    ssize_t result = next_read ? next_read(fd, buf, n) : V1_SYSCALL(SYS_read, fd, buf, n);
     record_io(0, counted, result);
     return result;
 }
@@ -168,7 +229,7 @@ ssize_t read(int fd, void *buf, size_t n) {
 ssize_t pread(int fd, void *buf, size_t n, off_t offset) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_pread ? next_pread(fd, buf, n, offset) : syscall(SYS_pread64, fd, buf, n, offset);
+    ssize_t result = next_pread ? next_pread(fd, buf, n, offset) : V1_SYSCALL(SYS_pread64, fd, buf, n, offset);
     record_io(0, counted, result);
     return result;
 }
@@ -176,7 +237,7 @@ ssize_t pread(int fd, void *buf, size_t n, off_t offset) {
 ssize_t readv(int fd, const struct iovec *iov, int count) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_readv ? next_readv(fd, iov, count) : syscall(SYS_readv, fd, iov, count);
+    ssize_t result = next_readv ? next_readv(fd, iov, count) : V1_SYSCALL(SYS_readv, fd, iov, count);
     record_io(0, counted, result);
     return result;
 }
@@ -184,7 +245,7 @@ ssize_t readv(int fd, const struct iovec *iov, int count) {
 ssize_t write(int fd, const void *buf, size_t n) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_write ? next_write(fd, buf, n) : syscall(SYS_write, fd, buf, n);
+    ssize_t result = next_write ? next_write(fd, buf, n) : V1_SYSCALL(SYS_write, fd, buf, n);
     record_io(1, counted, result);
     return result;
 }
@@ -192,7 +253,7 @@ ssize_t write(int fd, const void *buf, size_t n) {
 ssize_t pwrite(int fd, const void *buf, size_t n, off_t offset) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_pwrite ? next_pwrite(fd, buf, n, offset) : syscall(SYS_pwrite64, fd, buf, n, offset);
+    ssize_t result = next_pwrite ? next_pwrite(fd, buf, n, offset) : V1_SYSCALL(SYS_pwrite64, fd, buf, n, offset);
     record_io(1, counted, result);
     return result;
 }
@@ -200,7 +261,7 @@ ssize_t pwrite(int fd, const void *buf, size_t n, off_t offset) {
 ssize_t writev(int fd, const struct iovec *iov, int count) {
     ensure_symbols();
     const int counted = count_now();
-    ssize_t result = next_writev ? next_writev(fd, iov, count) : syscall(SYS_writev, fd, iov, count);
+    ssize_t result = next_writev ? next_writev(fd, iov, count) : V1_SYSCALL(SYS_writev, fd, iov, count);
     record_io(1, counted, result);
     return result;
 }
@@ -337,3 +398,46 @@ int inflateEnd(void *stream) {
     if (counted) add_slot(zlib_inflate_end);
     return result;
 }
+
+#ifdef __APPLE__
+#undef read
+#undef pread
+#undef readv
+#undef write
+#undef pwrite
+#undef writev
+#undef H5Dread
+#undef H5Dwrite
+#undef ZSTD_createCCtx
+#undef ZSTD_createDCtx
+#undef ZSTD_freeCCtx
+#undef ZSTD_freeDCtx
+#undef ZSTD_compress2
+#undef ZSTD_decompressStream
+#undef deflateInit_
+#undef deflateInit2_
+#undef inflateInit_
+#undef inflateInit2_
+#undef deflateEnd
+#undef inflateEnd
+V1_DYLD_INTERPOSE(read, &v1_observe_read, &read);
+V1_DYLD_INTERPOSE(pread, &v1_observe_pread, &pread);
+V1_DYLD_INTERPOSE(readv, &v1_observe_readv, &readv);
+V1_DYLD_INTERPOSE(write, &v1_observe_write, &write);
+V1_DYLD_INTERPOSE(pwrite, &v1_observe_pwrite, &pwrite);
+V1_DYLD_INTERPOSE(writev, &v1_observe_writev, &writev);
+V1_DYLD_INTERPOSE(H5Dread, &v1_observe_H5Dread, &H5Dread);
+V1_DYLD_INTERPOSE(H5Dwrite, &v1_observe_H5Dwrite, &H5Dwrite);
+V1_DYLD_INTERPOSE(ZSTD_createCCtx, &v1_observe_ZSTD_createCCtx, &ZSTD_createCCtx);
+V1_DYLD_INTERPOSE(ZSTD_createDCtx, &v1_observe_ZSTD_createDCtx, &ZSTD_createDCtx);
+V1_DYLD_INTERPOSE(ZSTD_freeCCtx, &v1_observe_ZSTD_freeCCtx, &ZSTD_freeCCtx);
+V1_DYLD_INTERPOSE(ZSTD_freeDCtx, &v1_observe_ZSTD_freeDCtx, &ZSTD_freeDCtx);
+V1_DYLD_INTERPOSE(ZSTD_compress2, &v1_observe_ZSTD_compress2, &ZSTD_compress2);
+V1_DYLD_INTERPOSE(ZSTD_decompressStream, &v1_observe_ZSTD_decompressStream, &ZSTD_decompressStream);
+V1_DYLD_INTERPOSE(deflateInit_, &v1_observe_deflateInit_, &deflateInit_);
+V1_DYLD_INTERPOSE(deflateInit2_, &v1_observe_deflateInit2_, &deflateInit2_);
+V1_DYLD_INTERPOSE(inflateInit_, &v1_observe_inflateInit_, &inflateInit_);
+V1_DYLD_INTERPOSE(inflateInit2_, &v1_observe_inflateInit2_, &inflateInit2_);
+V1_DYLD_INTERPOSE(deflateEnd, &v1_observe_deflateEnd, &deflateEnd);
+V1_DYLD_INTERPOSE(inflateEnd, &v1_observe_inflateEnd, &inflateEnd);
+#endif

@@ -4,12 +4,21 @@
 #include <stdexcept>
 #include <sys/resource.h>
 #include <time.h>
+#include <dlfcn.h>
 
-extern "C" void v1_io_begin() __attribute__((weak));
-extern "C" void v1_io_end(std::uint64_t*) __attribute__((weak));
-extern "C" void v1_alloc_begin() __attribute__((weak));
-extern "C" void v1_alloc_end(std::uint64_t*) __attribute__((weak));
-extern "C" void v1_codec_cpu_end(std::uint64_t*) __attribute__((weak));
+namespace {
+using Begin = void (*)();
+using End = void (*)(std::uint64_t*);
+Begin v1_io_begin = nullptr, v1_alloc_begin = nullptr;
+End v1_io_end = nullptr, v1_alloc_end = nullptr, v1_codec_cpu_end = nullptr;
+std::uint64_t peak_rss(const rusage& usage) {
+#ifdef __APPLE__
+    return (std::uint64_t(usage.ru_maxrss)+1023)/1024;
+#else
+    return usage.ru_maxrss;
+#endif
+}
+}
 
 namespace v1 {
 volatile std::uint64_t sink = 0;
@@ -60,7 +69,7 @@ void emit(const char* operation, std::size_t iterations, const Sample& s,
               << ",\"stream_adaptations\":" << s.stream_adaptations
               << ",\"stream_rollbacks\":" << s.stream_rollbacks
               << ",\"stream_final_limit\":" << s.stream_final_limit
-              << ",\"process_peak_rss_kib\":" << usage.ru_maxrss
+              << ",\"process_peak_rss_kib\":" << peak_rss(usage)
               << ",\"payload_bytes\":" << payload << ",\"acquisition\":\"" << acquisition
               << "\",\"backend_calls\":";
     if (backend_calls < 0) std::cout << "null"; else std::cout << backend_calls;
@@ -80,13 +89,21 @@ int main(int argc, char** argv) {
         v1::validation_only = argc == 4 && std::string(argv[3]) == "--validate-only";
         v1::diagnostic = argc == 4 && std::string(argv[3]) == "--diagnostic";
         if (argc == 4 && !v1::validation_only && !v1::diagnostic) throw std::runtime_error("unknown option");
-        if (v1::diagnostic && (!v1_io_begin || !v1_alloc_begin)) throw std::runtime_error("diagnostics require both preload observers");
+        if (v1::diagnostic) {
+            v1_io_begin = reinterpret_cast<Begin>(dlsym(RTLD_DEFAULT,"v1_io_begin"));
+            v1_alloc_begin = reinterpret_cast<Begin>(dlsym(RTLD_DEFAULT,"v1_alloc_begin"));
+            v1_io_end = reinterpret_cast<End>(dlsym(RTLD_DEFAULT,"v1_io_end"));
+            v1_alloc_end = reinterpret_cast<End>(dlsym(RTLD_DEFAULT,"v1_alloc_end"));
+            v1_codec_cpu_end = reinterpret_cast<End>(dlsym(RTLD_DEFAULT,"v1_codec_cpu_end"));
+            v1::require(v1_io_begin && v1_alloc_begin && v1_io_end && v1_alloc_end && v1_codec_cpu_end,
+                        "diagnostics require both injected observers");
+        }
         const std::string name = argv[1];
         if (name == "h5ad" || name == "zarr2" || name == "zarr3" || name == "contexts")
             v1::storage_case(name, argv[2]);
         else v1::core_case(name);
         rusage usage{}; v1::require(!getrusage(RUSAGE_SELF,&usage),"getrusage failed");
-        std::cout << "{\"process_summary\":true,\"process_peak_rss_kib\":" << usage.ru_maxrss << "}\n";
+        std::cout << "{\"process_summary\":true,\"process_peak_rss_kib\":" << peak_rss(usage) << "}\n";
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n'; return 1;
     }

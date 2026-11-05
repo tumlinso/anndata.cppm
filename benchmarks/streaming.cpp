@@ -15,8 +15,13 @@
 
 import anndatapp;
 
+#ifdef __APPLE__
+extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak_import));
+extern "C" void anndatapp_probe_end() __attribute__((weak_import));
+#else
 extern "C" int anndatapp_probe_begin(std::uint64_t, std::uint64_t) __attribute__((weak));
 extern "C" void anndatapp_probe_end() __attribute__((weak));
+#endif
 using Clock = std::chrono::steady_clock;
 using namespace anndatapp;
 
