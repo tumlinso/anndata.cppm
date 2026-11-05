@@ -1,0 +1,482 @@
+{
+  "artifact_manifest": {
+    "path": "build/arm/artifact-manifest.json",
+    "sha256": "b94806be3a4a8927cc98f3bcdb4c264475feb12e28fccf1df4d598fcd1beee81"
+  },
+  "baseline_compatibility": {
+    "changed_files": [
+      "src/backed_hdf5.cpp",
+      "src/h5ad.cpp",
+      "src/h5ad_object.hpp",
+      "src/zarr_sharding.cpp"
+    ],
+    "derived_source": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/baseline-arm-src",
+    "original_source": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/baseline-src",
+    "patch": "/Users/gavintumlinson/Desktop/anndatapp/benchmarks/v1/arm-baseline-compat.patch",
+    "patch_sha256": "0ce9ea44384345c7db4292fcc67cc6af2539e3c36d2db64372192a10c6cd98b3",
+    "preserved_original_all_files": true,
+    "production_after": {
+      "files": {
+        "CMakeLists.txt": "765c6766574b14034ab8c1951e8588c0050c77f76ffbbdeda0b2ff0af5967ab1",
+        "CMakePresets.json": "7a3b00685c3b68591ad924d197ee5408559cd9804b6cf3c3b338fb4cdd554a89",
+        "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+        "cmake/anndatappConfig.cmake.in": "77abac3aec47310276a14afdb2d73147cc31aad9284eea3ee7772688fe98f3bb",
+        "cmake/anndatappModuleProvider.cmake": "ba5eaca7a19f18e4c6d162edfbf4953cd23551e7bba4a8104af4d2d258a65651",
+        "cmake/test-installed-consumer.cmake": "305a050378fbdb5526316841b68f3afceab28dd2213f9bc2e85c5b2db625fcea",
+        "src/anndatapp.arrays.cppm": "d195c337f7663b72f8d24452e6238510e805d992a9b709a490a3d311e888b14b",
+        "src/anndatapp.backed.cppm": "ceb07418fd4dffe6e5868d34d7b7ae916c303697aec0db3bbb9bc53108d70343",
+        "src/anndatapp.backed.storage.cppm": "4f9d715c704d63e4dfc0313ef6942d19c8c239b6bd15163651961b12b6ac5777",
+        "src/anndatapp.core.cppm": "715a25b39c33254135c710035e9c3aad4a524da543618904c454e485972e934d",
+        "src/anndatapp.cppm": "2d3c13ff9e4fcad2b4f10f347b12246039d062590f72d1596d817b51938231d1",
+        "src/anndatapp.data.cppm": "887693cc4a7a2e7cd17cf39baefa90af741d4ee2da90ec512334e1881dcb82a9",
+        "src/anndatapp.h5ad.cppm": "af949c9a288e1fd3e54dbe7b8a7ab380d2bc19014483ac5a87caa388a9665c52",
+        "src/anndatapp.records.cppm": "ba76263f4e0d035f31e35f376b9e0f84f21c194c9a710f0709a9d842aad6ca33",
+        "src/anndatapp.streaming.cppm": "98e3858290f38ecfa8f4463be09082fba193adb6407382741b92e754336f5d05",
+        "src/anndatapp.strings.cppm": "67547dbdf3865596acc8702daee20fb16c552fd74916b1517a30b849b8fb79e3",
+        "src/anndatapp.zarr.cppm": "9f5dfe216bb87a989e6b78c6af4a1fbf6a05bbb52d9b982eab495181430035f6",
+        "src/arrays.cpp": "11c16b4f62b2655e63a4d962b932487b1cc04cc9cb727b5f99d389f2041dde54",
+        "src/backed.cpp": "2bbf70ebeddb2af38b6194b6d1d1a85463f944b0d518d46d6081fb03b2456294",
+        "src/backed_array.cpp": "ec8cf5b0438bfe772cdcc2d8900bc2bf826f89d59b75ac29477707ae8d5438e2",
+        "src/backed_category.cpp": "a6cf70e2db14b000d1091d191353671591ccb32c82fbb438c0dda8298d2708ad",
+        "src/backed_codec.cpp": "4800820289c0c1a2dbd17ec6f7faf4d893d5340d4ac8b02abfeae1aee00fc98f",
+        "src/backed_colors.cpp": "f8b44101b3ec6f554ba138723c784b6d860312fc6be32512885277040289772e",
+        "src/backed_copy.cpp": "99415247cbe7150f416b84ee6a76fb10218f7208ff2a33323796a7c3d3500383",
+        "src/backed_geometry.cpp": "53d8d3e6f1a7644b63c1b0d1ed93e3ae120c46f83fcff857d70dd0f76326a162",
+        "src/backed_hdf5.cpp": "bee974845460b19dcbe4ebdccb0b7fdf4c1bfde40239c0ee3bb22cba3561246b",
+        "src/backed_index.cpp": "c33d7b3cb94ad329c9eef81081f53252377156af9b9b4c481e37e06015bf46cb",
+        "src/backed_records.cpp": "7b77a6f1abbf0d1eeb49047bbcef60c412a2522a63b0e90d5070609b96d6e728",
+        "src/backed_structure.cpp": "33bf6f915bf974d401d2dc4d33a72672d494f03405148cd910a5a09a5dd58e32",
+        "src/backed_writer.cpp": "50b4706ebeb489b4e14a91c0cf9db0c4587308af08f7dd2aceededc80acd577a",
+        "src/backed_zarr.cpp": "6a550afe0b30846b876667c1fd5f7d7cfdea215816cce92e075cba0f84a836a4",
+        "src/data.cpp": "c6870730ed08a4855b2da9dda3fa07ecaa3ed5f299f223534fc896807703fe88",
+        "src/h5ad.cpp": "16316a5933f98d82941ce91872c443524e22d2a7898f8a0ea9e6fc39f7d8fb9e",
+        "src/h5ad_object.hpp": "b93856777a470763fcc80e535cfb6d31656393cca834a1f5c7b7d92fcd1b110f",
+        "src/h5ad_record_scratch.hpp": "b429a1f1de2d68f025ffc4097185900e190ab084e6be86f35b5426c10149c993",
+        "src/records.cpp": "3ff7ee989966834441eeb8a48464ed8fde19bcb822e38284276c39cb43e21768",
+        "src/streaming.cpp": "226b0be8bae084b87b524bdcd35cdc59920969d679c91245750d03c0a617fec9",
+        "src/strings.cpp": "d7b1f3daef46d8906ff21f7a8423384d57b669e8d299baf40974f4cec7507e98",
+        "src/zarr.cpp": "922f8269c2532fc9c7aefcb580100aa5f3d7e5ab6fe9a73c8020592840da809b",
+        "src/zarr_codecs.cpp": "89f1cea389139e3a14ea511d260eef91f49a5b51152ab65d1bbc84df11783994",
+        "src/zarr_engine.cpp": "855deef15b4f225c1513c40eef8497158083ff9d3c4fb1887eab44cdf0261eae",
+        "src/zarr_engine.hpp": "b39b738da4ad05b1e62da35b8185d4937ea0bebde4fafaa5d4b716c530d2c9e7",
+        "src/zarr_sharding.cpp": "f7171b6f647117162abdd6fc4580adf36da2ac1e10f6c4e7783d6e4e4b2963e9"
+      },
+      "root": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/baseline-arm-src",
+      "sha256": "eb7197adb9b13f3c3a3c2264b53f01509443694c3f7d42013b61dbd18280eaef"
+    },
+    "production_before": {
+      "files": {
+        "CMakeLists.txt": "765c6766574b14034ab8c1951e8588c0050c77f76ffbbdeda0b2ff0af5967ab1",
+        "CMakePresets.json": "7a3b00685c3b68591ad924d197ee5408559cd9804b6cf3c3b338fb4cdd554a89",
+        "cmake/FindBlosc.cmake": "f165d11616a18f4c14b270ce2cdecafdc727b36ae910cd036d81a83ae65ac022",
+        "cmake/anndatappConfig.cmake.in": "77abac3aec47310276a14afdb2d73147cc31aad9284eea3ee7772688fe98f3bb",
+        "cmake/anndatappModuleProvider.cmake": "ba5eaca7a19f18e4c6d162edfbf4953cd23551e7bba4a8104af4d2d258a65651",
+        "cmake/test-installed-consumer.cmake": "305a050378fbdb5526316841b68f3afceab28dd2213f9bc2e85c5b2db625fcea",
+        "src/anndatapp.arrays.cppm": "d195c337f7663b72f8d24452e6238510e805d992a9b709a490a3d311e888b14b",
+        "src/anndatapp.backed.cppm": "ceb07418fd4dffe6e5868d34d7b7ae916c303697aec0db3bbb9bc53108d70343",
+        "src/anndatapp.backed.storage.cppm": "4f9d715c704d63e4dfc0313ef6942d19c8c239b6bd15163651961b12b6ac5777",
+        "src/anndatapp.core.cppm": "715a25b39c33254135c710035e9c3aad4a524da543618904c454e485972e934d",
+        "src/anndatapp.cppm": "2d3c13ff9e4fcad2b4f10f347b12246039d062590f72d1596d817b51938231d1",
+        "src/anndatapp.data.cppm": "887693cc4a7a2e7cd17cf39baefa90af741d4ee2da90ec512334e1881dcb82a9",
+        "src/anndatapp.h5ad.cppm": "af949c9a288e1fd3e54dbe7b8a7ab380d2bc19014483ac5a87caa388a9665c52",
+        "src/anndatapp.records.cppm": "ba76263f4e0d035f31e35f376b9e0f84f21c194c9a710f0709a9d842aad6ca33",
+        "src/anndatapp.streaming.cppm": "98e3858290f38ecfa8f4463be09082fba193adb6407382741b92e754336f5d05",
+        "src/anndatapp.strings.cppm": "67547dbdf3865596acc8702daee20fb16c552fd74916b1517a30b849b8fb79e3",
+        "src/anndatapp.zarr.cppm": "9f5dfe216bb87a989e6b78c6af4a1fbf6a05bbb52d9b982eab495181430035f6",
+        "src/arrays.cpp": "11c16b4f62b2655e63a4d962b932487b1cc04cc9cb727b5f99d389f2041dde54",
+        "src/backed.cpp": "2bbf70ebeddb2af38b6194b6d1d1a85463f944b0d518d46d6081fb03b2456294",
+        "src/backed_array.cpp": "ec8cf5b0438bfe772cdcc2d8900bc2bf826f89d59b75ac29477707ae8d5438e2",
+        "src/backed_category.cpp": "a6cf70e2db14b000d1091d191353671591ccb32c82fbb438c0dda8298d2708ad",
+        "src/backed_codec.cpp": "4800820289c0c1a2dbd17ec6f7faf4d893d5340d4ac8b02abfeae1aee00fc98f",
+        "src/backed_colors.cpp": "f8b44101b3ec6f554ba138723c784b6d860312fc6be32512885277040289772e",
+        "src/backed_copy.cpp": "99415247cbe7150f416b84ee6a76fb10218f7208ff2a33323796a7c3d3500383",
+        "src/backed_geometry.cpp": "53d8d3e6f1a7644b63c1b0d1ed93e3ae120c46f83fcff857d70dd0f76326a162",
+        "src/backed_hdf5.cpp": "bcd5ddc65c049b5852a5f5e0cb54721588b16484ed7615bc6c82b02acef2581d",
+        "src/backed_index.cpp": "c33d7b3cb94ad329c9eef81081f53252377156af9b9b4c481e37e06015bf46cb",
+        "src/backed_records.cpp": "7b77a6f1abbf0d1eeb49047bbcef60c412a2522a63b0e90d5070609b96d6e728",
+        "src/backed_structure.cpp": "33bf6f915bf974d401d2dc4d33a72672d494f03405148cd910a5a09a5dd58e32",
+        "src/backed_writer.cpp": "50b4706ebeb489b4e14a91c0cf9db0c4587308af08f7dd2aceededc80acd577a",
+        "src/backed_zarr.cpp": "6a550afe0b30846b876667c1fd5f7d7cfdea215816cce92e075cba0f84a836a4",
+        "src/data.cpp": "c6870730ed08a4855b2da9dda3fa07ecaa3ed5f299f223534fc896807703fe88",
+        "src/h5ad.cpp": "bd1a4001dc0bdfa702d0c6e3748d8612b34af062996210aa566c366e0442e153",
+        "src/h5ad_record_scratch.hpp": "b429a1f1de2d68f025ffc4097185900e190ab084e6be86f35b5426c10149c993",
+        "src/records.cpp": "3ff7ee989966834441eeb8a48464ed8fde19bcb822e38284276c39cb43e21768",
+        "src/streaming.cpp": "226b0be8bae084b87b524bdcd35cdc59920969d679c91245750d03c0a617fec9",
+        "src/strings.cpp": "d7b1f3daef46d8906ff21f7a8423384d57b669e8d299baf40974f4cec7507e98",
+        "src/zarr.cpp": "922f8269c2532fc9c7aefcb580100aa5f3d7e5ab6fe9a73c8020592840da809b",
+        "src/zarr_codecs.cpp": "89f1cea389139e3a14ea511d260eef91f49a5b51152ab65d1bbc84df11783994",
+        "src/zarr_engine.cpp": "855deef15b4f225c1513c40eef8497158083ff9d3c4fb1887eab44cdf0261eae",
+        "src/zarr_engine.hpp": "b39b738da4ad05b1e62da35b8185d4937ea0bebde4fafaa5d4b716c530d2c9e7",
+        "src/zarr_sharding.cpp": "b7789cbcb6de093fd2ad6bd9fd8e0d002fc8ef96eff3d0a7693ad1894022fb47"
+      },
+      "root": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/baseline-arm-src",
+      "sha256": "96dd8c96fe516d7f71d76960cea3be29609fd66392a613bd8a8350edf1f9e08c"
+    },
+    "reverse_patch_check": true,
+    "revision": "cb6234a1a7a549d70a514e820085e18fb5a66403",
+    "schema": "anndatapp-arm-baseline-compat/1",
+    "scope": "Mechanical split of mixed auto declarations and version-qualified HDF5 object-address info API; no algorithm changes."
+  },
+  "candidate_commit": "cbb638313674ad973461ed11638aaf246955335a",
+  "date_utc": "2026-11-05",
+  "downstream_receipt_sha256": "fe745a30f192d9f8758471b4a1297934cec05e6694a948a1304a590ce46d4b05",
+  "driver_sha256": "4c2ecbf1edfcbd570fd13d90d17135aba9e1848d2bc0613508cc215e181a3dfa",
+  "gates": {
+    "asan_ubsan_attempt": {
+      "command": [
+        "ctest",
+        "--preset",
+        "sanitizers",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": -15,
+      "finished_utc": "2026-11-05T18:38:40.915881+00:00",
+      "log": "build/arm/logs/sanitizers-test.log",
+      "sha256": "8b0e968c5455bd632738289841eafc2047796415166e45588e83008eac1cdea0",
+      "wall_seconds": 108.92087625002023
+    },
+    "core_only": {
+      "command": [
+        "ctest",
+        "--preset",
+        "core-only",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:50:11.250992+00:00",
+      "log": "build/arm/logs/core-only-test-final.log",
+      "sha256": "983a508d433c5b4980d50876ce9de68f79bcaf5f0530d23d7752e63d400bf987",
+      "wall_seconds": 2.1928969580912963
+    },
+    "debug": {
+      "command": [
+        "ctest",
+        "--preset",
+        "debug",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:48:20.109942+00:00",
+      "log": "build/arm/logs/debug-test-final.log",
+      "sha256": "3d19c6f68825624fe050e1e4cd0936acde0a7310b71860949f03e4809acd59ce",
+      "wall_seconds": 19.181631959043443
+    },
+    "hdf5_only": {
+      "command": [
+        "ctest",
+        "--preset",
+        "hdf5-only",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:50:17.501494+00:00",
+      "log": "build/arm/logs/hdf5-only-test-final.log",
+      "sha256": "01b5f733a012ecb113da9183e462dfcadf05fc10e775e100a7d907f9d829a17e",
+      "wall_seconds": 3.46426350006368
+    },
+    "interop_completeness_without_as_limit": {
+      "command": [
+        "env",
+        "ANNDATAPP_COMPLETENESS_NO_AS_LIMIT=1",
+        "ctest",
+        "--preset",
+        "interop-check",
+        "-R",
+        "^python_completeness$",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T19:00:31.925408+00:00",
+      "log": "build/arm/logs/interop-completeness-no-as-limit.log",
+      "sha256": "d9f88a815347e4dc86175489184e3c1e5f7fef041d46ddc67e4bf0ddb2a49546",
+      "wall_seconds": 18.621460917056538
+    },
+    "interop_full": {
+      "command": [
+        "ctest",
+        "--preset",
+        "interop-check",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 8,
+      "finished_utc": "2026-11-05T18:59:36.563251+00:00",
+      "log": "build/arm/logs/interop-check-test-final.log",
+      "sha256": "18392e6806eb630e8a928e3d8f39222795bca8bf7fc56268d0ba758b19b2667f",
+      "wall_seconds": 250.19342233391944
+    },
+    "release": {
+      "command": [
+        "ctest",
+        "--preset",
+        "release",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:52:40.114517+00:00",
+      "log": "build/arm/logs/release-test-verified.log",
+      "sha256": "94db25e40e74a03f081f4fa75cf0245afd05fea6c4b8c857db69f6abe514ba24",
+      "wall_seconds": 81.42780966602731
+    },
+    "shared": {
+      "command": [
+        "ctest",
+        "--preset",
+        "shared",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:50:49.880796+00:00",
+      "log": "build/arm/logs/shared-test-final.log",
+      "sha256": "aa4138b3e66759a2057a196bbf5226d7a5b8cda04fc55bf2258c9b7ac58b4118",
+      "wall_seconds": 18.769486582954414
+    },
+    "shared_release": {
+      "command": [
+        "ctest",
+        "--preset",
+        "shared-release",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:53:36.533295+00:00",
+      "log": "build/arm/logs/shared-release-test-final.log",
+      "sha256": "cc05a9e0a6ef9f871227bba8b58ce7d7e52781230d2029667b4fd62fd1d371d9",
+      "wall_seconds": 58.632008041022345
+    },
+    "tsan_focused": {
+      "command": [
+        "ctest",
+        "--preset",
+        "thread-sanitizers",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 8,
+      "finished_utc": "2026-11-05T19:02:11.349470+00:00",
+      "log": "build/arm/logs/thread-sanitizers-test-final.log",
+      "sha256": "db48581d62c2ac1789d1221a2026ad4b39c949a3a1de562be32f3de20ee39262",
+      "wall_seconds": 63.52763008303009
+    },
+    "ubsan_only": {
+      "command": [
+        "env",
+        "CXXFLAGS=-fsanitize=undefined -fno-omit-frame-pointer",
+        "LDFLAGS=-fsanitize=undefined",
+        "UBSAN_OPTIONS=halt_on_error=1",
+        "ctest",
+        "--test-dir",
+        "build/ubsan",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:54:11.086654+00:00",
+      "log": "build/arm/logs/ubsan-test-final.log",
+      "sha256": "42a0038fe94ac4c7f43a2348bf2d5162c3c588dc7f883bb146524fb277d5d257",
+      "wall_seconds": 31.457341625005938
+    },
+    "zarr_only": {
+      "command": [
+        "ctest",
+        "--preset",
+        "zarr-only",
+        "--timeout",
+        "120"
+      ],
+      "cwd": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/fixed-src",
+      "environment": {
+        "MPLCONFIGDIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/matplotlib",
+        "NUMBA_CACHE_DIR": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/numba",
+        "PATH": "/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Applications/quarto/bin:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg06kfaCu:/Users/gavintumlinson/.codex/packages/app-server-daemon/releases/0.166.0-aarch64-apple-darwin/codex-path:/Users/gavintumlinson/.codex/tmp/arg0-macos/codex-arg0eZFG9j:/opt/homebrew/Caskroom/codex/0.166.0/codex-path:/opt/homebrew/opt/llvm/bin:/Users/gavintumlinson/Software/miniconda3/condabin:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/gavintumlinson/.cargo/bin:/Users/gavintumlinson/Applications/iTerm.app/Contents/Resources/utilities:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin:/Users/gavintumlinson/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/usr/local/sbin:/opt/homebrew/opt/icu4c/bin:/opt/homebrew/opt/icu4c/sbin:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/llvm/sbin:/opt/homebrew/opt/cython/bin",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/hdf5/lib/pkgconfig:/opt/homebrew/opt/zlib/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:/opt/homebrew/Cellar/icu4c/74.2/lib/pkgconfig:",
+        "XDG_CACHE_HOME": "/Users/gavintumlinson/Desktop/anndatapp/build/arm/cache"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-11-05T18:50:30.099943+00:00",
+      "log": "build/arm/logs/zarr-only-test-final.log",
+      "sha256": "08009896df14d60af8c45b48c5d510ce5161705351581687cf03ad310709b7c4",
+      "wall_seconds": 12.054462500032969
+    }
+  },
+  "host": {
+    "architecture": "native arm64 / AArch64",
+    "backends": {
+      "blosc": "1.21.7",
+      "hdf5": "2.2.0",
+      "nlohmann_json": "3.12.0",
+      "zlib": "1.4",
+      "zstd": "1.5.7"
+    },
+    "cmake": "3.31.3",
+    "compiler": "Homebrew Clang 20.1.3",
+    "cpu": "Apple M2",
+    "kernel": "Darwin 27.0.0 RELEASE_ARM64_T8112",
+    "ninja": "1.12.1",
+    "os": "macOS 27.0 (26A428)",
+    "ram_bytes": 8589934592,
+    "scanner": "Homebrew clang-scan-deps 20.1.3",
+    "standard_library": "libc++ headers 200100; /usr/lib/libc++.1.dylib current 2200.32.0"
+  },
+  "limits": [
+    "ASan startup shadow-memory enumeration stalls before main; minimal executable also times out outside sandbox. No ASan or leak pass.",
+    "TSan focused 0/4; minimal executable SIGSEGV inside and outside sandbox. No race-safety pass.",
+    "Interop full 30/31; completeness rerun 1/1 without rejected RLIMIT_AS=512MiB. No 512MiB address-space-cap qualification.",
+    "Consumer build comparison incomplete after baseline fresh compile: BSD time sysctl kern.clockrate sandbox failure; no RSS comparison.",
+    "Private strings.cpp probe: one private compile; 10 public BMIs and two consumer objects unchanged. All nine restored archive member objects match pre-probe installed copy. BSD ar archive metadata differs; strict binary reproducibility check failed; executable identity not established.",
+    "Linux-only typed mmap and two syscall fault-injection subchecks unavailable.",
+    "Cellerator supported module 1/1 plus adapted installed module 2/2; full SDK blocked by CUDA header dependency. preprocess.cppm, CellShard and velocity unavailable locally.",
+    "Cellerator style guide, configured agent profiles and Todo Orchestrator skill unavailable locally; no native authority writes.",
+    "Homebrew zlib/Blosc link deployment-target warnings (27.2 libraries on 27.0 host) preserved.",
+    "Another device required; changed candidate must be requalified on other devices. No release tag or publication."
+  ],
+  "original_baseline": "cb6234a1a7a549d70a514e820085e18fb5a66403",
+  "original_candidate": "96272ff5f1bbb6abd3b2133e6c07f68b56a57fbb",
+  "performance": {
+    "consumer_bmis": {
+      "baseline": {
+        "all_bmi_bytes": 121559696,
+        "core_named_bmi_bytes": 54747332,
+        "core_named_bmi_count": 5,
+        "linkage": "anndatapp::anndatapp"
+      },
+      "candidate": {
+        "all_bmi_bytes": 121568588,
+        "core_named_bmi_bytes": 54754164,
+        "core_named_bmi_count": 5,
+        "linkage": "anndatapp::core"
+      }
+    },
+    "diagnostic_processes": 20,
+    "operations_validated_per_revision": 38,
+    "raw_summary_sha256": "8689f42e879fc5a5c14d8e58e2841c11800b5b36c8400b36ebafd8fc068a5754",
+    "regression_flags": [
+      "dense_copy_gather_into",
+      "dense_copy_strided_into",
+      "pointer_saxpy_4_workers"
+    ],
+    "summary": "benchmarks/results/v1-arm-summary.json",
+    "summary_sha256": "b27382136181cbdebcf602c55e604f1b22983840f6f64340a412a2ce6d2ac10b",
+    "timing_processes": 100
+  },
+  "production_sha256": "ff7b0b779cc9576ab656c600d932b1ceb7a838c0412ee2ac45a39e124e3ded12",
+  "python": {
+    "architecture": "arm64",
+    "python": "3.12.2",
+    "versions": {
+      "anndata": "0.13.4",
+      "h5py": "3.16.0",
+      "numcodecs": "0.17.1",
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "scanpy": "1.11.5",
+      "scipy": "1.17.1",
+      "zarr": "3.4.2"
+    }
+  },
+  "schema": "anndatapp.arm-qualification/1",
+  "status": "conditional_not_release_qualified",
+  "x86_evidence_unchanged": {
+    "benchmarks/results/v1-summary.json": "b5f20bffd268031dde2b0cb1a289bd13dee6633f57a710e8ca46edaf4cc2ec78",
+    "docs/v1-performance.md": "b3c60425fc7d8b31937038c8bc0d2173b81c032d7bad837f0f4d1a99a58eb5dc",
+    "docs/v1-qualification.md": "5bc1f31119c8c164eb66800c3c88c9c6bee9119c4bea8c5d4b5bf89f3e90b91d",
+    "tests/results/v1-local.json": "d344451c41ad3ec24b56b20a1aac46869c8e30c2efaadf16d68e9f0246d5fd99"
+  }
+}
